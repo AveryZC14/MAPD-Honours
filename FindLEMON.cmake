@@ -1,0 +1,5 @@
+find_path(LEMON_INCLUDE_DIR lemon/list_graph.h)
+find_library(LEMON_LIBRARY lemon)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(LEMON DEFAULT_MSG LEMON_INCLUDE_DIR LEMON_LIBRARY)
+mark_as_advanced(LEMON_INCLUDE_DIR LEMON_LIBRARY)
