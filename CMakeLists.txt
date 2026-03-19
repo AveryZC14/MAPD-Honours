@@ -38,6 +38,12 @@ include_directories("default_planner")
 
 file(GLOB SOURCES "src/*.cpp" "default_planner/*.cpp")
 
+#-------
+# Ensure map reduction implementation is compiled into main targets so
+# functions like reduce_map_2x2 are available to scheduler.cpp.
+list(APPEND SOURCES "map_reduction_test/mapReduction.cpp")
+#------
+
 
 # Find Boost
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
@@ -95,6 +101,19 @@ ELSE()
     target_link_libraries(lifelong ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
     target_compile_definitions(lifelong PRIVATE PYTHON=${PYTHON_FLAG})
 ENDIF()
+
+
+#-----------
+# Add small test target to compare schedule_plan_flow vs schedule_plan_flow_reduced
+# Create a project-source list that excludes the original program's main (src/driver.cpp)
+set(PROJECT_SOURCES ${SOURCES})
+# remove any source file that contains driver.cpp to avoid duplicate main
+list(FILTER PROJECT_SOURCES EXCLUDE REGEX ".*driver\.cpp$")
+
+add_executable(map_reduction_test map_reduction_test/run.cpp ${PROJECT_SOURCES})
+target_link_libraries(map_reduction_test ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(map_reduction_test PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
 
 
 add_custom_target(clean_all

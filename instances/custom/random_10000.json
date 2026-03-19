@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/orz900d.map",
+    "agentFile": "agents/random_10000.agents",
+    "teamSize": 10000,
+    "taskFile": "tasks/random_10000.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

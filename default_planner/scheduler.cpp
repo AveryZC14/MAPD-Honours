@@ -1,6 +1,7 @@
 #include "scheduler.h"
 // #include "gurobi_c++.h"
 #include <boost/heap/pairing_heap.hpp>
+#include "../map_reduction_test/mapReduction.h"
 
 namespace DefaultPlanner{
 
@@ -818,6 +819,240 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
 }
 
+void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    agent_guide_path.clear();
+
+    proposed_schedule.resize(env->num_of_agents, -1);
+
+    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+    unordered_map<int,list<int>> task_loc_ids;
+
+    for (auto task: env->task_pool)
+    {
+        if (task.second.idx_next_loc > 0) //task opened
+        {
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
+        else
+        {
+            if (new_only)
+            {
+                if (task.second.agent_assigned == -1)
+                {
+                    flexible_task_ids.push_back(task.first);
+                    task_loc_ids[task.second.locations[0]].push_back(task.first);
+                }
+            }
+            else
+            {
+                flexible_task_ids.push_back(task.first);
+                task_loc_ids[task.second.locations[0]].push_back(task.first);
+                if (task.second.agent_assigned != -1)
+                    flexible_agent_ids.push_back(task.second.agent_assigned);
+            }
+        }
+    }
+
+    cout<<"num of flexible agents: "<<flexible_agent_ids.size()<<endl;
+    cout<<"num of flexible tasks: "<<flexible_task_ids.size()<<endl;
+
+    int num_workers = flexible_agent_ids.size();
+    int num_tasks = flexible_task_ids.size();
+
+    // Start timing
+    start_time = std::chrono::high_resolution_clock::now();
+
+    // Reduce the fine map into a coarse graph
+    ReducedGraphData reduced = reduce_map_2x2(env);
+    if (reduced.num_coarse_nodes == 0)
+    {
+        cout << "No coarse nodes available; aborting reduced flow." << endl;
+        return;
+    }
+
+    // Create the reduced graph
+    ListDigraph g;
+    ListDigraph::NodeMap<int> supply(g);
+    ListDigraph::ArcMap<double> cost(g);
+    ListDigraph::ArcMap<int> capacity(g);
+    ListDigraph::ArcMap<int> flow(g); // Store the flow for warm start
+
+    vector<ListDigraph::Node> coarse_nodes(reduced.num_coarse_nodes);
+
+    ListDigraph::Node source = g.addNode(); // Source node
+    ListDigraph::Node sink = g.addNode();   // Sink node
+
+    unordered_map<int,int> nodeid_to_coarse; // lemon node id -> coarse id
+
+    // Create coarse nodes
+    for (int u = 0; u < reduced.num_coarse_nodes; ++u)
+    {
+        coarse_nodes[u] = g.addNode();
+        nodeid_to_coarse[lemon::ListDigraphBase::id(coarse_nodes[u])] = u;
+    }
+
+    // Set supply/demand
+    supply[source] = num_workers; // Source supplies workers
+    supply[sink] = -num_workers;  // Sink absorbs tasks
+    for (int u = 0; u < reduced.num_coarse_nodes; ++u) supply[coarse_nodes[u]] = 0;
+
+    // Connect source to worker start coarse nodes
+    for (int i = 0; i < num_workers; ++i)
+    {
+        int agent_id = flexible_agent_ids[i];
+        int start_loc = env->curr_states[agent_id].location;
+        int coarse_start = fine_loc_to_coarse_node(reduced, start_loc);
+        if (coarse_start == -1) continue;
+        ListDigraph::Arc a = g.addArc(source, coarse_nodes[coarse_start]);
+        capacity[a] = 1;
+        cost[a] = 0;
+    }
+
+    // Map tasks (fine locs) to coarse nodes and create task arcs
+    unordered_map<int, list<int>> coarse_node_task_ids; // coarse -> task ids
+    unordered_map<int, list<int>> coarse_node_task_locs; // coarse -> fine task locs
+
+    for (auto &taskpair : task_loc_ids)
+    {
+        int fine_loc = taskpair.first;
+        int coarse = fine_loc_to_coarse_node(reduced, fine_loc);
+        if (coarse == -1) continue;
+        for (int tid : taskpair.second)
+        {
+            coarse_node_task_ids[coarse].push_back(tid);
+            coarse_node_task_locs[coarse].push_back(fine_loc);
+        }
+    }
+
+    unordered_map<int,int> node_to_task_coarse; // lemon node id -> coarse id that has tasks
+    for (auto &entry : coarse_node_task_ids)
+    {
+        int coarse = entry.first;
+        ListDigraph::Arc a = g.addArc(coarse_nodes[coarse], sink);
+        node_to_task_coarse[lemon::ListDigraphBase::id(coarse_nodes[coarse])] = coarse;
+        capacity[a] = entry.second.size();
+        cost[a] = 0;
+    }
+
+    // Add adjacency between coarse nodes using reduced.neighbors
+    for (int u = 0; u < reduced.num_coarse_nodes; ++u)
+    {
+        for (int v : reduced.neighbors[u])
+        {
+            ListDigraph::Arc a = g.addArc(coarse_nodes[u], coarse_nodes[v]);
+            if (use_traffic)
+            {
+                int rep_u = reduced.representative_loc[u];
+                int rep_v = reduced.representative_loc[v];
+                int diff = rep_u - rep_v;
+                int d = get_d(diff, env);
+                int temp_op = ((background_flow[rep_u].d[d] + 1) * background_flow[rep_v].d[(d+2)%4]);
+                int temp_vertex = 1;
+                for (int j = 0; j < 4; ++j) temp_vertex += background_flow[rep_v].d[j];
+                int op_flow = temp_op;
+                int all_vertex_flow = (temp_vertex - 1) / 2;
+                cost[a] = 1 + op_flow + all_vertex_flow;
+            }
+            else
+            {
+                cost[a] = 1;
+            }
+            capacity[a] = num_workers;
+        }
+    }
+
+    unordered_map<int,int> edge_flows; //arc id, flow count
+
+    // NetworkSimplex setup
+    NetworkSimplex<ListDigraph> ns(g);
+    ns.costMap(cost);
+    ns.upperMap(capacity);
+    ns.supplyMap(supply);
+    ns.flowMap(flow); // Use the initial flow (warm start)
+
+    if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL)
+    {
+        // Iterate over all worker nodes
+        for (int i = 0; i < num_workers; i++)
+        {
+            int agent_id = flexible_agent_ids[i];
+            int start_loc = env->curr_states[agent_id].location;
+            int coarse_start = fine_loc_to_coarse_node(reduced, start_loc);
+            if (coarse_start == -1) continue;
+
+            ListDigraph::Node current = coarse_nodes[coarse_start];
+            list<int> path;
+
+            while (node_to_task_coarse.find(lemon::ListDigraphBase::id(current)) == node_to_task_coarse.end())
+            {
+                if (current == sink) break; // Reached sink, no task node found
+
+                int cid = nodeid_to_coarse[lemon::ListDigraphBase::id(current)];
+                path.push_back(reduced.representative_loc[cid]);
+
+                // Follow the flow to the next node
+                bool found = false;
+                for (ListDigraph::OutArcIt arc(g, current); arc != INVALID; ++arc)
+                {
+                    if (ns.flow(arc) > 0)
+                    {
+                        if (edge_flows.find(lemon::ListDigraphBase::id(arc)) == edge_flows.end())
+                        {
+                            edge_flows[lemon::ListDigraphBase::id(arc)] = ns.flow(arc);
+                        }
+                        if (edge_flows[lemon::ListDigraphBase::id(arc)] <= 0)
+                            continue;
+                        current = g.target(arc);
+                        edge_flows[lemon::ListDigraphBase::id(arc)]--;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) break; // No path found
+            }
+
+            // Now `current` should be a task node (coarse)
+            int current_id = lemon::ListDigraphBase::id(current);
+            if (node_to_task_coarse.find(current_id) != node_to_task_coarse.end())
+            {
+                int coarse_task_node = node_to_task_coarse[current_id];
+                int task_id = coarse_node_task_ids[coarse_task_node].front();
+                int task_loc = coarse_node_task_locs[coarse_task_node].front();
+                path.push_back(task_loc);
+                proposed_schedule[agent_id] = task_id;
+                if (use_traffic && env->curr_timestep >= 100)
+                    agent_guide_path[agent_id] = path;
+                coarse_node_task_ids[coarse_task_node].pop_front();
+                coarse_node_task_locs[coarse_task_node].pop_front();
+                if (coarse_node_task_ids[coarse_task_node].empty())
+                {
+                    coarse_node_task_ids.erase(coarse_task_node);
+                    coarse_node_task_locs.erase(coarse_task_node);
+                    node_to_task_coarse.erase(current_id);
+                }
+            }
+            else
+            {
+                cout << "No solution found." << endl;
+            }
+        }
+    }
+    else
+    {
+        cout << "No optimal solution found." << endl;
+    }
+
+    // End timing
+    auto end_time = std::chrono::high_resolution_clock::now();
+    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+    cout << "Solving time: " << elapsed_time << " seconds" << endl;
+
+}
+
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -1090,3 +1325,6 @@ unordered_map<int,list<int>> get_guide_path()
 }
 
 };
+
+
+

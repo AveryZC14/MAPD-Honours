@@ -1,0 +1,38 @@
+compile.sh
+
+template
+./build/lifelong --inputFile ./instances/warehouseSmall/warehouseSmall_100.json -o outputs/ws100_new.json --scheduleModel 1
+
+custom huge
+./build/lifelong --inputFile ./instances/custom/random_10000.json -o outputs/orz900d_10000.json --scheduleModel 1
+./build/lifelong --inputFile ./instances/custom/random_10000.json -o outputs/orz900d_10000.json -s 2000 --scheduleModel 1
+./build/lifelong --inputFile ./instances/custom/random_10000.json \
+  -o ./outputs/orz900d_10000_flow.json \
+  -s 2000 \
+  --scheduleModel 1 \
+  --commitWindow 10 \
+  --planTimeLimit 100
+
+
+
+
+--output, -o (string) — default "./output.json"
+--outputScreen, -c (int) — default 3
+--simulationTime, -s (int) — default 5000
+--fileStoragePath, -f (string) — default ""
+--planTimeLimit, -t (int ms) — default 1000
+--preprocessTimeLimit, -p (int ms) — default 30000
+--logFile, -l (string) — default ""
+--logDetailLevel, -d (int) — default 1
+--useTraffic, -u (bool) — default false
+--assignNew, -n (bool) — default false
+--scheduleModel, -m (int) — default 1 (1=flow,2=flow w/ history,3=matching+dijkstra,4=matching+lazy h,5=greedy)
+--commitWindow, -w (int) — default 1
+
+
+
+
+
+map reduction test:
+
+./build/map_reduction_test instances/custom/random_10000.json

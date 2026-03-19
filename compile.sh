@@ -12,3 +12,7 @@ make -C build -j4
 
 # cmake -B build ./ -DPYTHON=true -DCMAKE_BUILD_TYPE=Release
 # make -C build -j
+
+#build the map reduction test
+cmake -S . -B build
+cmake --build build --target map_reduction_test -j4
