@@ -35,6 +35,9 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
     int limit = time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
 
+    /* Begin scheduler dispatch and timing snapshot capture. */
+    last_timing = DefaultPlanner::ScheduleTiming();
+
     if (solver == 1)
     {
         DefaultPlanner::schedule_plan_flow(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
@@ -60,6 +63,9 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
         std::cerr << "Invalid solver type. Please choose either 1 (matching) or 2 (flow)." << std::endl;
         exit(1);
     }
+
+    last_timing = DefaultPlanner::get_last_timing();
+    /* End scheduler dispatch and timing snapshot capture. */
 }
 
 void TaskScheduler::set_flow(std::vector<DefaultPlanner::Double4> flow)

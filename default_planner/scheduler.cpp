@@ -11,6 +11,21 @@ std::unordered_set<int> free_tasks;
 
 unordered_map<int,list<int>> agent_guide_path; //agent id, guide path from flow
 
+/* Begin scheduler timing state. */
+ScheduleTiming last_timing;
+
+void set_last_timing(double solve_time, double guide_path_time)
+{
+    last_timing.solve_time = solve_time;
+    last_timing.guide_path_time = guide_path_time;
+}
+
+ScheduleTiming get_last_timing()
+{
+    return last_timing;
+}
+/* End scheduler timing state. */
+
 struct Node
 {
     int location;
@@ -39,6 +54,8 @@ void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env)
 
 void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env)
 {
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
+
     //use at most half of time_limit to compute schedule, -10 for timing error tolerance
     //so that the remainning time are left for path planner
     TimePoint endtime = std::chrono::steady_clock::now() + std::chrono::milliseconds(time_limit);
@@ -112,13 +129,20 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
     cout << "new free agents: " << env->new_freeagents.size() << " new tasks: "<< env->new_tasks.size() <<  endl;
     cout << "free agents: " << free_agents.size() << " free tasks: " << free_tasks.size() << endl;
     #endif
+
+    /* Begin raw scheduler timing capture. */
+    auto solve_end_time = std::chrono::high_resolution_clock::now();
+    double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+    set_last_timing(solve_elapsed_time, 0.0);
+    /* End raw scheduler timing capture. */
+
     return;
 
 }
 
 void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, bool new_only)
 {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
@@ -158,16 +182,12 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
     int num_tasks = flexible_task_ids.size();
 
 
-    // Start timing
-    start_time = std::chrono::high_resolution_clock::now();
-    
     // Create the graph
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);
     ListDigraph::ArcMap<double> cost(g);
     ListDigraph::ArcMap<int> capacity(g);
     ListDigraph::ArcMap<int> flow(g); // Store the flow for warm start
-
     // Create worker and task nodes
     vector<ListDigraph::Node> workers(num_workers);
     vector<ListDigraph::Node> tasks(num_tasks);
@@ -239,9 +259,8 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
-        // End timing
         auto end_time = std::chrono::high_resolution_clock::now();
-        double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
         int cnt = 0;
 
         cout << "Optimal assignment with minimum cost:" << endl;
@@ -261,13 +280,27 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
                 }
             }
         }
+
+
         cout << "Total assignment: " << cnt << endl;
         cout << "Total minimum cost: " << ns.totalCost<double>() << endl;
-        cout << "Solving time: " << elapsed_time << " seconds" << endl;
+
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+
+        /* Begin matching scheduler timing capture. */
+        set_last_timing(solve_elapsed_time, 0.0);
+        /* End matching scheduler timing capture. */
     } 
     else 
     {
         cout << "No optimal solution found." << endl;
+
+        /* Begin matching scheduler timing capture on failure. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        set_last_timing(solve_elapsed_time, 0.0);
+        /* End matching scheduler timing capture on failure. */
     }
 }
 
@@ -484,10 +517,11 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
     
     cout<<"Dijkstra time: "<<std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start_time).count()<<endl;
 
+    /* Begin matching solver timing. */
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
+    /* End matching solver timing. */
+
     //matching
-    // Start timing
-    start_time = std::chrono::high_resolution_clock::now();
-    
     // Create the graph
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);
@@ -564,9 +598,9 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
-        // End timing
-        auto end_time = std::chrono::high_resolution_clock::now();
-        double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+        auto solve_end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+
         int cnt = 0;
 
         cout << "Optimal assignment with minimum cost:" << endl;
@@ -588,17 +622,28 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
         }
         cout << "Total assignment: " << cnt << endl;
         cout << "Total minimum cost: " << ns.totalCost<double>() << endl;
-        cout << "Solving time: " << elapsed_time << " seconds" << endl;
+
+        /* Begin matching scheduler timing capture. */
+        set_last_timing(solve_elapsed_time, 0.0);
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        /* End matching scheduler timing capture. */
     } 
     else 
     {
         cout << "No optimal solution found." << endl;
+
+        /* Begin failed matching scheduler timing capture. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        /* End failed matching scheduler timing capture. */
     }
 }
 
 void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
 {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     agent_guide_path.clear();
 
@@ -640,9 +685,6 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     int num_workers = flexible_agent_ids.size();
     int num_tasks = flexible_task_ids.size();
 
-    // Start timing
-    start_time = std::chrono::high_resolution_clock::now();
-    
     // Create the graph
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);
@@ -745,6 +787,11 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
+        auto solve_end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+
+        /* Begin guide-path reconstruction timing. */
+        auto guide_start_time = std::chrono::high_resolution_clock::now();
         int cnt = 0;
 
         // cout << "Optimal assignment with minimum cost:" << endl;
@@ -807,15 +854,31 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 cout << "No solution found." << endl;
             }
         }
+
+        auto guide_end_time = std::chrono::high_resolution_clock::now();
+        double guide_elapsed_time = std::chrono::duration<double>(guide_end_time - guide_start_time).count();
+        set_last_timing(solve_elapsed_time, guide_elapsed_time);
+        /* End guide-path reconstruction timing. */
+
+        /* Begin timing report for the solved assignment and guide-path pass. */
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        cout << "Guide path time: " << guide_elapsed_time << " seconds" << endl;
+        auto end_time = guide_end_time;
+        double total_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        cout << "Total scheduler time: " << total_elapsed_time << " seconds" << endl;
+        /* End timing report for the solved assignment and guide-path pass. */
     }
     else 
     {
         cout << "No optimal solution found." << endl;
+
+        /* Begin failed flow scheduler timing capture. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        /* End failed flow scheduler timing capture. */
     }
-    // End timing
-    auto end_time = std::chrono::high_resolution_clock::now();
-    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
-    cout << "Solving time: " << elapsed_time << " seconds" << endl;
 
 }
 
@@ -864,13 +927,20 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     int num_tasks = flexible_task_ids.size();
 
     // Start timing
-    start_time = std::chrono::high_resolution_clock::now();
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     // Reduce the fine map into a coarse graph
     ReducedGraphData reduced = reduce_map_2x2(env);
     if (reduced.num_coarse_nodes == 0)
     {
         cout << "No coarse nodes available; aborting reduced flow." << endl;
+
+        /* Begin failed reduced-flow scheduler timing capture. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        /* End failed reduced-flow scheduler timing capture. */
+
         return;
     }
 
@@ -976,6 +1046,11 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
 
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL)
     {
+        auto solve_end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+
+        /* Begin guide-path reconstruction timing for reduced flow. */
+        auto guide_start_time = std::chrono::high_resolution_clock::now();
         // Iterate over all worker nodes
         for (int i = 0; i < num_workers; i++)
         {
@@ -1040,16 +1115,31 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
                 cout << "No solution found." << endl;
             }
         }
+
+        auto guide_end_time = std::chrono::high_resolution_clock::now();
+        double guide_elapsed_time = std::chrono::duration<double>(guide_end_time - guide_start_time).count();
+        set_last_timing(solve_elapsed_time, guide_elapsed_time);
+        /* End guide-path reconstruction timing for reduced flow. */
+
+        /* Begin timing report for the reduced-flow solve and guide-path pass. */
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        cout << "Guide path time: " << guide_elapsed_time << " seconds" << endl;
+        auto end_time = guide_end_time;
+        double total_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        cout << "Total scheduler time: " << total_elapsed_time << " seconds" << endl;
+        /* End timing report for the reduced-flow solve and guide-path pass. */
     }
     else
     {
         cout << "No optimal solution found." << endl;
-    }
 
-    // End timing
-    auto end_time = std::chrono::high_resolution_clock::now();
-    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
-    cout << "Solving time: " << elapsed_time << " seconds" << endl;
+        /* Begin failed reduced-flow scheduler timing capture. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        /* End failed reduced-flow scheduler timing capture. */
+    }
 
 }
 
@@ -1098,7 +1188,7 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
     int num_tasks = flexible_task_ids.size();
 
     // Start timing
-    start_time = std::chrono::high_resolution_clock::now();
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
     
     // Create the graph
     ListDigraph g;
@@ -1188,6 +1278,11 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
+        auto solve_end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+
+        /* Begin guide-path reconstruction timing for history flow. */
+        auto guide_start_time = std::chrono::high_resolution_clock::now();
         int cnt = 0;
 
         cout << "Optimal assignment with minimum cost:" << endl;
@@ -1250,15 +1345,31 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
                 cout << "No solution found." << endl;
             }
         }
+
+        auto guide_end_time = std::chrono::high_resolution_clock::now();
+        double guide_elapsed_time = std::chrono::duration<double>(guide_end_time - guide_start_time).count();
+        set_last_timing(solve_elapsed_time, guide_elapsed_time);
+        /* End guide-path reconstruction timing for history flow. */
+
+        /* Begin timing report for the history-flow solve and guide-path pass. */
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        cout << "Guide path time: " << guide_elapsed_time << " seconds" << endl;
+        auto end_time = guide_end_time;
+        double total_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        cout << "Total scheduler time: " << total_elapsed_time << " seconds" << endl;
+        /* End timing report for the history-flow solve and guide-path pass. */
     }
     else 
     {
         cout << "No optimal solution found." << endl;
+
+        /* Begin failed history-flow scheduler timing capture. */
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
+        /* End failed history-flow scheduler timing capture. */
     }
-    // End timing
-    auto end_time = std::chrono::high_resolution_clock::now();
-    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
-    cout << "Solving time: " << elapsed_time << " seconds" << endl;
 
 }
 

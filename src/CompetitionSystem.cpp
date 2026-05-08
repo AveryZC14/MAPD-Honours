@@ -53,6 +53,18 @@ void BaseSystem::sync_shared_env()
 bool BaseSystem::planner_wrapper()
 {
     planner->compute(plan_time_limit, proposed_actions, proposed_schedule);
+
+    /* Begin capturing scheduler timing for the completed planner step. */
+    if (planner != nullptr && planner->scheduler != nullptr)
+    {
+        last_scheduler_timing = planner->scheduler->get_last_timing();
+    }
+    else
+    {
+        last_scheduler_timing = DefaultPlanner::ScheduleTiming();
+    }
+    /* End capturing scheduler timing for the completed planner step. */
+
     return true;
 }
 
@@ -167,7 +179,17 @@ void BaseSystem::simulate(int simulation_time)
         if (simulator.get_curr_timestep() >= simulation_time){
 
             auto diff = end-start;
-            planner_times.push_back(std::chrono::duration<double>(diff).count());
+            double planner_time = std::chrono::duration<double>(diff).count();
+            planner_times.push_back(planner_time);
+
+            /* Begin storing final per-timestep scheduler and planner metrics. */
+            TimeStepMetric metric;
+            metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
+            metric.SchedulerGuidePathTime = last_scheduler_timing.guide_path_time;
+            metric.PlannerTime = planner_time;
+            time_step_metrics.push_back(metric);
+            /* End storing final per-timestep scheduler and planner metrics. */
+
             break;
         }
 
@@ -184,7 +206,16 @@ void BaseSystem::simulate(int simulation_time)
 
 
         auto diff = end-start;
-        planner_times.push_back(std::chrono::duration<double>(diff).count());
+        double planner_time = std::chrono::duration<double>(diff).count();
+        planner_times.push_back(planner_time);
+
+        /* Begin storing per-timestep scheduler and planner metrics. */
+        TimeStepMetric metric;
+        metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
+        metric.SchedulerGuidePathTime = last_scheduler_timing.guide_path_time;
+        metric.PlannerTime = planner_time;
+        time_step_metrics.push_back(metric);
+        /* End storing per-timestep scheduler and planner metrics. */
 
         // update tasks
         task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
@@ -261,10 +292,28 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
 
     js["numEntryTimeouts"] = total_timetous;
 
-    json planning_times = json::array();
-    for (double time: planner_times)
-        planning_times.push_back(time);
-    js["plannerTimes"] = planning_times;
+    /* Begin planner timing output selection. */
+    if (kUseTimeStepMetricsOutput)
+    {
+        json time_step_metrics_json = json::array();
+        for (const auto &metric : time_step_metrics)
+        {
+            json step = json::object();
+            step["SchedulerSolveTime"] = metric.SchedulerSolveTime;
+            step["SchedulerGuidePathTime"] = metric.SchedulerGuidePathTime;
+            step["PlannerTime"] = metric.PlannerTime;
+            time_step_metrics_json.push_back(step);
+        }
+        js["timeStepMetrics"] = time_step_metrics_json;
+    }
+    else
+    {
+        json planning_times = json::array();
+        for (double time: planner_times)
+            planning_times.push_back(time);
+        js["plannerTimes"] = planning_times;
+    }
+    /* End planner timing output selection. */
 
     // Save start locations[x,y,orientation]
     if (screen <= 2)

@@ -14,6 +14,17 @@ using namespace lemon;
 
 namespace DefaultPlanner{
 
+/* Begin scheduler timing metrics. */
+struct ScheduleTiming
+{
+	double solve_time = 0.0;
+	double guide_path_time = 0.0;
+};
+
+void set_last_timing(double solve_time, double guide_path_time);
+ScheduleTiming get_last_timing();
+/* End scheduler timing metrics. */
+
 void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env);
 
 void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);

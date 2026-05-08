@@ -11,10 +11,23 @@
 #include <future>
 #include "Simulator.h"
 
+/* Begin per-timestep metrics model. */
+struct TimeStepMetric
+{
+    double SchedulerSolveTime = 0.0;
+    double SchedulerGuidePathTime = 0.0;
+    double PlannerTime = 0.0;
+};
+/* End per-timestep metrics model. */
+
 class BaseSystem
 {
 public:
     Logger* logger = nullptr;
+
+    /* Begin planner output format switch. */
+    static constexpr bool kUseTimeStepMetricsOutput = true;
+    /* End planner output format switch. */
 
 	BaseSystem(Grid &grid, Entry* planner, std::vector<int>& start_locs, std::vector<list<int>>& tasks, ActionModel* model):
       map(grid), planner(planner), env(planner->env),
@@ -112,7 +125,12 @@ protected:
     //for evaluation
     vector<int> solution_costs;
     list<double> planner_times; 
+    list<TimeStepMetric> time_step_metrics;
     bool fast_mover_feasible = true;
+
+    /* Begin cached scheduler timing for the current planner step. */
+    DefaultPlanner::ScheduleTiming last_scheduler_timing;
+    /* End cached scheduler timing for the current planner step. */
 
 
     void initialize();
