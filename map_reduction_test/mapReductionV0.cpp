@@ -1,6 +1,6 @@
-// mapReduction.cpp
+// mapReductionV0.cpp
 //
-// Proof-of-concept 2x2 map reduction for a grid map.
+// Proof-of-concept 2x2 map reduction for a grid map (Version 0).
 // This file reduces the original fine grid into a coarse graph where
 // each 2x2 block is represented by a single coarse vertex.
 //
@@ -17,7 +17,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <iostream>
-#include "mapReduction.h"
+#include "mapReductionV0.h"
 
 namespace
 {

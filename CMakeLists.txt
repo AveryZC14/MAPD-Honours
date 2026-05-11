@@ -41,7 +41,7 @@ file(GLOB SOURCES "src/*.cpp" "default_planner/*.cpp")
 #-------
 # Ensure map reduction implementation is compiled into main targets so
 # functions like reduce_map_2x2 are available to scheduler.cpp.
-list(APPEND SOURCES "map_reduction_test/mapReduction.cpp")
+list(APPEND SOURCES "map_reduction_test/mapReductionV0.cpp")
 #------
 
 

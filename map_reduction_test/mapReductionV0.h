@@ -1,5 +1,5 @@
-// mapReduction.h
-// Header for 2x2 map reduction
+// mapReductionV0.h
+// Header for 2x2 map reduction (Version 0)
 #pragma once
 
 #include <vector>

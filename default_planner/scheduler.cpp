@@ -1,7 +1,7 @@
 #include "scheduler.h"
 // #include "gurobi_c++.h"
 #include <boost/heap/pairing_heap.hpp>
-#include "../map_reduction_test/mapReduction.h"
+#include "../map_reduction_test/mapReductionV0.h"
 
 namespace DefaultPlanner{
 

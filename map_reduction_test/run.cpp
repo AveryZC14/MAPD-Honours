@@ -15,7 +15,15 @@ using namespace DefaultPlanner;
 namespace DefaultPlanner {
     void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
 }
+
+// Entry point
 int main(int argc, char** argv)
+{
+    return run_benchmark(argc, argv);
+}
+
+// Benchmark scheduling methods: full flow vs reduced flow
+int run_benchmark(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -163,3 +171,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
