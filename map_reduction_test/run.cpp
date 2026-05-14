@@ -22,6 +22,10 @@ namespace DefaultPlanner {
     void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
 }
 
+// Default input graph used when no input file is provided on the command line.
+// static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseLarge/warehouseLarge_16000.json";
+static const std::string DEFAULT_INPUT_GRAPH = "instances/random/random_400.json";
+
 /**
  * Load a benchmark input, populate the shared environment, and build the fine
  * graph representation for the map.
@@ -103,11 +107,34 @@ void write_fine_graph_dot(const MapReductionTest::CoarsenedGraph& graph,
     // Create arc map for arc labels (cost)
     ListDigraph::ArcMap<std::string> arc_label_map(graph.g);
     
-    // Fill the node label map with (row,col) format
+    // Fill the node label map with a stable node id and coordinate format.
     for (ListDigraph::NodeIt n(graph.g); n != lemon::INVALID; ++n)
     {
         const auto& loc = graph.coarse_location[n];
-        node_label_map[n] = "(" + std::to_string(loc.first) + "," + std::to_string(loc.second) + ")";
+
+        bool has_edges = false;
+        for (ListDigraph::OutArcIt out_arc(graph.g, n); out_arc != lemon::INVALID; ++out_arc)
+        {
+            has_edges = true;
+            break;
+        }
+        if (!has_edges)
+        {
+            for (ListDigraph::InArcIt in_arc(graph.g, n); in_arc != lemon::INVALID; ++in_arc)
+            {
+                has_edges = true;
+                break;
+            }
+        }
+
+        const std::pair<int, int> display_loc =
+            (!has_edges && loc.first == 0 && loc.second == 0)
+                ? std::make_pair(-1, -1)
+                : loc;
+
+        node_label_map[n] = std::to_string(ListDigraph::id(n)) + ":(" +
+                            std::to_string(display_loc.first) + "," +
+                            std::to_string(display_loc.second) + ")";
     }
     
     // Fill the arc label map with cost values
@@ -278,8 +305,8 @@ int run_benchmark(int argc, char** argv)
 int main(int argc, char** argv)
 {
     try {
-        const std::string input_json = (argc >= 2) ? argv[1] : "instances/warehouseLarge/warehouseLarge_16000.json";
-        const std::string output_dot = (argc >= 3) ? argv[2] : input_json.substr(0, input_json.find_last_of('.')) + ".dot";
+        const std::string input_json = (argc >= 2) ? argv[1] : DEFAULT_INPUT_GRAPH;
+        const std::string output_dot = (argc >= 3) ? argv[2] : input_json.substr(0, input_json.find_last_of('.')) + ".lgf";
         
         SharedEnvironment env;
         MapReductionTest::CoarsenedGraph fine_graph;
@@ -287,7 +314,7 @@ int main(int argc, char** argv)
         write_fine_graph_dot(fine_graph, output_dot);
         
         std::cout << "Loaded fine graph: " << fine_graph.num_coarse_nodes << " nodes (" << env.rows << "x" << env.cols << ")\n";
-        std::cout << "Wrote DOT file: " << output_dot << "\n";
+        std::cout << "Wrote lgf file: " << output_dot << "\n";
     }
     catch (const std::exception& e) {
         std::cerr << "Error loading fine graph: " << e.what() << std::endl;

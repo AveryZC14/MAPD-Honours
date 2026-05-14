@@ -749,6 +749,19 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
             int neighbor_loc = loc + neighbor[i];
             if (neighbor_loc < 0 || neighbor_loc >= env->map.size() || env->map[neighbor_loc] != 0)
                 continue;
+
+            // Prevent wrap-around across row boundaries for +/-1 offsets
+            const int nrow = env->cols > 0 ? neighbor_loc / env->cols : 0;
+            const int ncol = env->cols > 0 ? neighbor_loc % env->cols : 0;
+            const int row = env->cols > 0 ? loc / env->cols : 0;
+            const int col = env->cols > 0 ? loc % env->cols : 0;
+            if (!((nrow == row && (ncol == col + 1 || ncol == col - 1)) ||
+                  (ncol == col && (nrow == row + 1 || nrow == row - 1))))
+            {
+                continue;
+            }
+            //
+
             ListDigraph::Arc a = g.addArc(map_nodes[loc], map_nodes[neighbor_loc]);
 
             if (use_traffic)
@@ -1253,6 +1266,19 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
             int neighbor_loc = loc + neighbor[i];
             if (neighbor_loc < 0 || neighbor_loc >= env->map.size() || env->map[neighbor_loc] != 0)
                 continue;
+
+            // Avoid wrapping across rows when adding left/right neighbours
+            const int nrow = env->cols > 0 ? neighbor_loc / env->cols : 0;
+            const int ncol = env->cols > 0 ? neighbor_loc % env->cols : 0;
+            const int row = env->cols > 0 ? loc / env->cols : 0;
+            const int col = env->cols > 0 ? loc % env->cols : 0;
+            if (!((nrow == row && (ncol == col + 1 || ncol == col - 1)) ||
+                  (ncol == col && (nrow == row + 1 || nrow == row - 1))))
+            {
+                continue;
+            }
+            //
+
             ListDigraph::Arc a = g.addArc(map_nodes[loc], map_nodes[neighbor_loc]);
 
             // if (background_flow[loc*5].second != 0)

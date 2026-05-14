@@ -112,11 +112,33 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
             if (env->map[neighbor_loc] != 0)
                 continue;
 
+            // Prevent wrapping across row boundaries when using +/-1 offsets.
+            const int nrow = env->cols > 0 ? neighbor_loc / env->cols : 0;
+            const int ncol = env->cols > 0 ? neighbor_loc % env->cols : 0;
+            // neighbor must be a direct four-neighbor (manhattan distance == 1)
+            if (!((nrow == row && (ncol == col + 1 || ncol == col - 1)) ||
+                  (ncol == col && (nrow == row + 1 || nrow == row - 1))))
+            {
+                continue;
+            }
+
             ListDigraph::Arc arc = graph.g.addArc(graph.map_nodes[loc], graph.map_nodes[neighbor_loc]);
             graph.cost[arc] = 1.0;
             graph.capacity[arc] = 1;
         }
     }
+}
+
+CoarsenedGraph Coarsen(const CoarsenedGraph& graph){
+    //make the new graph (omg pointers)
+    CoarsenedGraph* newGraph = new CoarsenedGraph();
+
+    //int division to get the new num of rows and cols
+    newGraph->coarse_rows = (graph.coarse_rows+1) / 2;
+    newGraph->coarse_cols = (graph.coarse_cols+1) / 2;
+    // newGraph.num_coarse_nodes = 
+
+    
 }
 
 } // namespace MapReductionTest
