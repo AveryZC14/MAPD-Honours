@@ -32,7 +32,8 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     // Reset the underlying graph before recreating the node layout.
     graph.g.clear();
     graph.node_to_maploc.clear();
-    graph.maploc_to_node.clear();
+    graph.to_coarser_node_id.clear();
+    graph.to_finer_node_ids.clear();
     graph.map_nodes.clear();
     graph.map_nodes.resize(fine_map_size);
 
@@ -40,13 +41,31 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     graph.source = graph.g.addNode();
     graph.sink = graph.g.addNode();
 
-    // Allocate one node per fine-grid location and store both lookup directions.
+    // Allocate one node per fine-grid location and store lookup vectors.
+    std::vector<std::pair<int, int>> id_to_loc;
+    id_to_loc.reserve(fine_map_size);
+
     for (int i = 0; i < fine_map_size; ++i)
     {
-        graph.map_nodes[i] = graph.g.addNode();
-        const int id = ListDigraph::id(graph.map_nodes[i]);
-        graph.node_to_maploc[id] = i;
-        graph.maploc_to_node[i] = id;
+        lemon::ListDigraph::Node n = graph.g.addNode();
+        graph.map_nodes[i].clear();
+        graph.map_nodes[i].push_back(n);
+        const int id = ListDigraph::id(n);
+        id_to_loc.emplace_back(id, i);
+    }
+
+    int max_id = -1;
+    for (const auto& p : id_to_loc)
+        max_id = std::max(max_id, p.first);
+
+    if (max_id >= 0)
+    {
+        graph.node_to_maploc.assign(max_id + 1, -1);
+        graph.to_coarser_node_id.assign(max_id + 1, -1);
+        graph.to_finer_node_ids.assign(max_id + 1, std::vector<int>());
+
+        for (const auto& p : id_to_loc)
+            graph.node_to_maploc[p.first] = p.second;
     }
 }
 
@@ -61,9 +80,11 @@ void set_node_coordinates(CoarsenedGraph& graph,
     if (node_index < 0 || node_index >= static_cast<int>(graph.map_nodes.size()))
         return;
 
-    const ListDigraph::Node node = graph.map_nodes[node_index];
-    graph.coarse_location[node] = coarse_xy;
-    graph.fine_location[node] = fine_xy;
+    for (const auto& node : graph.map_nodes[node_index])
+    {
+        graph.coarse_location[node] = coarse_xy;
+        graph.fine_location[node] = fine_xy;
+    }
 }
 
 /**
@@ -79,6 +100,7 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
 
     // The level currently being built is the fine graph, so the dimensions
     // mirror the full environment grid.
+    graph.level_idx = 0;
     graph.coarse_rows = env->rows;
     graph.coarse_cols = env->cols;
     graph.num_coarse_nodes = static_cast<int>(env->map.size());
@@ -101,8 +123,11 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
 
         const int row = env->cols > 0 ? loc / env->cols : 0;
         const int col = env->cols > 0 ? loc % env->cols : 0;
-        graph.fine_location[graph.map_nodes[loc]] = {row, col};
-        graph.coarse_location[graph.map_nodes[loc]] = {row, col};
+        for (const auto& node : graph.map_nodes[loc])
+        {
+            graph.fine_location[node] = {row, col};
+            graph.coarse_location[node] = {row, col};
+        }
 
         for (int i = 0; i < 4; ++i)
         {
@@ -122,7 +147,10 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
                 continue;
             }
 
-            ListDigraph::Arc arc = graph.g.addArc(graph.map_nodes[loc], graph.map_nodes[neighbor_loc]);
+            if (graph.map_nodes[loc].empty() || graph.map_nodes[neighbor_loc].empty())
+                continue;
+
+            ListDigraph::Arc arc = graph.g.addArc(graph.map_nodes[loc].front(), graph.map_nodes[neighbor_loc].front());
             graph.cost[arc] = 1.0;
             graph.capacity[arc] = 1;
         }
@@ -138,6 +166,19 @@ CoarsenedGraph Coarsen(const CoarsenedGraph& graph){
     newGraph->coarse_cols = (graph.coarse_cols+1) / 2;
     // newGraph.num_coarse_nodes = 
 
+    //construct the coarsened nodes first
+    //double for loop for each 2x2 group
+    for (int i = 0; i < newGraph->coarse_rows; i++){
+        for (int j = 0; i < newGraph->coarse_cols; j++){
+            //ids of nodes in group
+            // std::vector<int> nodes_in_group = new vector<int>;
+            
+            //append the nodes IDs of all nodes in this 2x2 group
+
+            continue;
+            
+        }
+    }
     
 }
 

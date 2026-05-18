@@ -8,7 +8,6 @@
 #include <lemon/list_graph.h>
 
 #include <utility>
-#include <unordered_map>
 #include <vector>
 
 namespace MapReductionTest {
@@ -24,9 +23,10 @@ namespace MapReductionTest {
 struct CoarsenedGraph
 {
     // Dimensions / bookkeeping
-    int coarse_rows = 0;    // For a fine graph this equals env->rows
-    int coarse_cols = 0;    // For a fine graph this equals env->cols
-    int num_coarse_nodes = 0; // Number of nodes in this level's graph
+    int level_idx = 0;      // 0 for finest, 1 for coarser, etc.
+    int coarse_rows = 0;
+    int coarse_cols = 0;
+    int num_coarse_nodes = 0;
 
     // Underlying LEMON graph and node/arc maps
     lemon::ListDigraph g;
@@ -39,12 +39,21 @@ struct CoarsenedGraph
     lemon::ListDigraph::ArcMap<int> capacity;
     lemon::ListDigraph::ArcMap<int> flow;
 
-    // Node lookup helpers: a dense array of LEMON nodes indexed by fine-loc
-    std::vector<lemon::ListDigraph::Node> map_nodes;
+    // Node lookup helpers
+    // Index: fine-location index -> Value: List of LEMON nodes at this location
+    std::vector<std::vector<lemon::ListDigraph::Node>> map_nodes;
     lemon::ListDigraph::Node source;
     lemon::ListDigraph::Node sink;
-    std::unordered_map<int, int> node_to_maploc; // lemon node id -> fine-index
-    std::unordered_map<int, int> maploc_to_node; // fine-index -> lemon node id
+
+    // Efficient ID-based lookups (Replacing unordered_maps where possible)
+    std::vector<int> node_to_maploc; // index: lemon node id -> value: fine-index
+
+    // --- Multilevel Hierarchical Mappings ---
+    // Upward mapping: This Node ID -> Coarser Node ID (in level + 1)
+    std::vector<int> to_coarser_node_id;
+
+    // Downward mapping: This Node ID -> Vector of Finer Node IDs (in level - 1)
+    std::vector<std::vector<int>> to_finer_node_ids;
 
     /**
      * Construct an empty level; optionally pre-allocate storage for `fine_map_size`
