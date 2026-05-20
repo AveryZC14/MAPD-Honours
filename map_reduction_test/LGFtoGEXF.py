@@ -7,8 +7,10 @@ from xml.dom import minidom
 # INPUT_FILE = './../instances/warehouseLarge/warehouseLarge_16000.lgf'
 # INPUT_FILE = './../instances/random/random_400.lgf'
 INPUT_FILE = './../instances/custom/tiny/tiny.lgf'
+INPUT_FILE = './../instances/custom/tiny/tiny_c1.lgf'
 # OUTPUT_GEXF = 'visualisation/random64x64graph2.gexf'
 OUTPUT_GEXF = 'visualisation/tiny.gexf'
+OUTPUT_GEXF = 'visualisation/tiny_c1.gexf'
 COORD_MULTIPLIER = 10
 # ---------------------
 
