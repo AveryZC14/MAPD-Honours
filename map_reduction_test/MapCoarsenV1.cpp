@@ -165,6 +165,41 @@ void dump_connected_components(const CoarsenedGraph& graph,
 
 } // namespace
 
+// Populate `newGraph` for a single discovered connected component.
+void populate_new_graph_for_component(CoarsenedGraph* newGraph,
+                                     const CoarsenedGraph& oldGraph,
+                                     int new_id,
+                                     int row,
+                                     int col,
+                                     const std::vector<int>& nodes)
+{
+    lemon::ListDigraph::Node n = newGraph->map_nodes[new_id];
+    if (n != lemon::INVALID)
+    {
+        newGraph->coarse_location[n] = {row, col};
+    }
+
+    newGraph->to_finer_node_ids[new_id] = nodes;
+
+    if (row >= 0 && row < static_cast<int>(newGraph->nodes_at_location.size()) &&
+        col >= 0 && col < static_cast<int>(newGraph->nodes_at_location[row].size()))
+    {
+        newGraph->nodes_at_location[row][col].push_back(new_id);
+    }
+
+    // Update upward mapping on the original (finer) graph so each finer
+    // node knows its parent coarse node id. We must cast away constness
+    // because the API declares the input graph const.
+    CoarsenedGraph &wgraph = const_cast<CoarsenedGraph&>(oldGraph);
+    for (int old_node_id : nodes)
+    {
+        if (old_node_id >= 0 && old_node_id < static_cast<int>(wgraph.to_coarser_node_id.size()))
+        {
+            wgraph.to_coarser_node_id[old_node_id] = new_id;
+        }
+    }
+}
+
 /**
  * Construct the graph-owned LEMON maps and optionally pre-allocate the fine
  * node array.
@@ -343,26 +378,47 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     newGraph->coarse_cols = (graph.coarse_cols+1) / 2;
     // newGraph.num_coarse_nodes = 
 
-    //construct the coarsened nodes first
-    //double for loop for each 2x2 group
-    for (int i = 0; i < newGraph->coarse_rows; i++){
-        for (int j = 0; j < newGraph->coarse_cols; j++){
+    // First pass: collect all connected components across 2x2 blocks and
+    // remember their coarse coordinates so we can allocate the new graph
+    // storage in one go.
+    struct CompInfo { int row; int col; std::vector<int> nodes; };
+    std::vector<CompInfo> all_components;
+
+    for (int i = 0; i < newGraph->coarse_rows; ++i)
+    {
+        for (int j = 0; j < newGraph->coarse_cols; ++j)
+        {
             std::vector<int> nodes_in_group;
             append_group_nodes(graph, i * 2, j * 2, nodes_in_group);
 
-            // Nothing to coarsen in an empty 2x2 block, so skip it early.
             if (nodes_in_group.empty())
                 continue;
 
-            // Split this 2x2 block into connected components before creating
-            // any coarse-level representation for it.
             const std::vector<std::vector<int>> connected_components =
                 collect_connected_components(graph, nodes_in_group);
 
             dump_connected_components(graph, i, j, connected_components);
 
-            (void)connected_components;
+            for (const auto &comp : connected_components)
+            {
+                all_components.push_back(CompInfo{i, j, comp});
+            }
         }
+    }
+
+    // Allocate backing storage for the coarser graph: one conceptual node per
+    // connected component discovered.
+    const int num_new_nodes = static_cast<int>(all_components.size());
+    reserve_fine_map(*newGraph, num_new_nodes);
+    newGraph->level_idx = graph.level_idx + 1;
+    newGraph->num_coarse_nodes = num_new_nodes;
+
+    // Second pass: populate newGraph bookkeeping and link back to original
+    // graph nodes via to_coarser_node_id.
+    for (int new_id = 0; new_id < num_new_nodes; ++new_id)
+    {
+        const CompInfo &ci = all_components[new_id];
+        populate_new_graph_for_component(newGraph, graph, new_id, ci.row, ci.col, ci.nodes);
     }
 
     return newGraph;

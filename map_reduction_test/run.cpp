@@ -317,8 +317,24 @@ int main(int argc, char** argv)
 
         std::cout << summarise_graph(fine_graph);
 
-        Coarsen(fine_graph);
-        
+        MapReductionTest::CoarsenedGraph* coarse1_graph = Coarsen(fine_graph);
+
+        if (coarse1_graph != nullptr)
+        {
+            // Construct a filename for the coarsened output by inserting
+            // "_c1" before the extension of the fine output file.
+            std::string coarse_output;
+            size_t dot = output_dot.find_last_of('.');
+            if (dot == std::string::npos)
+                coarse_output = output_dot + "_c1";
+            else
+                coarse_output = output_dot.substr(0, dot) + "_c1" + output_dot.substr(dot);
+
+            write_fine_graph_dot(*coarse1_graph, coarse_output);
+            std::cout << summarise_graph(*coarse1_graph) << std::endl;
+            std::cout << "Wrote coarsened lgf file: " << coarse_output << "\n";
+        }
+
         std::cout << "Loaded fine graph: " << fine_graph.num_coarse_nodes << " nodes (" << env.rows << "x" << env.cols << ")\n";
         std::cout << "Wrote lgf file: " << output_dot << "\n";
     }
