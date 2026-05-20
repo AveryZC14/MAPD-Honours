@@ -24,7 +24,9 @@ namespace DefaultPlanner {
 
 // Default input graph used when no input file is provided on the command line.
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseLarge/warehouseLarge_16000.json";
-static const std::string DEFAULT_INPUT_GRAPH = "instances/random/random_400.json";
+// static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseSmall/warehouseSmall_100.json";
+static const std::string DEFAULT_INPUT_GRAPH = "instances/custom/tiny/tiny.json";
+// static const std::string DEFAULT_INPUT_GRAPH = "instances/random/random_400.json";
 
 /**
  * Load a benchmark input, populate the shared environment, and build the fine
@@ -312,6 +314,10 @@ int main(int argc, char** argv)
         MapReductionTest::CoarsenedGraph fine_graph;
         load_fine_graph_from_input(input_json, env, fine_graph);
         write_fine_graph_dot(fine_graph, output_dot);
+
+        std::cout << summarise_graph(fine_graph);
+
+        Coarsen(fine_graph);
         
         std::cout << "Loaded fine graph: " << fine_graph.num_coarse_nodes << " nodes (" << env.rows << "x" << env.cols << ")\n";
         std::cout << "Wrote lgf file: " << output_dot << "\n";

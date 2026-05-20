@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/tiny.map",
+    "agentFile": "agents/tiny.agents",
+    "teamSize": 2,
+    "taskFile": "tasks/tiny.tasks",
+    "numTasksReveal": 1,
+    "version": "2026 LoRR"
+}

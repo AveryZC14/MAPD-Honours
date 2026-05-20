@@ -7,6 +7,7 @@
 
 #include <lemon/list_graph.h>
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -40,13 +41,15 @@ struct CoarsenedGraph
     lemon::ListDigraph::ArcMap<int> flow;
 
     // Node lookup helpers
-    // Index: fine-location index -> Value: List of LEMON nodes at this location
-    std::vector<std::vector<lemon::ListDigraph::Node>> map_nodes;
+    std::vector<lemon::ListDigraph::Node> map_nodes; //graph ID for each node
     lemon::ListDigraph::Node source;
     lemon::ListDigraph::Node sink;
 
-    // Efficient ID-based lookups (Replacing unordered_maps where possible)
-    std::vector<int> node_to_maploc; // index: lemon node id -> value: fine-index
+    std::vector<std::vector<std::vector<int>>> nodes_at_location; // r,c -> vector of graph IDs at this coarse location
+
+    // lemon id and map id lookups
+    std::vector<int> node_to_maploc; // index: lemon node id -> graph id
+    std::vector<int> maploc_to_node; // reverse: graph id -> lemon node id
 
     // --- Multilevel Hierarchical Mappings ---
     // Upward mapping: This Node ID -> Coarser Node ID (in level + 1)
@@ -90,6 +93,11 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
  * intentionally declared here and left for you to implement (it should not be
  * defined in the header).
  */
-CoarsenedGraph Coarsen(const CoarsenedGraph& graph);
+CoarsenedGraph* Coarsen(const CoarsenedGraph& graph);
+
+/**
+ * Build a compact string summary of the graph fields and bookkeeping sizes.
+ */
+std::string summarise_graph(const CoarsenedGraph& graph);
 
 } // namespace MapReductionTest
