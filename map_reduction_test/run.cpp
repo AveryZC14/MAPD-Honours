@@ -154,6 +154,40 @@ void write_fine_graph_dot(const MapReductionTest::CoarsenedGraph& graph,
         .run();
 }
 
+/**
+ * Print the nodes_at_location grid as a simple 2D table.
+ * Each cell shows the graph ids stored at that coarse location.
+ */
+void print_nodes_at_location_table(const MapReductionTest::CoarsenedGraph& graph,
+                                   std::ostream& out = std::cout)
+{
+    if (graph.nodes_at_location.empty())
+    {
+        out << "nodes_at_location is empty\n";
+        return;
+    }
+
+    for (size_t row = 0; row < graph.nodes_at_location.size(); ++row)
+    {
+        out << "row " << row << ": ";
+        for (size_t col = 0; col < graph.nodes_at_location[row].size(); ++col)
+        {
+            const auto& cell = graph.nodes_at_location[row][col];
+            out << "[";
+            for (size_t i = 0; i < cell.size(); ++i)
+            {
+                if (i > 0)
+                    out << ",";
+                out << cell[i];
+            }
+            out << "]";
+            if (col + 1 < graph.nodes_at_location[row].size())
+                out << " | ";
+        }
+        out << '\n';
+    }
+}
+
 // Benchmark scheduling methods: full flow vs reduced flow
 int run_benchmark(int argc, char** argv)
 {
@@ -324,7 +358,12 @@ int main(int argc, char** argv)
         std::vector<std::unique_ptr<MapReductionTest::CoarsenedGraph>> coarsened_levels;
         coarsened_levels.reserve(COARSEN_LEVELS);
 
+        print_nodes_at_location_table(fine_graph);
+
         MapReductionTest::CoarsenedGraph* current_graph = &fine_graph;
+        std::cout << "\n";
+        std::cout << "\n";
+
         for (int level = 1; level <= COARSEN_LEVELS; ++level)
         {
             std::unique_ptr<MapReductionTest::CoarsenedGraph> next_graph(Coarsen(*current_graph));
@@ -344,6 +383,10 @@ int main(int argc, char** argv)
             write_fine_graph_dot(*next_graph, coarse_output);
             std::cout << summarise_graph(*next_graph) << std::endl;
             std::cout << "Wrote coarsened lgf file: " << coarse_output << "\n";
+            std::cout << "\n";
+            print_nodes_at_location_table(*next_graph);
+            std::cout << "\n";
+            std::cout << "\n";
 
             current_graph = next_graph.get();
             coarsened_levels.push_back(std::move(next_graph));

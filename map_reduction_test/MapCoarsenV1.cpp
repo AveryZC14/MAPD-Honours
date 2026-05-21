@@ -385,7 +385,8 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     graph.internal_directional_arc_samples.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcSamples{});
     graph.internal_directional_arc_metrics.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcMetrics{});
 
-    // If the graph has coarse dimensions set, initialize nodes_at_location
+    // Location buckets are created empty here; the fine builder decides which
+    // cells are actually useful enough to be recorded later.
     if (graph.coarse_rows > 0 && graph.coarse_cols > 0)
     {
         graph.nodes_at_location.assign(graph.coarse_rows, std::vector<std::vector<int>>(graph.coarse_cols));
@@ -401,14 +402,6 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
         id_to_graphid.emplace_back(lid, gid);
         graph.maploc_to_node[gid] = lid;
 
-        // If we have 2D coarse location layout, record the graph id at that location
-        if (!graph.nodes_at_location.empty())
-        {
-            const int row = (graph.coarse_cols > 0) ? (gid / graph.coarse_cols) : 0;
-            const int col = (graph.coarse_cols > 0) ? (gid % graph.coarse_cols) : gid;
-            if (row >= 0 && row < static_cast<int>(graph.nodes_at_location.size()) && col >= 0 && col < graph.coarse_cols)
-                graph.nodes_at_location[row][col].push_back(gid);
-        }
     }
 
     // Build reverse map: lemon id -> graph id
@@ -462,6 +455,12 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
     // Recreate the backing storage so the graph matches the current map.
     reserve_fine_map(graph, static_cast<int>(env->map.size()));
 
+    if (graph.coarse_rows > 0 && graph.coarse_cols > 0)
+    {
+        // Start with an empty coarse-grid table for the fine map.
+        graph.nodes_at_location.assign(graph.coarse_rows, std::vector<std::vector<int>>(graph.coarse_cols));
+    }
+
     // The fine graph is a plain map graph, so the bookkeeping maps are reset to
     // a neutral default state for this level.
     graph.supply[graph.source] = 0;
@@ -511,6 +510,28 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
             ListDigraph::Arc arc = graph.g.addArc(from, to);
             graph.cost[arc] = 1.0;
             graph.capacity[arc] = 1;
+        }
+
+        bool is_dud_space = true;
+        for (lemon::ListDigraph::OutArcIt arc(graph.g, node); arc != lemon::INVALID; ++arc)
+        {
+            is_dud_space = false;
+            break;
+        }
+
+        // Dud spaces stay out of the coarse location table so they can be
+        // filtered or reinstated independently from the graph structure.
+        if (is_dud_space)
+            continue;
+
+        // Only non-dud spaces are recorded in the location table.
+        if (graph.nodes_at_location.empty())
+            continue;
+
+        if (row >= 0 && row < static_cast<int>(graph.nodes_at_location.size()) &&
+            col >= 0 && col < static_cast<int>(graph.nodes_at_location[row].size()))
+        {
+            graph.nodes_at_location[row][col].push_back(loc);
         }
     }
 }
