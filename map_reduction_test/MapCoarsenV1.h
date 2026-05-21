@@ -91,6 +91,11 @@ struct CoarsenedGraph
     // Downward mapping: This Node ID -> Vector of Finer Node IDs (in level - 1)
     std::vector<std::vector<int>> to_finer_node_ids;
 
+    // Cached representative finer node for each coarse node.
+    // This is always chosen from `to_finer_node_ids[node_id]` so later code
+    // can use a stable O(1) anchor instead of scanning the child list again.
+    std::vector<int> chosen_finer_node_id;
+
     struct PairHash
     {
         std::size_t operator()(const std::pair<int, int>& p) const noexcept;
@@ -100,6 +105,16 @@ struct CoarsenedGraph
     // Key: (from_parent, to_parent), Value: (fine_u, fine_v).
     using Bridge = std::pair<int, int>;
     std::unordered_map<std::pair<int, int>, Bridge, PairHash> bridge_cache;
+
+    // Cached path between the chosen finer representatives of two coarse
+    // neighbors. The path is computed once while building the hierarchy and
+    // reused verbatim during lifting, so timesteps only stitch cached pieces.
+    struct CachedBridgePath
+    {
+        Bridge bridge;
+        std::vector<int> path;
+    };
+    std::unordered_map<std::pair<int, int>, CachedBridgePath, PairHash> bridge_path_cache;
 
     /**
      * Construct an empty level; optionally pre-allocate storage for `fine_map_size`

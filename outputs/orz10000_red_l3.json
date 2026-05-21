@@ -1,0 +1,51 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 10000,
+    "numTaskFinished": 9,
+    "makespan": 14,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 6,
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.012325915,
+            "SchedulerGuidePathTime": 0.003987043,
+            "PlannerTime": 0.827441354
+        },
+        {
+            "SchedulerSolveTime": 0.01096196,
+            "SchedulerGuidePathTime": 0.003288051,
+            "PlannerTime": 0.93094414
+        },
+        {
+            "SchedulerSolveTime": 0.008645573,
+            "SchedulerGuidePathTime": 0.002649983,
+            "PlannerTime": 1.005151068
+        },
+        {
+            "SchedulerSolveTime": 0.008411452,
+            "SchedulerGuidePathTime": 0.001958321,
+            "PlannerTime": 1.10746735
+        },
+        {
+            "SchedulerSolveTime": 0.006636259,
+            "SchedulerGuidePathTime": 0.001561795,
+            "PlannerTime": 1.182508121
+        },
+        {
+            "SchedulerSolveTime": 0.00616728,
+            "SchedulerGuidePathTime": 0.001133937,
+            "PlannerTime": 1.181515486
+        },
+        {
+            "SchedulerSolveTime": 0.00532819,
+            "SchedulerGuidePathTime": 0.000903272,
+            "PlannerTime": 1.227243017
+        },
+        {
+            "SchedulerSolveTime": 0.006308152,
+            "SchedulerGuidePathTime": 0.001517245,
+            "PlannerTime": 1.103767256
+        }
+    ]
+}
