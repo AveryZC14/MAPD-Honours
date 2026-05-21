@@ -2,6 +2,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <vector>
 #include <list>
 #include <unordered_map>
@@ -25,7 +26,8 @@ namespace DefaultPlanner {
 // Default input graph used when no input file is provided on the command line.
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseLarge/warehouseLarge_16000.json";
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseSmall/warehouseSmall_100.json";
-static const std::string DEFAULT_INPUT_GRAPH = "instances/custom/tiny/tiny.json";
+// static const std::string DEFAULT_INPUT_GRAPH = "instances/custom/tiny/tiny.json";
+static const std::string DEFAULT_INPUT_GRAPH = "instances/custom/tiny/tinyComplex.json";
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/random/random_400.json";
 
 /**
@@ -307,6 +309,8 @@ int run_benchmark(int argc, char** argv)
 int main(int argc, char** argv)
 {
     try {
+        const int COARSEN_LEVELS = 2;
+
         const std::string input_json = (argc >= 2) ? argv[1] : DEFAULT_INPUT_GRAPH;
         const std::string output_dot = (argc >= 3) ? argv[2] : input_json.substr(0, input_json.find_last_of('.')) + ".lgf";
         
@@ -317,22 +321,32 @@ int main(int argc, char** argv)
 
         std::cout << summarise_graph(fine_graph);
 
-        MapReductionTest::CoarsenedGraph* coarse1_graph = Coarsen(fine_graph);
+        std::vector<std::unique_ptr<MapReductionTest::CoarsenedGraph>> coarsened_levels;
+        coarsened_levels.reserve(COARSEN_LEVELS);
 
-        if (coarse1_graph != nullptr)
+        MapReductionTest::CoarsenedGraph* current_graph = &fine_graph;
+        for (int level = 1; level <= COARSEN_LEVELS; ++level)
         {
-            // Construct a filename for the coarsened output by inserting
-            // "_c1" before the extension of the fine output file.
+            std::unique_ptr<MapReductionTest::CoarsenedGraph> next_graph(Coarsen(*current_graph));
+            if (next_graph == nullptr)
+            {
+                std::cout << "Stopped coarsening at level " << level << " because no further coarsening was produced.\n";
+                break;
+            }
+
             std::string coarse_output;
             size_t dot = output_dot.find_last_of('.');
             if (dot == std::string::npos)
-                coarse_output = output_dot + "_c1";
+                coarse_output = output_dot + "_c" + std::to_string(level);
             else
-                coarse_output = output_dot.substr(0, dot) + "_c1" + output_dot.substr(dot);
+                coarse_output = output_dot.substr(0, dot) + "_c" + std::to_string(level) + output_dot.substr(dot);
 
-            write_fine_graph_dot(*coarse1_graph, coarse_output);
-            std::cout << summarise_graph(*coarse1_graph) << std::endl;
+            write_fine_graph_dot(*next_graph, coarse_output);
+            std::cout << summarise_graph(*next_graph) << std::endl;
             std::cout << "Wrote coarsened lgf file: " << coarse_output << "\n";
+
+            current_graph = next_graph.get();
+            coarsened_levels.push_back(std::move(next_graph));
         }
 
         std::cout << "Loaded fine graph: " << fine_graph.num_coarse_nodes << " nodes (" << env.rows << "x" << env.cols << ")\n";

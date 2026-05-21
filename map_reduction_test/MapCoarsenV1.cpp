@@ -18,6 +18,23 @@ enum class CardinalDirection : std::size_t { Up = 0, Down = 1, Left = 2, Right =
 
 constexpr std::size_t direction_index(CardinalDirection d) { return static_cast<std::size_t>(d); }
 
+// Safely read one coarse node's internal directional metric value.
+// Missing metrics (or out-of-range ids) contribute zero to the edge weight.
+double get_internal_directional_metric_or_zero(const CoarsenedGraph& graph,
+                                               int coarse_node_id,
+                                               CardinalDirection direction)
+{
+    if (coarse_node_id < 0 ||
+        coarse_node_id >= static_cast<int>(graph.internal_directional_arc_metrics.size()))
+    {
+        return 0.0;
+    }
+
+    const auto &metrics = graph.internal_directional_arc_metrics[coarse_node_id];
+    const std::optional<double> maybe_value = metrics.weights[direction_index(direction)];
+    return maybe_value ? *maybe_value : 0.0;
+}
+
 // Reduce a bucket of arc weights according to a selected policy.
 std::optional<double> reduce_arc_weight_bucket(const std::vector<double>& bucket,
                                                CoarsenedGraph::ArcAggregationPolicy policy)
@@ -47,8 +64,8 @@ std::optional<CardinalDirection> classify_delta(int dr, int dc)
 }
 
 // Collect internal arc costs for a connected component and bucket them by
-// geometric direction. We canonicalize undirected edges (count once) using
-// node id ordering (node_id < neighbor_id) to avoid duplicates.
+// geometric direction. Each directed arc is counted once; this preserves the
+// true directional balance of the component.
 CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_samples(const CoarsenedGraph& graph,
                                                                                      const std::vector<int>& nodes)
 {
@@ -74,9 +91,6 @@ CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_s
 
             // Only internal edges
             if (!in_component[next_id]) continue;
-
-            // Canonicalize undirected edges to a single record.
-            if (node_id >= next_id) continue;
 
             const lemon::ListDigraph::Node next_node = graph.map_nodes[next_id];
             if (next_node == lemon::INVALID) continue;
@@ -586,9 +600,12 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
 
     // Third pass: create coarse arcs between neighboring connected components.
     //
-    // For each fine-level arc that crosses from component A to component B,
-    // collect the arc cost into bucket (A,B). Then reduce each bucket with the
-    // configured policy (average or minimum) and create one coarse arc A->B.
+    // For each fine-level arc crossing from component A to component B:
+    // 1) collect base costs into a (A,B) bucket,
+    // 2) reduce each bucket with the configured policy (average/minimum),
+    // 3) add directional internal penalties:
+    //      + 0.5 * A(direction A->B) + 0.5 * B(direction A->B),
+    // 4) create the coarse arc A->B with that final weight.
     std::map<std::pair<int, int>, std::vector<double>> inter_component_arc_samples;
 
     for (lemon::ListDigraph::ArcIt arc(graph.g); arc != lemon::INVALID; ++arc)
@@ -651,8 +668,25 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
         if (coarse_src_node == lemon::INVALID || coarse_dst_node == lemon::INVALID)
             continue;
 
+        // Determine edge direction from coarse source to coarse destination.
+        const std::pair<int, int> src_xy = newGraph->coarse_location[coarse_src_node];
+        const std::pair<int, int> dst_xy = newGraph->coarse_location[coarse_dst_node];
+        const std::optional<CardinalDirection> direction =
+            classify_delta(dst_xy.first - src_xy.first, dst_xy.second - src_xy.second);
+        if (!direction)
+            continue;
+
+        // Add half of the internal directional metric from each endpoint.
+        // Example: if A->B moves Right, add 0.5*A(Right) + 0.5*B(Right).
+        const double src_internal =
+            get_internal_directional_metric_or_zero(*newGraph, coarse_src, *direction);
+        const double dst_internal =
+            get_internal_directional_metric_or_zero(*newGraph, coarse_dst, *direction);
+
+        const double final_weight = *reduced_weight + 0.5 * src_internal + 0.5 * dst_internal;
+
         const ListDigraph::Arc coarse_arc = newGraph->g.addArc(coarse_src_node, coarse_dst_node);
-        newGraph->cost[coarse_arc] = *reduced_weight;
+        newGraph->cost[coarse_arc] = final_weight;
         newGraph->capacity[coarse_arc] = 1;
     }
 
