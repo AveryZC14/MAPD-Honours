@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <deque>
 #include <iostream>
+#include <map>
 #include <sstream>
 
 namespace MapReductionTest {
@@ -16,6 +17,24 @@ namespace {
 enum class CardinalDirection : std::size_t { Up = 0, Down = 1, Left = 2, Right = 3 };
 
 constexpr std::size_t direction_index(CardinalDirection d) { return static_cast<std::size_t>(d); }
+
+// Reduce a bucket of arc weights according to a selected policy.
+std::optional<double> reduce_arc_weight_bucket(const std::vector<double>& bucket,
+                                               CoarsenedGraph::ArcAggregationPolicy policy)
+{
+    if (bucket.empty())
+        return std::nullopt;
+
+    if (policy == CoarsenedGraph::ArcAggregationPolicy::Minimum)
+    {
+        return *std::min_element(bucket.begin(), bucket.end());
+    }
+
+    double sum = 0.0;
+    for (double value : bucket)
+        sum += value;
+    return sum / static_cast<double>(bucket.size());
+}
 
 // Classify the vector from a -> b into a cardinal direction if possible.
 std::optional<CardinalDirection> classify_delta(int dr, int dc)
@@ -85,10 +104,7 @@ CoarsenedGraph::InternalDirectionalArcMetrics reduce_internal_directional_arc_sa
     for (std::size_t i = 0; i < m.weights.size(); ++i)
     {
         const auto &bucket = s.weights[i];
-        if (bucket.empty()) { m.weights[i] = std::nullopt; continue; }
-        double sum = 0.0;
-        for (double v : bucket) sum += v;
-        m.weights[i] = sum / static_cast<double>(bucket.size());
+        m.weights[i] = reduce_arc_weight_bucket(bucket, CoarsenedGraph::ArcAggregationPolicy::Average);
     }
     return m;
 }
@@ -488,6 +504,7 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
 CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     //make the new graph (omg pointers)
     CoarsenedGraph* newGraph = new CoarsenedGraph();
+    newGraph->inter_component_arc_aggregation_policy = graph.inter_component_arc_aggregation_policy;
 
     //int division to get the new num of rows and cols
     newGraph->coarse_rows = (graph.coarse_rows+1) / 2;
@@ -565,6 +582,78 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     {
         const CompInfo &ci = all_components[new_id];
         populate_new_graph_for_component(newGraph, graph, new_id, ci.row, ci.col, ci.nodes, ci.internal_directional_arc_samples);
+    }
+
+    // Third pass: create coarse arcs between neighboring connected components.
+    //
+    // For each fine-level arc that crosses from component A to component B,
+    // collect the arc cost into bucket (A,B). Then reduce each bucket with the
+    // configured policy (average or minimum) and create one coarse arc A->B.
+    std::map<std::pair<int, int>, std::vector<double>> inter_component_arc_samples;
+
+    for (lemon::ListDigraph::ArcIt arc(graph.g); arc != lemon::INVALID; ++arc)
+    {
+        const int src_lid = graph.g.id(graph.g.source(arc));
+        const int dst_lid = graph.g.id(graph.g.target(arc));
+        if (src_lid < 0 || dst_lid < 0)
+            continue;
+        if (src_lid >= static_cast<int>(graph.node_to_maploc.size()) ||
+            dst_lid >= static_cast<int>(graph.node_to_maploc.size()))
+            continue;
+
+        const int src_id = graph.node_to_maploc[src_lid];
+        const int dst_id = graph.node_to_maploc[dst_lid];
+        if (src_id < 0 || dst_id < 0)
+            continue;
+        if (src_id >= static_cast<int>(graph.to_coarser_node_id.size()) ||
+            dst_id >= static_cast<int>(graph.to_coarser_node_id.size()))
+            continue;
+
+        const int coarse_src = graph.to_coarser_node_id[src_id];
+        const int coarse_dst = graph.to_coarser_node_id[dst_id];
+
+        // Skip arcs that do not cross components.
+        if (coarse_src < 0 || coarse_dst < 0 || coarse_src == coarse_dst)
+            continue;
+
+        if (coarse_src >= static_cast<int>(newGraph->map_nodes.size()) ||
+            coarse_dst >= static_cast<int>(newGraph->map_nodes.size()))
+            continue;
+
+        // Defensive adjacency check. By construction these components should be
+        // neighbors in the coarse coordinate grid.
+        const lemon::ListDigraph::Node coarse_src_node = newGraph->map_nodes[coarse_src];
+        const lemon::ListDigraph::Node coarse_dst_node = newGraph->map_nodes[coarse_dst];
+        if (coarse_src_node == lemon::INVALID || coarse_dst_node == lemon::INVALID)
+            continue;
+
+        const std::pair<int, int> src_xy = newGraph->coarse_location[coarse_src_node];
+        const std::pair<int, int> dst_xy = newGraph->coarse_location[coarse_dst_node];
+        const int manhattan_dist = std::abs(src_xy.first - dst_xy.first) +
+                                   std::abs(src_xy.second - dst_xy.second);
+        if (manhattan_dist != 1)
+            continue;
+
+        inter_component_arc_samples[{coarse_src, coarse_dst}].push_back(graph.cost[arc]);
+    }
+
+    for (const auto &kv : inter_component_arc_samples)
+    {
+        const int coarse_src = kv.first.first;
+        const int coarse_dst = kv.first.second;
+        const std::optional<double> reduced_weight =
+            reduce_arc_weight_bucket(kv.second, newGraph->inter_component_arc_aggregation_policy);
+        if (!reduced_weight)
+            continue;
+
+        const lemon::ListDigraph::Node coarse_src_node = newGraph->map_nodes[coarse_src];
+        const lemon::ListDigraph::Node coarse_dst_node = newGraph->map_nodes[coarse_dst];
+        if (coarse_src_node == lemon::INVALID || coarse_dst_node == lemon::INVALID)
+            continue;
+
+        const ListDigraph::Arc coarse_arc = newGraph->g.addArc(coarse_src_node, coarse_dst_node);
+        newGraph->cost[coarse_arc] = *reduced_weight;
+        newGraph->capacity[coarse_arc] = 1;
     }
 
     return newGraph;

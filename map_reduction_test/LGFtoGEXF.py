@@ -4,8 +4,8 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 # --- Configuration ---
-INPUT_FILE = './../instances/custom/tiny/tiny.lgf'
-OUTPUT_GEXF = 'visualisation/tiny_2.gexf'
+INPUT_FILE = './../instances/custom/tiny/tiny_c1.lgf'
+OUTPUT_GEXF = 'visualisation/tiny_c1.gexf'
 COORD_MULTIPLIER = 50
 # ---------------------
 

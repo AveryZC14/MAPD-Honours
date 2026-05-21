@@ -25,11 +25,22 @@ namespace MapReductionTest {
  */
 struct CoarsenedGraph
 {
+    // Reduction policy used when aggregating multiple finer arcs into one
+    // coarse inter-component arc.
+    enum class ArcAggregationPolicy
+    {
+        Average,
+        Minimum
+    };
+
     // Dimensions / bookkeeping
     int level_idx = 0;      // 0 for finest, 1 for coarser, etc.
     int coarse_rows = 0;
     int coarse_cols = 0;
     int num_coarse_nodes = 0;
+
+    // Policy used when creating arcs between coarse connected components.
+    ArcAggregationPolicy inter_component_arc_aggregation_policy = ArcAggregationPolicy::Average;
 
     // Underlying LEMON graph and node/arc maps
     lemon::ListDigraph g;
