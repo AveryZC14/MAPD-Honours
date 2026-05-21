@@ -12,6 +12,8 @@
 #include <vector>
 #include <array>
 #include <optional>
+#include <memory>
+#include <unordered_map>
 
 namespace MapReductionTest {
 
@@ -89,11 +91,42 @@ struct CoarsenedGraph
     // Downward mapping: This Node ID -> Vector of Finer Node IDs (in level - 1)
     std::vector<std::vector<int>> to_finer_node_ids;
 
+    struct PairHash
+    {
+        std::size_t operator()(const std::pair<int, int>& p) const noexcept;
+    };
+
+    // Cached representative fine bridges for coarse neighbor pairs.
+    // Key: (from_parent, to_parent), Value: (fine_u, fine_v).
+    using Bridge = std::pair<int, int>;
+    std::unordered_map<std::pair<int, int>, Bridge, PairHash> bridge_cache;
+
     /**
      * Construct an empty level; optionally pre-allocate storage for `fine_map_size`
      * fine-grid locations.
      */
     explicit CoarsenedGraph(int fine_map_size = 0);
+};
+
+/**
+ * Owns a stack of coarsened levels.
+ *
+ * Level 0 is always the finest graph. Each subsequent entry is one call to
+ * `Coarsen(...)` applied to the previous level.
+ */
+struct MultiLevelCoarsenedGraph
+{
+    std::vector<std::unique_ptr<CoarsenedGraph>> levels;
+
+    void clear() { levels.clear(); }
+    bool empty() const { return levels.empty(); }
+    int num_levels() const { return static_cast<int>(levels.size()); }
+
+    CoarsenedGraph* level(int level_idx);
+    const CoarsenedGraph* level(int level_idx) const;
+
+    CoarsenedGraph* fine_graph() { return level(0); }
+    const CoarsenedGraph* fine_graph() const { return level(0); }
 };
 
 /**
@@ -125,6 +158,60 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
  * defined in the header).
  */
 CoarsenedGraph* Coarsen(const CoarsenedGraph& graph);
+
+/**
+ * Coarsen the current top level once and append the result.
+ *
+ * Returns true when a new level was appended.
+ */
+bool append_coarsened_level(MultiLevelCoarsenedGraph& hierarchy);
+
+/**
+ * Build a hierarchy from an environment map.
+ *
+ * This recreates level 0 as the fine graph, then appends up to
+ * `num_additional_levels` coarsened levels.
+ */
+void build_multilevel_from_environment(MultiLevelCoarsenedGraph& hierarchy,
+                                       const SharedEnvironment* env,
+                                       int num_additional_levels);
+
+/**
+ * Controller that owns a persistent multilevel hierarchy and provides
+ * reduced-network operations (top-level simplex + lifting) for schedulers.
+ */
+class ReducedHierarchy
+{
+public:
+    static ReducedHierarchy& instance();
+
+    // Ensure hierarchy is built for the provided environment (no-op if already valid)
+    void ensure(const SharedEnvironment* env);
+    bool ready() const;
+
+    // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids)
+    // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids).
+    // Optionally, `solve_time_out` receives the NetworkSimplex solve time in seconds and
+    // `guide_time_out` receives the flow-decomposition + path-lifting time in seconds.
+    std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
+                                                           const std::vector<int>& flexible_agent_ids,
+                                                           const std::vector<int>& flexible_task_ids,
+                                                           std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                           double* solve_time_out = nullptr,
+                                                           double* guide_time_out = nullptr);
+
+private:
+    ReducedHierarchy();
+    ~ReducedHierarchy();
+
+    // non-copyable
+    ReducedHierarchy(const ReducedHierarchy&) = delete;
+    ReducedHierarchy& operator=(const ReducedHierarchy&) = delete;
+
+    MultiLevelCoarsenedGraph hierarchy_;
+    bool ready_ = false;
+    std::size_t signature_ = 0;
+};
 
 /**
  * Build a compact string summary of the graph fields and bookkeeping sizes.

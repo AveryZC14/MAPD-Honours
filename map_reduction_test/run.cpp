@@ -394,6 +394,8 @@ int main(int argc, char** argv)
 
         std::cout << "Loaded fine graph: " << fine_graph.num_coarse_nodes << " nodes (" << env.rows << "x" << env.cols << ")\n";
         std::cout << "Wrote lgf file: " << output_dot << "\n";
+        // After preparing the graphs, run the benchmark to compare full vs reduced schedulers
+        return run_benchmark(argc, argv);
     }
     catch (const std::exception& e) {
         std::cerr << "Error loading fine graph: " << e.what() << std::endl;
