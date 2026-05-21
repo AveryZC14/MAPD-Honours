@@ -10,6 +10,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <array>
+#include <optional>
 
 namespace MapReductionTest {
 
@@ -44,6 +46,24 @@ struct CoarsenedGraph
     std::vector<lemon::ListDigraph::Node> map_nodes; //graph ID for each node
     lemon::ListDigraph::Node source;
     lemon::ListDigraph::Node sink;
+
+    // Per-node internal directional arc statistics (kept empty for levels
+    // that haven't been populated).
+    //
+    // These containers collect information about INTERNAL edges wholly
+    // contained inside a connected component discovered during coarsening.
+    // - `InternalDirectionalArcSamples` stores the raw arc weights bucketed
+    //   by geometric cardinal direction (Up/Down/Left/Right) for every
+    //   coarse node. Keeping the raw samples allows swapping aggregation
+    //   policies later without recollecting edges.
+    // - `InternalDirectionalArcMetrics` stores the reduced single-value
+    //   summaries per direction (e.g., average or minimum). Each entry is
+    //   optional to represent the absence of internal edges in that
+    //   direction.
+    struct InternalDirectionalArcSamples { std::array<std::vector<double>,4> weights; };
+    struct InternalDirectionalArcMetrics { std::array<std::optional<double>,4> weights; };
+    std::vector<InternalDirectionalArcSamples> internal_directional_arc_samples;
+    std::vector<InternalDirectionalArcMetrics> internal_directional_arc_metrics;
 
     std::vector<std::vector<std::vector<int>>> nodes_at_location; // r,c -> vector of graph IDs at this coarse location
 

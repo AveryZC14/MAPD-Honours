@@ -12,6 +12,88 @@ using lemon::ListDigraph;
 
 namespace {
 
+// Cardinal directions used for bucketing internal edges.
+enum class CardinalDirection : std::size_t { Up = 0, Down = 1, Left = 2, Right = 3 };
+
+constexpr std::size_t direction_index(CardinalDirection d) { return static_cast<std::size_t>(d); }
+
+// Classify the vector from a -> b into a cardinal direction if possible.
+std::optional<CardinalDirection> classify_delta(int dr, int dc)
+{
+    if (dr == -1 && dc == 0) return CardinalDirection::Up;
+    if (dr == 1 && dc == 0) return CardinalDirection::Down;
+    if (dr == 0 && dc == -1) return CardinalDirection::Left;
+    if (dr == 0 && dc == 1) return CardinalDirection::Right;
+    return std::nullopt;
+}
+
+// Collect internal arc costs for a connected component and bucket them by
+// geometric direction. We canonicalize undirected edges (count once) using
+// node id ordering (node_id < neighbor_id) to avoid duplicates.
+CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_samples(const CoarsenedGraph& graph,
+                                                                                     const std::vector<int>& nodes)
+{
+    CoarsenedGraph::InternalDirectionalArcSamples samples;
+    if (nodes.empty()) return samples;
+
+    std::vector<char> in_component(graph.map_nodes.size(), false);
+    for (int id : nodes)
+        if (id >= 0 && id < static_cast<int>(in_component.size())) in_component[id] = true;
+
+    for (int node_id : nodes)
+    {
+        if (node_id < 0 || node_id >= static_cast<int>(graph.map_nodes.size())) continue;
+        const lemon::ListDigraph::Node node = graph.map_nodes[node_id];
+        if (node == lemon::INVALID) continue;
+
+        for (lemon::ListDigraph::OutArcIt arc(graph.g, node); arc != lemon::INVALID; ++arc)
+        {
+            const int next_lid = graph.g.id(graph.g.target(arc));
+            if (next_lid < 0 || next_lid >= static_cast<int>(graph.node_to_maploc.size())) continue;
+            const int next_id = graph.node_to_maploc[next_lid];
+            if (next_id < 0 || next_id >= static_cast<int>(in_component.size())) continue;
+
+            // Only internal edges
+            if (!in_component[next_id]) continue;
+
+            // Canonicalize undirected edges to a single record.
+            if (node_id >= next_id) continue;
+
+            const lemon::ListDigraph::Node next_node = graph.map_nodes[next_id];
+            if (next_node == lemon::INVALID) continue;
+
+            const auto a = graph.fine_location[node];
+            const auto b = graph.fine_location[next_node];
+            const int dr = b.first - a.first;
+            const int dc = b.second - a.second;
+
+            const std::optional<CardinalDirection> dir = classify_delta(dr, dc);
+            if (!dir) continue;
+
+            const double w = graph.cost[arc];
+            samples.weights[direction_index(*dir)].push_back(w);
+        }
+    }
+
+    return samples;
+}
+
+// Reduce using average; kept separate so the policy can be swapped later.
+CoarsenedGraph::InternalDirectionalArcMetrics reduce_internal_directional_arc_samples(const CoarsenedGraph::InternalDirectionalArcSamples& s)
+{
+    CoarsenedGraph::InternalDirectionalArcMetrics m;
+    for (std::size_t i = 0; i < m.weights.size(); ++i)
+    {
+        const auto &bucket = s.weights[i];
+        if (bucket.empty()) { m.weights[i] = std::nullopt; continue; }
+        double sum = 0.0;
+        for (double v : bucket) sum += v;
+        m.weights[i] = sum / static_cast<double>(bucket.size());
+    }
+    return m;
+}
+
+
 // Collect the graph IDs stored in the 2x2 coarse cell block anchored at
 // (base_row, base_col). This stays local to the current coarse cell so the
 // coarsening step only reasons about a small neighborhood at a time.
@@ -126,7 +208,8 @@ std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph&
 void dump_connected_components(const CoarsenedGraph& graph,
                                int coarse_row,
                                int coarse_col,
-                               const std::vector<std::vector<int>>& connected_components)
+                               const std::vector<std::vector<int>>& connected_components,
+                               const std::vector<CoarsenedGraph::InternalDirectionalArcSamples>& internal_samples)
 {
     std::cout << "[Coarsen] coarse block (" << coarse_row << ", " << coarse_col << ")"
               << " produced " << connected_components.size() << " connected component(s)\n";
@@ -160,6 +243,27 @@ void dump_connected_components(const CoarsenedGraph& graph,
         }
 
         std::cout << "]\n";
+
+        // Print internal arc summary for this component if samples are available
+        if (component_index < internal_samples.size())
+        {
+            const auto &samples = internal_samples[component_index];
+            std::cout << "    internal arcs: ";
+            const char *names[4] = {"Up","Down","Left","Right"};
+            for (size_t d = 0; d < 4; ++d)
+            {
+                const auto &bucket = samples.weights[d];
+                if (d) std::cout << ", ";
+                std::cout << names[d] << ":count=" << bucket.size();
+                if (!bucket.empty())
+                {
+                    double sum = 0.0;
+                    for (double v : bucket) sum += v;
+                    std::cout << ",avg=" << (sum / static_cast<double>(bucket.size()));
+                }
+            }
+            std::cout << "\n";
+        }
     }
 }
 
@@ -171,15 +275,23 @@ void populate_new_graph_for_component(CoarsenedGraph* newGraph,
                                      int new_id,
                                      int row,
                                      int col,
-                                     const std::vector<int>& nodes)
+                                     const std::vector<int>& nodes,
+                                     const CoarsenedGraph::InternalDirectionalArcSamples& internal_directional_arc_samples)
 {
     lemon::ListDigraph::Node n = newGraph->map_nodes[new_id];
     if (n != lemon::INVALID)
     {
         newGraph->coarse_location[n] = {row, col};
+        newGraph->fine_location[n] = {row, col};
     }
 
     newGraph->to_finer_node_ids[new_id] = nodes;
+
+    // Save raw samples and reduced metrics for this coarse node.
+    if (new_id >= 0 && new_id < static_cast<int>(newGraph->internal_directional_arc_samples.size()))
+        newGraph->internal_directional_arc_samples[new_id] = internal_directional_arc_samples;
+    if (new_id >= 0 && new_id < static_cast<int>(newGraph->internal_directional_arc_metrics.size()))
+        newGraph->internal_directional_arc_metrics[new_id] = reduce_internal_directional_arc_samples(internal_directional_arc_samples);
 
     if (row >= 0 && row < static_cast<int>(newGraph->nodes_at_location.size()) &&
         col >= 0 && col < static_cast<int>(newGraph->nodes_at_location[row].size()))
@@ -226,6 +338,8 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     graph.maploc_to_node.clear();
     graph.to_coarser_node_id.clear();
     graph.to_finer_node_ids.clear();
+    graph.internal_directional_arc_samples.clear();
+    graph.internal_directional_arc_metrics.clear();
     graph.map_nodes.clear();
     graph.nodes_at_location.clear();
 
@@ -238,6 +352,8 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     graph.maploc_to_node.assign(fine_map_size, -1);
     graph.to_coarser_node_id.assign(fine_map_size, -1);
     graph.to_finer_node_ids.assign(fine_map_size, std::vector<int>());
+    graph.internal_directional_arc_samples.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcSamples{});
+    graph.internal_directional_arc_metrics.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcMetrics{});
 
     // If the graph has coarse dimensions set, initialize nodes_at_location
     if (graph.coarse_rows > 0 && graph.coarse_cols > 0)
@@ -381,7 +497,7 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     // First pass: collect all connected components across 2x2 blocks and
     // remember their coarse coordinates so we can allocate the new graph
     // storage in one go.
-    struct CompInfo { int row; int col; std::vector<int> nodes; };
+    struct CompInfo { int row; int col; std::vector<int> nodes; CoarsenedGraph::InternalDirectionalArcSamples internal_directional_arc_samples; };
     std::vector<CompInfo> all_components;
 
     for (int i = 0; i < newGraph->coarse_rows; ++i)
@@ -397,12 +513,42 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
             const std::vector<std::vector<int>> connected_components =
                 collect_connected_components(graph, nodes_in_group);
 
-            dump_connected_components(graph, i, j, connected_components);
-
             for (const auto &comp : connected_components)
             {
-                all_components.push_back(CompInfo{i, j, comp});
+                CompInfo info;
+                info.row = i;
+                info.col = j;
+                info.nodes = comp;
+                info.internal_directional_arc_samples = collect_internal_directional_arc_samples(graph, comp);
+                all_components.push_back(std::move(info));
             }
+        }
+    }
+    // After collecting components for all coarse blocks, print per-block
+    // summaries including internal arc statistics grouped by coarse cell.
+    if (!all_components.empty())
+    {
+        // Find unique coarse block coordinates present and dump their components
+        std::map<std::pair<int,int>, std::vector<size_t>> index_map;
+        for (size_t idx = 0; idx < all_components.size(); ++idx)
+        {
+            const auto &ci = all_components[idx];
+            index_map[{ci.row, ci.col}].push_back(idx);
+        }
+
+        for (const auto &entry : index_map)
+        {
+            const int brow = entry.first.first;
+            const int bcol = entry.first.second;
+            std::vector<std::vector<int>> comps;
+            std::vector<CoarsenedGraph::InternalDirectionalArcSamples> samples;
+            for (size_t idx : entry.second)
+            {
+                comps.push_back(all_components[idx].nodes);
+                samples.push_back(all_components[idx].internal_directional_arc_samples);
+            }
+
+            dump_connected_components(graph, brow, bcol, comps, samples);
         }
     }
 
@@ -418,7 +564,7 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     for (int new_id = 0; new_id < num_new_nodes; ++new_id)
     {
         const CompInfo &ci = all_components[new_id];
-        populate_new_graph_for_component(newGraph, graph, new_id, ci.row, ci.col, ci.nodes);
+        populate_new_graph_for_component(newGraph, graph, new_id, ci.row, ci.col, ci.nodes, ci.internal_directional_arc_samples);
     }
 
     return newGraph;
