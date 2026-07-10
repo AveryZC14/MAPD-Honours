@@ -1,0 +1,82 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 10000,
+    "numTaskFinished": 4,
+    "makespan": 13,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 4,
+    "schedulerHierarchyBuildTime": 10.961353708,
+    "schedulerHierarchyLevelNodeCounts": [
+        978096,
+        26384,
+        7661,
+        2414,
+        866
+    ],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.004883719,
+            "SchedulerGuidePathTime": 0.003219371,
+            "SchedulerSolutionEdgeWeightSum": 3460.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.830152981
+        },
+        {
+            "SchedulerSolveTime": 0.003948549,
+            "SchedulerGuidePathTime": 0.002966902,
+            "SchedulerSolutionEdgeWeightSum": 2932.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.851013305
+        },
+        {
+            "SchedulerSolveTime": 0.003608835,
+            "SchedulerGuidePathTime": 0.002999049,
+            "SchedulerSolutionEdgeWeightSum": 2939.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.872952674
+        },
+        {
+            "SchedulerSolveTime": 0.003468153,
+            "SchedulerGuidePathTime": 0.002860095,
+            "SchedulerSolutionEdgeWeightSum": 2624.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.914843217
+        },
+        {
+            "SchedulerSolveTime": 0.004003686,
+            "SchedulerGuidePathTime": 0.002955459,
+            "SchedulerSolutionEdgeWeightSum": 2563.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.938122569
+        },
+        {
+            "SchedulerSolveTime": 0.003513008,
+            "SchedulerGuidePathTime": 0.00272615,
+            "SchedulerSolutionEdgeWeightSum": 2482.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 0.992683804
+        },
+        {
+            "SchedulerSolveTime": 0.003339441,
+            "SchedulerGuidePathTime": 0.002558053,
+            "SchedulerSolutionEdgeWeightSum": 2285.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 1.079269441
+        },
+        {
+            "SchedulerSolveTime": 0.004089749,
+            "SchedulerGuidePathTime": 0.003345041,
+            "SchedulerSolutionEdgeWeightSum": 2289.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 1.366377
+        },
+        {
+            "SchedulerSolveTime": 0.014312841,
+            "SchedulerGuidePathTime": 0.070809144,
+            "SchedulerSolutionEdgeWeightSum": 2211.0,
+            "AssignedAgentCount": 10000,
+            "PlannerTime": 2.304161676
+        }
+    ]
+}

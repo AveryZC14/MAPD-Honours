@@ -19,9 +19,15 @@ struct ScheduleTiming
 {
 	double solve_time = 0.0;
 	double guide_path_time = 0.0;
+	double hierarchy_build_time = 0.0;
+	std::vector<int> hierarchy_level_node_counts;
 };
 
 void set_last_timing(double solve_time, double guide_path_time);
+void set_last_reduced_timing(double solve_time,
+						     double guide_path_time,
+						     double hierarchy_build_time,
+						     const std::vector<int>& hierarchy_level_node_counts);
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 

@@ -1,0 +1,53 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 1185,
+    "makespan": 18,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 10,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 1.216595375,
+            "SchedulerGuidePathTime": 0.011215955,
+            "PlannerTime": 1.313426306
+        },
+        {
+            "SchedulerSolveTime": 1.058335441,
+            "SchedulerGuidePathTime": 0.011141807,
+            "PlannerTime": 1.114995235
+        },
+        {
+            "SchedulerSolveTime": 1.187356908,
+            "SchedulerGuidePathTime": 0.010734315,
+            "PlannerTime": 1.245760063
+        },
+        {
+            "SchedulerSolveTime": 1.684155358,
+            "SchedulerGuidePathTime": 0.011834428,
+            "PlannerTime": 1.753995805
+        },
+        {
+            "SchedulerSolveTime": 1.884644032,
+            "SchedulerGuidePathTime": 0.011750372,
+            "PlannerTime": 1.950634439
+        },
+        {
+            "SchedulerSolveTime": 2.069258139,
+            "SchedulerGuidePathTime": 0.012418151,
+            "PlannerTime": 2.130333284
+        },
+        {
+            "SchedulerSolveTime": 2.051216406,
+            "SchedulerGuidePathTime": 0.012218058,
+            "PlannerTime": 2.115223069
+        },
+        {
+            "SchedulerSolveTime": 1.897751591,
+            "SchedulerGuidePathTime": 0.012037406,
+            "PlannerTime": 1.959258037
+        }
+    ]
+}

@@ -1,0 +1,93 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 1185,
+    "makespan": 19,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 1.255840303,
+            "SchedulerGuidePathTime": 0.012239133,
+            "PlannerTime": 1.339894247
+        },
+        {
+            "SchedulerSolveTime": 1.255840303,
+            "SchedulerGuidePathTime": 0.012239133,
+            "PlannerTime": 1.339894247
+        },
+        {
+            "SchedulerSolveTime": 1.00082846,
+            "SchedulerGuidePathTime": 0.013484292,
+            "PlannerTime": 1.06189231
+        },
+        {
+            "SchedulerSolveTime": 1.00082846,
+            "SchedulerGuidePathTime": 0.013484292,
+            "PlannerTime": 1.06189231
+        },
+        {
+            "SchedulerSolveTime": 1.226516069,
+            "SchedulerGuidePathTime": 0.012088399,
+            "PlannerTime": 1.288975323
+        },
+        {
+            "SchedulerSolveTime": 1.226516069,
+            "SchedulerGuidePathTime": 0.012088399,
+            "PlannerTime": 1.288975323
+        },
+        {
+            "SchedulerSolveTime": 1.671721771,
+            "SchedulerGuidePathTime": 0.012090256,
+            "PlannerTime": 1.734023592
+        },
+        {
+            "SchedulerSolveTime": 1.671721771,
+            "SchedulerGuidePathTime": 0.012090256,
+            "PlannerTime": 1.734023592
+        },
+        {
+            "SchedulerSolveTime": 1.935953913,
+            "SchedulerGuidePathTime": 0.012400036,
+            "PlannerTime": 1.992550789
+        },
+        {
+            "SchedulerSolveTime": 1.935953913,
+            "SchedulerGuidePathTime": 0.012400036,
+            "PlannerTime": 1.992550789
+        },
+        {
+            "SchedulerSolveTime": 2.08860899,
+            "SchedulerGuidePathTime": 0.013569918,
+            "PlannerTime": 2.155494859
+        },
+        {
+            "SchedulerSolveTime": 2.08860899,
+            "SchedulerGuidePathTime": 0.013569918,
+            "PlannerTime": 2.155494859
+        },
+        {
+            "SchedulerSolveTime": 2.133004192,
+            "SchedulerGuidePathTime": 0.013793301000000001,
+            "PlannerTime": 2.197135469
+        },
+        {
+            "SchedulerSolveTime": 2.133004192,
+            "SchedulerGuidePathTime": 0.013793301000000001,
+            "PlannerTime": 2.197135469
+        },
+        {
+            "SchedulerSolveTime": 1.939350968,
+            "SchedulerGuidePathTime": 0.014137038,
+            "PlannerTime": 2.005014331
+        },
+        {
+            "SchedulerSolveTime": 1.939350968,
+            "SchedulerGuidePathTime": 0.014137038,
+            "PlannerTime": 2.005014331
+        }
+    ]
+}

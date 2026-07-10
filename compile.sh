@@ -4,6 +4,7 @@ mkdir build
 
 # build exec for cpp
 
+# cmake -B build ./ -DPYTHON=false -DCMAKE_BUILD_TYPE=Debug
 cmake -B build ./ -DPYTHON=false -DCMAKE_BUILD_TYPE=Release
 make -C build -j4
 

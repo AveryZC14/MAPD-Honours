@@ -143,43 +143,37 @@ void BaseSystem::log_preprocessing(bool succ)
 
 void BaseSystem::simulate(int simulation_time)
 {
-    //init logger
-    //Logger* log = new Logger();
     initialize();
 
     this->simulation_time = simulation_time;
 
     vector<Action> all_wait_actions(num_of_agents, Action::NA);
 
-    for (; simulator.get_curr_timestep() < simulation_time; )
+    while (simulator.get_curr_timestep() < simulation_time)
     {
-        cout<<"current timestep "<<simulator.get_curr_timestep()<<endl;
-        // find a plan
+        cout << "current timestep " << simulator.get_curr_timestep() << endl;
+
+        // sync environment and run planner
         sync_shared_env();
-
         auto start = std::chrono::steady_clock::now();
-
         int timeout_timesteps = 0;
-
         plan(timeout_timesteps);
-
         auto end = std::chrono::steady_clock::now();
 
-        for (int i = 0 ; i< timeout_timesteps; i ++){
-            simulator.move(all_wait_actions);
-            for (int a = 0; a < num_of_agents; a++)
+        // If planner timed out and produced extra timesteps to advance
+        if (timeout_timesteps > 0)
+        {
+            for (int i = 0; i < timeout_timesteps; ++i)
+            {
+                simulator.move(all_wait_actions);
+                for (int a = 0; a < num_of_agents; a++)
                 {
                     if (!env->goal_locations[a].empty())
                         solution_costs[a]++;
                 }
-        }
+            }
 
-        total_timetous+=timeout_timesteps;
-
-        if (simulator.get_curr_timestep() >= simulation_time){
-
-            auto diff = end-start;
-            double planner_time = std::chrono::duration<double>(diff).count();
+            double planner_time = std::chrono::duration<double>(end - start).count();
             planner_times.push_back(planner_time);
 
             /* Begin storing final per-timestep scheduler and planner metrics. */
@@ -190,23 +184,20 @@ void BaseSystem::simulate(int simulation_time)
             time_step_metrics.push_back(metric);
             /* End storing final per-timestep scheduler and planner metrics. */
 
-            break;
+            // break; // exit simulation loop after advancing timeout timesteps
         }
 
+        // Normal timestep: count goal-reaching agents before move
         for (int a = 0; a < num_of_agents; a++)
         {
             if (!env->goal_locations[a].empty())
                 solution_costs[a]++;
         }
 
-        // move drives
+        // Move according to proposed actions and update state
         vector<State> curr_states = simulator.move(proposed_actions);
-        int timestep = simulator.get_curr_timestep();
-        // agents do not move
 
-
-        auto diff = end-start;
-        double planner_time = std::chrono::duration<double>(diff).count();
+        double planner_time = std::chrono::duration<double>(end - start).count();
         planner_times.push_back(planner_time);
 
         /* Begin storing per-timestep scheduler and planner metrics. */
@@ -217,7 +208,7 @@ void BaseSystem::simulate(int simulation_time)
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
 
-        // update tasks
+        // update tasks using moved states
         task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
     }
 }
@@ -291,6 +282,8 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     js["numScheduleErrors"] = task_manager.get_number_errors();
 
     js["numEntryTimeouts"] = total_timetous;
+    js["schedulerHierarchyBuildTime"] = last_scheduler_timing.hierarchy_build_time;
+    js["schedulerHierarchyLevelNodeCounts"] = last_scheduler_timing.hierarchy_level_node_counts;
 
     /* Begin planner timing output selection. */
     if (kUseTimeStepMetricsOutput)

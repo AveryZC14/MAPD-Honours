@@ -121,6 +121,12 @@ struct CoarsenedGraph
      * fine-grid locations.
      */
     explicit CoarsenedGraph(int fine_map_size = 0);
+
+        // In MapCoarsenV1.h inside struct CoarsenedGraph:
+    ~CoarsenedGraph() {
+        // Explicitly clear the graph and clear maps to sever observer bonds
+        g.clear(); 
+    }
 };
 
 /**
@@ -172,7 +178,7 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
  * intentionally declared here and left for you to implement (it should not be
  * defined in the header).
  */
-CoarsenedGraph* Coarsen(const CoarsenedGraph& graph);
+std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph);
 
 /**
  * Coarsen the current top level once and append the result.
@@ -203,6 +209,8 @@ public:
     // Ensure hierarchy is built for the provided environment (no-op if already valid)
     void ensure(const SharedEnvironment* env);
     bool ready() const;
+    double hierarchy_build_time() const;
+    std::vector<int> hierarchy_level_node_counts() const;
 
     // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids)
     // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids).
@@ -226,6 +234,8 @@ private:
     MultiLevelCoarsenedGraph hierarchy_;
     bool ready_ = false;
     std::size_t signature_ = 0;
+    double last_hierarchy_build_time_ = 0.0;
+    std::vector<int> last_hierarchy_level_node_counts_;
 };
 
 /**

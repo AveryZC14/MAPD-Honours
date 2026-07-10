@@ -19,6 +19,19 @@ void set_last_timing(double solve_time, double guide_path_time)
 {
     last_timing.solve_time = solve_time;
     last_timing.guide_path_time = guide_path_time;
+    last_timing.hierarchy_build_time = 0.0;
+    last_timing.hierarchy_level_node_counts.clear();
+}
+
+void set_last_reduced_timing(double solve_time,
+                             double guide_path_time,
+                             double hierarchy_build_time,
+                             const std::vector<int>& hierarchy_level_node_counts)
+{
+    last_timing.solve_time = solve_time;
+    last_timing.guide_path_time = guide_path_time;
+    last_timing.hierarchy_build_time = hierarchy_build_time;
+    last_timing.hierarchy_level_node_counts = hierarchy_level_node_counts;
 }
 
 ScheduleTiming get_last_timing()
@@ -149,9 +162,8 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
     auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     proposed_schedule.resize(env->num_of_agents, -1);
-
-    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
-    vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+    vector<int> flexible_agent_ids; //storing the agents we consider to swap/assign
+    vector<int> flexible_task_ids; //storing the tasks we consider to swap/assign
 
     for (auto task: env->task_pool)
     {
@@ -645,8 +657,7 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
     }
 }
 
-void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
-{
+void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only){
     auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     agent_guide_path.clear();
@@ -947,6 +958,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
         return;
     }
 
+    std::cout << "[DEBUG] Ensuring hierarchy..." << std::endl;
     MapReductionTest::ReducedHierarchy::instance().ensure(env);
     if (!MapReductionTest::ReducedHierarchy::instance().ready())
     {
@@ -954,9 +966,15 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
         return;
     }
 
+    const double hierarchy_build_time = MapReductionTest::ReducedHierarchy::instance().hierarchy_build_time();
+    const std::vector<int> hierarchy_level_node_counts =
+        MapReductionTest::ReducedHierarchy::instance().hierarchy_level_node_counts();
+
     std::unordered_map<int,std::list<int>> guide_paths;
     double solve_time = 0.0, guide_time = 0.0;
+    std::cout << "[DEBUG] Hierarchy ready. Computing assignments..." << std::endl;
     const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(env, flexible_agent_ids, flexible_task_ids, guide_paths, &solve_time, &guide_time);
+    std::cout << "[DEBUG] Assignments done. Mapping paths..." << std::endl;
 
     for (const auto &kv : assignments)
     {
@@ -967,7 +985,8 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
             agent_guide_path[agent_id] = guide_paths[agent_id];
     }
 
-    set_last_timing(solve_time, guide_time);
+    set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts);
+    guide_paths.clear();
 }
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)

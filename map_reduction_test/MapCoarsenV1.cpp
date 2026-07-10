@@ -1,6 +1,8 @@
 #include "MapCoarsenV1.h"
 
 #include <algorithm>
+#include <chrono>
+#include <memory>
 #include <deque>
 #include <iostream>
 #include <map>
@@ -25,7 +27,7 @@ using lemon::ListDigraph;
 // Default number of coarsening steps to build from the fine graph.
 // Increase this to push the hierarchy deeper, or set it to 0 to keep only
 // the fine level.
-constexpr int kDefaultCoarsenLevels = 4;
+constexpr int kDefaultCoarsenLevels = 2;
 
 // High-level overview:
 // This file implements a simple multilevel coarsening pipeline for grid maps
@@ -662,9 +664,9 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
     }
 }
 
-CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
-    //make the new graph (omg pointers)
-    CoarsenedGraph* newGraph = new CoarsenedGraph();
+std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
+    // Automatically cleaned up if something throws or if the caller drops it
+    auto newGraph = std::make_unique<CoarsenedGraph>();
     newGraph->inter_component_arc_aggregation_policy = graph.inter_component_arc_aggregation_policy;
 
     //int division to get the new num of rows and cols
@@ -742,7 +744,7 @@ CoarsenedGraph* Coarsen(const CoarsenedGraph& graph){
     for (int new_id = 0; new_id < num_new_nodes; ++new_id)
     {
         const CompInfo &ci = all_components[new_id];
-        populate_new_graph_for_component(newGraph, graph, new_id, ci.row, ci.col, ci.nodes, ci.internal_directional_arc_samples);
+        populate_new_graph_for_component(newGraph.get(), graph, new_id, ci.row, ci.col, ci.nodes, ci.internal_directional_arc_samples);
     }
 
     // Third pass: create coarse arcs between neighboring connected components.
@@ -969,11 +971,15 @@ bool append_coarsened_level(MultiLevelCoarsenedGraph& hierarchy)
     if (hierarchy.levels.empty())
         return false;
 
-    CoarsenedGraph* next_level_raw = Coarsen(*hierarchy.levels.back());
-    if (next_level_raw == nullptr)
+    // 1. Change the type from CoarsenedGraph* to std::unique_ptr<CoarsenedGraph>
+    std::unique_ptr<CoarsenedGraph> next_level = Coarsen(*hierarchy.levels.back());
+    
+    // 2. Check for nullptr using the smart pointer directly
+    if (next_level == nullptr)
         return false;
 
-    hierarchy.levels.emplace_back(next_level_raw);
+    // 3. Move ownership of the unique_ptr into the vector
+    hierarchy.levels.push_back(std::move(next_level));
     return true;
 }
 
@@ -1035,12 +1041,32 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     int cols = std::max(1, env->cols);
     while ((rows > 1 || cols > 1) && additional_levels < 10) { rows = (rows+1)/2; cols=(cols+1)/2; }
     const int levels_to_add = std::max(0, kDefaultCoarsenLevels);
+
+    const auto build_start = std::chrono::high_resolution_clock::now();
     build_multilevel_from_environment(hierarchy_, env, levels_to_add);
+    const auto build_end = std::chrono::high_resolution_clock::now();
+
     signature_ = sig;
     ready_ = !hierarchy_.empty();
+
+    last_hierarchy_build_time_ = std::chrono::duration<double>(build_end - build_start).count();
+    last_hierarchy_level_node_counts_.clear();
+    last_hierarchy_level_node_counts_.reserve(hierarchy_.num_levels());
+    for (const auto& level : hierarchy_.levels)
+        last_hierarchy_level_node_counts_.push_back(level ? static_cast<int>(level->map_nodes.size()) : 0);
 }
 
 bool ReducedHierarchy::ready() const { return ready_; }
+
+double ReducedHierarchy::hierarchy_build_time() const
+{
+    return last_hierarchy_build_time_;
+}
+
+std::vector<int> ReducedHierarchy::hierarchy_level_node_counts() const
+{
+    return last_hierarchy_level_node_counts_;
+}
 
 static bool is_valid_graph_node_id_local(const CoarsenedGraph& graph, int node_id)
 {
@@ -1119,7 +1145,8 @@ static std::pair<int,int> pick_bridge_arc_between_parents_local(const CoarsenedG
 // coarse edge is expanded through the cached fine path recorded at coarsen
 // time. The runtime work is intentionally limited to map lookups and vector
 // splicing.
-static std::vector<std::vector<int>> expand_path_batch_one_level_local(const std::vector<std::vector<int>>& upper_paths,
+// 1. CHANGE: Remove 'const &' and take upper_paths by value so it can accept moved objects
+static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vector<std::vector<int>> upper_paths,
                                                                        const CoarsenedGraph& lower,
                                                                        const CoarsenedGraph& upper,
                                                                        const std::vector<int>& preferred_starts,
@@ -1130,6 +1157,8 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(const std
 
     for (std::size_t path_index = 0; path_index < upper_paths.size(); ++path_index)
     {
+        // 2. CHANGE: Grab the reference to the internal vector we moved in.
+        // We avoid copying individual agent paths.
         const std::vector<int>& upper_path = upper_paths[path_index];
         if (upper_path.empty())
         {
@@ -1199,13 +1228,11 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(const std
                 const std::vector<int>& segment = cached_path_it->second.path;
                 if (segment.front() != current || segment.back() != target)
                 {
-                    // The cached path is built around the chosen representatives.
-                    // If the current anchors differ, we keep the path simple and
-                    // stop instead of recomputing a fresh search.
                     failed = true;
                     break;
                 }
 
+                // Note: We cannot std::move from 'segment' because it belongs to a shared cache
                 path.insert(path.end(), segment.begin() + 1, segment.end());
             }
 
@@ -1443,8 +1470,8 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // const auto solve_end = std::chrono::high_resolution_clock::now();
     // if (solve_time_out)
     //     *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
-    // if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
-    //     return assignments;
+    if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
+        return assignments;
 
     // Step 2: recover one coarse path per agent from the top-level residual
     // flow, exactly as the old code did, but without lifting anything yet.
@@ -1544,8 +1571,8 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // paths live on the fine graph. The last expansion uses the real agent
     // start locations and task locations as endpoint anchors.
     // auto guide_start = std::chrono::high_resolution_clock::now();
-
-    std::vector<std::vector<int>> current_paths = coarse_paths;
+     
+    std::vector<std::vector<int>> current_paths = std::move(coarse_paths);
     for (int level = top_level_idx; level >= 1; --level)
     {
         const CoarsenedGraph* upper = hierarchy_.level(level);
@@ -1571,7 +1598,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
             }
         }
 
-        current_paths = expand_path_batch_one_level_local(current_paths,
+        current_paths = expand_path_batch_one_level_local(std::move(current_paths),
                                                           *lower,
                                                           *upper,
                                                           preferred_starts,
@@ -1645,7 +1672,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
 
                     current = fine->node_to_maploc[next_lid];
                     if (!is_valid_graph_node_id_local(*fine, current))
-                        continue;
+                        break;
 
                     --flow_it->second;
                     guide.push_back(current);

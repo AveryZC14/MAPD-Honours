@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/orz900d.map",
+    "agentFile": "agents/orz900d_5000.agents",
+    "teamSize": 5000,
+    "taskFile": "tasks/orz900d.tasks",
+    "numTasksReveal": 1.0,
+    "version": "2024 LoRR"
+}
