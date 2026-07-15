@@ -25,8 +25,7 @@ namespace MapReductionTest {
  * instances are tied to the owning `ListDigraph` and therefore must live in
  * the same struct instance as the graph.
  */
-struct CoarsenedGraph
-{
+struct CoarsenedGraph{
     // Reduction policy used when aggregating multiple finer arcs into one
     // coarse inter-component arc.
     enum class ArcAggregationPolicy
@@ -139,7 +138,11 @@ struct MultiLevelCoarsenedGraph
 {
     std::vector<std::unique_ptr<CoarsenedGraph>> levels;
 
-    void clear() { levels.clear(); }
+    // void clear() { levels.clear(); }
+    void clear() {
+        // This safely drops the unique_ptrs and forces complete destructor chains
+        std::vector<std::unique_ptr<CoarsenedGraph>>().swap(levels);
+    }
     bool empty() const { return levels.empty(); }
     int num_levels() const { return static_cast<int>(levels.size()); }
 

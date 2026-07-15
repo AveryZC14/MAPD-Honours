@@ -1,82 +1,12 @@
 {
     "actionModel": "MAPF",
     "teamSize": 5000,
-    "numTaskFinished": 1230,
-    "makespan": 13,
+    "numTaskFinished": 0,
+    "makespan": 0,
     "numPlannerErrors": 0,
     "numScheduleErrors": 0,
     "numEntryTimeouts": 0,
-    "schedulerHierarchyBuildTime": 11.364311155,
-    "schedulerHierarchyLevelNodeCounts": [
-        978096,
-        26384,
-        7661
-    ],
-    "timeStepMetrics": [
-        {
-            "SchedulerSolveTime": 0.028929943,
-            "SchedulerGuidePathTime": 0.006051225,
-            "PlannerTime": 0.878280684
-        },
-        {
-            "SchedulerSolveTime": 0.02492159,
-            "SchedulerGuidePathTime": 0.005687345,
-            "PlannerTime": 0.916171545
-        },
-        {
-            "SchedulerSolveTime": 0.024616803,
-            "SchedulerGuidePathTime": 0.005801193,
-            "PlannerTime": 0.935888804
-        },
-        {
-            "SchedulerSolveTime": 0.031013837,
-            "SchedulerGuidePathTime": 0.006033792,
-            "PlannerTime": 0.984075003
-        },
-        {
-            "SchedulerSolveTime": 0.025779336,
-            "SchedulerGuidePathTime": 0.005726221,
-            "PlannerTime": 0.988320906
-        },
-        {
-            "SchedulerSolveTime": 0.030814355,
-            "SchedulerGuidePathTime": 0.005720531,
-            "PlannerTime": 1.011186318
-        },
-        {
-            "SchedulerSolveTime": 0.030814355,
-            "SchedulerGuidePathTime": 0.005720531,
-            "PlannerTime": 1.011186318
-        },
-        {
-            "SchedulerSolveTime": 0.03532615,
-            "SchedulerGuidePathTime": 0.006810819,
-            "PlannerTime": 1.045792439
-        },
-        {
-            "SchedulerSolveTime": 0.03532615,
-            "SchedulerGuidePathTime": 0.006810819,
-            "PlannerTime": 1.045792439
-        },
-        {
-            "SchedulerSolveTime": 0.041116924,
-            "SchedulerGuidePathTime": 0.007959233,
-            "PlannerTime": 1.052194803
-        },
-        {
-            "SchedulerSolveTime": 0.041116924,
-            "SchedulerGuidePathTime": 0.007959233,
-            "PlannerTime": 1.052194803
-        },
-        {
-            "SchedulerSolveTime": 0.039170694,
-            "SchedulerGuidePathTime": 0.007045652,
-            "PlannerTime": 1.026626973
-        },
-        {
-            "SchedulerSolveTime": 0.039170694,
-            "SchedulerGuidePathTime": 0.007045652,
-            "PlannerTime": 1.026626973
-        }
-    ]
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": []
 }

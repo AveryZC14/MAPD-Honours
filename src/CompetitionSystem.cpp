@@ -52,6 +52,7 @@ void BaseSystem::sync_shared_env()
 
 bool BaseSystem::planner_wrapper()
 {
+    //I think this is Entry::compute
     planner->compute(plan_time_limit, proposed_actions, proposed_schedule);
 
     /* Begin capturing scheduler timing for the completed planner step. */
@@ -108,7 +109,9 @@ void BaseSystem::plan(int & timeout_timesteps)
 
 bool BaseSystem::planner_initialize()
 {
+    std::cout << "planner init\n";
     using namespace std::placeholders;
+    // this is TaskScheduler::initialize
     std::packaged_task<void(int)> init_task(std::bind(&Entry::initialize, planner, _1));
     auto init_future = init_task.get_future();
     
@@ -144,6 +147,7 @@ void BaseSystem::log_preprocessing(bool succ)
 void BaseSystem::simulate(int simulation_time)
 {
     initialize();
+    cout<<"finish init\n";
 
     this->simulation_time = simulation_time;
 

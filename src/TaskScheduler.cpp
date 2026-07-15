@@ -15,6 +15,7 @@ void TaskScheduler::initialize(int preprocess_time_limit)
 {
     //give at most half of the entry time_limit to scheduler;
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
+    //std::cout << "TSched init\n";
     int limit = preprocess_time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
     DefaultPlanner::schedule_initialize(limit, env);    
 }
@@ -60,6 +61,7 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     }
     else if (solver == 6)
     {
+        std::cout << "planning flow reduced" << std::endl;
         DefaultPlanner::schedule_plan_flow_reduced(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
     }
     else

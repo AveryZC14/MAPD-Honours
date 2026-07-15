@@ -68,6 +68,7 @@ namespace DefaultPlanner{
      * The initialization function initializes the default planner data structures and heuristics tables.
      */
     void initialize(int preprocess_time_limit, SharedEnvironment* env){
+            // std::cout <<"planner initting\n";
             //initialise all required data structures
             assert(env->num_of_agents != 0);
             p.resize(env->num_of_agents);
@@ -97,6 +98,7 @@ namespace DefaultPlanner{
                 p[ids[i]] = ((double)(ids.size() - i))/((double)(ids.size()+1));
             }
             p_copy = p;
+            // std::cout <<"planner initted\n";
             return;
     };
 
