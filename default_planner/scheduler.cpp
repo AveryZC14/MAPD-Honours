@@ -940,12 +940,25 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
                 task_loc_ids[task.second.locations[0]].push_back(task.first);
             }
         }
+        else if (task.second.agent_assigned != -1)
+        {
+            // Task is already assigned to an agent that hasn't started it yet.
+            // Keep this pairing fixed instead of feeding both back into the coarse
+            // flow solve for re-decision every timestep. The top-level solve is
+            // blind to fine-grained distance differences between agents/tasks
+            // that share the same coarse node, so re-deciding this every timestep
+            // caused near-arbitrary agent<->task reshuffling. Each reshuffle points
+            // some agent at a brand-new goal location, and the shared low-level
+            // planner permanently caches a full-map heuristic table (a few MB on a
+            // large map) per distinct goal location ever requested -- on a huge,
+            // maze-like map with thousands of agents this produced gigabytes of
+            // growth per timestep and OOM'd the process.
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
         else
         {
             flexible_task_ids.push_back(task.first);
             task_loc_ids[task.second.locations[0]].push_back(task.first);
-            if (task.second.agent_assigned != -1)
-                flexible_agent_ids.push_back(task.second.agent_assigned);
         }
     }
 
@@ -972,8 +985,9 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
 
     std::unordered_map<int,std::list<int>> guide_paths;
     double solve_time = 0.0, guide_time = 0.0;
+    const bool need_guide_paths = use_traffic && env->curr_timestep >= 100;
     std::cout << "[DEBUG] Hierarchy ready. Computing assignments..." << std::endl;
-    const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(env, flexible_agent_ids, flexible_task_ids, guide_paths, &solve_time, &guide_time);
+    const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths, &solve_time, &guide_time);
     std::cout << "[DEBUG] Assignments done. Mapping paths..." << std::endl;
 
     for (const auto &kv : assignments)

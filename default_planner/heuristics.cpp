@@ -1,13 +1,45 @@
 
 #include "heuristics.h"
 #include <queue>
+#include <list>
+#include <unordered_map>
+#include <algorithm>
 
 namespace DefaultPlanner{
 
 std::vector<HeuristicTable> global_heuristictable;
 Neighbors global_neighbors;
 
+namespace {
+    std::list<int> lru_order; // most-recently-used at the front
+    std::unordered_map<int, std::list<int>::iterator> lru_pos;
+}
 
+void touch_heuristic_lru(int goal_location, SharedEnvironment* env){
+    auto it = lru_pos.find(goal_location);
+    if (it != lru_pos.end()){
+        lru_order.erase(it->second);
+    }
+    lru_order.push_front(goal_location);
+    lru_pos[goal_location] = lru_order.begin();
+
+    // Bound total resident heuristic-table memory to a fixed budget instead
+    // of letting it grow with every distinct goal location ever requested.
+    const size_t bytes_per_table = global_heuristictable.empty() ? 1 : env->map.size() * sizeof(int);
+    const size_t target_budget_bytes = 1ull * 1024 * 1024 * 1024; // ~1GB resident cap
+    const size_t max_tables = std::max<size_t>(16, target_budget_bytes / std::max<size_t>(1, bytes_per_table));
+
+    while (lru_order.size() > max_tables){
+        int evict = lru_order.back();
+        lru_order.pop_back();
+        lru_pos.erase(evict);
+        if (evict >= 0 && evict < static_cast<int>(global_heuristictable.size())){
+            HeuristicTable& old = global_heuristictable[evict];
+            std::vector<int>().swap(old.htable);
+            old.open.clear();
+        }
+    }
+}
 
 void init_neighbor(SharedEnvironment* env){
 	global_neighbors.resize(env->rows * env->cols);
@@ -98,6 +130,7 @@ int get_h(SharedEnvironment* env, int source, int target){
 	if (global_heuristictable.at(target).empty()){
 		init_heuristic(global_heuristictable.at(target),env,target);
 	}
+	touch_heuristic_lru(target, env);
 
 	return get_heuristic(global_heuristictable.at(target), env, source, &global_neighbors);
 }

@@ -153,6 +153,7 @@ namespace DefaultPlanner{
                             init_heuristic(trajLNS.heuristics[goal_loc],env,goal_loc);
                             count++;
                         }
+                        touch_heuristic_lru(goal_loc, env);
                 }
             }
             
@@ -173,7 +174,8 @@ namespace DefaultPlanner{
             {
                 require_guide_path[i] = true;
             }
-            
+
+
             // check if the agent completed the action in the previous timestep
             // if not, the agent is till turning towards the action direction, we do not need to plan new action for the agent
             assert(env->curr_states[i].location >=0);
@@ -203,7 +205,7 @@ namespace DefaultPlanner{
             if (!env->goal_locations[i].empty() && trajLNS.neighbors[env->curr_states[i].location].size() == 1){
                 p[i] = p[i] + 10;
             }
-            
+
         }
 
         // compute the congestion minimised guide path for the agents that need guide path update

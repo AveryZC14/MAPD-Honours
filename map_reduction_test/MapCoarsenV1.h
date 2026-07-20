@@ -215,14 +215,18 @@ public:
     double hierarchy_build_time() const;
     std::vector<int> hierarchy_level_node_counts() const;
 
-    // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids)
     // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids).
     // Optionally, `solve_time_out` receives the NetworkSimplex solve time in seconds and
     // `guide_time_out` receives the flow-decomposition + path-lifting time in seconds.
+    // `need_guide_paths` controls whether the (expensive, whole-fine-map) path lifting in
+    // steps 3/4 runs at all -- callers that only need the agent->task assignment (e.g. when
+    // traffic-aware guide paths aren't going to be consumed this timestep) should pass false
+    // to skip straight to returning `assignments` once the compact top-level flow is solved.
     std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
                                                            const std::vector<int>& flexible_agent_ids,
                                                            const std::vector<int>& flexible_task_ids,
                                                            std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                           bool need_guide_paths = true,
                                                            double* solve_time_out = nullptr,
                                                            double* guide_time_out = nullptr);
 

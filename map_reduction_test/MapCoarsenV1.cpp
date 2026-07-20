@@ -9,6 +9,7 @@
 #include <sstream>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 #include <cstdint>
 #include <lemon/network_simplex.h>
 
@@ -189,11 +190,20 @@ std::vector<int> build_cached_bridge_path_local(const CoarsenedGraph& graph,
     if (start_id == goal_id)
         return {start_id};
 
-    const int n = static_cast<int>(graph.map_nodes.size());
-    std::vector<int> prev(n, -1);
-    std::vector<char> seen(n, 0);
+    // This search is always confined to the union of two adjacent coarse
+    // components (each at most a handful of fine nodes, by construction of
+    // the 2x2-block coarsening), so it must never allocate state sized to
+    // the whole finer graph -- `graph` here is the level being coarsened,
+    // which is the *entire* fine map (e.g. ~1M nodes) the first time a level
+    // 0->1 transition is built. A vector<int>/vector<char> pair sized to
+    // that, allocated and zero-initialized once per bridge_cache entry
+    // (there can be tens of thousands of those), is what made hierarchy
+    // construction on large maps take gigabytes and many seconds. Use hash
+    // maps bounded by the actual (tiny) number of nodes visited instead.
+    std::unordered_map<int, int> prev;
+    std::unordered_set<int> seen;
     std::deque<int> q;
-    seen[start_id] = 1;
+    seen.insert(start_id);
     q.push_back(start_id);
 
     while (!q.empty())
@@ -223,21 +233,25 @@ std::vector<int> build_cached_bridge_path_local(const CoarsenedGraph& graph,
             if (v_parent != parent_a && v_parent != parent_b)
                 continue;
 
-            if (!seen[v])
+            if (seen.insert(v).second)
             {
-                seen[v] = 1;
                 prev[v] = u;
                 q.push_back(v);
             }
         }
     }
 
-    if (prev[goal_id] == -1)
+    const auto goal_it = prev.find(goal_id);
+    if (goal_it == prev.end())
         return empty;
 
     std::vector<int> path;
-    for (int cur = goal_id; cur != -1; cur = prev[cur])
+    for (int cur = goal_id; cur != -1; )
+    {
         path.push_back(cur);
+        const auto it = prev.find(cur);
+        cur = (it != prev.end()) ? it->second : -1;
+    }
     std::reverse(path.begin(), path.end());
     return path;
 }
@@ -1057,7 +1071,7 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     if (env == nullptr) return;
     const std::size_t sig = compute_env_signature_local(env);
     if (ready_ && signature_ == sig && !hierarchy_.empty()) return;
-    
+
     // Completely wipe the old hierarchy to free memory before rebuilding??!?!??!???
     hierarchy_.levels.clear();
     hierarchy_ = MultiLevelCoarsenedGraph(); 
@@ -1125,9 +1139,9 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
                                                      int goal_id,
                                                      int required_parent,
                                                      bool constrain_parent){
-    if (!is_valid_graph_node_id_local(graph, start_id) || !is_valid_graph_node_id_local(graph, goal_id)) 
+    if (!is_valid_graph_node_id_local(graph, start_id) || !is_valid_graph_node_id_local(graph, goal_id))
         return {};
-    if (start_id == goal_id) 
+    if (start_id == goal_id)
         return {start_id};
 
     // Use a hash map instead of massive O(N) state vectors to protect system memory
@@ -1142,17 +1156,17 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
 
     // Hard-cap the total number of node expansions to catch disconnected networks safely
     int expansions = 0;
-    const int MAX_EXPANSIONS = 20000; 
+    const int MAX_EXPANSIONS = 20000;
 
     while (!open.empty()) {
         if (++expansions > MAX_EXPANSIONS) {
             return {}; // Bail out if search space is exploding
         }
 
-        auto [cd, u] = open.top(); 
-        open.pop(); 
+        auto [cd, u] = open.top();
+        open.pop();
 
-        if (cd > dist[u]) continue; 
+        if (cd > dist[u]) continue;
         if (u == goal_id) break;
 
         const lemon::ListDigraph::Node u_node = graph.map_nodes[u]; 
@@ -1180,15 +1194,15 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
         }
     }
 
-    if (prev.find(goal_id) == prev.end()) 
+    if (prev.find(goal_id) == prev.end())
         return {};
 
-    std::vector<int> path; 
+    std::vector<int> path;
     for (int cur = goal_id; cur != -1; ) {
         path.push_back(cur);
         auto it = prev.find(cur);
         cur = (it != prev.end()) ? it->second : -1;
-        
+
         if(path.size() > 5000) return {}; // Cycle emergency brake
     }
     
@@ -1300,20 +1314,62 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
                 }
 
                 const std::vector<int>& segment = cached_path_it->second.path;
-                if (segment.front() != current || segment.back() != target)
+
+                // The cached bridge segment connects the two components'
+                // chosen representative nodes. On the final (fine-level) lift
+                // `current`/`target` are instead the real agent start / task
+                // location, which usually differ from those representatives.
+                // Splice in a short intra-component hop (cheap: components are
+                // tiny) rather than failing the whole path whenever they don't
+                // match exactly.
+                std::vector<int> lead_in;
+                if (segment.front() != current)
                 {
-                    failed = true;
-                    break;
+                    if (current < 0 || current >= static_cast<int>(lower.to_coarser_node_id.size()) ||
+                        lower.to_coarser_node_id[current] != parent_a)
+                    {
+                        failed = true;
+                        break;
+                    }
+                    lead_in = shortest_path_in_graph_local(lower, current, segment.front(), parent_a, true);
+                    if (lead_in.empty())
+                    {
+                        failed = true;
+                        break;
+                    }
+                }
+
+                std::vector<int> lead_out;
+                if (segment.back() != target)
+                {
+                    if (target < 0 || target >= static_cast<int>(lower.to_coarser_node_id.size()) ||
+                        lower.to_coarser_node_id[target] != parent_b)
+                    {
+                        failed = true;
+                        break;
+                    }
+                    lead_out = shortest_path_in_graph_local(lower, segment.back(), target, parent_b, true);
+                    if (lead_out.empty())
+                    {
+                        failed = true;
+                        break;
+                    }
                 }
 
                 // Protect against an infinitely looping or massive segment in cache
-                if (path_buffer.size() + segment.size() > 5000) 
+                if (path_buffer.size() + lead_in.size() + segment.size() + lead_out.size() > 5000)
                 {
                     failed = true;
                     break;
                 }
 
+                if (!lead_in.empty())
+                    path_buffer.insert(path_buffer.end(), lead_in.begin() + 1, lead_in.end());
+
                 path_buffer.insert(path_buffer.end(), segment.begin() + 1, segment.end());
+
+                if (!lead_out.empty())
+                    path_buffer.insert(path_buffer.end(), lead_out.begin() + 1, lead_out.end());
             }
 
             current = target;
@@ -1329,39 +1385,6 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
     }
 
     return lower_paths;
-}
-
-// Convert a batch of node-id paths into per-arc flow counts on the fine graph.
-// Each path contributes one unit of flow along every consecutive arc.
-static std::unordered_map<int, int> build_arc_flow_counts_local(const CoarsenedGraph& fine,
-                                                                const std::vector<std::vector<int>>& fine_paths)
-{
-    std::unordered_map<int, int> arc_flow_counts;
-    for (const std::vector<int>& path : fine_paths)
-    {
-        for (std::size_t i = 0; i + 1 < path.size(); ++i)
-        {
-            const int u = path[i];
-            const int v = path[i + 1];
-            if (!is_valid_graph_node_id_local(fine, u) || !is_valid_graph_node_id_local(fine, v))
-                continue;
-
-            const lemon::ListDigraph::Node u_node = fine.map_nodes[u];
-            const lemon::ListDigraph::Node v_node = fine.map_nodes[v];
-            if (u_node == lemon::INVALID || v_node == lemon::INVALID)
-                continue;
-
-            for (lemon::ListDigraph::OutArcIt arc(fine.g, u_node); arc != lemon::INVALID; ++arc)
-            {
-                if (fine.g.target(arc) != v_node)
-                    continue;
-
-                arc_flow_counts[fine.g.id(arc)]++;
-                break;
-            }
-        }
-    }
-    return arc_flow_counts;
 }
 
 // Reconstruct one agent guide from the fine graph and a residual arc-flow map.
@@ -1419,6 +1442,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                                         const std::vector<int>& flexible_agent_ids,
                                                                         const std::vector<int>& flexible_task_ids,
                                                                         std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                                        bool need_guide_paths,
                                                                         double* solve_time_out,
                                                                         double* guide_time_out){
     std::unordered_map<int,int> assignments;
@@ -1652,6 +1676,23 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         assigned_task_ids.push_back(task_id);
     }
 
+    if (!need_guide_paths)
+    {
+        // The caller isn't going to consume guide paths this call (e.g. traffic-aware
+        // guiding is disabled, or not active yet this early in the run), so skip the
+        // whole-fine-map path lifting in steps 3/4 below entirely: it's the only part
+        // of this function whose cost scales with the fine map size and per-agent path
+        // length rather than the (tiny) coarse top-level graph, and running it for
+        // guide paths nobody reads was both wasted work and, on large/maze-like maps,
+        // the actual source of the runaway per-timestep memory growth.
+        const auto solve_end = std::chrono::high_resolution_clock::now();
+        if (solve_time_out)
+            *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
+        if (guide_time_out)
+            *guide_time_out = 0.0;
+        return assignments;
+    }
+
     // Step 3: expand the whole batch of coarse paths level-by-level until the
     // paths live on the fine graph. The last expansion uses the real agent
     // start locations and task locations as endpoint anchors.
@@ -1699,7 +1740,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
             const int task_id = assigned_task_ids[i];
             const int start_loc = env->curr_states[agent_id].location;
             const int task_loc = env->task_pool[task_id].locations[0];
-            
+
             current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false);
         }
     }
@@ -1713,68 +1754,26 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
 
     auto guide_start = std::chrono::high_resolution_clock::now();
 
-    // Step 4: convert the expanded fine paths into a single fine-graph flow
-    // and reconstruct each agent guide exactly the way `schedule_plan_flow`
-    // does: start from the agent location and follow outgoing arcs with
-    // positive residual flow until we reach the task location.
-    std::unordered_map<int, int> fine_arc_flow_counts = build_arc_flow_counts_local(*fine, current_paths);
+    // Step 4: each entry in `current_paths` is already a concrete, verified
+    // start-to-task path on the fine graph (built directly in Step 3, or via
+    // the direct-Dijkstra fallback above) -- just hand it to the caller as
+    // the agent's guide. We used to re-derive this by aggregating all paths
+    // into a shared arc-flow-count map and "following positive residual
+    // flow" node by node (mirroring how `schedule_plan_flow` must recover a
+    // path from a raw NetworkSimplex flow, since it never assembles one
+    // itself). That reconstruction had no cycle guard or length cap, and
+    // since the arc-count map merges flow from every agent's path, a walk
+    // could wander across other agents' routes through a large shared flow
+    // budget before stalling or reaching the goal -- on large/maze-like maps
+    // this produced multi-million-node guide lists and OOM'd the process.
     for (std::size_t i = 0; i < current_paths.size(); ++i)
     {
         if (i >= successful_agent_ids.size() || i >= assigned_task_ids.size())
             break;
 
         const int agent_id = successful_agent_ids[i];
-        const int task_id = assigned_task_ids[i];
-        const int start_loc = env->curr_states[agent_id].location;
-        const int task_loc = env->task_pool[task_id].locations[0];
 
-        std::list<int> guide;
-        if (is_valid_graph_node_id_local(*fine, start_loc))
-        {
-            int current = start_loc;
-            guide.push_back(current);
-
-            while (current != task_loc)
-            {
-                const lemon::ListDigraph::Node current_node = fine->map_nodes[current];
-                if (current_node == lemon::INVALID)
-                    break;
-
-                bool advanced = false;
-                for (lemon::ListDigraph::OutArcIt arc(fine->g, current_node); arc != lemon::INVALID; ++arc)
-                {
-                    const int arc_id = fine->g.id(arc);
-                    auto flow_it = fine_arc_flow_counts.find(arc_id);
-                    if (flow_it == fine_arc_flow_counts.end() || flow_it->second <= 0)
-                        continue;
-
-                    const int next_lid = fine->g.id(fine->g.target(arc));
-                    if (next_lid < 0 || next_lid >= static_cast<int>(fine->node_to_maploc.size()))
-                        continue;
-
-                    current = fine->node_to_maploc[next_lid];
-                    if (!is_valid_graph_node_id_local(*fine, current))
-                        break;
-
-                    --flow_it->second;
-                    guide.push_back(current);
-                    advanced = true;
-                    break;
-                }
-
-                if (!advanced)
-                    break;
-            }
-        }
-
-        if (guide.empty() && !current_paths[i].empty())
-        {
-            // Keep a fallback path around so the scheduler still has a guide
-            // even if residual-flow reconstruction stalls on an edge case.
-            for (int node_id : current_paths[i])
-                guide.push_back(node_id);
-        }
-
+        std::list<int> guide(current_paths[i].begin(), current_paths[i].end());
         out_agent_guide_paths[agent_id] = std::move(guide);
     }
 
@@ -1782,7 +1781,6 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     std::vector<std::vector<int>>().swap(current_paths);
     std::vector<int>().swap(successful_agent_ids);
     std::vector<int>().swap(assigned_task_ids);
-    std::unordered_map<int, int>().swap(fine_arc_flow_counts);
     std::vector<ListDigraph::Node>().swap(top_nodes);
 
     if (guide_time_out)
