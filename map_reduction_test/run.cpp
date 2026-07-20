@@ -18,11 +18,6 @@
 using namespace std;
 using namespace DefaultPlanner;
 
-// forward-declare reduced version (not declared in header)
-namespace DefaultPlanner {
-    void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
-}
-
 // Default input graph used when no input file is provided on the command line.
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseLarge/warehouseLarge_16000.json";
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/warehouseSmall/warehouseSmall_100.json";
@@ -31,12 +26,13 @@ static const std::string DEFAULT_INPUT_GRAPH = "instances/custom/tiny/tinyComple
 // static const std::string DEFAULT_INPUT_GRAPH = "instances/random/random_400.json";
 
 /**
- * Load a benchmark input, populate the shared environment, and build the fine
- * graph representation for the map.
+ * Parse an instance JSON (map/agent/task file triple, same format as
+ * src/driver.cpp reads for the full `lifelong` binary) and populate `env`
+ * with its map, agent start locations, and tasks. All agents start free and
+ * all tasks start newly-revealed, as they would be at timestep 0 of a real
+ * run. Throws std::runtime_error if the file can't be opened or parsed.
  */
-void load_fine_graph_from_input(const std::string& input_json,
-                                SharedEnvironment& env,
-                                MapReductionTest::CoarsenedGraph& fine_graph)
+void populate_env_from_instance(const std::string& input_json, SharedEnvironment& env)
 {
     std::ifstream f(input_json);
     if (!f.is_open())
@@ -93,7 +89,17 @@ void load_fine_graph_from_input(const std::string& input_json,
     env.new_freeagents.clear();
     for (int i = 0; i < env.num_of_agents; ++i)
         env.new_freeagents.push_back(i);
+}
 
+/**
+ * Load a benchmark input, populate the shared environment, and build the fine
+ * graph representation for the map.
+ */
+void load_fine_graph_from_input(const std::string& input_json,
+                                SharedEnvironment& env,
+                                MapReductionTest::CoarsenedGraph& fine_graph)
+{
+    populate_env_from_instance(input_json, env);
     MapReductionTest::build_from_environment(fine_graph, &env);
 }
 
@@ -198,62 +204,17 @@ int run_benchmark(int argc, char** argv)
     }
 
     std::string input_json = argv[1];
-    std::ifstream f(input_json);
-    if (!f.is_open()){
-        std::cerr << "Failed to open " << input_json << std::endl;
-        return 1;
-    }
 
-    nlohmann::json data;
-    try{
-        data = nlohmann::json::parse(f);
-    }
-    catch(nlohmann::json::parse_error& e){
-        std::cerr << "Failed to parse " << input_json << ": " << e.what() << std::endl;
-        return 1;
-    }
-
-    // base folder is the parent directory of the input file
-    std::filesystem::path p(input_json);
-    std::filesystem::path dir = p.parent_path();
-    std::string base_folder = dir.string();
-    if (base_folder.size() > 0 && base_folder.back() != '/') base_folder += '/';
-
-    // read parameters like driver.cpp
-    std::string map_path = read_param_json<std::string>(data, "mapFile");
-    Grid grid(base_folder + map_path);
-
-    int team_size = read_param_json<int>(data, "teamSize");
-    std::vector<int> agents = read_int_vec(base_folder + read_param_json<std::string>(data, "agentFile"), team_size);
-    std::vector<std::list<int>> tasks = read_int_vec(base_folder + read_param_json<std::string>(data, "taskFile"));
-
-    // populate SharedEnvironment
     SharedEnvironment env;
-    env.rows = grid.rows;
-    env.cols = grid.cols;
-    env.map = grid.map;
-    env.map_name = map_path.substr(map_path.find_last_of("/") + 1);
-    env.num_of_agents = team_size;
-    env.curr_states.resize(env.num_of_agents);
-    for (int i = 0; i < env.num_of_agents; ++i)
+    try
     {
-        env.curr_states[i] = State(agents[i], 0, 0);
+        populate_env_from_instance(input_json, env);
     }
-    env.curr_task_schedule.assign(env.num_of_agents, -1);
-
-    // populate tasks
-    env.task_pool.clear();
-    for (size_t t = 0; t < tasks.size(); ++t)
+    catch (const std::exception& e)
     {
-        Task task((int)t, tasks[t], 0);
-        env.task_pool[(int)t] = task;
+        std::cerr << e.what() << std::endl;
+        return 1;
     }
-
-    // mark all tasks as newly revealed and all agents as free
-    env.new_tasks.clear();
-    for (size_t t = 0; t < tasks.size(); ++t) env.new_tasks.push_back((int)t);
-    env.new_freeagents.clear();
-    for (int i = 0; i < env.num_of_agents; ++i) env.new_freeagents.push_back(i);
 
     // prepare a zero background flow vector
     std::vector<Double4> background_flow(env.map.size());
@@ -272,59 +233,37 @@ int run_benchmark(int argc, char** argv)
     std::vector<double> times_full;
     std::vector<double> times_reduced;
 
+    // Each trial gets a fresh copy of `env` (schedulers mutate agent/task
+    // assignment state), so every run starts from the same input.
+    auto run_full_trial = [&]() {
+        SharedEnvironment efull = env;
+        const auto t1 = std::chrono::high_resolution_clock::now();
+        DefaultPlanner::schedule_plan_flow(1000, schedule_flow, &efull, background_flow, false, true);
+        const auto t2 = std::chrono::high_resolution_clock::now();
+        times_full.push_back(std::chrono::duration<double>(t2 - t1).count());
+    };
+    auto run_reduced_trial = [&]() {
+        SharedEnvironment ered = env;
+        const auto t1 = std::chrono::high_resolution_clock::now();
+        DefaultPlanner::schedule_plan_flow_reduced(1000, schedule_reduced, &ered, background_flow, false, true);
+        const auto t2 = std::chrono::high_resolution_clock::now();
+        times_reduced.push_back(std::chrono::duration<double>(t2 - t1).count());
+    };
+
     for (int trial = 0; trial < TRIALS; ++trial)
     {
-        bool run_full_first = (trial % 2 == 0);
-
+        // Alternate which scheduler runs first each trial, so neither one
+        // consistently benefits from (or is penalized by) running second.
+        const bool run_full_first = (trial % 2 == 0);
         if (run_full_first)
         {
-            // fresh copy for full
-            SharedEnvironment efull = env;
-            efull.curr_task_schedule.assign(efull.num_of_agents, -1);
-            efull.task_pool = env.task_pool;
-            efull.new_tasks = env.new_tasks;
-            efull.new_freeagents = env.new_freeagents;
-
-            auto t1 = std::chrono::high_resolution_clock::now();
-            DefaultPlanner::schedule_plan_flow(1000, schedule_flow, &efull, background_flow, false, true);
-            auto t2 = std::chrono::high_resolution_clock::now();
-            times_full.push_back(std::chrono::duration<double>(t2 - t1).count());
-
-            // fresh copy for reduced
-            SharedEnvironment ered = env;
-            ered.curr_task_schedule.assign(ered.num_of_agents, -1);
-            ered.task_pool = env.task_pool;
-            ered.new_tasks = env.new_tasks;
-            ered.new_freeagents = env.new_freeagents;
-
-            auto t3 = std::chrono::high_resolution_clock::now();
-            DefaultPlanner::schedule_plan_flow_reduced(1000, schedule_reduced, &ered, background_flow, false, true);
-            auto t4 = std::chrono::high_resolution_clock::now();
-            times_reduced.push_back(std::chrono::duration<double>(t4 - t3).count());
+            run_full_trial();
+            run_reduced_trial();
         }
         else
         {
-            SharedEnvironment ered = env;
-            ered.curr_task_schedule.assign(ered.num_of_agents, -1);
-            ered.task_pool = env.task_pool;
-            ered.new_tasks = env.new_tasks;
-            ered.new_freeagents = env.new_freeagents;
-
-            auto t3 = std::chrono::high_resolution_clock::now();
-            DefaultPlanner::schedule_plan_flow_reduced(1000, schedule_reduced, &ered, background_flow, false, true);
-            auto t4 = std::chrono::high_resolution_clock::now();
-            times_reduced.push_back(std::chrono::duration<double>(t4 - t3).count());
-
-            SharedEnvironment efull = env;
-            efull.curr_task_schedule.assign(efull.num_of_agents, -1);
-            efull.task_pool = env.task_pool;
-            efull.new_tasks = env.new_tasks;
-            efull.new_freeagents = env.new_freeagents;
-
-            auto t1 = std::chrono::high_resolution_clock::now();
-            DefaultPlanner::schedule_plan_flow(1000, schedule_flow, &efull, background_flow, false, true);
-            auto t2 = std::chrono::high_resolution_clock::now();
-            times_full.push_back(std::chrono::duration<double>(t2 - t1).count());
+            run_reduced_trial();
+            run_full_trial();
         }
     }
 

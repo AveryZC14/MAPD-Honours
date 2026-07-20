@@ -149,11 +149,15 @@ namespace DefaultPlanner{
                 for(int j=0; j<env->goal_locations[i].size(); j++)
                 {
                     int goal_loc = env->goal_locations[i][j].first;
-                        if (trajLNS.heuristics.at(goal_loc).empty()){
-                            init_heuristic(trajLNS.heuristics[goal_loc],env,goal_loc);
-                            count++;
-                        }
-                        touch_heuristic_lru(goal_loc, env);
+                    if (trajLNS.heuristics.at(goal_loc).empty()){
+                        init_heuristic(trajLNS.heuristics[goal_loc],env,goal_loc);
+                        count++;
+                    }
+                    // Mark this goal as most-recently-used whether its table was
+                    // just built above or already existed, so the LRU eviction
+                    // order in touch_heuristic_lru() reflects real usage
+                    // regardless of which path filled it in.
+                    touch_heuristic_lru(goal_loc, env);
                 }
             }
             

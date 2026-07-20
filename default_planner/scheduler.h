@@ -24,6 +24,9 @@ struct ScheduleTiming
 };
 
 void set_last_timing(double solve_time, double guide_path_time);
+// Same as set_last_timing, but for solver 6 (schedule_plan_flow_reduced),
+// which additionally reports how long the one-time coarsened-hierarchy
+// build took and how many nodes each hierarchy level has.
 void set_last_reduced_timing(double solve_time,
 						     double guide_path_time,
 						     double hierarchy_build_time,

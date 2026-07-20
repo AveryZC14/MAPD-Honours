@@ -365,70 +365,6 @@ std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph&
     return connected_components;
 }
 
-// Print a detailed view of the connected components discovered for one coarse
-// 2x2 block so the BFS result is easy to inspect while debugging.
-void dump_connected_components(const CoarsenedGraph& graph,
-                               int coarse_row,
-                               int coarse_col,
-                               const std::vector<std::vector<int>>& connected_components,
-                               const std::vector<CoarsenedGraph::InternalDirectionalArcSamples>& internal_samples)
-{
-    std::cout << "[Coarsen] coarse block (" << coarse_row << ", " << coarse_col << ")"
-              << " produced " << connected_components.size() << " connected component(s)\n";
-
-    for (size_t component_index = 0; component_index < connected_components.size(); ++component_index)
-    {
-        const std::vector<int>& component = connected_components[component_index];
-        std::cout << "  component " << component_index
-                  << " size=" << component.size()
-                  << " node_ids=[";
-
-        for (size_t node_index = 0; node_index < component.size(); ++node_index)
-        {
-            const int node_id = component[node_index];
-            std::cout << node_id;
-
-            if (node_id >= 0 && node_id < static_cast<int>(graph.map_nodes.size()))
-            {
-                const lemon::ListDigraph::Node node = graph.map_nodes[node_id];
-                if (node != lemon::INVALID)
-                {
-                    const std::pair<int, int> coarse_xy = graph.coarse_location[node];
-                    const std::pair<int, int> fine_xy = graph.fine_location[node];
-                    std::cout << "(coarse=" << coarse_xy.first << "," << coarse_xy.second
-                              << "; fine=" << fine_xy.first << "," << fine_xy.second << ")";
-                }
-            }
-
-            if (node_index + 1 < component.size())
-                std::cout << ", ";
-        }
-
-        std::cout << "]\n";
-
-        // Print internal arc summary for this component if samples are available
-        if (component_index < internal_samples.size())
-        {
-            const auto &samples = internal_samples[component_index];
-            std::cout << "    internal arcs: ";
-            const char *names[4] = {"Up","Down","Left","Right"};
-            for (size_t d = 0; d < 4; ++d)
-            {
-                const auto &bucket = samples.weights[d];
-                if (d) std::cout << ", ";
-                std::cout << names[d] << ":count=" << bucket.size();
-                if (!bucket.empty())
-                {
-                    double sum = 0.0;
-                    for (double v : bucket) sum += v;
-                    std::cout << ",avg=" << (sum / static_cast<double>(bucket.size()));
-                }
-            }
-            std::cout << "\n";
-        }
-    }
-}
-
 } // namespace
 
 // Populate `newGraph` for a single discovered connected component.
@@ -502,13 +438,12 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
 {
     // Reset the underlying graph and bookkeeping containers.
     graph.g.clear();
-    // graph.node_to_maploc.clear();
-    // graph.maploc_to_node.clear();
-    // graph.to_coarser_node_id.clear();
-    // graph.to_finer_node_ids.clear();
-    // graph.chosen_finer_node_id.clear();
 
-    // Completely deallocate vectors to free nested capacity leaks
+    // Swap-to-empty instead of .clear(): clear() would only reset size and
+    // leave the old capacity (and, for the nested vector, every inner
+    // vector's capacity) allocated. This matters here because these
+    // containers are sized to the whole map and get rebuilt once per
+    // coarsening level.
     std::vector<int>().swap(graph.node_to_maploc);
     std::vector<int>().swap(graph.maploc_to_node);
     std::vector<int>().swap(graph.to_coarser_node_id);
@@ -517,14 +452,20 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     std::vector<lemon::ListDigraph::Node>().swap(graph.map_nodes);
     std::vector<std::vector<std::vector<int>>>().swap(graph.nodes_at_location);
 
-        // Explicitly re-initialize LEMON maps to bind to the fresh graph structure
-    graph.cost.~ArcMap(); 
+    // LEMON's NodeMap/ArcMap track their owning graph automatically, so
+    // g.clear() above already keeps them valid and correctly sized. These
+    // three maps are additionally destroyed and placement-new'd to force
+    // their internal storage to release its old capacity immediately rather
+    // than carrying it forward into the next level -- the same
+    // capacity-release concern as the vector swaps above (see
+    // ai/claude_memleak_fixes.md for why this codebase is conservative about
+    // resident memory on large maps).
+    graph.cost.~ArcMap();
     new (&graph.cost) lemon::ListDigraph::ArcMap<double>(graph.g);
 
     graph.capacity.~ArcMap();
     new (&graph.capacity) lemon::ListDigraph::ArcMap<int>(graph.g);
 
-    // Do the same for coarse_location if it's a LEMON NodeMap
     graph.coarse_location.~NodeMap();
     new (&graph.coarse_location) lemon::ListDigraph::NodeMap<std::pair<int,int>>(graph.g);
 
@@ -705,10 +646,10 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
     auto newGraph = std::make_unique<CoarsenedGraph>();
     newGraph->inter_component_arc_aggregation_policy = graph.inter_component_arc_aggregation_policy;
 
-    //int division to get the new num of rows and cols
+    // Integer division rounds up so a trailing odd row/column still gets its
+    // own coarse block.
     newGraph->coarse_rows = (graph.coarse_rows+1) / 2;
     newGraph->coarse_cols = (graph.coarse_cols+1) / 2;
-    // newGraph.num_coarse_nodes = 
 
     // First pass: collect all connected components across 2x2 blocks and
     // remember their coarse coordinates so we can allocate the new graph
@@ -740,34 +681,6 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
             }
         }
     }
-    // After collecting components for all coarse blocks, print per-block
-    // summaries including internal arc statistics grouped by coarse cell.
-    if (!all_components.empty())
-    {
-        // Find unique coarse block coordinates present and dump their components
-        std::map<std::pair<int,int>, std::vector<size_t>> index_map;
-        for (size_t idx = 0; idx < all_components.size(); ++idx)
-        {
-            const auto &ci = all_components[idx];
-            index_map[{ci.row, ci.col}].push_back(idx);
-        }
-
-        for (const auto &entry : index_map)
-        {
-            const int brow = entry.first.first;
-            const int bcol = entry.first.second;
-            std::vector<std::vector<int>> comps;
-            std::vector<CoarsenedGraph::InternalDirectionalArcSamples> samples;
-            for (size_t idx : entry.second)
-            {
-                comps.push_back(all_components[idx].nodes);
-                samples.push_back(all_components[idx].internal_directional_arc_samples);
-            }
-
-            // dump_connected_components(graph, brow, bcol, comps, samples);
-        }
-    }
-
     // Allocate backing storage for the coarser graph: one conceptual node per
     // connected component discovered.
     const int num_new_nodes = static_cast<int>(all_components.size());
@@ -1007,14 +920,10 @@ bool append_coarsened_level(MultiLevelCoarsenedGraph& hierarchy)
     if (hierarchy.levels.empty())
         return false;
 
-    // 1. Change the type from CoarsenedGraph* to std::unique_ptr<CoarsenedGraph>
     std::unique_ptr<CoarsenedGraph> next_level = Coarsen(*hierarchy.levels.back());
-    
-    // 2. Check for nullptr using the smart pointer directly
     if (next_level == nullptr)
         return false;
 
-    // 3. Move ownership of the unique_ptr into the vector
     hierarchy.levels.push_back(std::move(next_level));
     return true;
 }
@@ -1072,15 +981,11 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     const std::size_t sig = compute_env_signature_local(env);
     if (ready_ && signature_ == sig && !hierarchy_.empty()) return;
 
-    // Completely wipe the old hierarchy to free memory before rebuilding??!?!??!???
-    hierarchy_.levels.clear();
-    hierarchy_ = MultiLevelCoarsenedGraph(); 
+    // The map changed (or this is the first call): drop the old hierarchy
+    // before rebuilding so its memory is released rather than held alongside
+    // the new one while it's being constructed.
+    hierarchy_.clear();
 
-    const int additional_levels = 0;
-    // choose levels heuristically (reduce until map dims collapse)
-    int rows = std::max(1, env->rows);
-    int cols = std::max(1, env->cols);
-    while ((rows > 1 || cols > 1) && additional_levels < 10) { rows = (rows+1)/2; cols=(cols+1)/2; }
     const int levels_to_add = std::max(0, kDefaultCoarsenLevels);
 
     const auto build_start = std::chrono::high_resolution_clock::now();
@@ -1210,29 +1115,14 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
     return path;
 }
 
-// Find a cheapest fine-level directed arc (u->v) in `lower` such that
-// `to_coarser_node_id[u] == from_parent` and `to_coarser_node_id[v] == to_parent`.
-// The bridge is expected to already be cached on `upper`, so a hit is O(1).
-static std::pair<int,int> pick_bridge_arc_between_parents_local(const CoarsenedGraph& lower, const CoarsenedGraph& upper, int from_parent, int to_parent)
-{
-    std::pair<int,int> best{-1,-1}; double best_cost=1e100;
-
-    const auto cached = upper.bridge_cache.find({from_parent, to_parent});
-    if (cached != upper.bridge_cache.end())
-        return cached->second;
-
-    // Cache miss means the hierarchy was not preprocessed for this pair.
-    // We return an invalid bridge rather than falling back to a scan.
-    (void)best_cost;
-    return best;
-}
-
 // Expand an entire batch of coarse-level paths one level down.
 // Every coarse node uses its preselected finer representative, and each
 // coarse edge is expanded through the cached fine path recorded at coarsen
 // time. The runtime work is intentionally limited to map lookups and vector
 // splicing.
-// 1. CHANGE: Remove 'const &' and take upper_paths by value so it can accept moved objects
+// `upper_paths` is taken by value (not const&) so the caller can move its
+// paths in and this function can move them back out level by level, instead
+// of copying the whole batch at every level of the lift.
 static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vector<std::vector<int>> upper_paths,
                                                                       const CoarsenedGraph& lower,
                                                                       const CoarsenedGraph& upper,
@@ -1385,57 +1275,6 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
     }
 
     return lower_paths;
-}
-
-// Reconstruct one agent guide from the fine graph and a residual arc-flow map.
-// This mirrors `schedule_plan_flow`: start at the agent location, follow a
-// positive-flow outgoing arc, decrement that arc's count, and stop when the
-// task location is reached.
-static std::list<int> reconstruct_guide_from_arc_flow_local(const CoarsenedGraph& fine,
-                                                            const std::unordered_map<int, int>& arc_flow_counts,
-                                                            int start_loc,
-                                                            int task_loc)
-{
-    std::list<int> guide;
-    if (!is_valid_graph_node_id_local(fine, start_loc))
-        return guide;
-
-    std::unordered_map<int, int> residual = arc_flow_counts;
-    int current = start_loc;
-    guide.push_back(current);
-
-    while (current != task_loc)
-    {
-        if (!is_valid_graph_node_id_local(fine, current))
-            break;
-
-        const lemon::ListDigraph::Node current_node = fine.map_nodes[current];
-        if (current_node == lemon::INVALID)
-            break;
-
-        bool advanced = false;
-        for (lemon::ListDigraph::OutArcIt arc(fine.g, current_node); arc != lemon::INVALID; ++arc)
-        {
-            const int arc_id = fine.g.id(arc);
-            auto it = residual.find(arc_id);
-            if (it == residual.end() || it->second <= 0)
-                continue;
-
-            current = fine.g.id(fine.g.target(arc)) >= 0 ? fine.node_to_maploc[fine.g.id(fine.g.target(arc))] : -1;
-            if (current < 0)
-                continue;
-
-            it->second--;
-            guide.push_back(current);
-            advanced = true;
-            break;
-        }
-
-        if (!advanced)
-            break;
-    }
-
-    return guide;
 }
 
 std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedEnvironment* env,
@@ -1592,8 +1431,9 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
             move_remaining[src_kv.first][dst_kv.first] = ns.flow(dst_kv.second);
     }
 
-    // 1. Change this tracking vector
-    std::vector<int> successful_agent_ids; 
+    // Parallel arrays: entry i is agent successful_agent_ids[i], its top-level
+    // path coarse_paths[i], and the task it was matched to assigned_task_ids[i].
+    std::vector<int> successful_agent_ids;
     std::vector<std::vector<int>> coarse_paths;
     std::vector<int> assigned_task_ids;
 
@@ -1731,7 +1571,10 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                           preferred_goals);
     }
 
-    // Replace the block "if (current_paths.empty())" with a per-path check:
+    // The level-by-level lift can fail for individual agents (e.g. a bridge
+    // segment wasn't cached) while succeeding for the rest of the batch, so
+    // each agent's path is checked -- and, if needed, recovered with a direct
+    // fine-map search -- independently rather than failing the whole batch.
     for (std::size_t i = 0; i < current_paths.size(); ++i)
     {
         if (current_paths[i].empty())
@@ -1745,7 +1588,6 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         }
     }
 
-    //timing
     const auto solve_end = std::chrono::high_resolution_clock::now();
     if (solve_time_out)
         *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
@@ -1776,12 +1618,6 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         std::list<int> guide(current_paths[i].begin(), current_paths[i].end());
         out_agent_guide_paths[agent_id] = std::move(guide);
     }
-
-    // FORCE SYSTEM PURGE OF LOCAL CONTAINERS
-    std::vector<std::vector<int>>().swap(current_paths);
-    std::vector<int>().swap(successful_agent_ids);
-    std::vector<int>().swap(assigned_task_ids);
-    std::vector<ListDigraph::Node>().swap(top_nodes);
 
     if (guide_time_out)
         *guide_time_out = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - guide_start).count();

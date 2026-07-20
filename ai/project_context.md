@@ -138,7 +138,7 @@ traffic-aware guide-path optimization step (see `ai/claude_memleak_fixes.md`,
 below) because it's simply too slow to reach the code paths that triggered
 them.
 
-## Solver 6 — `schedule_plan_flow_reduced` (`scheduler.cpp:913`) + `MapReductionTest::ReducedHierarchy`
+## Solver 6 — `schedule_plan_flow_reduced` (`scheduler.cpp:920`) + `MapReductionTest::ReducedHierarchy`
 
 The thesis contribution. Idea: instead of solving assignment on the full fine
 map every timestep, build a **persistent multi-level coarsened graph once**
@@ -164,7 +164,7 @@ needs them (traffic-aware guide paths).
   `MultiLevelCoarsenedGraph`. `ensure(env)` builds it once (checked via a
   signature hash) and is cheap to call every timestep after that.
 
-### Per-timestep flow: `compute_reduced_assignment` (`MapCoarsenV1.cpp:1441`)
+### Per-timestep flow: `compute_reduced_assignment` (`MapCoarsenV1.cpp:1280`)
 
 1. **Step 1** — map every flexible agent's current location and every
    flexible task's location up to the top (coarsest) level, build a small
@@ -176,7 +176,7 @@ needs them (traffic-aware guide paths).
    graph).
 3. **Early return**: if `need_guide_paths` is false (guide paths aren't going
    to be consumed this timestep — see below), return `assignments` here and
-   skip steps 3-4 entirely (`MapCoarsenV1.cpp:1679`).
+   skip steps 3-4 entirely (`MapCoarsenV1.cpp:1519`).
 4. **Step 3** — "lift" each coarse path down through the levels to the fine
    map, splicing in the cached `bridge_path_cache` segments between
    neighboring coarse components at each level, down to a concrete
@@ -184,7 +184,7 @@ needs them (traffic-aware guide paths).
 5. **Step 4** — hand `current_paths[i]` to the caller as the agent's guide
    path (a `std::list<int>` view), no further processing.
 
-Caller side, `schedule_plan_flow_reduced` (`scheduler.cpp:913`):
+Caller side, `schedule_plan_flow_reduced` (`scheduler.cpp:920`):
 - Tasks already assigned-but-not-yet-opened are **pinned** directly
   (`proposed_schedule[agent] = task`) instead of being re-offered to the
   coarse solver every timestep — see "Bug: reshuffling" below for why.
@@ -290,6 +290,35 @@ completing all 250 timesteps with RSS flat at ~2.3GB.
 see if these changes have since been committed or altered further — this doc
 and `ai/claude_memleak_fixes.md` describe the state as of the fixes being
 written, not necessarily current HEAD.
+
+### Working-tree cleanup pass (readability only, no behavior change)
+
+After the bug fixes above, a follow-up pass cleaned up and commented the
+solver-6-related code (everything in `map_reduction_test/`, the entirety of
+`schedule_plan_flow_reduced` in `scheduler.cpp`, and the LRU cache additions
+in `heuristics.{h,cpp}`/`planner.cpp`). All changes were verified
+behavior-preserving (both targets rebuilt cleanly; solver 6 re-run on
+`warehouseSmall_100` and the `map_reduction_test` benchmark harness both
+still produce correct output). Notable removals, mostly in
+`MapCoarsenV1.cpp`:
+- Three fully-unused functions left over from the Bug 2/round-2 fixes:
+  `pick_bridge_arc_between_parents_local`, `reconstruct_guide_from_arc_flow_local`
+  (the old, buggy, uncapped flow-walk guide reconstruction that Step
+  4 replaced but never deleted), and `dump_connected_components` (only ever
+  called from a commented-out line).
+- A dead block in `ReducedHierarchy::ensure()` that computed `rows`/`cols`
+  down to 1 in a loop but never used the result.
+- Several "diary of the debugging session" comments (e.g.
+  `??!?!??!???`, `FORCE SYSTEM PURGE OF LOCAL CONTAINERS`, numbered
+  `1. CHANGE:` edit-instructions) rewritten as normal explanatory comments.
+- In `map_reduction_test/run.cpp`, the ~50-line instance-loading logic
+  duplicated between `load_fine_graph_from_input` and `run_benchmark` was
+  extracted into one shared `populate_env_from_instance` helper.
+
+This shifted line numbers in `MapCoarsenV1.cpp` by roughly -160 (it's ~160
+lines shorter); the references elsewhere in this doc have been updated to
+match. `heuristics.{h,cpp}` and `mapReductionV0.*` needed no changes — they
+were already clean.
 
 ## Known remaining gaps (from `ai/claude_memleak_fixes.md`, not yet acted on)
 

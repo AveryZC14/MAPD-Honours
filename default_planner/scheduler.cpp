@@ -910,11 +910,15 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
 }
 
+// Solver 6: assignment via the persistent coarsened-map hierarchy built by
+// MapReductionTest::ReducedHierarchy (map_reduction_test/MapCoarsenV1.*),
+// instead of solving one min-cost flow over the whole fine map every
+// timestep (solver 1, schedule_plan_flow above). `time_limit` and
+// `background_flow` are only used if the hierarchy isn't ready yet and this
+// falls back to schedule_plan_flow. See ai/project_context.md and
+// ai/claude_memleak_fixes.md for the full design/debugging history.
 void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
 {
-    (void)time_limit;
-    (void)background_flow;
-
     auto solve_start_time = std::chrono::high_resolution_clock::now();
     agent_guide_path.clear();
 
@@ -971,7 +975,6 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
         return;
     }
 
-    std::cout << "[DEBUG] Ensuring hierarchy..." << std::endl;
     MapReductionTest::ReducedHierarchy::instance().ensure(env);
     if (!MapReductionTest::ReducedHierarchy::instance().ready())
     {
@@ -986,9 +989,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     std::unordered_map<int,std::list<int>> guide_paths;
     double solve_time = 0.0, guide_time = 0.0;
     const bool need_guide_paths = use_traffic && env->curr_timestep >= 100;
-    std::cout << "[DEBUG] Hierarchy ready. Computing assignments..." << std::endl;
     const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths, &solve_time, &guide_time);
-    std::cout << "[DEBUG] Assignments done. Mapping paths..." << std::endl;
 
     for (const auto &kv : assignments)
     {
@@ -1000,7 +1001,6 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     }
 
     set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts);
-    guide_paths.clear();
 }
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)
