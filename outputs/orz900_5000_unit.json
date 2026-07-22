@@ -1,0 +1,233 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 1759,
+    "makespan": 58,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 1.272516666,
+            "SchedulerGuidePathTime": 0.012429904,
+            "PlannerTime": 1.365429136
+        },
+        {
+            "SchedulerSolveTime": 1.272516666,
+            "SchedulerGuidePathTime": 0.012429904,
+            "PlannerTime": 1.365429136
+        },
+        {
+            "SchedulerSolveTime": 1.046586868,
+            "SchedulerGuidePathTime": 0.012391816,
+            "PlannerTime": 1.108776955
+        },
+        {
+            "SchedulerSolveTime": 1.046586868,
+            "SchedulerGuidePathTime": 0.012391816,
+            "PlannerTime": 1.108776955
+        },
+        {
+            "SchedulerSolveTime": 0.515695875,
+            "SchedulerGuidePathTime": 0.012193221,
+            "PlannerTime": 1.31505482
+        },
+        {
+            "SchedulerSolveTime": 0.515695875,
+            "SchedulerGuidePathTime": 0.012193221,
+            "PlannerTime": 1.31505482
+        },
+        {
+            "SchedulerSolveTime": 1.787132404,
+            "SchedulerGuidePathTime": 0.012848843,
+            "PlannerTime": 1.851359508
+        },
+        {
+            "SchedulerSolveTime": 1.787132404,
+            "SchedulerGuidePathTime": 0.012848843,
+            "PlannerTime": 1.851359508
+        },
+        {
+            "SchedulerSolveTime": 2.02841717,
+            "SchedulerGuidePathTime": 0.012734198,
+            "PlannerTime": 2.098920938
+        },
+        {
+            "SchedulerSolveTime": 2.02841717,
+            "SchedulerGuidePathTime": 0.012734198,
+            "PlannerTime": 2.098920938
+        },
+        {
+            "SchedulerSolveTime": 2.210449898,
+            "SchedulerGuidePathTime": 0.013217557,
+            "PlannerTime": 2.284826242
+        },
+        {
+            "SchedulerSolveTime": 2.210449898,
+            "SchedulerGuidePathTime": 0.013217557,
+            "PlannerTime": 2.284826242
+        },
+        {
+            "SchedulerSolveTime": 2.236881939,
+            "SchedulerGuidePathTime": 0.013342852,
+            "PlannerTime": 2.318486357
+        },
+        {
+            "SchedulerSolveTime": 2.236881939,
+            "SchedulerGuidePathTime": 0.013342852,
+            "PlannerTime": 2.318486357
+        },
+        {
+            "SchedulerSolveTime": 2.079044043,
+            "SchedulerGuidePathTime": 0.014757213,
+            "PlannerTime": 2.164003723
+        },
+        {
+            "SchedulerSolveTime": 2.079044043,
+            "SchedulerGuidePathTime": 0.014757213,
+            "PlannerTime": 2.164003723
+        },
+        {
+            "SchedulerSolveTime": 2.236757423,
+            "SchedulerGuidePathTime": 0.015465936,
+            "PlannerTime": 2.32688981
+        },
+        {
+            "SchedulerSolveTime": 2.236757423,
+            "SchedulerGuidePathTime": 0.015465936,
+            "PlannerTime": 2.32688981
+        },
+        {
+            "SchedulerSolveTime": 2.088404018,
+            "SchedulerGuidePathTime": 0.013113991,
+            "PlannerTime": 2.178086752
+        },
+        {
+            "SchedulerSolveTime": 2.088404018,
+            "SchedulerGuidePathTime": 0.013113991,
+            "PlannerTime": 2.178086752
+        },
+        {
+            "SchedulerSolveTime": 1.902478223,
+            "SchedulerGuidePathTime": 0.012783912,
+            "PlannerTime": 1.980825783
+        },
+        {
+            "SchedulerSolveTime": 1.902478223,
+            "SchedulerGuidePathTime": 0.012783912,
+            "PlannerTime": 1.980825783
+        },
+        {
+            "SchedulerSolveTime": 1.878293821,
+            "SchedulerGuidePathTime": 0.011489712,
+            "PlannerTime": 1.953457952
+        },
+        {
+            "SchedulerSolveTime": 1.878293821,
+            "SchedulerGuidePathTime": 0.011489712,
+            "PlannerTime": 1.953457952
+        },
+        {
+            "SchedulerSolveTime": 1.871728597,
+            "SchedulerGuidePathTime": 0.011477692,
+            "PlannerTime": 1.946782201
+        },
+        {
+            "SchedulerSolveTime": 1.871728597,
+            "SchedulerGuidePathTime": 0.011477692,
+            "PlannerTime": 1.946782201
+        },
+        {
+            "SchedulerSolveTime": 1.90942712,
+            "SchedulerGuidePathTime": 0.012866425,
+            "PlannerTime": 1.985089302
+        },
+        {
+            "SchedulerSolveTime": 1.90942712,
+            "SchedulerGuidePathTime": 0.012866425,
+            "PlannerTime": 1.985089302
+        },
+        {
+            "SchedulerSolveTime": 1.957671386,
+            "SchedulerGuidePathTime": 0.013628318,
+            "PlannerTime": 2.04064872
+        },
+        {
+            "SchedulerSolveTime": 1.957671386,
+            "SchedulerGuidePathTime": 0.013628318,
+            "PlannerTime": 2.04064872
+        },
+        {
+            "SchedulerSolveTime": 2.146247729,
+            "SchedulerGuidePathTime": 0.012615157,
+            "PlannerTime": 2.227826701
+        },
+        {
+            "SchedulerSolveTime": 2.146247729,
+            "SchedulerGuidePathTime": 0.012615157,
+            "PlannerTime": 2.227826701
+        },
+        {
+            "SchedulerSolveTime": 2.140790541,
+            "SchedulerGuidePathTime": 0.011971929,
+            "PlannerTime": 2.219770305
+        },
+        {
+            "SchedulerSolveTime": 2.140790541,
+            "SchedulerGuidePathTime": 0.011971929,
+            "PlannerTime": 2.219770305
+        },
+        {
+            "SchedulerSolveTime": 1.486452513,
+            "SchedulerGuidePathTime": 0.01205118,
+            "PlannerTime": 2.311327055
+        },
+        {
+            "SchedulerSolveTime": 1.486452513,
+            "SchedulerGuidePathTime": 0.01205118,
+            "PlannerTime": 2.311327055
+        },
+        {
+            "SchedulerSolveTime": 2.225675912,
+            "SchedulerGuidePathTime": 0.01160955,
+            "PlannerTime": 2.305967557
+        },
+        {
+            "SchedulerSolveTime": 2.225675912,
+            "SchedulerGuidePathTime": 0.01160955,
+            "PlannerTime": 2.305967557
+        },
+        {
+            "SchedulerSolveTime": 2.330380787,
+            "SchedulerGuidePathTime": 0.010591551,
+            "PlannerTime": 2.413695637
+        },
+        {
+            "SchedulerSolveTime": 2.330380787,
+            "SchedulerGuidePathTime": 0.010591551,
+            "PlannerTime": 2.413695637
+        },
+        {
+            "SchedulerSolveTime": 2.247372268,
+            "SchedulerGuidePathTime": 0.010876026,
+            "PlannerTime": 2.326904705
+        },
+        {
+            "SchedulerSolveTime": 2.247372268,
+            "SchedulerGuidePathTime": 0.010876026,
+            "PlannerTime": 2.326904705
+        },
+        {
+            "SchedulerSolveTime": 2.239020721,
+            "SchedulerGuidePathTime": 0.01055294,
+            "PlannerTime": 2.320595311
+        },
+        {
+            "SchedulerSolveTime": 2.239020721,
+            "SchedulerGuidePathTime": 0.01055294,
+            "PlannerTime": 2.320595311
+        }
+    ]
+}
