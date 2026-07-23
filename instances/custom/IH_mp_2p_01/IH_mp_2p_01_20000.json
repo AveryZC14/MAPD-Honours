@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/IH_mp_2p_01.map",
+    "agentFile": "agents/IH_mp_2p_01_20000.agents",
+    "teamSize": 20000,
+    "taskFile": "tasks/IH_mp_2p_01.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

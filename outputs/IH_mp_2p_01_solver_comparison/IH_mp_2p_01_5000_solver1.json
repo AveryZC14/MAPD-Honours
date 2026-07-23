@@ -1,0 +1,73 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 195,
+    "makespan": 201,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 38.630643345,
+            "SchedulerGuidePathTime": 0.059864931,
+            "PlannerTime": 39.946309276
+        },
+        {
+            "SchedulerSolveTime": 38.630643345,
+            "SchedulerGuidePathTime": 0.059864931,
+            "PlannerTime": 39.946309276
+        },
+        {
+            "SchedulerSolveTime": 35.971230737,
+            "SchedulerGuidePathTime": 0.053034674,
+            "PlannerTime": 37.081562814
+        },
+        {
+            "SchedulerSolveTime": 35.971230737,
+            "SchedulerGuidePathTime": 0.053034674,
+            "PlannerTime": 37.081562814
+        },
+        {
+            "SchedulerSolveTime": 36.464029157,
+            "SchedulerGuidePathTime": 0.050972738,
+            "PlannerTime": 37.704598849
+        },
+        {
+            "SchedulerSolveTime": 36.464029157,
+            "SchedulerGuidePathTime": 0.050972738,
+            "PlannerTime": 37.704598849
+        },
+        {
+            "SchedulerSolveTime": 35.844541657,
+            "SchedulerGuidePathTime": 0.049448377,
+            "PlannerTime": 37.130968774
+        },
+        {
+            "SchedulerSolveTime": 35.844541657,
+            "SchedulerGuidePathTime": 0.049448377,
+            "PlannerTime": 37.130968774
+        },
+        {
+            "SchedulerSolveTime": 36.667676638,
+            "SchedulerGuidePathTime": 0.043633125,
+            "PlannerTime": 37.977293039
+        },
+        {
+            "SchedulerSolveTime": 36.667676638,
+            "SchedulerGuidePathTime": 0.043633125,
+            "PlannerTime": 37.977293039
+        },
+        {
+            "SchedulerSolveTime": 36.667676638,
+            "SchedulerGuidePathTime": 0.043633125,
+            "PlannerTime": 8.001810929
+        },
+        {
+            "SchedulerSolveTime": 36.667676638,
+            "SchedulerGuidePathTime": 0.043633125,
+            "PlannerTime": 8.001810929
+        }
+    ]
+}

@@ -5,6 +5,12 @@ whole repo to understand what this is and how the pieces fit together. It
 focuses on the path exercised by `./build/lifelong ... --scheduleModel 1` and
 `--scheduleModel 6`, since that's been the active area of work.
 
+> **`ai/human_notes/` is off-limits.** It holds standalone notes kept for the
+> user's own reference, separate from the maintained doc set this file
+> indexes. Do not read, list, or summarize files under `ai/human_notes/`
+> unless the user explicitly asks you to open one by name in that specific
+> conversation — don't proactively pull it into context otherwise.
+
 ## What this repo is
 
 This is a fork of the **League of Robot Runners (LoRR)** "start-kit" —  a C++
@@ -89,6 +95,45 @@ src/driver.cpp: main()
          simulator.move(proposed_actions)   // advances world state, marks tasks complete
 ```
 
+### Makespan vs. "timesteps solved" — two different counters (`BaseSystem::simulate`, `CompetitionSystem.cpp:147`)
+
+These are computed from different variables and can diverge:
+
+- **`makespan`** (output JSON field, `CompetitionSystem.cpp:271-283`) = the
+  max, over all agents, of `solution_costs[a]`. `solution_costs[a]` is
+  incremented once per **real elapsed simulated timestep** in which agent `a`
+  had a non-empty `goal_locations[a]` — both in the normal path (`:195-199`,
+  right before `simulator.move(proposed_actions)`) and in the catch-up path
+  described below (`:170-178`). It tracks real simulated time.
+- **"timesteps solved" / "steps recorded"** = `len(timeStepMetrics)`, one
+  entry appended per *call into the planner*, not per elapsed timestep. The
+  outer loop (`simulate()`) calls `plan(timeout_timesteps)` once per
+  iteration; `plan()` (`:91-104`) itself loops internally, incrementing
+  `timeout_timesteps` once for every additional simulated timestep it has to
+  burn waiting for a still-running planner thread. Back in `simulate()`, that
+  whole burst of `timeout_timesteps` forced real timestep advances
+  (`simulator.move(all_wait_actions)` in a `for` loop, `:170-178`) gets
+  **exactly one** `TimeStepMetric` appended for the entire batch (`:183-189`),
+  then one more real move + one more metric entry happens for the "actual"
+  planned step (`:194-213`). So one outer-loop iteration can advance the
+  simulated clock by `timeout_timesteps + 1` real timesteps while only adding
+  1-2 rows to `timeStepMetrics`.
+- **Net effect**: whenever the planner is slow enough to time out and force
+  multiple catch-up timesteps in a single call (solver 1 on `orz900d` does
+  this constantly — see "planner timeout" log spam), `len(timeStepMetrics)`
+  under-counts real elapsed time, while `makespan` does not. Dividing
+  tasks-finished by `len(timeStepMetrics)` therefore **overstates** throughput
+  for whichever solver times out more; dividing by `makespan` gives the
+  real-time-accurate figure. `visualisation/compute_throughput_metrics.py`
+  reports both (`tp/steps` and `tp/makespan`) — prefer `tp/makespan`. Full
+  worked example with real numbers in `ai/auto_benchmarking.md`.
+- Separately, `makespan` can overshoot the requested `-s N` by 1: `plan()`'s
+  internal loop condition (`timestep + timeout_timesteps < simulation_time`)
+  stops advancing `timeout_timesteps` once the cap is hit, but `simulate()`
+  then unconditionally does one more real `simulator.move()` regardless
+  (`:202`) — an off-by-one that only surfaces when the planner is still
+  mid-solve exactly as time runs out.
+
 `SharedEnvironment` (`inc/SharedEnv.h`) is the shared blackboard: `map`,
 `curr_states` (agent locations), `task_pool` (task_id -> `Task`, see
 `inc/Tasks.h`), `new_tasks`, `new_freeagents`, `curr_task_schedule`,
@@ -145,6 +190,15 @@ map every timestep, build a **persistent multi-level coarsened graph once**
 (at hierarchy-build time), solve the tiny top-level flow every timestep, and
 only "lift" the result back down to fine-map paths when something actually
 needs them (traffic-aware guide paths).
+
+**Hierarchy build is mandatory during preprocessing for every solver, not
+just solver 6**: `schedule_initialize()` (`scheduler.cpp:63`) unconditionally
+calls `ReducedHierarchy::instance().ensure(env)` regardless of
+`--scheduleModel`, so solver 1 pays this cost too even though it never uses
+the result. Fast enough to be invisible on `orz900d` (~978K cells); on a
+~2.3x bigger map (`IH_mp_2p_01`) it took ~300s and required raising
+`--preprocessTimeLimit` well past its 30000ms default for *every* solver in
+the sweep, not just solver 6 — see `ai/auto_benchmarking.md`.
 
 ### Data structures (`map_reduction_test/MapCoarsenV1.h`)
 
@@ -233,6 +287,58 @@ runs regardless of which scheduler solver was used:
    turning-in-place is modeled as a delay layered on top of the base plan,
    not a separate action cost.
 
+### Guide paths: which solvers provide them, and are they doing anything
+
+`agent_guide_path` (`scheduler.cpp:13`, a global `unordered_map<int,list<int>>`,
+agent id -> fine-node path) is how a scheduler can hand the low-level planner
+a ready-made path instead of making it compute one. **Both solver 1 and
+solver 6 populate it under the exact same gate**,
+`use_traffic && env->curr_timestep >= 100`:
+- Solver 1 (`schedule_plan_flow`, `scheduler.cpp:871-872`): the per-agent
+  `path` it builds by walking the flow solution (needed anyway, to recover
+  which task each agent was assigned) is stored into `agent_guide_path` only
+  if that gate is true. The walk itself always happens regardless — it's free.
+- Solver 6 (`schedule_plan_flow_reduced`, `scheduler.cpp:991-1000`): computes
+  `need_guide_paths = use_traffic && curr_timestep >= 100` and passes it into
+  `compute_reduced_assignment`, which **skips Steps 3-4 (coarse-to-fine
+  lifting) entirely** when false (early return after Step 2, see "Solver 6"
+  above). Unlike solver 1, here the gate isn't just "don't store it" — the
+  fine-grained path is never computed at all when traffic is off.
+
+Consequence: **none of the benchmarking done in this repo so far
+(`ai/claude_memleak_fixes.md` verification runs, the `orz900d` sweep in
+`ai/auto_benchmarking.md`) ever passed `--useTraffic`**, so `agent_guide_path`
+was empty in every one of those runs for both solvers, and solver 6's
+Step 3-4 lifting code specifically never executed. "Solver 6's guide-path
+code is barely ever active" is correct as stated — it's *never* active in
+any run so far, by construction, not just rare.
+
+What happens when `agent_guide_path` has no entry for an agent:
+`planner.cpp:227-237` falls back to `update_traj()` (`flow.cpp:162`), which
+runs `astar(..., lns.flow, lns.heuristics[goal], ...)` — `lns.flow` is the
+low-level planner's **own** internal congestion field (built from other
+agents' current trajectories, `get_opened_flow()`, `planner.cpp:33-60`),
+independent of the scheduler entirely. So the low-level planner always does
+*some* congestion-aware pathing via `update_traj`/`frank_wolfe`
+(`flow.cpp:96`) regardless of scheduler solver choice — a scheduler-provided
+guide path is only ever a substitute **seed** trajectory (skips the initial
+`astar` call, trajectory then still gets iterated on by `frank_wolfe` like
+any other agent's), not the only source of congestion-awareness.
+
+Whether that seed is worth anything depends on whether the scheduler's own
+edge costs were traffic-weighted when it computed the seed — which is the
+same `use_traffic` flag. `heuristics.{h,cpp}`'s distance tables are plain BFS
+(topological, unweighted) regardless of `use_traffic`. So: with
+`--useTraffic` off (every run so far), there is no dynamically-weighted-edge
+information anywhere in the system, and the question of whether solver-
+provided guide paths are "useful" doesn't really arise — they're simply never
+computed. To exercise/benchmark this feature at all requires
+`--useTraffic` and simulating past timestep 100; no code change is needed to
+turn it on, only a CLI flag, but Steps 3-4 in solver 6 have never been
+exercised under real traffic conditions since the OOM fixes landed (they were
+all validated with traffic off) and would be worth a dedicated small-scale
+correctness/perf check before trusting them at scale.
+
 `heuristics.{h,cpp}` also owns the **LRU eviction layer** around
 `global_heuristictable`: `touch_heuristic_lru()` bounds resident heuristic
 tables to a fixed ~1GB budget (`max_tables = max(16, 1GB / bytes_per_table)`),
@@ -243,13 +349,15 @@ path, used by e.g. matching-based schedulers) and the direct call site in
 `planner.cpp`'s main loop — or the cache silently un-bounds itself again for
 whichever call site is missed.
 
-## Current working-tree state (uncommitted, as of last session)
+## Memory-leak fix history (now committed)
 
-`git status` shows uncommitted changes in `default_planner/heuristics.{h,cpp}`,
-`default_planner/planner.cpp`, `default_planner/scheduler.cpp`,
-`map_reduction_test/MapCoarsenV1.{h,cpp}` — **these are exactly the fixes
-documented in `ai/claude_memleak_fixes.md`**, not yet committed. That file is
-the authoritative, detailed writeup; short version:
+The fixes below were committed as `b3806cd` ("fix memory leak, set up claude")
+and the follow-up readability pass as `97b4a2c` ("clean up mapcoarsen and
+other files") — both are on `main` as of this writing. `git log --oneline`
+also shows a benchmark sweep (`88ef2a1`, `978af90`) and a bootstrap script
+(`722c772`) added afterward; see "Benchmark sweeps" below for what those
+benchmarks found. `ai/claude_memleak_fixes.md` remains the
+authoritative, detailed writeup of the fixes themselves; short version:
 
 Solver 6 was OOMing on large instances (`orz900d_5000`, 656x1491,
 ~978K cells) while solver 1 wasn't. Five bugs, found across two rounds:
@@ -320,6 +428,42 @@ lines shorter); the references elsewhere in this doc have been updated to
 match. `heuristics.{h,cpp}` and `mapReductionV0.*` needed no changes — they
 were already clean.
 
+## Benchmark sweeps (`ai/auto_benchmarking.md`)
+
+`ai/auto_benchmarking.md` is the index/synthesis doc for all solver-1-vs-
+solver-6 sweeps — read it first, then follow its links to the per-sweep
+detail file you need. Two sweeps so far:
+
+1. `orz900d` (~978K cells), 15 runs, solver 1 vs. solver 6 at coarsen levels
+   1-4 — detail in `ai/auto_benchmarking_orz900d.md`. **Solver 1 wins** on
+   real-time throughput at every agent count tested.
+2. `IH_mp_2p_01` (~3.44M cells, ~2.3x bigger), 9 runs, solver 1 vs. solver 6
+   at coarsen depth 2 and 4 — detail in `ai/auto_benchmarking_IH_mp_2p_01.md`.
+   **The result inverts**: solver 6 wins by ~4-7x instead, since solver 1's
+   cost scales with map size (not agent count) while solver 6's doesn't.
+
+Headline pitfalls documented there, worth knowing before touching this again:
+
+- **Solver 1 has its own unbounded-memory-growth bug**, distinct from the
+  solver-6 OOM this doc's fixes addressed. It's invisible at the default
+  `--planTimeLimit 1000`ms (the tight budget cuts the per-timestep flow solve
+  off before the leaking code path completes), but OOM-kills the process
+  within ~12 timesteps at `--planTimeLimit 10000`. Never fixed — out of scope
+  for that sweep. Anyone raising solver 1's time limit should know this first.
+- `makespan` and `len(timeStepMetrics)` ("steps recorded") are **not the same
+  number** and can diverge badly — see "Makespan vs. 'timesteps solved'"
+  above for the mechanics; always use `tp/makespan`, never `tp/steps`, for
+  throughput comparisons (`visualisation/compute_throughput_metrics.py`
+  reports both from a result JSON or folder of them).
+- The coarsen-level/depth toggle (`kDefaultCoarsenLevels`, a `constexpr int`
+  at `MapCoarsenV1.cpp:31`) is compile-time only — there's no CLI flag, so
+  comparing levels means editing that line and re-running `./compile.sh` per
+  level (both sweeps did this with `sed`, restoring the original value `2`
+  at the end).
+- Hierarchy build is mandatory for every solver during preprocessing (see
+  "Solver 6" above) — budget `--preprocessTimeLimit` accordingly on any map
+  bigger than `orz900d`, even for a solver-1-only run.
+
 ## Known remaining gaps (from `ai/claude_memleak_fixes.md`, not yet acted on)
 
 - The ~1GB LRU cap is a hardcoded constant, not derived from any overall
@@ -335,6 +479,20 @@ were already clean.
 - `ai/claude_memleak_fixes.md` — full narrative of the solver-6 OOM
   investigation above; read it if you need the exact bug mechanics, code
   diffs, or verification methodology rather than the summary here.
+- `ai/auto_benchmarking.md` — **index + cross-sweep synthesis + reusable
+  methodology** for all solver-1-vs-solver-6 sweeps. Start here, then follow
+  its links to the sweep you need:
+  - `ai/auto_benchmarking_orz900d.md` — 15-run sweep, solver 1 vs. solver 6
+    at coarsen levels 1-4, on `orz900d`.
+  - `ai/auto_benchmarking_IH_mp_2p_01.md` — 9-run sweep, solver 1 vs. solver
+    6 at coarsen depth 2/4, on `IH_mp_2p_01` (~2.3x bigger map).
+  - Each new sweep gets its own `ai/auto_benchmarking_<map>.md` detail file
+    (flat, not a subfolder — the user wants to eventually automate
+    benchmarking rather than keep hand-writing these); update the master's
+    index table and synthesis section to match.
+- `ai/todo.md` — forward-looking task list (distinct from the other docs,
+  which record completed investigations). Check it at the start of a
+  session; add to it instead of losing track of asks that aren't done yet.
 
 (Update this list if more `ai/*.md` files are added later.)
 

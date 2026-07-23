@@ -1,0 +1,73 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 10000,
+    "numTaskFinished": 669,
+    "makespan": 201,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 38.375529815,
+            "SchedulerGuidePathTime": 0.086030167,
+            "PlannerTime": 39.75617191
+        },
+        {
+            "SchedulerSolveTime": 38.375529815,
+            "SchedulerGuidePathTime": 0.086030167,
+            "PlannerTime": 39.75617191
+        },
+        {
+            "SchedulerSolveTime": 38.513447497,
+            "SchedulerGuidePathTime": 0.444411286,
+            "PlannerTime": 40.319052834
+        },
+        {
+            "SchedulerSolveTime": 38.513447497,
+            "SchedulerGuidePathTime": 0.444411286,
+            "PlannerTime": 40.319052834
+        },
+        {
+            "SchedulerSolveTime": 38.116692188,
+            "SchedulerGuidePathTime": 0.06888945,
+            "PlannerTime": 39.56869364
+        },
+        {
+            "SchedulerSolveTime": 38.116692188,
+            "SchedulerGuidePathTime": 0.06888945,
+            "PlannerTime": 39.56869364
+        },
+        {
+            "SchedulerSolveTime": 36.743600911,
+            "SchedulerGuidePathTime": 0.063491353,
+            "PlannerTime": 38.044853678
+        },
+        {
+            "SchedulerSolveTime": 36.743600911,
+            "SchedulerGuidePathTime": 0.063491353,
+            "PlannerTime": 38.044853678
+        },
+        {
+            "SchedulerSolveTime": 37.083021077,
+            "SchedulerGuidePathTime": 0.060391673,
+            "PlannerTime": 38.41230492
+        },
+        {
+            "SchedulerSolveTime": 37.083021077,
+            "SchedulerGuidePathTime": 0.060391673,
+            "PlannerTime": 38.41230492
+        },
+        {
+            "SchedulerSolveTime": 37.083021077,
+            "SchedulerGuidePathTime": 0.060391673,
+            "PlannerTime": 1.00033234
+        },
+        {
+            "SchedulerSolveTime": 37.083021077,
+            "SchedulerGuidePathTime": 0.060391673,
+            "PlannerTime": 1.00033234
+        }
+    ]
+}
