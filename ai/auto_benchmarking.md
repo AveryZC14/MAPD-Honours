@@ -127,39 +127,61 @@ and — for solver 6 — `kDefaultCoarsenLevels` at compile time varied):
 
 ## Results
 
-| file | agents | tasksFinished | steps recorded | throughput (tasks/step) |
-|---|---|---|---|---|
-| orz900d_5000_solver1.json | 5000 | 2178 | 148 | 14.716 |
-| orz900d_5000_solver6_level1.json | 5000 | 1900 | 200 | 9.500 |
-| orz900d_5000_solver6_level2.json | 5000 | 1875 | 200 | 9.375 |
-| orz900d_5000_solver6_level3.json | 5000 | 1835 | 200 | 9.175 |
-| orz900d_5000_solver6_level4.json | 5000 | 1806 | 200 | 9.030 |
-| orz900d_10000_solver1.json | 10000 | 4683 | 196 | 23.893 |
-| orz900d_10000_solver6_level1.json | 10000 | 4032 | 200 | 20.160 |
-| orz900d_10000_solver6_level2.json | 10000 | 4030 | 200 | 20.150 |
-| orz900d_10000_solver6_level3.json | 10000 | 3959 | 200 | 19.795 |
-| orz900d_10000_solver6_level4.json | 10000 | 3869 | 200 | 19.345 |
-| orz900d_20000_solver1.json | 20000 | 9845 | 199 | 49.472 |
-| orz900d_20000_solver6_level1.json | 20000 | 8524 | 200 | 42.620 |
-| orz900d_20000_solver6_level2.json | 20000 | 8493 | 200 | 42.465 |
-| orz900d_20000_solver6_level3.json | 20000 | 8303 | 200 | 41.515 |
-| orz900d_20000_solver6_level4.json | 20000 | 8141 | 200 | 40.705 |
+| file | agents | tasksFinished | steps recorded | makespan | tp/steps | tp/makespan |
+|---|---|---|---|---|---|---|
+| orz900d_5000_solver1.json | 5000 | 2178 | 148 | 201 | 14.716 | 10.836 |
+| orz900d_5000_solver6_level1.json | 5000 | 1900 | 200 | 200 | 9.500 | 9.500 |
+| orz900d_5000_solver6_level2.json | 5000 | 1875 | 200 | 200 | 9.375 | 9.375 |
+| orz900d_5000_solver6_level3.json | 5000 | 1835 | 200 | 200 | 9.175 | 9.175 |
+| orz900d_5000_solver6_level4.json | 5000 | 1806 | 200 | 200 | 9.030 | 9.030 |
+| orz900d_10000_solver1.json | 10000 | 4683 | 196 | 201 | 23.893 | 23.299 |
+| orz900d_10000_solver6_level1.json | 10000 | 4032 | 200 | 200 | 20.160 | 20.160 |
+| orz900d_10000_solver6_level2.json | 10000 | 4030 | 200 | 200 | 20.150 | 20.150 |
+| orz900d_10000_solver6_level3.json | 10000 | 3959 | 200 | 200 | 19.795 | 19.795 |
+| orz900d_10000_solver6_level4.json | 10000 | 3869 | 200 | 200 | 19.345 | 19.345 |
+| orz900d_20000_solver1.json | 20000 | 9845 | 199 | 200 | 49.472 | 49.225 |
+| orz900d_20000_solver6_level1.json | 20000 | 8524 | 200 | 200 | 42.620 | 42.620 |
+| orz900d_20000_solver6_level2.json | 20000 | 8493 | 200 | 200 | 42.465 | 42.465 |
+| orz900d_20000_solver6_level3.json | 20000 | 8303 | 200 | 200 | 41.515 | 41.515 |
+| orz900d_20000_solver6_level4.json | 20000 | 8141 | 200 | 200 | 40.705 | 40.705 |
 
 Notes on reading this table:
-- "steps recorded" = `len(timeStepMetrics)` in the output JSON. Solver 1 runs
-  show slightly fewer than 200 (148/196/199) despite completing successfully
-  (rc=0, 0 errors) — appears to be a metrics-recording quirk in solver 1's
-  path (possibly collapsing/skipping duplicate entries under its frequent
-  near-cap `PlannerTime` values), not missing simulation time. Throughput
-  above divides by the *recorded* step count, not a flat 200, to stay
-  comparable; worth double-checking this quirk if the discrepancy matters
-  for the eventual plot.
-- Directionally, solver 1 finishes more tasks/step than any solver 6
-  coarsen level at every agent count tested, and within solver 6, more
-  coarsening (higher level) trades off a small amount of throughput (level 1
-  > 2 > 3 > 4 consistently). This tracks with the thesis's expected
-  trade-off (deeper coarsening = faster/cheaper per-timestep solve, at some
-  assignment-quality cost).
+- "steps recorded" = `len(timeStepMetrics)`; "makespan" = the `makespan`
+  field in the output JSON (max, over agents, of `solution_costs[a]` —
+  incremented once per *real* elapsed simulator timestep, including forced
+  wait-timesteps injected while the planner was still solving). These are
+  two different counters in `src/CompetitionSystem.cpp`'s main loop
+  (`BaseSystem::simulate`), and they diverge specifically for solver 1:
+  - `makespan` overshoots the `-s 200` request by 1 (→201) for the 5000-
+    and 10000-agent solver 1 runs. Cause: `plan()`
+    (`CompetitionSystem.cpp:91`) stops advancing its internal
+    `timeout_timesteps` counter once `timestep + timeout_timesteps` hits the
+    `-s` cap, but `simulate()` then unconditionally performs one more real
+    `simulator.move()` afterward regardless of the cap
+    (`CompetitionSystem.cpp:202`) — an off-by-one that only surfaces when
+    the planner is still mid-solve right as time runs out.
+  - `timeStepMetrics` under-counts real elapsed time whenever a single
+    while-loop iteration has to force more than one wait-timestep to catch
+    up after a planner timeout: that whole multi-timestep batch only gets
+    1-2 metric entries appended, not one per elapsed timestep
+    (`CompetitionSystem.cpp:168-213`). Solver 1 hits this constantly on this
+    map (regular "planner timeout" log messages even at the default
+    1000ms/timestep cap); solver 6 essentially never does, so its steps
+    recorded and makespan always agree at exactly 200.
+  - Net effect: `tp/steps` (dividing by the recorded-but-undercounted step
+    total) overstates solver 1's throughput, worst at 5000 agents (148 vs.
+    the real 201 elapsed steps, a ~26% gap: 14.716 vs. the corrected
+    10.836). `tp/makespan` is the more accurate real-time throughput figure
+    since it divides by actual elapsed simulated time rather than an
+    undercount of it — prefer it for the eventual plot.
+- Directionally, solver 1 still finishes more tasks/(real timestep) than
+  any solver 6 coarsen level at every agent count tested even after this
+  correction, though its margin at 5000 agents shrinks substantially
+  (10.836 vs. solver6-level1's 9.500, not the uncorrected 14.716 vs. 9.500).
+  Within solver 6, more coarsening (higher level) trades off a small amount
+  of throughput (level 1 > 2 > 3 > 4 consistently) under either metric.
+  This tracks with the thesis's expected trade-off (deeper coarsening =
+  faster/cheaper per-timestep solve, at some assignment-quality cost).
 - Caveat: solver 1 still hits `"planner timeout"` messages regularly even at
   the default 1000ms/timestep cap (confirmed in the investigation run's
   log), i.e. it's still time-budget-starved at these settings, just not
@@ -169,6 +191,10 @@ Notes on reading this table:
   the same observation made previously. Read the solver-1-vs-6 comparison
   as "under identical, practical time budgets," not "under unconstrained
   compute."
+- A `visualisation/compute_throughput_metrics.py` script now generates this
+  exact table (file, agents, tasks, steps, makespan, tp/steps, tp/makespan)
+  as CSV from either a single result JSON or a folder of them — use it to
+  regenerate/extend this table instead of hand-computing for future sweeps.
 
 <!-- Append new entries below if this doc is reused for a future sweep. -->
 
