@@ -27,6 +27,40 @@ the date and what changed) rather than deleting them outright.
   decisions in during 201 simulated timesteps" instead of inferring it from
   the "steps recorded" workaround used in `ai/auto_benchmarking.md`.
 
+- [ ] **Split `PlannerTime` into its scheduler and path-planner components.**
+  Confusing right now: the `PlannerTime` field in each timestep's output
+  (`TimeStepMetric::PlannerTime`, `inc/CompetitionSystem.h:19`) isn't just the
+  low-level path planner — it's the wall-clock of the *entire*
+  `Entry::compute()` call, which runs `scheduler->plan()` (task assignment,
+  varies by `--scheduleModel`) followed by `planner->plan()` (low-level
+  pathfinding, same code every solver). It's set from a single
+  `std::chrono` measurement wrapping both in `BaseSystem::plan()`
+  (`src/CompetitionSystem.cpp:162-211`). Meanwhile `SchedulerSolveTime` /
+  `SchedulerGuidePathTime` are already captured separately via
+  `last_scheduler_timing` (`ScheduleTiming` struct, `default_planner/scheduler.h:18`,
+  populated by `set_last_timing`/`set_last_reduced_timing` in
+  `default_planner/scheduler.cpp:18-38`) but aren't subtracted out anywhere,
+  so it's easy to misread `PlannerTime` as pure path-planning cost when
+  solver 1 vs. solver 6 differences are actually dominated by scheduler cost
+  (see `ai/auto_benchmarking_IH_mp_2p_01.md`).
+  - Rename/keep `PlannerTime` as `TotalPlanTime` (the full `Entry::compute()`
+    wall-clock, what's measured today).
+  - Add a `PathPlannerTime` field = `TotalPlanTime - SchedulerSolveTime -
+    SchedulerGuidePathTime` (or time `planner->plan()` directly for
+    precision instead of subtracting, since `planner_wrapper()` in
+    `src/CompetitionSystem.cpp:53-70` already calls `scheduler->plan()` and
+    `planner->plan()` — wait, actually `scheduler->plan()` and
+    `planner->plan()` are called inside `Entry::compute()`
+    (`src/Entry.cpp:32,38`), not directly in `planner_wrapper()` — timing
+    would need to move into `Entry::compute()` itself, or `Entry` would need
+    to expose per-call timings the way the scheduler already does).
+  - Keep `SchedulerSolveTime` / `SchedulerGuidePathTime` as-is (already
+    correct, just underused).
+  - Update `visualisation/compute_throughput_metrics.py` and the two
+    `ai/auto_benchmarking_*.md` docs' methodology notes once the new field
+    exists, so future sweeps read `PathPlannerTime` instead of misreading
+    `PlannerTime`/`TotalPlanTime` as planner-only cost.
+
 - [ ] **(Suggestion, not yet requested) Find the solver-1-vs-solver-6
   crossover map size.** `orz900d` (~978K cells): solver 1 wins. `IH_mp_2p_01`
   (~3.44M cells): solver 6 wins by ~4-7x. Somewhere between those two map
