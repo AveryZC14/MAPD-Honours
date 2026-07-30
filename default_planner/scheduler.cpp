@@ -15,23 +15,30 @@ unordered_map<int,list<int>> agent_guide_path; //agent id, guide path from flow
 /* Begin scheduler timing state. */
 ScheduleTiming last_timing;
 
-void set_last_timing(double solve_time, double guide_path_time)
+void set_last_timing(double solve_time, double guide_path_time,
+                      double guide_path_length_sum, double guide_path_cost_sum)
 {
     last_timing.solve_time = solve_time;
     last_timing.guide_path_time = guide_path_time;
     last_timing.hierarchy_build_time = 0.0;
     last_timing.hierarchy_level_node_counts.clear();
+    last_timing.guide_path_length_sum = guide_path_length_sum;
+    last_timing.guide_path_cost_sum = guide_path_cost_sum;
 }
 
 void set_last_reduced_timing(double solve_time,
                              double guide_path_time,
                              double hierarchy_build_time,
-                             const std::vector<int>& hierarchy_level_node_counts)
+                             const std::vector<int>& hierarchy_level_node_counts,
+                             double guide_path_length_sum,
+                             double guide_path_cost_sum)
 {
     last_timing.solve_time = solve_time;
     last_timing.guide_path_time = guide_path_time;
     last_timing.hierarchy_build_time = hierarchy_build_time;
     last_timing.hierarchy_level_node_counts = hierarchy_level_node_counts;
+    last_timing.guide_path_length_sum = guide_path_length_sum;
+    last_timing.guide_path_cost_sum = guide_path_cost_sum;
 }
 
 ScheduleTiming get_last_timing()
@@ -822,15 +829,25 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
         auto guide_start_time = std::chrono::high_resolution_clock::now();
         int cnt = 0;
 
+        // Sum, over every agent successfully matched this call, of the guide
+        // path's length (edges) and cost (sum of the traversed arcs' `cost`,
+        // which is traffic-weighted iff use_traffic). Computed unconditionally
+        // -- the walk that builds `path` happens regardless of the
+        // use_traffic/timestep gate below, so this is free and always
+        // populated, unlike agent_guide_path itself.
+        double guide_path_length_sum = 0.0;
+        double guide_path_cost_sum = 0.0;
+
         // cout << "Optimal assignment with minimum cost:" << endl;
         // Iterate over all worker nodes
-        for (int i = 0; i < num_workers; i++) 
+        for (int i = 0; i < num_workers; i++)
         {
             ListDigraph::Node current = map_nodes[env->curr_states[flexible_agent_ids[i]].location];
 
             list<int> path;
+            double path_cost = 0.0;
 
-            while (node_to_task_id.find(lemon::ListDigraphBase::id(current)) == node_to_task_id.end()) 
+            while (node_to_task_id.find(lemon::ListDigraphBase::id(current)) == node_to_task_id.end())
             {
                 // Check if the current node is a task node
                 if (current == sink) break; // Reached sink, no task node found
@@ -841,9 +858,9 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 // Follow the flow to the next node
                 // Find the next node in the path
                 bool found = false;
-                for (ListDigraph::OutArcIt arc(g, current); arc != INVALID; ++arc) 
+                for (ListDigraph::OutArcIt arc(g, current); arc != INVALID; ++arc)
                 {
-                    if (ns.flow(arc) > 0) 
+                    if (ns.flow(arc) > 0)
                     { // Follow the flow
                         if (edge_flows.find(lemon::ListDigraphBase::id(arc)) == edge_flows.end())
                         {
@@ -851,6 +868,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                         }
                         if (edge_flows[lemon::ListDigraphBase::id(arc)] <= 0)
                             continue;
+                        path_cost += cost[arc];
                         current = g.target(arc);
                         edge_flows[lemon::ListDigraphBase::id(arc)]--;
                         found = true;
@@ -860,7 +878,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 if (!found) break;  // No path found
             }
             // Now `current` should be a task node
-            if (node_to_task_id.find(lemon::ListDigraphBase::id(current)) != node_to_task_id.end()) 
+            if (node_to_task_id.find(lemon::ListDigraphBase::id(current)) != node_to_task_id.end())
             {
                 int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
@@ -868,6 +886,11 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
+                if (!path.empty())
+                {
+                    guide_path_length_sum += static_cast<double>(path.size() - 1);
+                    guide_path_cost_sum += path_cost;
+                }
                 if (use_traffic && env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
@@ -877,7 +900,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                     node_to_task_id.erase(lemon::ListDigraphBase::id(current));
                 }
             }
-            else 
+            else
             {
                 cout << "No solution found." << endl;
             }
@@ -885,7 +908,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
         auto guide_end_time = std::chrono::high_resolution_clock::now();
         double guide_elapsed_time = std::chrono::duration<double>(guide_end_time - guide_start_time).count();
-        set_last_timing(solve_elapsed_time, guide_elapsed_time);
+        set_last_timing(solve_elapsed_time, guide_elapsed_time, guide_path_length_sum, guide_path_cost_sum);
         /* End guide-path reconstruction timing. */
 
         /* Begin timing report for the solved assignment and guide-path pass. */
@@ -988,19 +1011,37 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
 
     std::unordered_map<int,std::list<int>> guide_paths;
     double solve_time = 0.0, guide_time = 0.0;
-    const bool need_guide_paths = use_traffic && env->curr_timestep >= 100;
-    const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths, &solve_time, &guide_time);
+    double guide_path_length_sum = 0.0, guide_path_cost_sum = 0.0;
+    // The planner only ever consumes agent_guide_path (below) under this gate
+    // -- unchanged from before. But the fine-grained lift (Steps 3/4 inside
+    // compute_reduced_assignment) is now requested unconditionally so
+    // GuidePathLengthSum/GuidePathCostSum are populated on every timestep,
+    // including runs without --useTraffic, making solver 1 and solver 6
+    // comparable on this metric regardless of run settings. This reintroduces
+    // per-timestep lifting cost that was previously skipped entirely outside
+    // the seed window -- see ai/guide_path_metric.md for the perf check done
+    // on orz900d before this was made unconditional.
+    const bool need_guide_paths_for_seed = use_traffic && env->curr_timestep >= 100;
+    const bool need_guide_paths = true;
+    const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(
+        env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths,
+        &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum);
 
     for (const auto &kv : assignments)
     {
         const int agent_id = kv.first;
         const int task_id = kv.second;
         proposed_schedule[agent_id] = task_id;
-        if (use_traffic && env->curr_timestep >= 100)
-            agent_guide_path[agent_id] = guide_paths[agent_id];
+        if (need_guide_paths_for_seed)
+        {
+            const auto guide_it = guide_paths.find(agent_id);
+            if (guide_it != guide_paths.end())
+                agent_guide_path[agent_id] = guide_it->second;
+        }
     }
 
-    set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts);
+    set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts,
+                             guide_path_length_sum, guide_path_cost_sum);
 }
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)

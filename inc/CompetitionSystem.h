@@ -17,6 +17,14 @@ struct TimeStepMetric
     double SchedulerSolveTime = 0.0;
     double SchedulerGuidePathTime = 0.0;
     double PlannerTime = 0.0;
+    // Sum, over every guide path the scheduler built this timestep, of path
+    // length (edges) and path cost (sum of traversed arc costs -- equals
+    // length unless --useTraffic is on, and even then only for solver 1; see
+    // ai/guide_path_metric.md). Both solvers populate these unconditionally
+    // now, independent of whether traffic-seeding is active, so they're
+    // comparable across every run.
+    double GuidePathLengthSum = 0.0;
+    double GuidePathCostSum = 0.0;
 };
 /* End per-timestep metrics model. */
 

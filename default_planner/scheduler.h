@@ -21,16 +21,28 @@ struct ScheduleTiming
 	double guide_path_time = 0.0;
 	double hierarchy_build_time = 0.0;
 	std::vector<int> hierarchy_level_node_counts;
+	// Sum, over every guide path built this scheduler call, of (path length
+	// in edges) and (sum of that path's per-edge arc costs). Computed
+	// unconditionally every call (not just when use_traffic is on / the
+	// planner-seed gate is open) so the two solvers are comparable on every
+	// run, including ones that never pass --useTraffic. See
+	// ai/guide_path_metric.md for why length and cost currently coincide for
+	// solver 6 but can diverge for solver 1.
+	double guide_path_length_sum = 0.0;
+	double guide_path_cost_sum = 0.0;
 };
 
-void set_last_timing(double solve_time, double guide_path_time);
+void set_last_timing(double solve_time, double guide_path_time,
+                      double guide_path_length_sum = 0.0, double guide_path_cost_sum = 0.0);
 // Same as set_last_timing, but for solver 6 (schedule_plan_flow_reduced),
 // which additionally reports how long the one-time coarsened-hierarchy
 // build took and how many nodes each hierarchy level has.
 void set_last_reduced_timing(double solve_time,
 						     double guide_path_time,
 						     double hierarchy_build_time,
-						     const std::vector<int>& hierarchy_level_node_counts);
+						     const std::vector<int>& hierarchy_level_node_counts,
+						     double guide_path_length_sum = 0.0,
+						     double guide_path_cost_sum = 0.0);
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 

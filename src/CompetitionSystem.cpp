@@ -185,6 +185,8 @@ void BaseSystem::simulate(int simulation_time)
             metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
             metric.SchedulerGuidePathTime = last_scheduler_timing.guide_path_time;
             metric.PlannerTime = planner_time;
+            metric.GuidePathLengthSum = last_scheduler_timing.guide_path_length_sum;
+            metric.GuidePathCostSum = last_scheduler_timing.guide_path_cost_sum;
             time_step_metrics.push_back(metric);
             /* End storing final per-timestep scheduler and planner metrics. */
 
@@ -209,6 +211,8 @@ void BaseSystem::simulate(int simulation_time)
         metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
         metric.SchedulerGuidePathTime = last_scheduler_timing.guide_path_time;
         metric.PlannerTime = planner_time;
+        metric.GuidePathLengthSum = last_scheduler_timing.guide_path_length_sum;
+        metric.GuidePathCostSum = last_scheduler_timing.guide_path_cost_sum;
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
 
@@ -299,6 +303,8 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["SchedulerSolveTime"] = metric.SchedulerSolveTime;
             step["SchedulerGuidePathTime"] = metric.SchedulerGuidePathTime;
             step["PlannerTime"] = metric.PlannerTime;
+            step["GuidePathLengthSum"] = metric.GuidePathLengthSum;
+            step["GuidePathCostSum"] = metric.GuidePathCostSum;
             time_step_metrics_json.push_back(step);
         }
         js["timeStepMetrics"] = time_step_metrics_json;

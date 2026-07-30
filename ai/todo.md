@@ -72,4 +72,20 @@ the date and what changed) rather than deleting them outright.
 
 ## Done
 
-(none yet)
+- [x] **2026-07-29: Guide-path reconstruction rigor pass + GuidePathLengthSum/
+  GuidePathCostSum metric.** Verified solver 6's guide-path output is
+  format-interchangeable with solver 1's (same `boost::unordered_map<int,
+  list<int>>`, valid start/end/adjacency) via a new standalone tool
+  (`./build/guide_path_validator`); found and fixed a real bug where the
+  fine-lift could silently return a guide path anchored on the wrong
+  sub-component when a coarse parent spans multiple disconnected regions at
+  an intermediate hierarchy level. Added `GuidePathLengthSum`/
+  `GuidePathCostSum` to `TimeStepMetric` for both solvers, decoupling solver
+  6's fine-lift from the traffic-seed gate so the metric is populated on
+  every run (verified no OOM/perf regression on `orz900d_5000`, 250
+  timesteps, RSS flat ~2.3GB). Found that raw cross-solver totals of this
+  metric over a multi-timestep run are only comparable with `--assignNew 1`
+  (`new_only=true`) — without it, solver 1's re-offering of already-assigned
+  tasks every timestep inflates its total by ~7.7x relative to solver 6's
+  pin-once behavior, an artifact of recomputation cadence, not path quality.
+  Full writeup: `ai/guide_path_metric.md`.

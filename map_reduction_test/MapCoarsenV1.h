@@ -222,13 +222,18 @@ public:
     // steps 3/4 runs at all -- callers that only need the agent->task assignment (e.g. when
     // traffic-aware guide paths aren't going to be consumed this timestep) should pass false
     // to skip straight to returning `assignments` once the compact top-level flow is solved.
+    // `guide_path_length_sum_out`/`guide_path_cost_sum_out`, when steps 3/4 run, receive the
+    // sum over every lifted path of (edges) and (sum of that path's fine-graph arc costs)
+    // respectively -- 0 if need_guide_paths is false or no agent was successfully matched.
     std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
                                                            const std::vector<int>& flexible_agent_ids,
                                                            const std::vector<int>& flexible_task_ids,
                                                            std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
                                                            bool need_guide_paths = true,
                                                            double* solve_time_out = nullptr,
-                                                           double* guide_time_out = nullptr);
+                                                           double* guide_time_out = nullptr,
+                                                           double* guide_path_length_sum_out = nullptr,
+                                                           double* guide_path_cost_sum_out = nullptr);
 
 private:
     ReducedHierarchy();

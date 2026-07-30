@@ -43,6 +43,7 @@ file(GLOB SOURCES "src/*.cpp" "default_planner/*.cpp")
 # functions like reduce_map_2x2 are available to scheduler.cpp.
 list(APPEND SOURCES "map_reduction_test/mapReductionV0.cpp")
 list(APPEND SOURCES "map_reduction_test/MapCoarsenV1.cpp")
+list(APPEND SOURCES "map_reduction_test/instance_loader.cpp")
 #------
 
 
@@ -114,6 +115,25 @@ list(FILTER PROJECT_SOURCES EXCLUDE REGEX ".*driver\.cpp$")
 add_executable(map_reduction_test map_reduction_test/run.cpp ${PROJECT_SOURCES})
 target_link_libraries(map_reduction_test ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(map_reduction_test PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
+# Standalone guide-path format/validity checker: verifies solver 1's and
+# solver 6's agent_guide_path output are structurally interchangeable (same
+# type, valid start/end/adjacency, no empty entries) and can be fed to the
+# low-level planner the same way. See ai/guide_path_metric.md.
+add_executable(guide_path_validator map_reduction_test/validate_guide_paths.cpp ${PROJECT_SOURCES})
+target_link_libraries(guide_path_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(guide_path_validator PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
+# Standalone tool: dump solver 1 and solver 6 guide paths (for a handful of
+# agents) to a CSV for visualisation, see map_reduction_test/visualisation/
+# plot_guide_paths.py.
+add_executable(dump_guide_paths map_reduction_test/dump_guide_paths.cpp ${PROJECT_SOURCES})
+target_link_libraries(dump_guide_paths ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(dump_guide_paths PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
 

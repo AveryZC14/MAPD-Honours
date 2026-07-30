@@ -305,13 +305,30 @@ solver 6 populate it under the exact same gate**,
   above). Unlike solver 1, here the gate isn't just "don't store it" — the
   fine-grained path is never computed at all when traffic is off.
 
-Consequence: **none of the benchmarking done in this repo so far
-(`ai/claude_memleak_fixes.md` verification runs, the `orz900d` sweep in
-`ai/auto_benchmarking.md`) ever passed `--useTraffic`**, so `agent_guide_path`
-was empty in every one of those runs for both solvers, and solver 6's
-Step 3-4 lifting code specifically never executed. "Solver 6's guide-path
-code is barely ever active" is correct as stated — it's *never* active in
-any run so far, by construction, not just rare.
+Consequence: **none of the benchmarking done in this repo before the
+guide-path metric work below (`ai/claude_memleak_fixes.md` verification runs,
+the `orz900d` sweep in `ai/auto_benchmarking.md`) ever passed
+`--useTraffic`**, so `agent_guide_path` was empty in every one of those runs
+for both solvers, and solver 6's Step 3-4 lifting code specifically never
+executed. "Solver 6's guide-path code is barely ever active" was correct as
+stated for those runs — it was *never* active, by construction, not just
+rare.
+
+**This changed with `ai/guide_path_metric.md`**: solver 6's Step 3-4 lifting
+now runs unconditionally every timestep (decoupled from the
+`use_traffic && curr_timestep >= 100` gate) so a new `GuidePathLengthSum`/
+`GuidePathCostSum` metric can be populated on every run, including ones
+without `--useTraffic`. What still respects the original gate is only
+*storage into `agent_guide_path`* (the planner-visible seed) — so the
+planner-behavior consequence described above (no seed ever reaches the
+planner without `--useTraffic`) is still accurate, but the lifting code
+itself is no longer dormant outside that window. That change is also what
+first exercised Step 3-4 rigorously enough to surface a real bug (wrong
+start/end location when a coarse parent spans multiple disconnected
+sub-components at an intermediate level) — see `ai/guide_path_metric.md` for
+the bug, fix, and a new standalone validator tool
+(`./build/guide_path_validator`) that checks solver 1 and solver 6 guide
+paths are format-interchangeable.
 
 What happens when `agent_guide_path` has no entry for an agent:
 `planner.cpp:227-237` falls back to `update_traj()` (`flow.cpp:162`), which
@@ -493,6 +510,11 @@ Headline pitfalls documented there, worth knowing before touching this again:
 - `ai/todo.md` — forward-looking task list (distinct from the other docs,
   which record completed investigations). Check it at the start of a
   session; add to it instead of losing track of asks that aren't done yet.
+- `ai/guide_path_metric.md` — rigor pass on solver 6's guide-path
+  reconstruction (found + fixed a real wrong-endpoint bug), the new
+  `GuidePathLengthSum`/`GuidePathCostSum` `TimeStepMetric` fields, the new
+  `./build/guide_path_validator` tool, and an important caveat: raw
+  cross-solver totals of this metric are only comparable with `--assignNew 1`.
 
 (Update this list if more `ai/*.md` files are added later.)
 
@@ -518,6 +540,9 @@ map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
   MapCoarsenV1.cpp/.h       CoarsenedGraph, Coarsen(), ReducedHierarchy, compute_reduced_assignment
   mapReductionV0.cpp/.h     earlier/simpler map-reduction prototype (superseded by V1, still compiled in)
   run.cpp                   standalone comparison-harness executable (./build/map_reduction_test)
+  instance_loader.cpp/.h    shared instance-JSON loading helper (used by run.cpp and validate_guide_paths.cpp)
+  validate_guide_paths.cpp  standalone guide-path format/validity checker (./build/guide_path_validator),
+                            see ai/guide_path_metric.md
   LGFtoGEXF.py, convertLGFtoCSV.py, convertLGFtoDOT.py   graph export/visualization scripts
   visualisation/, visualisation_csv/   output dirs for the above
 python/                 Python bindings track (pybind11) — separate from the C++ path above; not

@@ -1115,6 +1115,44 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
     return path;
 }
 
+// Sum the fine-graph arc cost along a concrete fine-node path (consecutive
+// entries must be adjacent nodes in `graph`, as produced by the lift in
+// compute_reduced_assignment / the direct-Dijkstra fallback). Used only for
+// the GuidePathCostSum metric; NOT on the per-timestep hot path otherwise.
+// Note: as of this writing every fine-graph arc's cost is a fixed 1.0
+// (`build_from_environment`, `graph.cost[arc] = 1.0`) -- the hierarchy is
+// built once at preprocessing time and never sees background_flow/use_traffic,
+// so this will always equal the path's edge count. Looked up for real (not
+// hardcoded) so the metric stays correct if that ever changes.
+static double path_cost_on_fine_graph_local(const CoarsenedGraph& graph, const std::vector<int>& path)
+{
+    double total = 0.0;
+    for (std::size_t i = 0; i + 1 < path.size(); ++i)
+    {
+        const int u = path[i];
+        const int v = path[i + 1];
+        if (!is_valid_graph_node_id_local(graph, u))
+            continue;
+        const lemon::ListDigraph::Node u_node = graph.map_nodes[u];
+        if (u_node == lemon::INVALID)
+            continue;
+        double edge_cost = 1.0; // fallback if the arc can't be found (shouldn't happen for a valid path)
+        for (lemon::ListDigraph::OutArcIt arc(graph.g, u_node); arc != lemon::INVALID; ++arc)
+        {
+            const int v_lid = graph.g.id(graph.g.target(arc));
+            if (v_lid < 0 || v_lid >= static_cast<int>(graph.node_to_maploc.size()))
+                continue;
+            if (graph.node_to_maploc[v_lid] == v)
+            {
+                edge_cost = graph.cost[arc];
+                break;
+            }
+        }
+        total += edge_cost;
+    }
+    return total;
+}
+
 // Expand an entire batch of coarse-level paths one level down.
 // Every coarse node uses its preselected finer representative, and each
 // coarse edge is expanded through the cached fine path recorded at coarsen
@@ -1283,9 +1321,13 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                                         std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
                                                                         bool need_guide_paths,
                                                                         double* solve_time_out,
-                                                                        double* guide_time_out){
+                                                                        double* guide_time_out,
+                                                                        double* guide_path_length_sum_out,
+                                                                        double* guide_path_cost_sum_out){
     std::unordered_map<int,int> assignments;
     out_agent_guide_paths.clear();
+    if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
+    if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
 
     if (!env)
         return assignments;
@@ -1575,15 +1617,34 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // segment wasn't cached) while succeeding for the rest of the batch, so
     // each agent's path is checked -- and, if needed, recovered with a direct
     // fine-map search -- independently rather than failing the whole batch.
+    //
+    // The lift can also come back *non-empty but wrong*: `preferred_starts`/
+    // `preferred_goals` (and the lead-in/lead-out bridge splicing) only
+    // correct for a mismatch between an agent's real location and its
+    // component's chosen representative at the FINAL (level 1 -> fine)
+    // expansion. One level up, a single coarse parent can still contain
+    // multiple disconnected sub-components (e.g. two pockets separated by a
+    // wall that both landed in the same coarsened block), and the
+    // intermediate expansion has no real-location anchor to correct against
+    // -- it just walks representative-to-representative. On a small/maze-like
+    // map this can silently hand back a path anchored on the wrong
+    // sub-component's representative node instead of the agent's actual
+    // start/task location. Verified endpoints here, not just non-emptiness,
+    // so a bad lift is always caught and replaced with a correct-by-
+    // construction direct search rather than silently seeding the planner
+    // with a guide path that starts or ends somewhere the agent isn't.
     for (std::size_t i = 0; i < current_paths.size(); ++i)
     {
-        if (current_paths[i].empty())
-        {
-            const int agent_id = successful_agent_ids[i];
-            const int task_id = assigned_task_ids[i];
-            const int start_loc = env->curr_states[agent_id].location;
-            const int task_loc = env->task_pool[task_id].locations[0];
+        const int agent_id = successful_agent_ids[i];
+        const int task_id = assigned_task_ids[i];
+        const int start_loc = env->curr_states[agent_id].location;
+        const int task_loc = env->task_pool[task_id].locations[0];
 
+        const bool endpoints_wrong = !current_paths[i].empty() &&
+            (current_paths[i].front() != start_loc || current_paths[i].back() != task_loc);
+
+        if (current_paths[i].empty() || endpoints_wrong)
+        {
             current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false);
         }
     }
@@ -1608,12 +1669,29 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // could wander across other agents' routes through a large shared flow
     // budget before stalling or reaching the goal -- on large/maze-like maps
     // this produced multi-million-node guide lists and OOM'd the process.
+    double guide_path_length_sum = 0.0;
+    double guide_path_cost_sum = 0.0;
+
     for (std::size_t i = 0; i < current_paths.size(); ++i)
     {
         if (i >= successful_agent_ids.size() || i >= assigned_task_ids.size())
             break;
 
+        // A path can still be empty here if both the level-by-level lift AND
+        // the direct-Dijkstra fallback above failed (e.g. start/task land in
+        // genuinely disconnected fine-graph components). Skip rather than
+        // hand the planner an empty guide: planner.cpp treats a missing
+        // agent_guide_path entry as "fall back to update_traj" (its normal,
+        // safe path), whereas add_traj/remove_traj (flow.cpp) compute
+        // `trajs[agent].size() - 1` on an unsigned size_t before checking for
+        // emptiness, which underflows to a huge value on a truly empty traj.
+        if (current_paths[i].empty())
+            continue;
+
         const int agent_id = successful_agent_ids[i];
+
+        guide_path_length_sum += static_cast<double>(current_paths[i].size() - 1);
+        guide_path_cost_sum += path_cost_on_fine_graph_local(*fine, current_paths[i]);
 
         std::list<int> guide(current_paths[i].begin(), current_paths[i].end());
         out_agent_guide_paths[agent_id] = std::move(guide);
@@ -1621,6 +1699,10 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
 
     if (guide_time_out)
         *guide_time_out = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - guide_start).count();
+    if (guide_path_length_sum_out)
+        *guide_path_length_sum_out = guide_path_length_sum;
+    if (guide_path_cost_sum_out)
+        *guide_path_cost_sum_out = guide_path_cost_sum;
 
     return assignments;
 }
