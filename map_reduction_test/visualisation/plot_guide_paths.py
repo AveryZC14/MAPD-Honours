@@ -246,7 +246,9 @@ def main():
     ap.add_argument("-o", "--output", required=True, help="per-agent cropped panel grid PNG")
     ap.add_argument("--full-map-output", help="also render a separate whole-map overview PNG with all agents' paths")
     ap.add_argument("--full-map-scale", type=int, default=2, help="pixels per cell for the whole-map overview (default: 2)")
-    ap.add_argument("--agents", help="comma-separated agent ids to include (default: all present in CSV)")
+    ap.add_argument("--agents", help="comma-separated agent ids for the per-agent panel grid (default: all present in CSV)")
+    ap.add_argument("--full-map-agents", help="comma-separated agent ids for the whole-map overview "
+                                               "(default: all present in CSV, independent of --agents)")
     ap.add_argument("--cols", type=int, default=COLS)
     args = ap.parse_args()
 
@@ -275,10 +277,14 @@ def main():
     print(f"wrote {args.output} ({canvas.width}x{canvas.height}, {len(panels)} agents)")
 
     if args.full_map_output:
-        full_map = render_full_map(grid, data, wanted, scale=args.full_map_scale)
+        if args.full_map_agents:
+            full_map_wanted = [int(a) for a in args.full_map_agents.split(",")]
+        else:
+            full_map_wanted = sorted(data.keys())
+        full_map = render_full_map(grid, data, full_map_wanted, scale=args.full_map_scale)
         Path(args.full_map_output).parent.mkdir(parents=True, exist_ok=True)
         full_map.save(args.full_map_output)
-        print(f"wrote {args.full_map_output} ({full_map.width}x{full_map.height}, {len(wanted)} agents)")
+        print(f"wrote {args.full_map_output} ({full_map.width}x{full_map.height}, {len(full_map_wanted)} agents)")
 
 
 if __name__ == "__main__":

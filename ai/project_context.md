@@ -515,6 +515,16 @@ Headline pitfalls documented there, worth knowing before touching this again:
   `GuidePathLengthSum`/`GuidePathCostSum` `TimeStepMetric` fields, the new
   `./build/guide_path_validator` tool, and an important caveat: raw
   cross-solver totals of this metric are only comparable with `--assignNew 1`.
+- `ai/guide_path_visualisation.md` — two new standalone tools
+  (`./build/dump_guide_paths`, `map_reduction_test/visualisation/plot_guide_paths.py`)
+  that render solver 1 vs. solver 6 guide paths spatially over the actual
+  map, per-agent and whole-map. Also documents a real bug found and fixed
+  while scaling this up: solver 6's coarse-to-fine lift fallback
+  (`shortest_path_in_graph_local`) was plain, unguided Dijkstra with a fixed
+  expansion cap, which silently dropped guide paths for many agents on huge
+  maps with long paths — fixed with an A* heuristic. Includes a results
+  table across every run done (`orz900d`, `IH_mp_2p_01` at 20 through 20000
+  agents).
 
 (Update this list if more `ai/*.md` files are added later.)
 
@@ -540,11 +550,18 @@ map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
   MapCoarsenV1.cpp/.h       CoarsenedGraph, Coarsen(), ReducedHierarchy, compute_reduced_assignment
   mapReductionV0.cpp/.h     earlier/simpler map-reduction prototype (superseded by V1, still compiled in)
   run.cpp                   standalone comparison-harness executable (./build/map_reduction_test)
-  instance_loader.cpp/.h    shared instance-JSON loading helper (used by run.cpp and validate_guide_paths.cpp)
+  instance_loader.cpp/.h    shared instance-JSON loading helper (used by run.cpp, validate_guide_paths.cpp,
+                            and dump_guide_paths.cpp)
   validate_guide_paths.cpp  standalone guide-path format/validity checker (./build/guide_path_validator),
                             see ai/guide_path_metric.md
+  dump_guide_paths.cpp      standalone tool dumping solver 1 vs. solver 6 guide paths to CSV for
+                            visualisation (./build/dump_guide_paths), see ai/guide_path_visualisation.md
   LGFtoGEXF.py, convertLGFtoCSV.py, convertLGFtoDOT.py   graph export/visualization scripts
-  visualisation/, visualisation_csv/   output dirs for the above
+  visualisation/            .gexf outputs from the above scripts, plus plot_guide_paths.py
+                            (renders dump_guide_paths.cpp's CSV output over the map, see
+                            ai/guide_path_visualisation.md) -- a script living alongside output
+                            artifacts in the same dir, not a clean separation
+  visualisation_csv/        CSV output dir for LGFtoGEXF.py etc.
 python/                 Python bindings track (pybind11) — separate from the C++ path above; not
                          touched by the solver 1/6 work. set_track.bash selects planner/scheduler/combined.
 instances/               benchmark maps+agents+tasks (warehouseSmall/Large, sortationLarge, random,

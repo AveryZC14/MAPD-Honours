@@ -89,3 +89,21 @@ the date and what changed) rather than deleting them outright.
   tasks every timestep inflates its total by ~7.7x relative to solver 6's
   pin-once behavior, an artifact of recomputation cadence, not path quality.
   Full writeup: `ai/guide_path_metric.md`.
+
+- [x] **2026-07-31: Guide-path visualisation tooling + solver 6 fine-lift
+  fallback bug fix.** Built two standalone tools (`./build/dump_guide_paths`,
+  `map_reduction_test/visualisation/plot_guide_paths.py`) that render solver
+  1 vs. solver 6 guide paths spatially over the actual map — per-agent
+  cropped/zoomed panels and a whole-map overview. While scaling this up
+  (`IH_mp_2p_01`, sparse task pools), found solver 6 was silently dropping
+  guide paths for many assigned agents (e.g. 15/50 returned vs. solver 1's
+  50/50): the coarse-to-fine lift's direct-search fallback
+  (`shortest_path_in_graph_local`, `MapCoarsenV1.cpp`) was plain Dijkstra
+  with no heuristic, hard-capped at 20000 expansions — fine for its other
+  use (tiny bridge hops) but nowhere near enough for an unguided search
+  across a ~3.44M-cell map to a goal hundreds of cells away. Fixed with an
+  optional A* mode (Manhattan-distance heuristic, exact here since fine
+  arcs cost 1.0), applied only to that specific fallback call. Verified via
+  `guide_path_validator` (128,062/0 failed) and re-run at every scale from
+  50 up to the full 5000/10000/20000-agent instances with zero guide paths
+  missing. Full writeup: `ai/guide_path_visualisation.md`.

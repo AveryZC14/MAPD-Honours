@@ -1034,67 +1034,111 @@ static int map_fine_node_to_level_node_local(const MultiLevelCoarsenedGraph& hie
     return node_id;
 }
 
-// Compute a lowest-cost path (Dijkstra) over the provided `graph` from
-// `start_id` to `goal_id`. If `constrain_parent` is true then only nodes
-// whose `to_coarser_node_id` equals `required_parent` are considered when
+// Compute a lowest-cost path over the provided `graph` from `start_id` to
+// `goal_id`. If `constrain_parent` is true then only nodes whose
+// `to_coarser_node_id` equals `required_parent` are considered when
 // expanding — this restricts the search to the subgraph belonging to a
-// specific coarse parent component.
+// specific coarse parent component (used for the tiny bridge lead-in/
+// lead-out hops, where a plain, unguided search is already cheap).
+//
+// `use_heuristic`, when true, turns this into A* with a Manhattan-distance
+// heuristic on `graph.fine_location` instead of plain Dijkstra. This matters
+// for the *unconstrained* fallback call on the full fine graph (see the
+// caller in compute_reduced_assignment): every fine-graph arc costs exactly
+// 1.0, so Manhattan distance is admissible and exact-on-open-ground, and
+// without it, an undirected Dijkstra over a large, sparsely-obstructed map
+// expands a whole disc of nodes (~O(distance^2)) before reaching a goal a
+// few hundred cells away -- easily blowing through MAX_EXPANSIONS on maps
+// with millions of cells and leaving the agent with no guide path at all
+// (silently dropped in Step 4, see compute_reduced_assignment). A* instead
+// expands roughly along the path itself, so the same expansion budget goes
+// much further. Not applied to the constrained calls since their whole
+// point is that the component is tiny -- no expansion budget problem there
+// to fix, and their `graph` argument isn't always the fine level (an
+// intermediate coarse level's `fine_location` may not carry the geometry
+// this heuristic assumes).
 static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph,
                                                      int start_id,
                                                      int goal_id,
                                                      int required_parent,
-                                                     bool constrain_parent){
+                                                     bool constrain_parent,
+                                                     bool use_heuristic = false){
     if (!is_valid_graph_node_id_local(graph, start_id) || !is_valid_graph_node_id_local(graph, goal_id))
         return {};
     if (start_id == goal_id)
         return {start_id};
 
+    std::pair<int, int> goal_rc{0, 0};
+    if (use_heuristic)
+    {
+        const lemon::ListDigraph::Node goal_node = graph.map_nodes[goal_id];
+        if (goal_node == lemon::INVALID)
+            use_heuristic = false;
+        else
+            goal_rc = graph.fine_location[goal_node];
+    }
+
+    const auto heuristic = [&](int node_id) -> double {
+        if (!use_heuristic)
+            return 0.0;
+        const lemon::ListDigraph::Node node = graph.map_nodes[node_id];
+        if (node == lemon::INVALID)
+            return 0.0;
+        const auto rc = graph.fine_location[node];
+        return static_cast<double>(std::abs(rc.first - goal_rc.first) + std::abs(rc.second - goal_rc.second));
+    };
+
     // Use a hash map instead of massive O(N) state vectors to protect system memory
     std::unordered_map<int, double> dist;
     std::unordered_map<int, int> prev;
 
-    using QItem = std::pair<double, int>;
+    // (f, g, node): ordered by f = g + heuristic for A*, but the staleness
+    // check below compares against `dist[u]` (g), not f -- so this reduces
+    // to exactly the original Dijkstra when use_heuristic is false (h == 0
+    // everywhere, f == g).
+    using QItem = std::tuple<double, double, int>;
     std::priority_queue<QItem, std::vector<QItem>, std::greater<QItem>> open;
 
     dist[start_id] = 0.0;
-    open.push({0.0, start_id});
+    open.push({heuristic(start_id), 0.0, start_id});
 
     // Hard-cap the total number of node expansions to catch disconnected networks safely
     int expansions = 0;
-    const int MAX_EXPANSIONS = 20000;
+    const int MAX_EXPANSIONS = use_heuristic ? 200000 : 20000;
 
     while (!open.empty()) {
         if (++expansions > MAX_EXPANSIONS) {
             return {}; // Bail out if search space is exploding
         }
 
-        auto [cd, u] = open.top();
+        auto [f, cd, u] = open.top();
         open.pop();
+        (void)f;
 
         if (cd > dist[u]) continue;
         if (u == goal_id) break;
 
-        const lemon::ListDigraph::Node u_node = graph.map_nodes[u]; 
+        const lemon::ListDigraph::Node u_node = graph.map_nodes[u];
         if (u_node == lemon::INVALID) continue;
 
         for (lemon::ListDigraph::OutArcIt arc(graph.g, u_node); arc != lemon::INVALID; ++arc) {
-            const int v_lid = graph.g.id(graph.g.target(arc)); 
+            const int v_lid = graph.g.id(graph.g.target(arc));
             if (v_lid < 0 || v_lid >= static_cast<int>(graph.node_to_maploc.size())) continue;
 
-            const int v = graph.node_to_maploc[v_lid]; 
+            const int v = graph.node_to_maploc[v_lid];
             if (!is_valid_graph_node_id_local(graph, v)) continue;
 
-            if (constrain_parent) { 
-                if (v < 0 || v >= static_cast<int>(graph.to_coarser_node_id.size())) continue; 
-                if (graph.to_coarser_node_id[v] != required_parent) continue; 
+            if (constrain_parent) {
+                if (v < 0 || v >= static_cast<int>(graph.to_coarser_node_id.size())) continue;
+                if (graph.to_coarser_node_id[v] != required_parent) continue;
             }
 
-            const double nd = cd + graph.cost[arc]; 
+            const double nd = cd + graph.cost[arc];
             auto it = dist.find(v);
-            if (it == dist.end() || nd + 1e-12 < it->second) { 
-                dist[v] = nd; 
-                prev[v] = u; 
-                open.push({nd, v}); 
+            if (it == dist.end() || nd + 1e-12 < it->second) {
+                dist[v] = nd;
+                prev[v] = u;
+                open.push({nd + heuristic(v), nd, v});
             }
         }
     }
@@ -1108,10 +1152,10 @@ static std::vector<int> shortest_path_in_graph_local(const CoarsenedGraph& graph
         auto it = prev.find(cur);
         cur = (it != prev.end()) ? it->second : -1;
 
-        if(path.size() > 5000) return {}; // Cycle emergency brake
+        if(path.size() > static_cast<std::size_t>(MAX_EXPANSIONS)) return {}; // Cycle emergency brake
     }
-    
-    std::reverse(path.begin(), path.end()); 
+
+    std::reverse(path.begin(), path.end());
     return path;
 }
 
@@ -1550,7 +1594,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
 
         const int task_id = top_task_ids[reached_sink_node].front();
         top_task_ids[reached_sink_node].pop_front();
-        
+
         assignments[agent_id] = task_id;
 
         successful_agent_ids.push_back(agent_id);
@@ -1645,7 +1689,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
 
         if (current_paths[i].empty() || endpoints_wrong)
         {
-            current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false);
+            current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false, /*use_heuristic=*/true);
         }
     }
 

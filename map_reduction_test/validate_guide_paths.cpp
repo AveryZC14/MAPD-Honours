@@ -60,6 +60,11 @@ void check(bool cond, const string& msg)
     }
 }
 
+// 4-connected adjacency check mirroring exactly what schedule_plan_flow's
+// own graph construction (and add_traj/remove_traj's direction-from-delta
+// math in flow.cpp) assumes about consecutive guide-path cells -- a path
+// that violates this wouldn't just be "suboptimal", it would silently
+// corrupt the low-level planner's movement direction.
 bool are_fine_neighbors(const SharedEnvironment& env, int a, int b)
 {
     if (a < 0 || a >= static_cast<int>(env.map.size()) || b < 0 || b >= static_cast<int>(env.map.size()))
@@ -90,11 +95,19 @@ int validate_paths(const string& label,
         const list<int>& path = kv.second;
         ++checked;
 
+        // Check 1: non-empty (see are_fine_neighbors' comment above for why
+        // an empty path is worse than just "wrong").
         check(!path.empty(), label + ": agent " + to_string(agent_id) + " has an EMPTY guide path "
               "(would underflow trajs[agent].size()-1 in flow.cpp's add_traj/remove_traj)");
         if (path.empty())
             continue;
 
+        // Check 2: starts at the agent's real location. `agent_start_loc` is
+        // snapshotted once from base_env before either solver runs (both env1
+        // and env6 are independent copies of the same base_env and neither
+        // solver moves agents), so it's equivalent to reading
+        // env.curr_states[agent_id].location here -- just avoids depending on
+        // which of the two per-solver env copies happens to be passed in.
         const auto start_it = agent_start_loc.find(agent_id);
         check(start_it != agent_start_loc.end(), label + ": agent " + to_string(agent_id) + " not found in start-location snapshot");
         if (start_it != agent_start_loc.end())
@@ -104,6 +117,8 @@ int validate_paths(const string& label,
                   " but agent's real location is " + to_string(start_it->second));
         }
 
+        // Check 3: agent actually has an assigned task, and the guide path
+        // ends at that task's pickup location.
         check(agent_id >= 0 && agent_id < static_cast<int>(proposed_schedule.size()) && proposed_schedule[agent_id] != -1,
               label + ": agent " + to_string(agent_id) + " has a guide path but no assigned task in proposed_schedule");
         if (agent_id >= 0 && agent_id < static_cast<int>(proposed_schedule.size()) && proposed_schedule[agent_id] != -1)
@@ -120,6 +135,10 @@ int validate_paths(const string& label,
             }
         }
 
+        // Check 4: every consecutive pair of cells is a valid 4-connected,
+        // walkable step -- walks the whole path once, checking both
+        // in-bounds/non-obstacle (per cell) and adjacency (per consecutive
+        // pair) in the same pass.
         int prev = -1;
         bool first = true;
         int step = 0;
@@ -142,6 +161,10 @@ int validate_paths(const string& label,
     return checked;
 }
 
+// Independent recomputation of GuidePathLengthSum straight from the
+// exposed paths (edges = cells - 1 per path), used to cross-check the
+// metric each scheduler reports via ScheduleTiming actually matches what
+// it handed out -- catches the metric silently drifting from reality.
 double sum_path_lengths(const boost::unordered_map<int, list<int>>& paths)
 {
     double total = 0.0;
@@ -189,15 +212,19 @@ int main(int argc, char** argv)
     cout << "Instance: " << input_json << "  cells=" << base_env.map.size()
          << " agents=" << base_env.num_of_agents << " tasks=" << base_env.task_pool.size() << "\n";
 
+    // Flat zero congestion field -- neither solver's *assignment* cost
+    // depends on traffic in a way this validator cares about; only
+    // use_traffic's effect on the guide-path gate (see below) matters here.
     vector<Double4> background_flow(base_env.map.size());
     for (auto& d : background_flow)
         for (int i = 0; i < 4; ++i) d.d[i] = 0.0;
 
+    // Snapshotted once, before either solver runs, so validate_paths' "does
+    // the path start where the agent really is" check has a ground truth
+    // that's independent of which per-solver env copy gets passed in.
     boost::unordered_map<int, int> agent_start_loc;
     for (int i = 0; i < base_env.num_of_agents; ++i)
         agent_start_loc[i] = base_env.curr_states[i].location;
-
-    bool any_fail_before = false;
 
     // --- Scenario 1: gate open (use_traffic on, curr_timestep past the
     // 100-timestep warm-up) -- both solvers are expected to actually
@@ -205,9 +232,19 @@ int main(int argc, char** argv)
     {
         cout << "\n=== Scenario 1: --useTraffic on, curr_timestep=100 (planner-seed gate open) ===\n";
 
+        // env1/env6 are independent copies of the same base_env -- each
+        // solver gets its own untouched starting state rather than seeing
+        // whatever the other solver's run left behind.
         SharedEnvironment env1 = base_env;
         env1.curr_timestep = 100;
         vector<int> schedule1;
+        // time_limit=1000 here is nominal, not strictly enforced: these
+        // entry points don't cut the underlying NetworkSimplex solve short
+        // at that budget (a large/sparse instance can take well over 1000
+        // of whatever unit this is and still run to completion).
+        // new_only=true: only ever assign brand-new unassigned tasks, no
+        // reshuffling of already-assigned-but-unopened ones (see the
+        // --assignNew CLI flag / ai/project_context.md).
         schedule_plan_flow(1000, schedule1, &env1, background_flow, /*use_traffic=*/true, /*new_only=*/true);
         auto paths1 = get_guide_path();
         ScheduleTiming timing1 = get_last_timing();
@@ -225,6 +262,10 @@ int main(int argc, char** argv)
         const int checked1 = validate_paths("solver1", paths1, env1, schedule1, agent_start_loc);
         const int checked6 = validate_paths("solver6", paths6, env6, schedule6, agent_start_loc);
 
+        // Guards against a silent false-pass: validate_paths' for-loop over
+        // an empty `paths` map runs zero iterations and returns 0 checked
+        // without ever calling check(), which would otherwise look like
+        // "all checks passed" while nothing was actually verified.
         check(checked1 > 0, "solver1 produced zero guide paths -- nothing was actually validated");
         check(checked6 > 0, "solver6 produced zero guide paths -- nothing was actually validated");
 

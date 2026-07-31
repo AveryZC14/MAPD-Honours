@@ -7,7 +7,8 @@
 #include "MapCoarsenV1.h"
 #include "Types.h"
 
-void populate_env_from_instance(const std::string& input_json, SharedEnvironment& env)
+void populate_env_from_instance(const std::string& input_json, SharedEnvironment& env,
+                                 float* num_tasks_reveal_out)
 {
     std::ifstream f(input_json);
     if (!f.is_open())
@@ -37,6 +38,9 @@ void populate_env_from_instance(const std::string& input_json, SharedEnvironment
     int team_size = read_param_json<int>(data, "teamSize");
     std::vector<int> agents = read_int_vec(base_folder + read_param_json<std::string>(data, "agentFile"), team_size);
     std::vector<std::list<int>> tasks = read_int_vec(base_folder + read_param_json<std::string>(data, "taskFile"));
+
+    if (num_tasks_reveal_out)
+        *num_tasks_reveal_out = read_param_json<float>(data, "numTasksReveal", 1.0f);
 
     env.rows = grid.rows;
     env.cols = grid.cols;
