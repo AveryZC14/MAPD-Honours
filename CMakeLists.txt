@@ -136,6 +136,15 @@ target_link_libraries(dump_guide_paths ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(dump_guide_paths PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
+#-----------
+# Standalone tool: dump the map-coarsening hierarchy (per-level node
+# positions, coarse graph arcs, per-cell component partitions) to CSV for
+# visualisation, see map_reduction_test/visualisation/plot_coarsening.py.
+add_executable(dump_coarsening map_reduction_test/dump_coarsening.cpp ${PROJECT_SOURCES})
+target_link_libraries(dump_coarsening ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(dump_coarsening PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
 
 add_custom_target(clean_all
     COMMAND ${CMAKE_BUILD_TOOL} clean

@@ -70,9 +70,13 @@ Example commands actually used during development (`instances/commands.txt`):
 
 Instances live under `instances/` (`warehouseSmall`, `warehouseLarge`,
 `sortationLarge`, `random`, `custom/orz900d` — a large 656x1491 maze map used
-as the stress test for solver 6, `custom/tiny` — tiny hand-built maps for unit
-testing). Each instance is a JSON pointing at a `.map` file + agent/task
-files; see `Input_Output_Format.md` for the schema.
+as the stress test for solver 6, `custom/IH_mp_2p_01` — a huge 1912x1800
+maze/MAPF-benchmark map, `custom/warehouseXL` — a huge 1900x1800 *generated*
+structured-warehouse map (pickup stations + storage racks, ~99.4% of
+`IH_mp_2p_01`'s cell count) built via the `Benchmark-Archive` warehouse map
+generator, see `ai/auto_benchmarking_warehouseXL.md`, `custom/tiny` — tiny
+hand-built maps for unit testing). Each instance is a JSON pointing at a
+`.map` file + agent/task files; see `Input_Output_Format.md` for the schema.
 
 ## End-to-end runtime flow (what happens each timestep)
 
@@ -449,7 +453,7 @@ were already clean.
 
 `ai/auto_benchmarking.md` is the index/synthesis doc for all solver-1-vs-
 solver-6 sweeps — read it first, then follow its links to the per-sweep
-detail file you need. Two sweeps so far:
+detail file you need. Three sweeps so far:
 
 1. `orz900d` (~978K cells), 15 runs, solver 1 vs. solver 6 at coarsen levels
    1-4 — detail in `ai/auto_benchmarking_orz900d.md`. **Solver 1 wins** on
@@ -458,6 +462,15 @@ detail file you need. Two sweeps so far:
    at coarsen depth 2 and 4 — detail in `ai/auto_benchmarking_IH_mp_2p_01.md`.
    **The result inverts**: solver 6 wins by ~4-7x instead, since solver 1's
    cost scales with map size (not agent count) while solver 6's doesn't.
+3. `warehouseXL` (~3.42M cells, ~99.4% of `IH_mp_2p_01`'s size, but a
+   *generated, structured* warehouse layout rather than a maze/MAPF-
+   benchmark map), 15 runs, solver 1 vs. solver 6 at coarsen levels 1-4 —
+   detail in `ai/auto_benchmarking_warehouseXL.md`. Solver 6 still wins at
+   every agent count, but the margin is much narrower (~1.5-4.3x, shrinking
+   as agent count grows) than `IH_mp_2p_01`'s roughly-constant 4-7x at
+   nearly the same cell count — first evidence that map *topology*, not just
+   size, affects the crossover (unconfirmed — see the detail file's
+   parallel-execution caveat).
 
 Headline pitfalls documented there, worth knowing before touching this again:
 
@@ -503,6 +516,9 @@ Headline pitfalls documented there, worth knowing before touching this again:
     at coarsen levels 1-4, on `orz900d`.
   - `ai/auto_benchmarking_IH_mp_2p_01.md` — 9-run sweep, solver 1 vs. solver
     6 at coarsen depth 2/4, on `IH_mp_2p_01` (~2.3x bigger map).
+  - `ai/auto_benchmarking_warehouseXL.md` — 15-run sweep, solver 1 vs. solver
+    6 at coarsen levels 1-4, on `warehouseXL` (a generated, structured
+    warehouse map ~the same cell count as `IH_mp_2p_01`).
   - Each new sweep gets its own `ai/auto_benchmarking_<map>.md` detail file
     (flat, not a subfolder — the user wants to eventually automate
     benchmarking rather than keep hand-writing these); update the master's
@@ -525,6 +541,16 @@ Headline pitfalls documented there, worth knowing before touching this again:
   maps with long paths — fixed with an A* heuristic. Includes a results
   table across every run done (`orz900d`, `IH_mp_2p_01` at 20 through 20000
   agents).
+- `ai/coarsening_visualisation.md` — two new standalone tools
+  (`./build/dump_coarsening`, `map_reduction_test/visualisation/plot_coarsening.py`)
+  that render the map-coarsening hierarchy itself (which fine cells group
+  into which coarse node at each level, plus the resulting coarse graph
+  topology) spatially over the actual map — distinct from
+  `ai/guide_path_visualisation.md`'s tooling, which visualises solver guide
+  paths computed on top of an already-built hierarchy, not the coarsening
+  structure itself. Includes a `--crop` mode for inspecting coarsening
+  detail on large/maze-like maps where a full-map render is too
+  fine-grained to read.
 
 (Update this list if more `ai/*.md` files are added later.)
 
@@ -556,10 +582,15 @@ map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
                             see ai/guide_path_metric.md
   dump_guide_paths.cpp      standalone tool dumping solver 1 vs. solver 6 guide paths to CSV for
                             visualisation (./build/dump_guide_paths), see ai/guide_path_visualisation.md
+  dump_coarsening.cpp       standalone tool dumping the map-coarsening hierarchy itself (per-level
+                            fine-cell partitions, coarse node positions, coarse graph arcs) to CSV
+                            for visualisation (./build/dump_coarsening), see ai/coarsening_visualisation.md
   LGFtoGEXF.py, convertLGFtoCSV.py, convertLGFtoDOT.py   graph export/visualization scripts
   visualisation/            .gexf outputs from the above scripts, plus plot_guide_paths.py
                             (renders dump_guide_paths.cpp's CSV output over the map, see
-                            ai/guide_path_visualisation.md) -- a script living alongside output
+                            ai/guide_path_visualisation.md) and plot_coarsening.py (renders
+                            dump_coarsening.cpp's CSV output over the map, see
+                            ai/coarsening_visualisation.md) -- scripts living alongside output
                             artifacts in the same dir, not a clean separation
   visualisation_csv/        CSV output dir for LGFtoGEXF.py etc.
 python/                 Python bindings track (pybind11) — separate from the C++ path above; not

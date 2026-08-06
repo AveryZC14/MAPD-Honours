@@ -264,6 +264,19 @@ chasing the same task pool means each one's nearest available task is
 farther away on average, and the two solvers' independent assignment
 choices have more room to diverge.
 
+| `warehouseXL_5000` | 50 | 50 (capped) | 46/50 (92.0%) | 5/50 (10.0%) | avg len solver1=273.56, solver6=277.84 |
+| `warehouseXL_5000` | 150 | 150 (capped) | 115/150 (76.7%) | 19/150 (12.7%) | avg len solver1=191.77, solver6=210.80 |
+| `warehouseXL_5000` | 500 | 500 (capped) | 413/500 (82.6%) | 138/500 (27.6%) | avg len solver1=104.88, solver6=111.63 |
+| `warehouseXL_5000` | 5000 (full) | 30000 (full) | 3401/5000 (68.0%) | 2861/5000 (57.2%) | avg len solver1=8.06, solver6=9.16 |
+| `warehouseXL_10000` | 10000 (full) | 30000 (full) | 6565/10000 (65.7%) | 5534/10000 (55.3%) | avg len solver1=8.50, solver6=9.59 |
+| `warehouseXL_20000` | 20000 (full) | 30000 (full) | 11913/20000 (59.6%) | 9891/20000 (49.5%) | avg len solver1=9.49, solver6=10.63 |
+
+Zero missing guide paths at every scale on `warehouseXL` too (100% return
+rate from both solvers) — the A* fallback fix holds up on a second huge map,
+including one with a structured (non-maze) layout. Full sweep context
+(instance generation, solver comparison) in
+`ai/auto_benchmarking_warehouseXL.md`.
+
 ### Output files
 
 - `outputs/orz900d_guide_paths/`: `guide_paths.csv`/`.png`/`_fullmap.png`
@@ -274,6 +287,10 @@ choices have more room to diverge.
   `guide_paths_500agents_500tasks.*`, `guide_paths_{5000,10000,20000}agents_full.csv`
   + `_fullmap.png` + `_sample20.png` (20-agent representative panel subset,
   since the full panel grid isn't viewable at these agent counts).
+- `outputs/warehouseXL_guide_paths/`: `guide_paths_{50,150,500}agents_{50,150,500}tasks.*`
+  (full per-agent panel grid + `_fullmap.png` for 50/150, `_sample20.png` +
+  `_fullmap.png` for 500), `guide_paths_{5000,10000,20000}agents_full.csv`
+  + `_fullmap.png` + `_sample20.png`.
 
 ## Known gaps / not yet done
 
