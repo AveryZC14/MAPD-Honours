@@ -37,6 +37,31 @@ public:
     static constexpr bool kUseTimeStepMetricsOutput = true;
     /* End planner output format switch. */
 
+    /* Begin per-timestep guide-path / agent-position CSV dump switch.
+     * Flip to true to stream every timestep's scheduler guide paths and
+     * every agent's current position (dense -- one row per agent per
+     * timestep) to CSV, for later offline visualisation. Guide paths are
+     * read from DefaultPlanner::get_all_guide_paths() -- a dump-only
+     * capture (agent_guide_path_all, gated only by this same switch via
+     * set_dump_all_guide_paths() below), separate from the planner-seed
+     * map (agent_guide_path/get_guide_path(), still gated by
+     * use_traffic/curr_timestep as before, untouched by this feature -- see
+     * ai/guide_path_visualisation.md, "Unconditional capture" for why that
+     * separation matters and how it was verified not to change simulation
+     * output). Still only non-empty for agents the scheduler actually
+     * reassigned that call. Off by default: streaming I/O inside the timed
+     * simulation loop would otherwise skew planner/scheduler timing
+     * metrics. Does not attempt solver-1-vs-solver-6 comparison -- a single
+     * run only ever exercises one scheduler solver, and two separate runs
+     * diverge in simulated world state past timestep 0 once assignments
+     * differ, so this is for visualising one run's own behaviour over time,
+     * not a frozen-state solver comparison (that's what
+     * map_reduction_test/dump_guide_paths.cpp is for). */
+    static constexpr bool kDumpPerTimestepPaths = false;
+    static constexpr const char* kGuidePathsCsvPath = "outputs/guide_paths_per_timestep.csv";
+    static constexpr const char* kAgentPositionsCsvPath = "outputs/agent_positions_per_timestep.csv";
+    /* End per-timestep guide-path / agent-position CSV dump switch. */
+
 	BaseSystem(Grid &grid, Entry* planner, std::vector<int>& start_locs, std::vector<list<int>>& tasks, ActionModel* model):
       map(grid), planner(planner), env(planner->env),
       task_manager(tasks, start_locs.size()), simulator(grid,start_locs,model)

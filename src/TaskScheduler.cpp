@@ -17,7 +17,7 @@ void TaskScheduler::initialize(int preprocess_time_limit)
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
     //std::cout << "TSched init\n";
     int limit = preprocess_time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
-    DefaultPlanner::schedule_initialize(limit, env);    
+    DefaultPlanner::schedule_initialize(limit, env, solver);
 }
 
 /**

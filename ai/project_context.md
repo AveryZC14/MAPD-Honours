@@ -195,14 +195,20 @@ map every timestep, build a **persistent multi-level coarsened graph once**
 only "lift" the result back down to fine-map paths when something actually
 needs them (traffic-aware guide paths).
 
-**Hierarchy build is mandatory during preprocessing for every solver, not
-just solver 6**: `schedule_initialize()` (`scheduler.cpp:63`) unconditionally
-calls `ReducedHierarchy::instance().ensure(env)` regardless of
-`--scheduleModel`, so solver 1 pays this cost too even though it never uses
-the result. Fast enough to be invisible on `orz900d` (~978K cells); on a
-~2.3x bigger map (`IH_mp_2p_01`) it took ~300s and required raising
+**Hierarchy build only runs for solver 6.** `schedule_initialize()`
+(`scheduler.cpp:85`) takes the `solver` int (threaded through from
+`TaskScheduler::initialize` via its `solver` member, which is set by
+`driver.cpp` before `Entry::initialize`/preprocessing runs) and only calls
+`ReducedHierarchy::instance().ensure(env)` when `solver == 6`. This used to
+run unconditionally for every solver — solver 1 paid the build cost too even
+though it never used the result (fast enough to be invisible on `orz900d`,
+~978K cells, but ~300s on the ~2.3x bigger `IH_mp_2p_01`, which meant raising
 `--preprocessTimeLimit` well past its 30000ms default for *every* solver in
-the sweep, not just solver 6 — see `ai/auto_benchmarking.md`.
+a sweep, not just solver 6 — see `ai/auto_benchmarking.md`). Gating it on
+`solver == 6` removes that cost for solvers 1-5; anything that sweeps
+multiple solvers on a huge map no longer needs to inflate
+`--preprocessTimeLimit` for the non-6 runs on the hierarchy's account (though
+solver 1's own full-map flow solve can still be slow, see "Solver 1" above).
 
 ### Data structures (`map_reduction_test/MapCoarsenV1.h`)
 
@@ -490,9 +496,11 @@ Headline pitfalls documented there, worth knowing before touching this again:
   comparing levels means editing that line and re-running `./compile.sh` per
   level (both sweeps did this with `sed`, restoring the original value `2`
   at the end).
-- Hierarchy build is mandatory for every solver during preprocessing (see
-  "Solver 6" above) — budget `--preprocessTimeLimit` accordingly on any map
-  bigger than `orz900d`, even for a solver-1-only run.
+- Hierarchy build now only happens for solver 6 (see "Solver 6" above) —
+  older sweep notes/scripts that inflate `--preprocessTimeLimit` for
+  solver-1-only runs on huge maps on the hierarchy's account are no longer
+  necessary, though solver 1's own preprocessing/per-timestep cost on huge
+  maps can still warrant it independently.
 
 ## Known remaining gaps (from `ai/claude_memleak_fixes.md`, not yet acted on)
 
@@ -540,7 +548,12 @@ Headline pitfalls documented there, worth knowing before touching this again:
   expansion cap, which silently dropped guide paths for many agents on huge
   maps with long paths — fixed with an A* heuristic. Includes a results
   table across every run done (`orz900d`, `IH_mp_2p_01` at 20 through 20000
-  agents).
+  agents). Also documents a second, later tool built on a different
+  mechanism: `BaseSystem::kDumpPerTimestepPaths` (`inc/CompetitionSystem.h`,
+  off by default) streams scheduler guide paths + every agent's position to
+  CSV from a real, live `./build/lifelong` run (not a frozen snapshot), and
+  `map_reduction_test/visualisation/plot_timestep_frames.py` renders one PNG
+  per timestep from the result.
 - `ai/coarsening_visualisation.md` — two new standalone tools
   (`./build/dump_coarsening`, `map_reduction_test/visualisation/plot_coarsening.py`)
   that render the map-coarsening hierarchy itself (which fine cells group
@@ -597,7 +610,10 @@ python/                 Python bindings track (pybind11) — separate from the C
                          touched by the solver 1/6 work. set_track.bash selects planner/scheduler/combined.
 instances/               benchmark maps+agents+tasks (warehouseSmall/Large, sortationLarge, random,
                          custom/orz900d [656x1491 maze, main stress-test map], custom/tiny)
-outputs/                 saved run outputs (JSON), some checked in as test/reference artifacts
+outputs/                 saved run outputs (JSON), some checked in as test/reference artifacts.
+                         Organized per-map/per-purpose (`<map>_guide_paths/`, `<map>_solver_comparison/`,
+                         `<map>_per_timestep/`, `coarsening_viz/`); stray/legacy one-off result files
+                         not referenced by any doc live in `outputs/old/`.
 ai/                      this file + other investigation writeups (claude_memleak_fixes.md)
 CMakeLists.txt            build config; note map_reduction_test sources are folded into the main
                           `lifelong` target too (so scheduler.cpp can call into MapCoarsenV1)

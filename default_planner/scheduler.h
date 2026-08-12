@@ -46,7 +46,11 @@ void set_last_reduced_timing(double solve_time,
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 
-void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env);
+// `solver` gates the reduced-hierarchy build (see MapCoarsenV1.h) to solver 6
+// only -- it used to run unconditionally for every solver, which meant
+// solvers 1-5 paid its build cost (minutes, on large maps) despite never
+// using the result.
+void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env, int solver);
 
 void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
 void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only, int maximum_edges);
@@ -61,6 +65,19 @@ void printDIMACS(ListDigraph& g, ListDigraph::Node source, ListDigraph::Node sin
 bool isTaskNode(ListDigraph::Node node, ListDigraph& g, ListDigraph::Node sink);
 
 unordered_map<int,list<int>> get_guide_path();
+
+/* Begin unconditional guide-path capture for offline dumping.
+ * agent_guide_path (above) is the planner-visible seed -- gated by
+ * use_traffic/curr_timestep, and touching that gate changes what the real
+ * planner actually seeds its trajectories from (see ai/guide_path_visualisation.md,
+ * "Live per-timestep tooling"). This is a separate, dump-only capture of the
+ * same guide-path data solver 1/6 already compute unconditionally every
+ * call (the walk / coarse-to-fine lift, which feeds GuidePathLengthSum
+ * regardless of the seed gate) -- populated only when explicitly enabled,
+ * so runs that don't ask for it pay no extra cost beyond the boolean check. */
+void set_dump_all_guide_paths(bool enable);
+unordered_map<int,list<int>> get_all_guide_paths();
+/* End unconditional guide-path capture for offline dumping. */
 
 }
 

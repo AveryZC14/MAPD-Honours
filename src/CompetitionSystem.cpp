@@ -4,6 +4,7 @@
 #include "SharedEnv.h"
 #include "nlohmann/json.hpp"
 #include <functional>
+#include <fstream>
 #include <Logger.h>
 
 using json = nlohmann::ordered_json;
@@ -153,16 +154,80 @@ void BaseSystem::simulate(int simulation_time)
 
     vector<Action> all_wait_actions(num_of_agents, Action::NA);
 
+    /* Begin per-timestep guide-path / agent-position CSV dump setup. */
+    std::ofstream guide_paths_csv;
+    std::ofstream agent_positions_csv;
+    // Tells the scheduler to also populate its dump-only, unconditional
+    // guide-path capture (agent_guide_path_all) -- separate from the
+    // planner-seed-gated agent_guide_path that get_guide_path() returns, so
+    // this dump never changes what the real planner sees. Off by default,
+    // same switch as everything else here.
+    DefaultPlanner::set_dump_all_guide_paths(kDumpPerTimestepPaths);
+    if (kDumpPerTimestepPaths)
+    {
+        guide_paths_csv.open(kGuidePathsCsvPath);
+        guide_paths_csv << "timestep,agent_id,task_id,step,loc,row,col\n";
+        agent_positions_csv.open(kAgentPositionsCsvPath);
+        agent_positions_csv << "timestep,agent_id,loc,row,col\n";
+    }
+    /* End per-timestep guide-path / agent-position CSV dump setup. */
+
     while (simulator.get_curr_timestep() < simulation_time)
     {
         cout << "current timestep " << simulator.get_curr_timestep() << endl;
 
         // sync environment and run planner
         sync_shared_env();
+
+        /* Begin per-timestep agent-position dump.
+         * Captured right after sync_shared_env(), i.e. the position every
+         * agent is actually at when the scheduler/planner make this
+         * timestep's decisions -- same instant the guide-path dump below
+         * reflects. */
+        int plan_timestep = simulator.get_curr_timestep();
+        if (kDumpPerTimestepPaths)
+        {
+            for (int a = 0; a < num_of_agents; a++)
+            {
+                int loc = env->curr_states[a].location;
+                agent_positions_csv << plan_timestep << ',' << a << ',' << loc << ','
+                                     << (loc / env->cols) << ',' << (loc % env->cols) << '\n';
+            }
+        }
+        /* End per-timestep agent-position dump. */
+
         auto start = std::chrono::steady_clock::now();
         int timeout_timesteps = 0;
         plan(timeout_timesteps);
         auto end = std::chrono::steady_clock::now();
+
+        /* Begin per-timestep guide-path dump.
+         * Reads get_all_guide_paths() -- the dump-only capture populated
+         * whenever set_dump_all_guide_paths(true) was called above,
+         * independent of the use_traffic/curr_timestep gate that governs
+         * the real planner-seed map (get_guide_path()/agent_guide_path).
+         * Still only non-empty for agents the scheduler actually reassigned
+         * this timestep -- see ai/project_context.md, "Guide paths: which
+         * solvers provide them, and are they doing anything". Writing zero
+         * rows on a timestep where nothing was reassigned is expected, not
+         * a bug. */
+        if (kDumpPerTimestepPaths)
+        {
+            for (const auto& [agent_id, path] : DefaultPlanner::get_all_guide_paths())
+            {
+                int task_id = (agent_id >= 0 && agent_id < (int)proposed_schedule.size())
+                                  ? proposed_schedule[agent_id] : -1;
+                int step = 0;
+                for (int loc : path)
+                {
+                    guide_paths_csv << plan_timestep << ',' << agent_id << ',' << task_id << ','
+                                     << step << ',' << loc << ',' << (loc / env->cols) << ','
+                                     << (loc % env->cols) << '\n';
+                    step++;
+                }
+            }
+        }
+        /* End per-timestep guide-path dump. */
 
         // If planner timed out and produced extra timesteps to advance
         if (timeout_timesteps > 0)
@@ -219,6 +284,14 @@ void BaseSystem::simulate(int simulation_time)
         // update tasks using moved states
         task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
     }
+
+    /* Begin per-timestep guide-path / agent-position CSV dump teardown. */
+    if (kDumpPerTimestepPaths)
+    {
+        guide_paths_csv.close();
+        agent_positions_csv.close();
+    }
+    /* End per-timestep guide-path / agent-position CSV dump teardown. */
 }
 
 

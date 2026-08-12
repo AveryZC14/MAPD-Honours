@@ -12,6 +12,21 @@ std::unordered_set<int> free_tasks;
 
 unordered_map<int,list<int>> agent_guide_path; //agent id, guide path from flow
 
+/* Begin unconditional guide-path capture for offline dumping (see scheduler.h). */
+bool dump_all_guide_paths = false;
+unordered_map<int,list<int>> agent_guide_path_all;
+
+void set_dump_all_guide_paths(bool enable)
+{
+    dump_all_guide_paths = enable;
+}
+
+unordered_map<int,list<int>> get_all_guide_paths()
+{
+    return agent_guide_path_all;
+}
+/* End unconditional guide-path capture for offline dumping. */
+
 /* Begin scheduler timing state. */
 ScheduleTiming last_timing;
 
@@ -67,12 +82,17 @@ struct Node
 
 // The reduced-hierarchy operations were moved to MapCoarsenV1 as ReducedHierarchy.
 
-void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env)
+void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env, int solver)
 {
     // cout<<"schedule initialise limit" << preprocess_time_limit<<endl;
     DefaultPlanner::init_heuristics(env);
     mt.seed(0);
-    MapReductionTest::ReducedHierarchy::instance().ensure(env);
+    // Only solver 6 (schedule_plan_flow_reduced) ever reads the reduced
+    // hierarchy, so only it needs to pay for building it.
+    if (solver == 6)
+    {
+        MapReductionTest::ReducedHierarchy::instance().ensure(env);
+    }
     return;
 }
 
@@ -668,6 +688,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     agent_guide_path.clear();
+    if (dump_all_guide_paths)
+        agent_guide_path_all.clear();
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
@@ -893,6 +915,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 }
                 if (use_traffic && env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
+                if (dump_all_guide_paths)
+                    agent_guide_path_all[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())
                 {
@@ -944,6 +968,8 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
 {
     auto solve_start_time = std::chrono::high_resolution_clock::now();
     agent_guide_path.clear();
+    if (dump_all_guide_paths)
+        agent_guide_path_all.clear();
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
@@ -1032,11 +1058,16 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
         const int agent_id = kv.first;
         const int task_id = kv.second;
         proposed_schedule[agent_id] = task_id;
-        if (need_guide_paths_for_seed)
+        if (need_guide_paths_for_seed || dump_all_guide_paths)
         {
             const auto guide_it = guide_paths.find(agent_id);
             if (guide_it != guide_paths.end())
-                agent_guide_path[agent_id] = guide_it->second;
+            {
+                if (need_guide_paths_for_seed)
+                    agent_guide_path[agent_id] = guide_it->second;
+                if (dump_all_guide_paths)
+                    agent_guide_path_all[agent_id] = guide_it->second;
+            }
         }
     }
 
