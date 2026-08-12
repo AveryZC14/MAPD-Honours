@@ -57,6 +57,9 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   hierarchy (thesis scheduler; not in the help string, added later)
 - `--simulationTime,-s` (default 5000 timesteps)
 - `--planTimeLimit,-t` (ms per timestep, default 1000), `--preprocessTimeLimit,-p` (default 30000)
+- `--hierarchyCache <path>` (default `""`, disabled): cache solver 6's map-coarsening
+  hierarchy to disk and reuse it on later runs against the same map instead of
+  rebuilding from scratch — see `ai/hierarchy_cache.md`
 - `--useTraffic,-u` (bool): enables congestion-aware guide-path costing in the scheduler
 - `--assignNew,-n` (`new_only`): if true, only ever assign brand-new unassigned tasks (no swapping of already-assigned-but-unopened tasks)
 - `--commitWindow,-w`
@@ -226,7 +229,11 @@ solver 1's own full-map flow solve can still be slow, see "Solver 1" above).
   for this repo.
 - `ReducedHierarchy`: process-lifetime singleton (`instance()`) owning one
   `MultiLevelCoarsenedGraph`. `ensure(env)` builds it once (checked via a
-  signature hash) and is cheap to call every timestep after that.
+  signature hash) and is cheap to call every timestep after that. If
+  `env->hierarchy_cache_path` is set (`--hierarchyCache <path>`), `ensure()`
+  tries loading a previously-saved hierarchy from that file before rebuilding,
+  and saves a fresh build there afterward — so a second run against the same
+  map skips the build entirely. See `ai/hierarchy_cache.md`.
 
 ### Per-timestep flow: `compute_reduced_assignment` (`MapCoarsenV1.cpp:1280`)
 
@@ -575,6 +582,11 @@ Headline pitfalls documented there, worth knowing before touching this again:
   structure itself. Includes a `--crop` mode for inspecting coarsening
   detail on large/maze-like maps where a full-map render is too
   fine-grained to read.
+- `ai/hierarchy_cache.md` — the `--hierarchyCache <path>` disk cache for
+  solver 6's map-coarsening hierarchy (`MapCoarsenSerialize.{h,cpp}`): format,
+  cache-validity/invalidation rules, what's deliberately not serialized (and
+  why that's safe), the new `./build/hierarchy_cache_validator` structural
+  round-trip checker, and build-vs-load timing on `orz900d`/`IH_mp_2p_01`.
 
 (Update this list if more `ai/*.md` files are added later.)
 
@@ -598,12 +610,16 @@ default_planner/         the "default" reference planner+scheduler implementatio
   utils.*, heap.h, search*.h, Memory.h, Types.h, const.h   supporting utilities/types/tunables
 map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
   MapCoarsenV1.cpp/.h       CoarsenedGraph, Coarsen(), ReducedHierarchy, compute_reduced_assignment
+  MapCoarsenSerialize.cpp/.h  save/load a MultiLevelCoarsenedGraph to/from disk (--hierarchyCache),
+                            see ai/hierarchy_cache.md
   mapReductionV0.cpp/.h     earlier/simpler map-reduction prototype (superseded by V1, still compiled in)
   run.cpp                   standalone comparison-harness executable (./build/map_reduction_test)
   instance_loader.cpp/.h    shared instance-JSON loading helper (used by run.cpp, validate_guide_paths.cpp,
                             and dump_guide_paths.cpp)
   validate_guide_paths.cpp  standalone guide-path format/validity checker (./build/guide_path_validator),
                             see ai/guide_path_metric.md
+  validate_hierarchy_cache.cpp  standalone hierarchy-cache round-trip checker (./build/hierarchy_cache_validator),
+                            see ai/hierarchy_cache.md
   dump_guide_paths.cpp      standalone tool dumping solver 1 vs. solver 6 guide paths to CSV for
                             visualisation (./build/dump_guide_paths), see ai/guide_path_visualisation.md
   dump_coarsening.cpp       standalone tool dumping the map-coarsening hierarchy itself (per-level

@@ -43,6 +43,7 @@ file(GLOB SOURCES "src/*.cpp" "default_planner/*.cpp")
 # functions like reduce_map_2x2 are available to scheduler.cpp.
 list(APPEND SOURCES "map_reduction_test/mapReductionV0.cpp")
 list(APPEND SOURCES "map_reduction_test/MapCoarsenV1.cpp")
+list(APPEND SOURCES "map_reduction_test/MapCoarsenSerialize.cpp")
 list(APPEND SOURCES "map_reduction_test/instance_loader.cpp")
 #------
 
@@ -125,6 +126,17 @@ target_compile_definitions(map_reduction_test PRIVATE PYTHON=${PYTHON_FLAG})
 add_executable(guide_path_validator map_reduction_test/validate_guide_paths.cpp ${PROJECT_SOURCES})
 target_link_libraries(guide_path_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(guide_path_validator PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
+# Standalone tool: builds a hierarchy, saves it via MapCoarsenSerialize,
+# reloads it, and asserts the two are structurally identical level-by-level
+# (node coordinates/mappings, arcs, both bridge caches) plus that a
+# mismatched signature/level-count is correctly rejected. See
+# ai/hierarchy_cache.md.
+add_executable(hierarchy_cache_validator map_reduction_test/validate_hierarchy_cache.cpp ${PROJECT_SOURCES})
+target_link_libraries(hierarchy_cache_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(hierarchy_cache_validator PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
 #-----------

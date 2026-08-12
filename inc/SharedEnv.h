@@ -20,6 +20,11 @@ public:
     std::vector<int> map;
     std::string file_storage_path;
 
+    // Path to a cached, previously-built solver-6 map-coarsening hierarchy
+    // (see MapReductionTest::ReducedHierarchy::ensure()). Empty means
+    // "don't cache" -- always rebuild in-process and never touch disk.
+    std::string hierarchy_cache_path;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;

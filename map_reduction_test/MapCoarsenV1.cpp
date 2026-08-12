@@ -1,4 +1,5 @@
 #include "MapCoarsenV1.h"
+#include "MapCoarsenSerialize.h"
 
 #include <algorithm>
 #include <chrono>
@@ -994,7 +995,7 @@ namespace MapReductionTest {
 using lemon::NetworkSimplex;
 
 // Simple FNV-1a style signature
-static std::size_t compute_env_signature_local(const SharedEnvironment* env)
+std::size_t compute_env_signature(const SharedEnvironment* env)
 {
     if (env == nullptr) return 0;
     std::size_t h = 1469598103934665603ull;
@@ -1018,7 +1019,7 @@ ReducedHierarchy::~ReducedHierarchy() = default;
 void ReducedHierarchy::ensure(const SharedEnvironment* env)
 {
     if (env == nullptr) return;
-    const std::size_t sig = compute_env_signature_local(env);
+    const std::size_t sig = compute_env_signature(env);
     if (ready_ && signature_ == sig && !hierarchy_.empty()) return;
 
     // The map changed (or this is the first call): drop the old hierarchy
@@ -1027,9 +1028,36 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     hierarchy_.clear();
 
     const int levels_to_add = std::max(0, kDefaultCoarsenLevels);
+    const int expected_num_levels = levels_to_add + 1; // fine level + coarsened levels
 
+    // If a cache path was given, try to load a previously-saved hierarchy
+    // for this exact map/level-count before paying to rebuild it. The load
+    // validates rows/cols/map-signature/level-count itself and fails
+    // (leaving `hierarchy_` untouched) on any mismatch or format problem,
+    // so a stale/foreign/corrupt cache file just falls through to a normal
+    // rebuild rather than being trusted. Timed the same as the build path
+    // below (not just "was it fast", but "how long did ensure() actually
+    // take this call") so `hierarchy_build_time()` stays meaningful on a
+    // cache hit instead of reading ~0 for work that did happen.
     const auto build_start = std::chrono::high_resolution_clock::now();
-    build_multilevel_from_environment(hierarchy_, env, levels_to_add);
+
+    bool loaded_from_cache = false;
+    if (!env->hierarchy_cache_path.empty())
+    {
+        MultiLevelCoarsenedGraph cached;
+        if (load_hierarchy_from_file(env->hierarchy_cache_path, env, expected_num_levels, cached))
+        {
+            hierarchy_ = std::move(cached);
+            loaded_from_cache = true;
+        }
+    }
+
+    if (!loaded_from_cache)
+    {
+        build_multilevel_from_environment(hierarchy_, env, levels_to_add);
+        if (!env->hierarchy_cache_path.empty() && !hierarchy_.empty())
+            save_hierarchy_to_file(hierarchy_, env, env->hierarchy_cache_path);
+    }
     const auto build_end = std::chrono::high_resolution_clock::now();
 
     signature_ = sig;

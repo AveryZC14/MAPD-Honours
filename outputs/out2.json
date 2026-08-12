@@ -1,0 +1,24 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 153,
+    "makespan": 1,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.528911386,
+    "schedulerHierarchyLevelNodeCounts": [
+        978096,
+        26384,
+        7661
+    ],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.5124794,
+            "SchedulerGuidePathTime": 0.011543154,
+            "PlannerTime": 0.882083709,
+            "GuidePathLengthSum": 89392.0,
+            "GuidePathCostSum": 89392.0
+        }
+    ]
+}

@@ -210,6 +210,17 @@ void build_multilevel_from_environment(MultiLevelCoarsenedGraph& hierarchy,
                                        int num_additional_levels);
 
 /**
+ * Compute a signature over `env`'s grid geometry and cell contents
+ * (rows, cols, and every `map` entry). Hierarchy construction reads only
+ * these fields (see `build_from_environment`), so two environments with an
+ * identical signature always produce the same hierarchy. Used both to
+ * decide whether an in-memory hierarchy is still valid for a new `env`, and
+ * to validate an on-disk cache file's compatibility with the current map
+ * (see `MapCoarsenSerialize.h`).
+ */
+std::size_t compute_env_signature(const SharedEnvironment* env);
+
+/**
  * Controller that owns a persistent multilevel hierarchy and provides
  * reduced-network operations (top-level simplex + lifting) for schedulers.
  */
