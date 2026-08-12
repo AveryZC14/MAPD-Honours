@@ -48,11 +48,15 @@ struct CoarsenedGraph{
     lemon::ListDigraph::NodeMap<std::pair<int, int>> coarse_location; // node -> (r,c) in coarse space
     lemon::ListDigraph::NodeMap<std::pair<int, int>> fine_location;   // node -> (r,c) in fine space
 
-    // Flow-network related maps (kept because scheduler code expects similar maps)
-    lemon::ListDigraph::NodeMap<int> supply;
+    // Arc weights, read when copying this level's topology into the
+    // per-timestep temporary flow graph built in compute_reduced_assignment.
+    // (This struct used to also carry `supply`/`flow` NodeMap/ArcMap fields
+    // for the same purpose as the temporary graph's own solve-scoped copies,
+    // but nothing ever read them back off the persisted graph -- the
+    // per-timestep solve always builds and solves its own fresh ListDigraph
+    // -- so they were pure dead weight and have been removed.)
     lemon::ListDigraph::ArcMap<double> cost;
     lemon::ListDigraph::ArcMap<int> capacity;
-    lemon::ListDigraph::ArcMap<int> flow;
 
     // Node lookup helpers
     std::vector<lemon::ListDigraph::Node> map_nodes; //graph ID for each node
@@ -62,19 +66,19 @@ struct CoarsenedGraph{
     // Per-node internal directional arc statistics (kept empty for levels
     // that haven't been populated).
     //
-    // These containers collect information about INTERNAL edges wholly
-    // contained inside a connected component discovered during coarsening.
-    // - `InternalDirectionalArcSamples` stores the raw arc weights bucketed
-    //   by geometric cardinal direction (Up/Down/Left/Right) for every
-    //   coarse node. Keeping the raw samples allows swapping aggregation
-    //   policies later without recollecting edges.
-    // - `InternalDirectionalArcMetrics` stores the reduced single-value
-    //   summaries per direction (e.g., average or minimum). Each entry is
-    //   optional to represent the absence of internal edges in that
-    //   direction.
+    // `InternalDirectionalArcSamples` stores the raw arc weights bucketed by
+    // geometric cardinal direction (Up/Down/Left/Right) for one connected
+    // component -- used only transiently while coarsening (to compute the
+    // reduced metrics below) and not retained as a per-graph field, since
+    // nothing reads it back afterward.
+    // `InternalDirectionalArcMetrics` stores the reduced single-value
+    // summaries per direction (e.g., average or minimum) for every coarse
+    // node, and *is* retained: it's read the next time this graph is itself
+    // coarsened, to bias inter-component arc costs by corridor direction.
+    // Each entry is optional to represent the absence of internal edges in
+    // that direction.
     struct InternalDirectionalArcSamples { std::array<std::vector<double>,4> weights; };
     struct InternalDirectionalArcMetrics { std::array<std::optional<double>,4> weights; };
-    std::vector<InternalDirectionalArcSamples> internal_directional_arc_samples;
     std::vector<InternalDirectionalArcMetrics> internal_directional_arc_metrics;
 
     std::vector<std::vector<std::vector<int>>> nodes_at_location; // r,c -> vector of graph IDs at this coarse location
@@ -158,8 +162,13 @@ struct MultiLevelCoarsenedGraph
  * allocates `fine_map_size` nodes (one per fine-grid location). The source
  * and sink nodes are also created to allow the level to be used directly by
  * a flow solver if desired.
+ *
+ * `is_fine_level` should be true only when this is level 0 (the finest,
+ * uncoarsened level): `to_finer_node_ids` is structurally guaranteed to stay
+ * empty at level 0 (it has no finer children to point at), so that vector's
+ * allocation is skipped entirely when this is true.
  */
-void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size);
+void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size, bool is_fine_level = false);
 
 /**
  * Attach coordinate metadata to a node in the level.

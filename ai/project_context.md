@@ -554,6 +554,17 @@ Headline pitfalls documented there, worth knowing before touching this again:
   CSV from a real, live `./build/lifelong` run (not a frozen snapshot), and
   `map_reduction_test/visualisation/plot_timestep_frames.py` renders one PNG
   per timestep from the result.
+- `ai/solver6_preprocessing_efficiency.md` — running list of CPU-time and
+  memory efficiency findings in solver 6's one-time hierarchy build
+  (`ReducedHierarchy::ensure()` → `build_multilevel_from_environment` →
+  `Coarsen()`), not the per-timestep `compute_reduced_assignment` path.
+  Tracks each finding's status (found vs. fixed) so it survives across
+  sessions. Headline finding so far: `collect_connected_components` and
+  `collect_internal_directional_arc_samples` both allocate a
+  full-fine-map-sized `std::vector<char>` on every 2x2-block/component call
+  during `Coarsen()` — the same anti-pattern already fixed once elsewhere in
+  this file (`build_cached_bridge_path_local`) but missed in these two,
+  and plausibly the dominant cost of hierarchy build time on large maps.
 - `ai/coarsening_visualisation.md` — two new standalone tools
   (`./build/dump_coarsening`, `map_reduction_test/visualisation/plot_coarsening.py`)
   that render the map-coarsening hierarchy itself (which fine cells group

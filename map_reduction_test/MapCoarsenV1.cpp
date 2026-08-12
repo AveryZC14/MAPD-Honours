@@ -5,7 +5,6 @@
 #include <memory>
 #include <deque>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <queue>
 #include <unordered_map>
@@ -107,15 +106,24 @@ std::optional<CardinalDirection> classify_delta(int dr, int dc)
 // Collect internal arc costs for a connected component and bucket them by
 // geometric direction. Each directed arc is counted once; this preserves the
 // true directional balance of the component.
+//
+// `in_component_scratch` is a caller-owned buffer sized to
+// `graph.map_nodes.size()`, expected to be all-false on entry. This function
+// restores that invariant before returning (clearing only the handful of
+// indices in `nodes` that it touched) so the same buffer can be reused
+// across many calls -- e.g. once per connected component discovered while
+// coarsening -- without reallocating/zeroing a full-map-sized vector each
+// time. See the comment on `build_cached_bridge_path_local` above for why
+// that reallocation was expensive enough to matter.
 CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_samples(const CoarsenedGraph& graph,
-                                                                                     const std::vector<int>& nodes)
+                                                                                     const std::vector<int>& nodes,
+                                                                                     std::vector<char>& in_component_scratch)
 {
     CoarsenedGraph::InternalDirectionalArcSamples samples;
     if (nodes.empty()) return samples;
 
-    std::vector<char> in_component(graph.map_nodes.size(), false);
     for (int id : nodes)
-        if (id >= 0 && id < static_cast<int>(in_component.size())) in_component[id] = true;
+        if (id >= 0 && id < static_cast<int>(in_component_scratch.size())) in_component_scratch[id] = true;
 
     for (int node_id : nodes)
     {
@@ -128,10 +136,10 @@ CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_s
             const int next_lid = graph.g.id(graph.g.target(arc));
             if (next_lid < 0 || next_lid >= static_cast<int>(graph.node_to_maploc.size())) continue;
             const int next_id = graph.node_to_maploc[next_lid];
-            if (next_id < 0 || next_id >= static_cast<int>(in_component.size())) continue;
+            if (next_id < 0 || next_id >= static_cast<int>(in_component_scratch.size())) continue;
 
             // Only internal edges
-            if (!in_component[next_id]) continue;
+            if (!in_component_scratch[next_id]) continue;
 
             const lemon::ListDigraph::Node next_node = graph.map_nodes[next_id];
             if (next_node == lemon::INVALID) continue;
@@ -148,6 +156,9 @@ CoarsenedGraph::InternalDirectionalArcSamples collect_internal_directional_arc_s
             samples.weights[direction_index(*dir)].push_back(w);
         }
     }
+
+    for (int id : nodes)
+        if (id >= 0 && id < static_cast<int>(in_component_scratch.size())) in_component_scratch[id] = false;
 
     return samples;
 }
@@ -286,8 +297,19 @@ void append_group_nodes(const CoarsenedGraph& graph,
 // Run a BFS over the induced subgraph formed by nodes_in_group only.
 // The search is deliberately restricted to this set so it splits the 2x2
 // block into connected pieces without ever leaking into neighboring blocks.
+//
+// `in_group_scratch`/`visited_scratch` are caller-owned buffers sized to
+// `graph.map_nodes.size()`, expected to be all-false on entry. This function
+// restores that invariant before returning (clearing only the indices in
+// `nodes_in_group` that it touched) so the same buffers can be reused across
+// many calls -- one per 2x2 coarse block -- without reallocating/zeroing a
+// full-map-sized vector each time. See the comment on
+// `build_cached_bridge_path_local` above for why that reallocation was
+// expensive enough to matter.
 std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph& graph,
-                                                           const std::vector<int>& nodes_in_group)
+                                                           const std::vector<int>& nodes_in_group,
+                                                           std::vector<char>& in_group_scratch,
+                                                           std::vector<char>& visited_scratch)
 {
     std::vector<std::vector<int>> connected_components;
     if (nodes_in_group.empty())
@@ -295,26 +317,23 @@ std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph&
 
     // Membership is checked on every expansion so the search never leaves the
     // current 2x2 group.
-    std::vector<char> in_group(graph.map_nodes.size(), false);
-    std::vector<char> visited(graph.map_nodes.size(), false);
-
     for (const int node_id : nodes_in_group)
     {
-        if (node_id >= 0 && node_id < static_cast<int>(in_group.size()))
-            in_group[node_id] = true;
+        if (node_id >= 0 && node_id < static_cast<int>(in_group_scratch.size()))
+            in_group_scratch[node_id] = true;
     }
 
     for (const int start_node_id : nodes_in_group)
     {
-        if (start_node_id < 0 || start_node_id >= static_cast<int>(visited.size()))
+        if (start_node_id < 0 || start_node_id >= static_cast<int>(visited_scratch.size()))
             continue;
-        if (!in_group[start_node_id] || visited[start_node_id])
+        if (!in_group_scratch[start_node_id] || visited_scratch[start_node_id])
             continue;
 
         std::vector<int> component;
         std::deque<int> frontier;
         frontier.push_back(start_node_id);
-        visited[start_node_id] = true;
+        visited_scratch[start_node_id] = true;
 
         while (!frontier.empty())
         {
@@ -334,12 +353,12 @@ std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph&
                 if (next_lid < 0 || next_lid >= static_cast<int>(graph.node_to_maploc.size()))
                     continue;
                 const int next_id = graph.node_to_maploc[next_lid];
-                if (next_id < 0 || next_id >= static_cast<int>(visited.size()))
+                if (next_id < 0 || next_id >= static_cast<int>(visited_scratch.size()))
                     continue;
-                if (!in_group[next_id] || visited[next_id])
+                if (!in_group_scratch[next_id] || visited_scratch[next_id])
                     continue;
 
-                visited[next_id] = true;
+                visited_scratch[next_id] = true;
                 frontier.push_back(next_id);
             }
 
@@ -349,17 +368,27 @@ std::vector<std::vector<int>> collect_connected_components(const CoarsenedGraph&
                 if (next_lid < 0 || next_lid >= static_cast<int>(graph.node_to_maploc.size()))
                     continue;
                 const int next_id = graph.node_to_maploc[next_lid];
-                if (next_id < 0 || next_id >= static_cast<int>(visited.size()))
+                if (next_id < 0 || next_id >= static_cast<int>(visited_scratch.size()))
                     continue;
-                if (!in_group[next_id] || visited[next_id])
+                if (!in_group_scratch[next_id] || visited_scratch[next_id])
                     continue;
 
-                visited[next_id] = true;
+                visited_scratch[next_id] = true;
                 frontier.push_back(next_id);
             }
         }
 
         connected_components.push_back(std::move(component));
+    }
+
+    // Restore the all-false invariant for the next call.
+    for (const int node_id : nodes_in_group)
+    {
+        if (node_id >= 0 && node_id < static_cast<int>(in_group_scratch.size()))
+        {
+            in_group_scratch[node_id] = false;
+            visited_scratch[node_id] = false;
+        }
     }
 
     return connected_components;
@@ -391,9 +420,11 @@ void populate_new_graph_for_component(CoarsenedGraph* newGraph,
     if (new_id >= 0 && new_id < static_cast<int>(newGraph->chosen_finer_node_id.size()))
         newGraph->chosen_finer_node_id[new_id] = nodes.empty() ? -1 : nodes.front();
 
-    // Save raw samples and reduced metrics for this coarse node.
-    if (new_id >= 0 && new_id < static_cast<int>(newGraph->internal_directional_arc_samples.size()))
-        newGraph->internal_directional_arc_samples[new_id] = internal_directional_arc_samples;
+    // Save the reduced metrics for this coarse node. The raw samples passed
+    // in are only needed transiently to compute this reduction -- nothing
+    // reads a persisted copy of them back afterward, so no persisted copy is
+    // kept (see the field comment on InternalDirectionalArcSamples in the
+    // header).
     if (new_id >= 0 && new_id < static_cast<int>(newGraph->internal_directional_arc_metrics.size()))
         newGraph->internal_directional_arc_metrics[new_id] = reduce_internal_directional_arc_samples(internal_directional_arc_samples);
 
@@ -423,10 +454,8 @@ void populate_new_graph_for_component(CoarsenedGraph* newGraph,
 CoarsenedGraph::CoarsenedGraph(int fine_map_size)
     : coarse_location(g)
     , fine_location(g)
-    , supply(g)
     , cost(g)
     , capacity(g)
-    , flow(g)
 {
     reserve_fine_map(*this, fine_map_size);
 }
@@ -434,7 +463,7 @@ CoarsenedGraph::CoarsenedGraph(int fine_map_size)
 /**
  * Rebuild the graph's fine-node storage and reset the bookkeeping maps.
  */
-void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
+void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size, bool is_fine_level)
 {
     // Reset the underlying graph and bookkeeping containers.
     graph.g.clear();
@@ -472,7 +501,6 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
 
     graph.bridge_cache.clear();
     graph.bridge_path_cache.clear();
-    graph.internal_directional_arc_samples.clear();
     graph.internal_directional_arc_metrics.clear();
     graph.map_nodes.clear();
     graph.nodes_at_location.clear();
@@ -485,9 +513,12 @@ void reserve_fine_map(CoarsenedGraph& graph, int fine_map_size)
     graph.map_nodes.resize(fine_map_size);
     graph.maploc_to_node.assign(fine_map_size, -1);
     graph.to_coarser_node_id.assign(fine_map_size, -1);
-    graph.to_finer_node_ids.assign(fine_map_size, std::vector<int>());
+    // Level 0 has no finer children by definition, so this stays empty --
+    // skip the allocation entirely rather than filling it with fine_map_size
+    // guaranteed-empty vectors (see the header comment on this parameter).
+    if (!is_fine_level)
+        graph.to_finer_node_ids.assign(fine_map_size, std::vector<int>());
     graph.chosen_finer_node_id.assign(fine_map_size, -1);
-    graph.internal_directional_arc_samples.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcSamples{});
     graph.internal_directional_arc_metrics.assign(fine_map_size, CoarsenedGraph::InternalDirectionalArcMetrics{});
 
     // Location buckets are created empty here; the fine builder decides which
@@ -558,18 +589,14 @@ void build_from_environment(CoarsenedGraph& graph, const SharedEnvironment* env)
     graph.num_coarse_nodes = static_cast<int>(env->map.size());
 
     // Recreate the backing storage so the graph matches the current map.
-    reserve_fine_map(graph, static_cast<int>(env->map.size()));
+    // This is level 0 (the finest level) by construction here.
+    reserve_fine_map(graph, static_cast<int>(env->map.size()), /*is_fine_level=*/true);
 
     if (graph.coarse_rows > 0 && graph.coarse_cols > 0)
     {
         // Start with an empty coarse-grid table for the fine map.
         graph.nodes_at_location.assign(graph.coarse_rows, std::vector<std::vector<int>>(graph.coarse_cols));
     }
-
-    // The fine graph is a plain map graph, so the bookkeeping maps are reset to
-    // a neutral default state for this level.
-    graph.supply[graph.source] = 0;
-    graph.supply[graph.sink] = 0;
 
     // Add the four-neighbor movement edges for every walkable cell.
     const std::vector<int> neighbor_offsets = {-env->cols, 1, env->cols, -1};
@@ -657,6 +684,18 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
     struct CompInfo { int row; int col; std::vector<int> nodes; CoarsenedGraph::InternalDirectionalArcSamples internal_directional_arc_samples; };
     std::vector<CompInfo> all_components;
 
+    // Scratch buffers reused across every block/component in the loop below,
+    // instead of each call to collect_connected_components/
+    // collect_internal_directional_arc_samples allocating and zeroing a
+    // fresh graph.map_nodes.size()-length vector. There are on the order of
+    // graph.map_nodes.size()/4 blocks, so re-allocating per call turned this
+    // pass quadratic in map size -- see `ai/solver6_preprocessing_efficiency.md`.
+    // Sized once per Coarsen() call (i.e. once per level) and kept all-false
+    // between calls by each function restoring the indices it touched.
+    std::vector<char> in_group_scratch(graph.map_nodes.size(), false);
+    std::vector<char> visited_scratch(graph.map_nodes.size(), false);
+    std::vector<char> in_component_scratch(graph.map_nodes.size(), false);
+
     for (int i = 0; i < newGraph->coarse_rows; ++i)
     {
         for (int j = 0; j < newGraph->coarse_cols; ++j)
@@ -668,7 +707,7 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
                 continue;
 
             const std::vector<std::vector<int>> connected_components =
-                collect_connected_components(graph, nodes_in_group);
+                collect_connected_components(graph, nodes_in_group, in_group_scratch, visited_scratch);
 
             for (const auto &comp : connected_components)
             {
@@ -676,7 +715,8 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
                 info.row = i;
                 info.col = j;
                 info.nodes = comp;
-                info.internal_directional_arc_samples = collect_internal_directional_arc_samples(graph, comp);
+                info.internal_directional_arc_samples =
+                    collect_internal_directional_arc_samples(graph, comp, in_component_scratch);
                 all_components.push_back(std::move(info));
             }
         }
@@ -704,7 +744,7 @@ std::unique_ptr<CoarsenedGraph> Coarsen(const CoarsenedGraph& graph) {
     // 3) add directional internal penalties:
     //      + 0.5 * A(direction A->B) + 0.5 * B(direction A->B),
     // 4) create the coarse arc A->B with that final weight.
-    std::map<std::pair<int, int>, std::vector<double>> inter_component_arc_samples;
+    std::unordered_map<std::pair<int, int>, std::vector<double>, CoarsenedGraph::PairHash> inter_component_arc_samples;
 
     for (lemon::ListDigraph::ArcIt arc(graph.g); arc != lemon::INVALID; ++arc)
     {
