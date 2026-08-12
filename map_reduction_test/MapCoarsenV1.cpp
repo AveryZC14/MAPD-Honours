@@ -28,7 +28,14 @@ using lemon::ListDigraph;
 // Default number of coarsening steps to build from the fine graph.
 // Increase this to push the hierarchy deeper, or set it to 0 to keep only
 // the fine level.
-constexpr int kDefaultCoarsenLevels = 2;
+constexpr int kDefaultCoarsenLevels = 4;
+
+// Default hierarchy level (0 = fine map) that the per-timestep flow
+// assignment is solved on. Overridable at runtime via
+// SharedEnvironment::flow_solve_level (--flowSolveLevel); this constant is
+// also the fallback used when that value is unset or out of range for the
+// hierarchy actually built (see compute_reduced_assignment()).
+constexpr int kDefaultFlowSolveLevel = 2;
 
 // High-level overview:
 // This file implements a simple multilevel coarsening pipeline for grid maps
@@ -1448,7 +1455,16 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     if (!ready_)
         return assignments;
 
-    const int top_level_idx = hierarchy_.num_levels() - 1;
+    // Which level to solve the per-timestep flow on: env->flow_solve_level
+    // if it's valid for the hierarchy actually built, otherwise fall back to
+    // kDefaultFlowSolveLevel, and if even that's out of range (e.g. a tiny
+    // map whose hierarchy came out shallower than the default expects),
+    // clamp down to the topmost level that does exist.
+    int top_level_idx = env->flow_solve_level;
+    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
+        top_level_idx = kDefaultFlowSolveLevel;
+    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
+        top_level_idx = hierarchy_.num_levels() - 1;
     const CoarsenedGraph* top = hierarchy_.level(top_level_idx);
     const CoarsenedGraph* fine = hierarchy_.fine_graph();
     if (!top || !fine)

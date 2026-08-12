@@ -338,7 +338,10 @@ bool load_hierarchy_from_file(const std::string& path,
 
     if (rows != env->rows || cols != env->cols) return false;
     if (sig != static_cast<std::uint64_t>(compute_env_signature(env))) return false;
-    if (expected_num_levels >= 0 && num_levels != expected_num_levels) return false;
+    // A cache with at least as many levels as requested is usable as-is
+    // (extra levels are simply unused); only a cache with fewer levels than
+    // requested is rejected, falling through to a full rebuild.
+    if (expected_num_levels >= 0 && num_levels < expected_num_levels) return false;
     if (num_levels < 0) return false;
 
     MultiLevelCoarsenedGraph loaded;

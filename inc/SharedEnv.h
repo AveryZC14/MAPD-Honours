@@ -25,6 +25,13 @@ public:
     // "don't cache" -- always rebuild in-process and never touch disk.
     std::string hierarchy_cache_path;
 
+    // Hierarchy level (0 = fine map) that solver 6 solves the per-timestep
+    // flow assignment on (see MapReductionTest::ReducedHierarchy::
+    // compute_reduced_assignment()). Set from --flowSolveLevel; a value
+    // out of range for the hierarchy actually built falls back to that
+    // function's own default.
+    int flow_solve_level = 2;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;

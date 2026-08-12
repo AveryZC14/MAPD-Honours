@@ -70,6 +70,25 @@ the date and what changed) rather than deleting them outright.
   section. Flagging this because it fell out of the `IH_mp_2p_01` sweep, not
   because it's been asked for.
 
+- [ ] **Solver 6: within-coarse-node agent<->task pairing is arbitrary, not
+  distance-informed.** `compute_reduced_assignment`
+  (`map_reduction_test/MapCoarsenV1.cpp:1437`) solves min-cost flow on the
+  *coarse* graph only — when an agent's and a task's locations map to the
+  same top-level node (`flow_solve_level`, default 2), the arc cost between
+  them is 0, so the flow solve has no signal to prefer one fine-grained
+  pairing over another. Recovery then just pops
+  `top_task_ids[node].front()` (`MapCoarsenV1.cpp:1679`) against agents in
+  `flexible_agent_ids` order (`env->new_freeagents`,
+  `scheduler.cpp:976`) — insertion-order-dependent, uncorrelated with real
+  fine-map distance. The existing pin-already-assigned-tasks fix
+  (`scheduler.cpp:996-1010`, comment at `:1000-1003`) only stops this
+  pairing from being *re-decided* (churn) every timestep; it does nothing
+  for the *first* pairing when new agents/tasks co-locate in a coarse node.
+  Severity scales with coarse-node size/population — likely worse in open
+  warehouse-style regions (e.g. clustered pickup stations) than maze maps.
+  See conversation 2026-08-12 for full analysis; brainstormed fix options
+  not yet chosen/implemented.
+
 ## Done
 
 - [x] **2026-07-29: Guide-path reconstruction rigor pass + GuidePathLengthSum/
