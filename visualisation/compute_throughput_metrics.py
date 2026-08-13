@@ -27,6 +27,9 @@ Usage:
     python3 compute_throughput_metrics.py <folder_of_results>/
     python3 compute_throughput_metrics.py <folder_of_results>/ -o metrics.csv
     python3 compute_throughput_metrics.py <folder_of_results>/ --recursive
+
+With -o, a Markdown table is also written alongside the CSV (same path,
+.md extension) unless --md gives an explicit path.
 """
 
 import argparse
@@ -73,7 +76,7 @@ def compute_metrics(json_path: Path) -> dict:
         "steps": steps,
         "makespan": makespan,
         # Guard against div-by-zero on a degenerate/empty run.
-        "tp_steps": tasks / steps if steps else float("nan"),
+        # "tp_steps": tasks / steps if steps else float("nan"),
         "tp_makespan": tasks / makespan if makespan else float("nan"),
     }
 
@@ -85,10 +88,24 @@ def find_result_files(path: Path, recursive: bool):
     return sorted(path.glob(pattern))
 
 
+def format_cell(value):
+    if isinstance(value, float):
+        return "nan" if value != value else f"{value:.3f}"
+    return str(value)
+
+
+def write_markdown(rows, fieldnames, out):
+    out.write("| " + " | ".join(fieldnames) + " |\n")
+    out.write("|" + "|".join(["---"] * len(fieldnames)) + "|\n")
+    for row in rows:
+        out.write("| " + " | ".join(format_cell(row[k]) for k in fieldnames) + " |\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path, help="A result .json file, or a folder containing them")
     parser.add_argument("-o", "--output", type=Path, help="Write CSV here instead of stdout")
+    parser.add_argument("--md", type=Path, help="Write Markdown table here (default: -o's path with a .md suffix)")
     parser.add_argument("--recursive", action="store_true", help="Recurse into subfolders when path is a directory")
     args = parser.parse_args()
 
@@ -103,7 +120,7 @@ def main():
     # Sort by agent count then label so multi-config sweeps plot in a sane order.
     rows.sort(key=lambda r: (r["agents"] if r["agents"] is not None else -1, r["label"]))
 
-    fieldnames = ["file", "agents", "label", "tasks", "steps", "makespan", "tp_steps", "tp_makespan"]
+    fieldnames = ["file", "agents", "label", "tasks", "steps", "makespan", "tp_makespan"]
     out = open(args.output, "w", newline="") if args.output else sys.stdout
     try:
         writer = csv.DictWriter(out, fieldnames=fieldnames)
@@ -116,6 +133,12 @@ def main():
 
     if args.output:
         print(f"wrote {len(rows)} rows to {args.output}", file=sys.stderr)
+
+    md_path = args.md or (args.output.with_suffix(".md") if args.output else None)
+    if md_path:
+        with open(md_path, "w") as f:
+            write_markdown(rows, fieldnames, f)
+        print(f"wrote {len(rows)} rows to {md_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":

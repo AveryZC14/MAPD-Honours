@@ -1,5 +1,6 @@
 #include "MapCoarsenV1.h"
 #include "MapCoarsenSerialize.h"
+#include "LocalNodeMatch.h"
 
 #include <algorithm>
 #include <chrono>
@@ -28,7 +29,7 @@ using lemon::ListDigraph;
 // Default number of coarsening steps to build from the fine graph.
 // Increase this to push the hierarchy deeper, or set it to 0 to keep only
 // the fine level.
-constexpr int kDefaultCoarsenLevels = 4;
+constexpr int kDefaultCoarsenLevels = 9;
 
 // Default hierarchy level (0 = fine map) that the per-timestep flow
 // assignment is solved on. Overridable at runtime via
@@ -36,6 +37,18 @@ constexpr int kDefaultCoarsenLevels = 4;
 // also the fallback used when that value is unset or out of range for the
 // hierarchy actually built (see compute_reduced_assignment()).
 constexpr int kDefaultFlowSolveLevel = 2;
+
+// Whether compute_reduced_assignment's Step 1 pulls same-top-level-node
+// agents/tasks out and matches them directly on real fine-grid distance
+// (LocalNodeMatch.h) before the coarse flow graph is built, instead of
+// leaving the pairing to the flow's own (distance-blind, insertion-order-
+// dependent) same-node recovery. See ai/todo.md ("within-coarse-node
+// agent<->task pairing is arbitrary, not distance-informed") for the
+// quantified impact -- large win at deep flowSolveLevel values (same-node
+// collisions dominate there), a small (<0.6%) realized-distance regression
+// at shallow levels where there's little/no same-node collision to begin
+// with. Flip and recompile to A/B against the old behavior.
+constexpr bool kEnableLocalNodeMatching = true;
 
 // High-level overview:
 // This file implements a simple multilevel coarsening pipeline for grid maps
@@ -1470,11 +1483,28 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     if (!top || !fine)
         return assignments;
 
-    // Step 1: map agents and tasks to the top level and solve one compact
-    // min-cost flow on the coarsened graph.
-    std::unordered_map<int, int> start_supply;
-    std::unordered_map<int, std::list<int>> top_task_ids;
-    std::unordered_map<int, int> agent_to_top_node;
+    // Step 1: bucket agents/tasks by top-level node, then -- before the
+    // coarse flow graph is built at all -- match every node's agents and
+    // tasks directly against each other on real fine-grid distance
+    // (LocalNodeMatch.h). Same-node arcs in the flow graph below are
+    // zero-cost, so the flow solve has no signal to prefer one fine-grained
+    // pairing over another; pulling the whole local group out and matching
+    // it exactly is lossless to the flow solve (same-node supply/demand was
+    // always going to be satisfied for free regardless of which specific
+    // agent/task got picked) while fixing which specific pairing that is.
+    // See ai/todo.md ("within-coarse-node agent<->task pairing is
+    // arbitrary, not distance-informed") for the quantified impact.
+    //
+    // Only the `|agents - tasks|` leftover at each node (never both sides
+    // at once, since an exact min(a,t)-pair matching is used) becomes the
+    // surplus that start_supply/top_task_ids/agent_to_top_node feed into
+    // the flow graph below, same as before this pass existed. Locally
+    // matched pairs never touch the coarse graph, so they don't get a
+    // lifted guide path from Steps 3/4 below (they fall back to the
+    // low-level planner's own seed, same as any agent with no
+    // agent_guide_path entry) -- deliberately deferred, not yet needed.
+    std::unordered_map<int, std::vector<int>> agents_by_node, tasks_by_node;
+    std::unordered_map<int, int> agent_loc_by_id, task_loc_by_id;
 
     for (int agent_id : flexible_agent_ids)
     {
@@ -1482,8 +1512,8 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         const int top_node = map_fine_node_to_level_node_local(hierarchy_, loc, top_level_idx);
         if (top_node < 0)
             continue;
-        start_supply[top_node]++;
-        agent_to_top_node[agent_id] = top_node;
+        agents_by_node[top_node].push_back(agent_id);
+        agent_loc_by_id[agent_id] = loc;
     }
 
     for (int task_id : flexible_task_ids)
@@ -1492,7 +1522,71 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         const int top_node = map_fine_node_to_level_node_local(hierarchy_, loc, top_level_idx);
         if (top_node < 0)
             continue;
-        top_task_ids[top_node].push_back(task_id);
+        tasks_by_node[top_node].push_back(task_id);
+        task_loc_by_id[task_id] = loc;
+    }
+
+    std::unordered_map<int, int> start_supply;
+    std::unordered_map<int, std::list<int>> top_task_ids;
+    std::unordered_map<int, int> agent_to_top_node;
+
+    for (auto& kv : agents_by_node)
+    {
+        const int node = kv.first;
+        const std::vector<int>& node_agent_ids = kv.second;
+        const auto tasks_it = tasks_by_node.find(node);
+        if (tasks_it == tasks_by_node.end() || tasks_it->second.empty())
+        {
+            // No local counterpart at all -- every agent here is surplus.
+            for (int agent_id : node_agent_ids)
+            {
+                start_supply[node]++;
+                agent_to_top_node[agent_id] = node;
+            }
+            continue;
+        }
+        const std::vector<int>& node_task_ids = tasks_it->second;
+
+        std::vector<int> node_agent_locs, node_task_locs;
+        node_agent_locs.reserve(node_agent_ids.size());
+        node_task_locs.reserve(node_task_ids.size());
+        for (int agent_id : node_agent_ids)
+            node_agent_locs.push_back(agent_loc_by_id[agent_id]);
+        for (int task_id : node_task_ids)
+            node_task_locs.push_back(task_loc_by_id[task_id]);
+
+        const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
+            ? match_local_node_exact(*env, node_agent_ids, node_agent_locs, node_task_ids, node_task_locs)
+            : std::vector<LocalMatchPair>();
+
+        std::unordered_set<int> matched_agents, matched_tasks;
+        for (const auto& p : pairs)
+        {
+            assignments[p.agent_id] = p.task_id;
+            matched_agents.insert(p.agent_id);
+            matched_tasks.insert(p.task_id);
+        }
+
+        for (int agent_id : node_agent_ids)
+        {
+            if (matched_agents.count(agent_id))
+                continue;
+            start_supply[node]++;
+            agent_to_top_node[agent_id] = node;
+        }
+        for (int task_id : node_task_ids)
+        {
+            if (!matched_tasks.count(task_id))
+                top_task_ids[node].push_back(task_id);
+        }
+    }
+    // Nodes with tasks but no agents at all: every task there is surplus too.
+    for (const auto& kv : tasks_by_node)
+    {
+        if (agents_by_node.find(kv.first) != agents_by_node.end())
+            continue;
+        for (int task_id : kv.second)
+            top_task_ids[kv.first].push_back(task_id);
     }
 
     ListDigraph g;
@@ -1513,7 +1607,15 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         supply[top_nodes[node_id]] = 0;
     }
 
-    const int num_workers = static_cast<int>(flexible_agent_ids.size());
+    // num_workers is the *surplus* agent count fed into this flow (agents
+    // consumed by the local matching pass above are already in
+    // `assignments` and never reach this graph). This mirrors the original
+    // (pre-local-matching) code's own use of the total flexible agent count
+    // here rather than something derived from task supply -- every local
+    // match removes exactly one agent and one task, so the gap between
+    // agent and task counts fed into the flow below is unchanged from
+    // before this pass existed, not newly introduced by it.
+    const int num_workers = static_cast<int>(agent_to_top_node.size());
     supply[source] = num_workers;
     supply[sink] = -num_workers;
 

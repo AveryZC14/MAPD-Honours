@@ -1,0 +1,22 @@
+| file | agents | label | tasks | steps | makespan | tp_makespan |
+|---|---|---|---|---|---|---|
+| scene_mp_4p_03_10000_solver1.json | 10000 | 10000_solver1 | 55 | 6 | 501 | 0.110 |
+| scene_mp_4p_03_10000_solver6_level1.json | 10000 | 10000_solver6_level1 | 2023 | 52 | 501 | 4.038 |
+| scene_mp_4p_03_10000_solver6_level2.json | 10000 | 10000_solver6_level2 | 2871 | 134 | 501 | 5.731 |
+| scene_mp_4p_03_10000_solver6_level3.json | 10000 | 10000_solver6_level3 | 3055 | 205 | 501 | 6.098 |
+| scene_mp_4p_03_10000_solver6_level4.json | 10000 | 10000_solver6_level4 | 3182 | 448 | 500 | 6.364 |
+| scene_mp_4p_03_10000_solver6_level4_postfix.json | 10000 | 10000_solver6_level4_postfix | 3178 | 442 | 501 | 6.343 |
+| scene_mp_4p_03_10000_solver6_level5.json | 10000 | 10000_solver6_level5 | 3151 | 489 | 500 | 6.302 |
+| scene_mp_4p_03_10000_solver6_level5_postfix.json | 10000 | 10000_solver6_level5_postfix | 3166 | 495 | 500 | 6.332 |
+| scene_mp_4p_03_10000_solver6_level6.json | 10000 | 10000_solver6_level6 | 3054 | 496 | 500 | 6.108 |
+| scene_mp_4p_03_10000_solver6_level6_postfix.json | 10000 | 10000_solver6_level6_postfix | 3110 | 491 | 501 | 6.208 |
+| scene_mp_4p_03_20000_solver1.json | 20000 | 20000_solver1 | 257 | 6 | 501 | 0.513 |
+| scene_mp_4p_03_20000_solver6_level1.json | 20000 | 20000_solver6_level1 | 5533 | 56 | 501 | 11.044 |
+| scene_mp_4p_03_20000_solver6_level2.json | 20000 | 20000_solver6_level2 | 6752 | 148 | 501 | 13.477 |
+| scene_mp_4p_03_20000_solver6_level3.json | 20000 | 20000_solver6_level3 | 6859 | 190 | 501 | 13.691 |
+| scene_mp_4p_03_20000_solver6_level4.json | 20000 | 20000_solver6_level4 | 6971 | 449 | 500 | 13.942 |
+| scene_mp_4p_03_20000_solver6_level4_postfix.json | 20000 | 20000_solver6_level4_postfix | 7056 | 451 | 500 | 14.112 |
+| scene_mp_4p_03_20000_solver6_level5.json | 20000 | 20000_solver6_level5 | 6803 | 498 | 500 | 13.606 |
+| scene_mp_4p_03_20000_solver6_level5_postfix.json | 20000 | 20000_solver6_level5_postfix | 6972 | 499 | 500 | 13.944 |
+| scene_mp_4p_03_20000_solver6_level6.json | 20000 | 20000_solver6_level6 | 6518 | 495 | 501 | 13.010 |
+| scene_mp_4p_03_20000_solver6_level6_postfix.json | 20000 | 20000_solver6_level6_postfix | 6986 | 499 | 500 | 13.972 |

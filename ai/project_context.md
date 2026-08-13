@@ -60,6 +60,13 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
 - `--hierarchyCache <path>` (default `""`, disabled): cache solver 6's map-coarsening
   hierarchy to disk and reuse it on later runs against the same map instead of
   rebuilding from scratch — see `ai/hierarchy_cache.md`
+- `--flowSolveLevel` (default 2): solver 6 only — which already-built hierarchy
+  level (0 = fine map) to solve the per-timestep flow assignment on, at
+  runtime; out-of-range values fall back to the compile-time
+  `kDefaultFlowSolveLevel`. Independent of `kDefaultCoarsenLevels` (how deep
+  the hierarchy is *built*, still compile-time-only) — the hierarchy must be
+  built at least as deep as the requested level. See
+  `ai/auto_benchmarking_scene_mp_4p_03.md` for the first sweep using this.
 - `--useTraffic,-u` (bool): enables congestion-aware guide-path costing in the scheduler
 - `--assignNew,-n` (`new_only`): if true, only ever assign brand-new unassigned tasks (no swapping of already-assigned-but-unopened tasks)
 - `--commitWindow,-w`
@@ -534,6 +541,14 @@ Headline pitfalls documented there, worth knowing before touching this again:
   - `ai/auto_benchmarking_warehouseXL.md` — 15-run sweep, solver 1 vs. solver
     6 at coarsen levels 1-4, on `warehouseXL` (a generated, structured
     warehouse map ~the same cell count as `IH_mp_2p_01`).
+  - `ai/auto_benchmarking_scene_mp_4p_03.md` — 5-run sweep (5000 agents only
+    so far), solver 1 vs. solver 6 at `--flowSolveLevel` 1-4, on
+    `scene_mp_4p_03` (~13.9M cells, ~6.3M walkable — the largest map
+    benchmarked so far, ~2.8x `IH_mp_2p_01`'s walkable-cell count). First
+    sweep using the new `--flowSolveLevel` CLI lever + `--hierarchyCache`
+    together (build once, compare levels without recompiling). Widest
+    solver-6-wins margin yet (~44-93x), and the first sweep where deeper
+    coarsening *increases* throughput instead of costing a little.
   - Each new sweep gets its own `ai/auto_benchmarking_<map>.md` detail file
     (flat, not a subfolder — the user wants to eventually automate
     benchmarking rather than keep hand-writing these); update the master's
@@ -587,6 +602,16 @@ Headline pitfalls documented there, worth knowing before touching this again:
   cache-validity/invalidation rules, what's deliberately not serialized (and
   why that's safe), the new `./build/hierarchy_cache_validator` structural
   round-trip checker, and build-vs-load timing on `orz900d`/`IH_mp_2p_01`.
+- `ai/local_node_matching.md` — **local node matching**: fixes solver 6's
+  within-coarse-node agent<->task pairing being arbitrary/insertion-order-
+  dependent instead of distance-informed. New `LocalNodeMatch.{h,cpp}`
+  (`match_local_node_exact`, exact real-distance bipartite matching), wired
+  into `compute_reduced_assignment`'s Step 1, toggleable via
+  `kEnableLocalNodeMatching` (`MapCoarsenV1.cpp`). Validated via the
+  `analyze_coarse_collisions` diagnostic and full `scene_mp_4p_03` sweeps at
+  5000/10000/20000 agents — benefit grows with agent count, up to +7.2% tasks
+  finished at level 6/20000 agents, and fixes a "deeper coarsening starts
+  hurting" regression at that level.
 
 (Update this list if more `ai/*.md` files are added later.)
 

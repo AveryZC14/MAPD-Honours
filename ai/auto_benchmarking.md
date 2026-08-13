@@ -18,6 +18,7 @@ this by hand — see `ai/todo.md`.
 | 1 | `orz900d` (656x1491, ~978K cells) | 2026-07-22 | 5000/10000/20000 | solver 1; solver 6 @ coarsen levels 1-4 | Solver 1 wins on `tp/makespan` at every agent count, margin shrinking as agents increase. | `ai/auto_benchmarking_orz900d.md` |
 | 2 | `IH_mp_2p_01` (1912x1800, ~3.44M cells, ~2.22M walkable) | 2026-07-23 | 5000/10000/20000 | solver 1; solver 6 @ coarsen depth 2 and 4 | **Inverts sweep 1**: solver 6 wins by ~4-7x on `tp/makespan` at every agent count. | `ai/auto_benchmarking_IH_mp_2p_01.md` |
 | 3 | `warehouseXL` (1900x1800, ~3.42M cells, ~1.73M walkable; generated, structured warehouse layout, not a maze map) | 2026-08-06 | 5000/10000/20000 | solver 1; solver 6 @ coarsen levels 1-4 | Solver 6 still wins at every agent count, same direction as sweep 2, but margin is much narrower (~4.3x at 5000 agents down to ~1.5x at 20000) and *shrinks* with agent count instead of staying roughly constant. | `ai/auto_benchmarking_warehouseXL.md` |
+| 4 | `scene_mp_4p_03` (3728x3728, ~13.9M cells, ~6.3M walkable — largest map benchmarked so far) | 2026-08-12 | 5000 only (10000/20000 pending) | solver 1; solver 6 @ coarsen levels 1-4 (via new `--flowSolveLevel` CLI lever, `kDefaultCoarsenLevels` raised to 6) | **Widest margin yet**: solver 6 wins by ~44x (level 1) to ~93x (level 4) on `tp/makespan`. Also the first sweep where depth *helps* monotonically instead of costing a little — level 4 beats level 1. | `ai/auto_benchmarking_scene_mp_4p_03.md` |
 
 ## Cross-sweep synthesis (what we currently believe)
 
@@ -49,11 +50,17 @@ this by hand — see `ai/todo.md`.
   narrower margin, so treat "topology matters" as a hypothesis, not a
   settled finding, until a controlled (serial, isolated) rerun disentangles
   the two effects.
-- **Coarsen depth is a second-order effect compared to solver choice.**
-  Within solver 6, more coarsening (higher level/depth) consistently costs a
-  small amount of throughput (level 1 > 2 > 3 > 4 on `orz900d`; depth 2 >
-  depth 4 on `IH_mp_2p_01`) — single-digit percent, not the multi-x gap
-  between solver 1 and solver 6.
+- **Coarsen depth is a second-order effect compared to solver choice — except
+  on the biggest map tested so far, where it flips direction.** Within
+  solver 6, more coarsening (higher level/depth) consistently cost a small
+  amount of throughput on sweeps 1-3 (level 1 > 2 > 3 > 4 on `orz900d`; depth
+  2 > depth 4 on `IH_mp_2p_01`) — single-digit percent, not the multi-x gap
+  between solver 1 and solver 6. Sweep 4 (`scene_mp_4p_03`, ~4x
+  `IH_mp_2p_01`'s cell count) **inverts this**: level 4 beats level 1 by
+  >2x on `tp/makespan`, increasing monotonically with depth. Only one
+  map/agent-count data point for the inversion so far — see
+  `ai/auto_benchmarking_scene_mp_4p_03.md`'s "Follow-up" for what would
+  confirm it.
 - **Solver 1's own numbers are probably conservative, not just "worse."** On
   both maps it hits "planner timeout" constantly even at the default
   `--planTimeLimit`, meaning it's time-budget-starved rather than running to
@@ -99,31 +106,37 @@ result JSON or a folder of them — use it instead of hand-computing:
 python3 visualisation/compute_throughput_metrics.py outputs/<folder>/ -o metrics.csv
 ```
 
-### Hierarchy build is mandatory for *every* solver, not just solver 6
+### Hierarchy build: solver-6-only now, but budget `--preprocessTimeLimit` generously for every solver anyway
 
-`schedule_initialize()` (`default_planner/scheduler.cpp:63`) unconditionally
-builds the reduced hierarchy (`ReducedHierarchy::ensure()`) regardless of
-`--scheduleModel` — solver 1 pays this cost too, even though it never uses
-the result. On `orz900d` this was fast enough to be invisible; on
-`IH_mp_2p_01` (~2.3x more cells) it took ~300s and **the default
-`--preprocessTimeLimit 30000` wasn't enough for any solver**, failing every
-run with a fatal preprocessing timeout until `-p` was raised to 600000.
-**Before benchmarking a new, bigger map: check hierarchy-build time first**
-(e.g. via `./build/map_reduction_test <instance.json>`, which builds the
-hierarchy directly without running a full simulation) and size
-`--preprocessTimeLimit` accordingly, for every solver in the sweep, not just
-solver 6.
+Historical note (sweeps 1-2, since fixed): `schedule_initialize()` used to
+unconditionally build the reduced hierarchy regardless of `--scheduleModel`,
+so solver 1 paid the build cost too despite never using the result. That's
+now gated to `solver == 6` only (see `ai/project_context.md`'s "Solver 6"
+section) — solver 1 no longer pays this cost. **Still budget
+`--preprocessTimeLimit` well above default (30000ms) for every solver on a
+big map**, though: sweep 4 (`scene_mp_4p_03`, the biggest map tested) hit a
+preprocessing timeout on solver 1 at the default limit anyway, from plain
+map-loading cost alone, unrelated to the hierarchy. **Before benchmarking a
+new, bigger map: check hierarchy-build time first** (e.g. via
+`./build/map_reduction_test <instance.json>`, which builds the hierarchy
+directly without running a full simulation) and size
+`--preprocessTimeLimit` accordingly for every solver in the sweep.
 
-### `kDefaultCoarsenLevels` is compile-time only
+### `kDefaultCoarsenLevels` (build depth) is compile-time only; solve-level is not, as of `--flowSolveLevel`
 
 `map_reduction_test/MapCoarsenV1.cpp:31` — a `constexpr int`, repo default
-`2`. Comparing coarsen levels/depths means editing that line and
-`./compile.sh`-ing between passes; there's no CLI flag. Both sweeps so far
-used a `sed` + recompile script, restoring the value to `2` (and rebuilding
-again) at the end so the repo is left as found. Minimize recompiles by
-grouping all runs that share a level together (solver 1 doesn't touch this
-constant at all, so its runs can be bundled into whichever pass is
-convenient).
+was `2`, since raised to `4` then `6` (see `ai/auto_benchmarking_scene_mp_4p_03.md`).
+*How deep the hierarchy is built* still requires editing that line and
+`./compile.sh`-ing between passes — sweeps 1-3 did this via a `sed` +
+recompile script, restoring the original value at the end. **This is no
+longer the only lever**: `--flowSolveLevel <N>` (added `5c9ee1a`) picks
+*which already-built level the per-timestep flow is solved on*, at runtime,
+no recompile — as long as the hierarchy was built deep enough to contain
+level `N` (i.e. `kDefaultCoarsenLevels >= N`). Combine with
+`--hierarchyCache` (`ai/hierarchy_cache.md`) to build once and compare
+multiple solve-levels from one cached hierarchy, as sweep 4 did — much
+cheaper than the old recompile-per-level workflow when the levels you want
+all fit under one build depth.
 
 ### Other things worth checking before trusting a new sweep's numbers
 

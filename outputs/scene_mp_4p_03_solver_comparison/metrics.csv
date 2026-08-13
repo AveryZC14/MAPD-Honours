@@ -1,0 +1,12 @@
+file,agents,label,tasks,steps,makespan,tp_makespan
+scene_mp_4p_03_5000_solver1.json,5000,5000_solver1,17,6,501,0.033932135728542916
+scene_mp_4p_03_5000_solver6_level1.json,5000,5000_solver6_level1,747,50,501,1.4910179640718564
+scene_mp_4p_03_5000_solver6_level2.json,5000,5000_solver6_level2,1355,136,501,2.7045908183632736
+scene_mp_4p_03_5000_solver6_level3.json,5000,5000_solver6_level3,1461,194,501,2.9161676646706587
+scene_mp_4p_03_5000_solver6_level4.json,5000,5000_solver6_level4,1580,404,501,3.153692614770459
+scene_mp_4p_03_5000_solver6_level4_postfix.json,5000,5000_solver6_level4_postfix,1578,418,501,3.1497005988023954
+scene_mp_4p_03_5000_solver6_level5.json,5000,5000_solver6_level5,1537,466,501,3.067864271457086
+scene_mp_4p_03_5000_solver6_level5_postfix.json,5000,5000_solver6_level5_postfix,1530,468,500,3.06
+scene_mp_4p_03_5000_solver6_level6.json,5000,5000_solver6_level6,1463,458,501,2.9201596806387227
+scene_mp_4p_03_5000_solver6_level6_postfix.json,5000,5000_solver6_level6_postfix,1517,440,501,3.027944111776447
+scene_mp_4p_03_5000_solver6_level9.json,5000,5000_solver6_level9,1347,136,501,2.688622754491018

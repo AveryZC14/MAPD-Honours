@@ -1,0 +1,42 @@
+=== sweep start 2026-08-13T11:48:49+00:00 ===
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver1 start 2026-08-13T11:48:57+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver1 end 2026-08-13T11:57:34+00:00 rc=0 elapsed=517s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level1 start 2026-08-13T11:57:34+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level1 end 2026-08-13T12:06:31+00:00 rc=0 elapsed=537s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level2 start 2026-08-13T12:06:31+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level2 end 2026-08-13T12:14:56+00:00 rc=0 elapsed=505s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level3 start 2026-08-13T12:14:56+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level3 end 2026-08-13T12:22:47+00:00 rc=0 elapsed=471s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level4 start 2026-08-13T12:22:47+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level4 end 2026-08-13T12:30:15+00:00 rc=0 elapsed=448s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level5 start 2026-08-13T12:30:15+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level5 end 2026-08-13T12:37:48+00:00 rc=0 elapsed=453s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level6 start 2026-08-13T12:37:48+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level6 end 2026-08-13T12:45:12+00:00 rc=0 elapsed=444s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver1 start 2026-08-13T12:45:12+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver1 end 2026-08-13T12:53:53+00:00 rc=0 elapsed=521s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level1 start 2026-08-13T12:53:53+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level1 end 2026-08-13T13:02:47+00:00 rc=0 elapsed=534s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level2 start 2026-08-13T13:02:47+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level2 end 2026-08-13T13:11:27+00:00 rc=0 elapsed=520s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level3 start 2026-08-13T13:11:27+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level3 end 2026-08-13T13:19:28+00:00 rc=0 elapsed=481s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level4 start 2026-08-13T13:19:28+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level4 end 2026-08-13T13:26:56+00:00 rc=0 elapsed=448s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level5 start 2026-08-13T13:26:56+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level5 end 2026-08-13T13:34:57+00:00 rc=0 elapsed=481s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level6 start 2026-08-13T13:34:57+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level6 end 2026-08-13T13:43:10+00:00 rc=0 elapsed=493s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level4_postfix start 2026-08-13T13:43:19+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level4_postfix end 2026-08-13T13:50:31+00:00 rc=0 elapsed=432s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level5_postfix start 2026-08-13T13:50:31+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level5_postfix end 2026-08-13T13:58:01+00:00 rc=0 elapsed=450s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level6_postfix start 2026-08-13T13:58:01+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_10000_solver6_level6_postfix end 2026-08-13T14:05:05+00:00 rc=0 elapsed=424s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level4_postfix start 2026-08-13T14:05:05+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level4_postfix end 2026-08-13T14:12:44+00:00 rc=0 elapsed=459s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level5_postfix start 2026-08-13T14:12:44+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level5_postfix end 2026-08-13T14:20:35+00:00 rc=0 elapsed=471s ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level6_postfix start 2026-08-13T14:20:35+00:00 ---
+--- outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/scene_mp_4p_03_20000_solver6_level6_postfix end 2026-08-13T14:28:20+00:00 rc=0 elapsed=465s ---
+=== sweep done 2026-08-13T14:28:20+00:00 ===

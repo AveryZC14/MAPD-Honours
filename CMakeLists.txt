@@ -45,6 +45,7 @@ list(APPEND SOURCES "map_reduction_test/mapReductionV0.cpp")
 list(APPEND SOURCES "map_reduction_test/MapCoarsenV1.cpp")
 list(APPEND SOURCES "map_reduction_test/MapCoarsenSerialize.cpp")
 list(APPEND SOURCES "map_reduction_test/instance_loader.cpp")
+list(APPEND SOURCES "map_reduction_test/LocalNodeMatch.cpp")
 #------
 
 
@@ -155,6 +156,18 @@ target_compile_definitions(dump_guide_paths PRIVATE PYTHON=${PYTHON_FLAG})
 add_executable(dump_coarsening map_reduction_test/dump_coarsening.cpp ${PROJECT_SOURCES})
 target_link_libraries(dump_coarsening ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(dump_coarsening PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
+# Standalone tool: quantifies how often agents/tasks collapse onto the same
+# top-level coarse node at each hierarchy level, and the real (fine-grid)
+# matched-distance gap between the FIFO pairing compute_reduced_assignment
+# actually produces for same-node collisions and an achievable
+# nearest-neighbor pairing -- tests whether coarse-node collisions explain
+# the throughput regression at deep --flowSolveLevel values.
+add_executable(analyze_coarse_collisions map_reduction_test/analyze_coarse_collisions.cpp ${PROJECT_SOURCES})
+target_link_libraries(analyze_coarse_collisions ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(analyze_coarse_collisions PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
 

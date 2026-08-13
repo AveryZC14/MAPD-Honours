@@ -1,0 +1,3458 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 10000,
+    "numTaskFinished": 3110,
+    "makespan": 501,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 26.200401742,
+    "schedulerHierarchyLevelNodeCounts": [
+        13897984,
+        1599811,
+        412302,
+        109865,
+        30627,
+        9317,
+        3110
+    ],
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.763086214,
+            "SchedulerGuidePathTime": 0.022967612,
+            "PlannerTime": 2.570899431,
+            "GuidePathLengthSum": 91605.0,
+            "GuidePathCostSum": 91605.0
+        },
+        {
+            "SchedulerSolveTime": 0.763086214,
+            "SchedulerGuidePathTime": 0.022967612,
+            "PlannerTime": 2.570899431,
+            "GuidePathLengthSum": 91605.0,
+            "GuidePathCostSum": 91605.0
+        },
+        {
+            "SchedulerSolveTime": 0.015026497,
+            "SchedulerGuidePathTime": 4.7087e-05,
+            "PlannerTime": 0.858202387,
+            "GuidePathLengthSum": 887.0,
+            "GuidePathCostSum": 887.0
+        },
+        {
+            "SchedulerSolveTime": 0.014863914,
+            "SchedulerGuidePathTime": 5.1315e-05,
+            "PlannerTime": 0.950425003,
+            "GuidePathLengthSum": 770.0,
+            "GuidePathCostSum": 770.0
+        },
+        {
+            "SchedulerSolveTime": 0.018748426,
+            "SchedulerGuidePathTime": 0.000220119,
+            "PlannerTime": 0.848881728,
+            "GuidePathLengthSum": 2336.0,
+            "GuidePathCostSum": 2336.0
+        },
+        {
+            "SchedulerSolveTime": 0.024801487,
+            "SchedulerGuidePathTime": 0.000263471,
+            "PlannerTime": 0.886533525,
+            "GuidePathLengthSum": 2573.0,
+            "GuidePathCostSum": 2573.0
+        },
+        {
+            "SchedulerSolveTime": 0.022481027,
+            "SchedulerGuidePathTime": 0.000282787,
+            "PlannerTime": 0.864189655,
+            "GuidePathLengthSum": 2514.0,
+            "GuidePathCostSum": 2514.0
+        },
+        {
+            "SchedulerSolveTime": 0.030979942,
+            "SchedulerGuidePathTime": 0.000331968,
+            "PlannerTime": 0.862151844,
+            "GuidePathLengthSum": 3256.0,
+            "GuidePathCostSum": 3256.0
+        },
+        {
+            "SchedulerSolveTime": 0.013562921,
+            "SchedulerGuidePathTime": 0.000113591,
+            "PlannerTime": 1.331230441,
+            "GuidePathLengthSum": 1578.0,
+            "GuidePathCostSum": 1578.0
+        },
+        {
+            "SchedulerSolveTime": 0.013562921,
+            "SchedulerGuidePathTime": 0.000113591,
+            "PlannerTime": 1.331230441,
+            "GuidePathLengthSum": 1578.0,
+            "GuidePathCostSum": 1578.0
+        },
+        {
+            "SchedulerSolveTime": 0.023778854,
+            "SchedulerGuidePathTime": 0.000277426,
+            "PlannerTime": 0.918642414,
+            "GuidePathLengthSum": 2661.0,
+            "GuidePathCostSum": 2661.0
+        },
+        {
+            "SchedulerSolveTime": 0.032775252,
+            "SchedulerGuidePathTime": 0.000348981,
+            "PlannerTime": 1.274295824,
+            "GuidePathLengthSum": 3109.0,
+            "GuidePathCostSum": 3109.0
+        },
+        {
+            "SchedulerSolveTime": 0.032775252,
+            "SchedulerGuidePathTime": 0.000348981,
+            "PlannerTime": 1.274295824,
+            "GuidePathLengthSum": 3109.0,
+            "GuidePathCostSum": 3109.0
+        },
+        {
+            "SchedulerSolveTime": 0.029140318,
+            "SchedulerGuidePathTime": 0.000340355,
+            "PlannerTime": 0.879529261,
+            "GuidePathLengthSum": 3177.0,
+            "GuidePathCostSum": 3177.0
+        },
+        {
+            "SchedulerSolveTime": 0.025655027,
+            "SchedulerGuidePathTime": 0.000234585,
+            "PlannerTime": 1.041556757,
+            "GuidePathLengthSum": 2726.0,
+            "GuidePathCostSum": 2726.0
+        },
+        {
+            "SchedulerSolveTime": 0.025655027,
+            "SchedulerGuidePathTime": 0.000234585,
+            "PlannerTime": 1.041556757,
+            "GuidePathLengthSum": 2726.0,
+            "GuidePathCostSum": 2726.0
+        },
+        {
+            "SchedulerSolveTime": 0.022039235,
+            "SchedulerGuidePathTime": 0.000263992,
+            "PlannerTime": 0.902475493,
+            "GuidePathLengthSum": 2732.0,
+            "GuidePathCostSum": 2732.0
+        },
+        {
+            "SchedulerSolveTime": 0.023521133,
+            "SchedulerGuidePathTime": 0.000216363,
+            "PlannerTime": 1.362280496,
+            "GuidePathLengthSum": 2553.0,
+            "GuidePathCostSum": 2553.0
+        },
+        {
+            "SchedulerSolveTime": 0.023521133,
+            "SchedulerGuidePathTime": 0.000216363,
+            "PlannerTime": 1.362280496,
+            "GuidePathLengthSum": 2553.0,
+            "GuidePathCostSum": 2553.0
+        },
+        {
+            "SchedulerSolveTime": 0.019915031,
+            "SchedulerGuidePathTime": 0.000220411,
+            "PlannerTime": 0.865533908,
+            "GuidePathLengthSum": 2355.0,
+            "GuidePathCostSum": 2355.0
+        },
+        {
+            "SchedulerSolveTime": 0.031157312,
+            "SchedulerGuidePathTime": 0.000410083,
+            "PlannerTime": 1.504660278,
+            "GuidePathLengthSum": 3207.0,
+            "GuidePathCostSum": 3207.0
+        },
+        {
+            "SchedulerSolveTime": 0.031157312,
+            "SchedulerGuidePathTime": 0.000410083,
+            "PlannerTime": 1.504660278,
+            "GuidePathLengthSum": 3207.0,
+            "GuidePathCostSum": 3207.0
+        },
+        {
+            "SchedulerSolveTime": 0.020819785,
+            "SchedulerGuidePathTime": 0.000211354,
+            "PlannerTime": 0.900908804,
+            "GuidePathLengthSum": 2114.0,
+            "GuidePathCostSum": 2114.0
+        },
+        {
+            "SchedulerSolveTime": 0.03192311,
+            "SchedulerGuidePathTime": 0.000351785,
+            "PlannerTime": 1.320238071,
+            "GuidePathLengthSum": 3462.0,
+            "GuidePathCostSum": 3462.0
+        },
+        {
+            "SchedulerSolveTime": 0.03192311,
+            "SchedulerGuidePathTime": 0.000351785,
+            "PlannerTime": 1.320238071,
+            "GuidePathLengthSum": 3462.0,
+            "GuidePathCostSum": 3462.0
+        },
+        {
+            "SchedulerSolveTime": 0.016326178,
+            "SchedulerGuidePathTime": 0.000129721,
+            "PlannerTime": 1.087200857,
+            "GuidePathLengthSum": 1838.0,
+            "GuidePathCostSum": 1838.0
+        },
+        {
+            "SchedulerSolveTime": 0.016326178,
+            "SchedulerGuidePathTime": 0.000129721,
+            "PlannerTime": 1.087200857,
+            "GuidePathLengthSum": 1838.0,
+            "GuidePathCostSum": 1838.0
+        },
+        {
+            "SchedulerSolveTime": 0.017857431,
+            "SchedulerGuidePathTime": 0.000144079,
+            "PlannerTime": 1.403248106,
+            "GuidePathLengthSum": 1955.0,
+            "GuidePathCostSum": 1955.0
+        },
+        {
+            "SchedulerSolveTime": 0.017857431,
+            "SchedulerGuidePathTime": 0.000144079,
+            "PlannerTime": 1.403248106,
+            "GuidePathLengthSum": 1955.0,
+            "GuidePathCostSum": 1955.0
+        },
+        {
+            "SchedulerSolveTime": 0.018001279,
+            "SchedulerGuidePathTime": 0.000160078,
+            "PlannerTime": 1.353518008,
+            "GuidePathLengthSum": 2017.0,
+            "GuidePathCostSum": 2017.0
+        },
+        {
+            "SchedulerSolveTime": 0.018001279,
+            "SchedulerGuidePathTime": 0.000160078,
+            "PlannerTime": 1.353518008,
+            "GuidePathLengthSum": 2017.0,
+            "GuidePathCostSum": 2017.0
+        },
+        {
+            "SchedulerSolveTime": 0.02037573,
+            "SchedulerGuidePathTime": 0.000186648,
+            "PlannerTime": 2.304724365,
+            "GuidePathLengthSum": 1961.0,
+            "GuidePathCostSum": 1961.0
+        },
+        {
+            "SchedulerSolveTime": 0.02037573,
+            "SchedulerGuidePathTime": 0.000186648,
+            "PlannerTime": 2.304724365,
+            "GuidePathLengthSum": 1961.0,
+            "GuidePathCostSum": 1961.0
+        },
+        {
+            "SchedulerSolveTime": 0.022420738,
+            "SchedulerGuidePathTime": 0.000100778,
+            "PlannerTime": 0.943054221,
+            "GuidePathLengthSum": 1466.0,
+            "GuidePathCostSum": 1466.0
+        },
+        {
+            "SchedulerSolveTime": 0.018298722,
+            "SchedulerGuidePathTime": 0.000110045,
+            "PlannerTime": 1.343169849,
+            "GuidePathLengthSum": 1277.0,
+            "GuidePathCostSum": 1277.0
+        },
+        {
+            "SchedulerSolveTime": 0.018298722,
+            "SchedulerGuidePathTime": 0.000110045,
+            "PlannerTime": 1.343169849,
+            "GuidePathLengthSum": 1277.0,
+            "GuidePathCostSum": 1277.0
+        },
+        {
+            "SchedulerSolveTime": 0.026021472,
+            "SchedulerGuidePathTime": 0.000124661,
+            "PlannerTime": 1.320174069,
+            "GuidePathLengthSum": 1601.0,
+            "GuidePathCostSum": 1601.0
+        },
+        {
+            "SchedulerSolveTime": 0.026021472,
+            "SchedulerGuidePathTime": 0.000124661,
+            "PlannerTime": 1.320174069,
+            "GuidePathLengthSum": 1601.0,
+            "GuidePathCostSum": 1601.0
+        },
+        {
+            "SchedulerSolveTime": 0.012230724,
+            "SchedulerGuidePathTime": 9.6781e-05,
+            "PlannerTime": 1.350913928,
+            "GuidePathLengthSum": 1482.0,
+            "GuidePathCostSum": 1482.0
+        },
+        {
+            "SchedulerSolveTime": 0.012230724,
+            "SchedulerGuidePathTime": 9.6781e-05,
+            "PlannerTime": 1.350913928,
+            "GuidePathLengthSum": 1482.0,
+            "GuidePathCostSum": 1482.0
+        },
+        {
+            "SchedulerSolveTime": 0.018117305,
+            "SchedulerGuidePathTime": 6.6575e-05,
+            "PlannerTime": 1.903929185,
+            "GuidePathLengthSum": 1024.0,
+            "GuidePathCostSum": 1024.0
+        },
+        {
+            "SchedulerSolveTime": 0.018117305,
+            "SchedulerGuidePathTime": 6.6575e-05,
+            "PlannerTime": 1.903929185,
+            "GuidePathLengthSum": 1024.0,
+            "GuidePathCostSum": 1024.0
+        },
+        {
+            "SchedulerSolveTime": 0.01782398,
+            "SchedulerGuidePathTime": 9.2291e-05,
+            "PlannerTime": 0.933296311,
+            "GuidePathLengthSum": 1416.0,
+            "GuidePathCostSum": 1416.0
+        },
+        {
+            "SchedulerSolveTime": 0.014866553,
+            "SchedulerGuidePathTime": 5.7657e-05,
+            "PlannerTime": 1.301010191,
+            "GuidePathLengthSum": 865.0,
+            "GuidePathCostSum": 865.0
+        },
+        {
+            "SchedulerSolveTime": 0.014866553,
+            "SchedulerGuidePathTime": 5.7657e-05,
+            "PlannerTime": 1.301010191,
+            "GuidePathLengthSum": 865.0,
+            "GuidePathCostSum": 865.0
+        },
+        {
+            "SchedulerSolveTime": 0.017482785,
+            "SchedulerGuidePathTime": 0.000104424,
+            "PlannerTime": 1.421197416,
+            "GuidePathLengthSum": 1164.0,
+            "GuidePathCostSum": 1164.0
+        },
+        {
+            "SchedulerSolveTime": 0.017482785,
+            "SchedulerGuidePathTime": 0.000104424,
+            "PlannerTime": 1.421197416,
+            "GuidePathLengthSum": 1164.0,
+            "GuidePathCostSum": 1164.0
+        },
+        {
+            "SchedulerSolveTime": 0.020801115,
+            "SchedulerGuidePathTime": 0.000106519,
+            "PlannerTime": 1.102373053,
+            "GuidePathLengthSum": 1564.0,
+            "GuidePathCostSum": 1564.0
+        },
+        {
+            "SchedulerSolveTime": 0.020801115,
+            "SchedulerGuidePathTime": 0.000106519,
+            "PlannerTime": 1.102373053,
+            "GuidePathLengthSum": 1564.0,
+            "GuidePathCostSum": 1564.0
+        },
+        {
+            "SchedulerSolveTime": 0.02094378,
+            "SchedulerGuidePathTime": 9.2793e-05,
+            "PlannerTime": 1.422634133,
+            "GuidePathLengthSum": 1214.0,
+            "GuidePathCostSum": 1214.0
+        },
+        {
+            "SchedulerSolveTime": 0.02094378,
+            "SchedulerGuidePathTime": 9.2793e-05,
+            "PlannerTime": 1.422634133,
+            "GuidePathLengthSum": 1214.0,
+            "GuidePathCostSum": 1214.0
+        },
+        {
+            "SchedulerSolveTime": 0.015142266,
+            "SchedulerGuidePathTime": 6.1765e-05,
+            "PlannerTime": 1.753617096,
+            "GuidePathLengthSum": 821.0,
+            "GuidePathCostSum": 821.0
+        },
+        {
+            "SchedulerSolveTime": 0.015142266,
+            "SchedulerGuidePathTime": 6.1765e-05,
+            "PlannerTime": 1.753617096,
+            "GuidePathLengthSum": 821.0,
+            "GuidePathCostSum": 821.0
+        },
+        {
+            "SchedulerSolveTime": 0.012413987,
+            "SchedulerGuidePathTime": 6.8818e-05,
+            "PlannerTime": 1.355154978,
+            "GuidePathLengthSum": 673.0,
+            "GuidePathCostSum": 673.0
+        },
+        {
+            "SchedulerSolveTime": 0.012413987,
+            "SchedulerGuidePathTime": 6.8818e-05,
+            "PlannerTime": 1.355154978,
+            "GuidePathLengthSum": 673.0,
+            "GuidePathCostSum": 673.0
+        },
+        {
+            "SchedulerSolveTime": 0.022422585,
+            "SchedulerGuidePathTime": 0.00010221,
+            "PlannerTime": 1.906728365,
+            "GuidePathLengthSum": 1321.0,
+            "GuidePathCostSum": 1321.0
+        },
+        {
+            "SchedulerSolveTime": 0.022422585,
+            "SchedulerGuidePathTime": 0.00010221,
+            "PlannerTime": 1.906728365,
+            "GuidePathLengthSum": 1321.0,
+            "GuidePathCostSum": 1321.0
+        },
+        {
+            "SchedulerSolveTime": 0.014141133,
+            "SchedulerGuidePathTime": 5.1376e-05,
+            "PlannerTime": 1.485024801,
+            "GuidePathLengthSum": 693.0,
+            "GuidePathCostSum": 693.0
+        },
+        {
+            "SchedulerSolveTime": 0.014141133,
+            "SchedulerGuidePathTime": 5.1376e-05,
+            "PlannerTime": 1.485024801,
+            "GuidePathLengthSum": 693.0,
+            "GuidePathCostSum": 693.0
+        },
+        {
+            "SchedulerSolveTime": 0.016955205,
+            "SchedulerGuidePathTime": 9.3674e-05,
+            "PlannerTime": 1.298228996,
+            "GuidePathLengthSum": 886.0,
+            "GuidePathCostSum": 886.0
+        },
+        {
+            "SchedulerSolveTime": 0.016955205,
+            "SchedulerGuidePathTime": 9.3674e-05,
+            "PlannerTime": 1.298228996,
+            "GuidePathLengthSum": 886.0,
+            "GuidePathCostSum": 886.0
+        },
+        {
+            "SchedulerSolveTime": 0.011991611,
+            "SchedulerGuidePathTime": 5.0213e-05,
+            "PlannerTime": 1.414008124,
+            "GuidePathLengthSum": 693.0,
+            "GuidePathCostSum": 693.0
+        },
+        {
+            "SchedulerSolveTime": 0.011991611,
+            "SchedulerGuidePathTime": 5.0213e-05,
+            "PlannerTime": 1.414008124,
+            "GuidePathLengthSum": 693.0,
+            "GuidePathCostSum": 693.0
+        },
+        {
+            "SchedulerSolveTime": 0.018293966,
+            "SchedulerGuidePathTime": 7.0141e-05,
+            "PlannerTime": 1.091430301,
+            "GuidePathLengthSum": 1038.0,
+            "GuidePathCostSum": 1038.0
+        },
+        {
+            "SchedulerSolveTime": 0.018293966,
+            "SchedulerGuidePathTime": 7.0141e-05,
+            "PlannerTime": 1.091430301,
+            "GuidePathLengthSum": 1038.0,
+            "GuidePathCostSum": 1038.0
+        },
+        {
+            "SchedulerSolveTime": 0.01079903,
+            "SchedulerGuidePathTime": 3.6637e-05,
+            "PlannerTime": 1.379158836,
+            "GuidePathLengthSum": 607.0,
+            "GuidePathCostSum": 607.0
+        },
+        {
+            "SchedulerSolveTime": 0.01079903,
+            "SchedulerGuidePathTime": 3.6637e-05,
+            "PlannerTime": 1.379158836,
+            "GuidePathLengthSum": 607.0,
+            "GuidePathCostSum": 607.0
+        },
+        {
+            "SchedulerSolveTime": 0.010800454,
+            "SchedulerGuidePathTime": 3.7389e-05,
+            "PlannerTime": 1.103709391,
+            "GuidePathLengthSum": 672.0,
+            "GuidePathCostSum": 672.0
+        },
+        {
+            "SchedulerSolveTime": 0.010800454,
+            "SchedulerGuidePathTime": 3.7389e-05,
+            "PlannerTime": 1.103709391,
+            "GuidePathLengthSum": 672.0,
+            "GuidePathCostSum": 672.0
+        },
+        {
+            "SchedulerSolveTime": 0.017897707,
+            "SchedulerGuidePathTime": 7.007e-05,
+            "PlannerTime": 1.349176487,
+            "GuidePathLengthSum": 1026.0,
+            "GuidePathCostSum": 1026.0
+        },
+        {
+            "SchedulerSolveTime": 0.017897707,
+            "SchedulerGuidePathTime": 7.007e-05,
+            "PlannerTime": 1.349176487,
+            "GuidePathLengthSum": 1026.0,
+            "GuidePathCostSum": 1026.0
+        },
+        {
+            "SchedulerSolveTime": 0.004828282,
+            "SchedulerGuidePathTime": 2.3232e-05,
+            "PlannerTime": 1.876902674,
+            "GuidePathLengthSum": 377.0,
+            "GuidePathCostSum": 377.0
+        },
+        {
+            "SchedulerSolveTime": 0.004828282,
+            "SchedulerGuidePathTime": 2.3232e-05,
+            "PlannerTime": 1.876902674,
+            "GuidePathLengthSum": 377.0,
+            "GuidePathCostSum": 377.0
+        },
+        {
+            "SchedulerSolveTime": 0.013008786,
+            "SchedulerGuidePathTime": 6.6253e-05,
+            "PlannerTime": 0.924557813,
+            "GuidePathLengthSum": 1025.0,
+            "GuidePathCostSum": 1025.0
+        },
+        {
+            "SchedulerSolveTime": 0.004915184,
+            "SchedulerGuidePathTime": 1.7462e-05,
+            "PlannerTime": 1.419706161,
+            "GuidePathLengthSum": 308.0,
+            "GuidePathCostSum": 308.0
+        },
+        {
+            "SchedulerSolveTime": 0.004915184,
+            "SchedulerGuidePathTime": 1.7462e-05,
+            "PlannerTime": 1.419706161,
+            "GuidePathLengthSum": 308.0,
+            "GuidePathCostSum": 308.0
+        },
+        {
+            "SchedulerSolveTime": 0.006523698,
+            "SchedulerGuidePathTime": 2.7532e-05,
+            "PlannerTime": 1.287644575,
+            "GuidePathLengthSum": 397.0,
+            "GuidePathCostSum": 397.0
+        },
+        {
+            "SchedulerSolveTime": 0.006523698,
+            "SchedulerGuidePathTime": 2.7532e-05,
+            "PlannerTime": 1.287644575,
+            "GuidePathLengthSum": 397.0,
+            "GuidePathCostSum": 397.0
+        },
+        {
+            "SchedulerSolveTime": 0.009925575,
+            "SchedulerGuidePathTime": 3.786e-05,
+            "PlannerTime": 1.559915812,
+            "GuidePathLengthSum": 546.0,
+            "GuidePathCostSum": 546.0
+        },
+        {
+            "SchedulerSolveTime": 0.009925575,
+            "SchedulerGuidePathTime": 3.786e-05,
+            "PlannerTime": 1.559915812,
+            "GuidePathLengthSum": 546.0,
+            "GuidePathCostSum": 546.0
+        },
+        {
+            "SchedulerSolveTime": 0.005435453,
+            "SchedulerGuidePathTime": 1.8183e-05,
+            "PlannerTime": 1.074587625,
+            "GuidePathLengthSum": 331.0,
+            "GuidePathCostSum": 331.0
+        },
+        {
+            "SchedulerSolveTime": 0.005435453,
+            "SchedulerGuidePathTime": 1.8183e-05,
+            "PlannerTime": 1.074587625,
+            "GuidePathLengthSum": 331.0,
+            "GuidePathCostSum": 331.0
+        },
+        {
+            "SchedulerSolveTime": 0.010362297,
+            "SchedulerGuidePathTime": 3.9924e-05,
+            "PlannerTime": 1.416638576,
+            "GuidePathLengthSum": 591.0,
+            "GuidePathCostSum": 591.0
+        },
+        {
+            "SchedulerSolveTime": 0.010362297,
+            "SchedulerGuidePathTime": 3.9924e-05,
+            "PlannerTime": 1.416638576,
+            "GuidePathLengthSum": 591.0,
+            "GuidePathCostSum": 591.0
+        },
+        {
+            "SchedulerSolveTime": 0.00336726,
+            "SchedulerGuidePathTime": 1.2132e-05,
+            "PlannerTime": 1.326631046,
+            "GuidePathLengthSum": 187.0,
+            "GuidePathCostSum": 187.0
+        },
+        {
+            "SchedulerSolveTime": 0.00336726,
+            "SchedulerGuidePathTime": 1.2132e-05,
+            "PlannerTime": 1.326631046,
+            "GuidePathLengthSum": 187.0,
+            "GuidePathCostSum": 187.0
+        },
+        {
+            "SchedulerSolveTime": 0.00672587,
+            "SchedulerGuidePathTime": 2.7892e-05,
+            "PlannerTime": 1.877643654,
+            "GuidePathLengthSum": 415.0,
+            "GuidePathCostSum": 415.0
+        },
+        {
+            "SchedulerSolveTime": 0.00672587,
+            "SchedulerGuidePathTime": 2.7892e-05,
+            "PlannerTime": 1.877643654,
+            "GuidePathLengthSum": 415.0,
+            "GuidePathCostSum": 415.0
+        },
+        {
+            "SchedulerSolveTime": 0.003263709,
+            "SchedulerGuidePathTime": 9.577e-06,
+            "PlannerTime": 1.018734668,
+            "GuidePathLengthSum": 219.0,
+            "GuidePathCostSum": 219.0
+        },
+        {
+            "SchedulerSolveTime": 0.003263709,
+            "SchedulerGuidePathTime": 9.577e-06,
+            "PlannerTime": 1.018734668,
+            "GuidePathLengthSum": 219.0,
+            "GuidePathCostSum": 219.0
+        },
+        {
+            "SchedulerSolveTime": 0.014296635,
+            "SchedulerGuidePathTime": 5.2317e-05,
+            "PlannerTime": 1.43287943,
+            "GuidePathLengthSum": 774.0,
+            "GuidePathCostSum": 774.0
+        },
+        {
+            "SchedulerSolveTime": 0.014296635,
+            "SchedulerGuidePathTime": 5.2317e-05,
+            "PlannerTime": 1.43287943,
+            "GuidePathLengthSum": 774.0,
+            "GuidePathCostSum": 774.0
+        },
+        {
+            "SchedulerSolveTime": 0.005419604,
+            "SchedulerGuidePathTime": 1.638e-05,
+            "PlannerTime": 1.277883048,
+            "GuidePathLengthSum": 350.0,
+            "GuidePathCostSum": 350.0
+        },
+        {
+            "SchedulerSolveTime": 0.005419604,
+            "SchedulerGuidePathTime": 1.638e-05,
+            "PlannerTime": 1.277883048,
+            "GuidePathLengthSum": 350.0,
+            "GuidePathCostSum": 350.0
+        },
+        {
+            "SchedulerSolveTime": 0.003072793,
+            "SchedulerGuidePathTime": 1.0329e-05,
+            "PlannerTime": 1.400292723,
+            "GuidePathLengthSum": 216.0,
+            "GuidePathCostSum": 216.0
+        },
+        {
+            "SchedulerSolveTime": 0.003072793,
+            "SchedulerGuidePathTime": 1.0329e-05,
+            "PlannerTime": 1.400292723,
+            "GuidePathLengthSum": 216.0,
+            "GuidePathCostSum": 216.0
+        },
+        {
+            "SchedulerSolveTime": 0.004622919,
+            "SchedulerGuidePathTime": 1.8024e-05,
+            "PlannerTime": 1.108542583,
+            "GuidePathLengthSum": 292.0,
+            "GuidePathCostSum": 292.0
+        },
+        {
+            "SchedulerSolveTime": 0.004622919,
+            "SchedulerGuidePathTime": 1.8024e-05,
+            "PlannerTime": 1.108542583,
+            "GuidePathLengthSum": 292.0,
+            "GuidePathCostSum": 292.0
+        },
+        {
+            "SchedulerSolveTime": 0.000927567,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.367166444,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000927567,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.367166444,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.001757141,
+            "SchedulerGuidePathTime": 6.011e-06,
+            "PlannerTime": 1.319667196,
+            "GuidePathLengthSum": 110.0,
+            "GuidePathCostSum": 110.0
+        },
+        {
+            "SchedulerSolveTime": 0.001757141,
+            "SchedulerGuidePathTime": 6.011e-06,
+            "PlannerTime": 1.319667196,
+            "GuidePathLengthSum": 110.0,
+            "GuidePathCostSum": 110.0
+        },
+        {
+            "SchedulerSolveTime": 0.012954297,
+            "SchedulerGuidePathTime": 4.9993e-05,
+            "PlannerTime": 1.896477499,
+            "GuidePathLengthSum": 686.0,
+            "GuidePathCostSum": 686.0
+        },
+        {
+            "SchedulerSolveTime": 0.012954297,
+            "SchedulerGuidePathTime": 4.9993e-05,
+            "PlannerTime": 1.896477499,
+            "GuidePathLengthSum": 686.0,
+            "GuidePathCostSum": 686.0
+        },
+        {
+            "SchedulerSolveTime": 0.006699358,
+            "SchedulerGuidePathTime": 5.5052e-05,
+            "PlannerTime": 1.027473095,
+            "GuidePathLengthSum": 458.0,
+            "GuidePathCostSum": 458.0
+        },
+        {
+            "SchedulerSolveTime": 0.006699358,
+            "SchedulerGuidePathTime": 5.5052e-05,
+            "PlannerTime": 1.027473095,
+            "GuidePathLengthSum": 458.0,
+            "GuidePathCostSum": 458.0
+        },
+        {
+            "SchedulerSolveTime": 0.008667181,
+            "SchedulerGuidePathTime": 2.0098e-05,
+            "PlannerTime": 1.427002395,
+            "GuidePathLengthSum": 510.0,
+            "GuidePathCostSum": 510.0
+        },
+        {
+            "SchedulerSolveTime": 0.008667181,
+            "SchedulerGuidePathTime": 2.0098e-05,
+            "PlannerTime": 1.427002395,
+            "GuidePathLengthSum": 510.0,
+            "GuidePathCostSum": 510.0
+        },
+        {
+            "SchedulerSolveTime": 0.010797149,
+            "SchedulerGuidePathTime": 3.8482e-05,
+            "PlannerTime": 1.29469089,
+            "GuidePathLengthSum": 621.0,
+            "GuidePathCostSum": 621.0
+        },
+        {
+            "SchedulerSolveTime": 0.010797149,
+            "SchedulerGuidePathTime": 3.8482e-05,
+            "PlannerTime": 1.29469089,
+            "GuidePathLengthSum": 621.0,
+            "GuidePathCostSum": 621.0
+        },
+        {
+            "SchedulerSolveTime": 0.005468345,
+            "SchedulerGuidePathTime": 2.3233e-05,
+            "PlannerTime": 1.396829066,
+            "GuidePathLengthSum": 384.0,
+            "GuidePathCostSum": 384.0
+        },
+        {
+            "SchedulerSolveTime": 0.005468345,
+            "SchedulerGuidePathTime": 2.3233e-05,
+            "PlannerTime": 1.396829066,
+            "GuidePathLengthSum": 384.0,
+            "GuidePathCostSum": 384.0
+        },
+        {
+            "SchedulerSolveTime": 0.002805786,
+            "SchedulerGuidePathTime": 7.685e-06,
+            "PlannerTime": 1.080357683,
+            "GuidePathLengthSum": 178.0,
+            "GuidePathCostSum": 178.0
+        },
+        {
+            "SchedulerSolveTime": 0.002805786,
+            "SchedulerGuidePathTime": 7.685e-06,
+            "PlannerTime": 1.080357683,
+            "GuidePathLengthSum": 178.0,
+            "GuidePathCostSum": 178.0
+        },
+        {
+            "SchedulerSolveTime": 0.007874336,
+            "SchedulerGuidePathTime": 2.3464e-05,
+            "PlannerTime": 1.388409401,
+            "GuidePathLengthSum": 427.0,
+            "GuidePathCostSum": 427.0
+        },
+        {
+            "SchedulerSolveTime": 0.007874336,
+            "SchedulerGuidePathTime": 2.3464e-05,
+            "PlannerTime": 1.388409401,
+            "GuidePathLengthSum": 427.0,
+            "GuidePathCostSum": 427.0
+        },
+        {
+            "SchedulerSolveTime": 0.005205095,
+            "SchedulerGuidePathTime": 3.5986e-05,
+            "PlannerTime": 1.132520185,
+            "GuidePathLengthSum": 417.0,
+            "GuidePathCostSum": 417.0
+        },
+        {
+            "SchedulerSolveTime": 0.005205095,
+            "SchedulerGuidePathTime": 3.5986e-05,
+            "PlannerTime": 1.132520185,
+            "GuidePathLengthSum": 417.0,
+            "GuidePathCostSum": 417.0
+        },
+        {
+            "SchedulerSolveTime": 0.003854798,
+            "SchedulerGuidePathTime": 1.3605e-05,
+            "PlannerTime": 1.475094551,
+            "GuidePathLengthSum": 183.0,
+            "GuidePathCostSum": 183.0
+        },
+        {
+            "SchedulerSolveTime": 0.003854798,
+            "SchedulerGuidePathTime": 1.3605e-05,
+            "PlannerTime": 1.475094551,
+            "GuidePathLengthSum": 183.0,
+            "GuidePathCostSum": 183.0
+        },
+        {
+            "SchedulerSolveTime": 0.003536146,
+            "SchedulerGuidePathTime": 1.5048e-05,
+            "PlannerTime": 1.877971642,
+            "GuidePathLengthSum": 262.0,
+            "GuidePathCostSum": 262.0
+        },
+        {
+            "SchedulerSolveTime": 0.003536146,
+            "SchedulerGuidePathTime": 1.5048e-05,
+            "PlannerTime": 1.877971642,
+            "GuidePathLengthSum": 262.0,
+            "GuidePathCostSum": 262.0
+        },
+        {
+            "SchedulerSolveTime": 0.005252132,
+            "SchedulerGuidePathTime": 1.8353e-05,
+            "PlannerTime": 1.022507224,
+            "GuidePathLengthSum": 376.0,
+            "GuidePathCostSum": 376.0
+        },
+        {
+            "SchedulerSolveTime": 0.005252132,
+            "SchedulerGuidePathTime": 1.8353e-05,
+            "PlannerTime": 1.022507224,
+            "GuidePathLengthSum": 376.0,
+            "GuidePathCostSum": 376.0
+        },
+        {
+            "SchedulerSolveTime": 0.002471154,
+            "SchedulerGuidePathTime": 5.46e-06,
+            "PlannerTime": 1.423373726,
+            "GuidePathLengthSum": 98.0,
+            "GuidePathCostSum": 98.0
+        },
+        {
+            "SchedulerSolveTime": 0.002471154,
+            "SchedulerGuidePathTime": 5.46e-06,
+            "PlannerTime": 1.423373726,
+            "GuidePathLengthSum": 98.0,
+            "GuidePathCostSum": 98.0
+        },
+        {
+            "SchedulerSolveTime": 0.003885718,
+            "SchedulerGuidePathTime": 1.1691e-05,
+            "PlannerTime": 1.329811086,
+            "GuidePathLengthSum": 223.0,
+            "GuidePathCostSum": 223.0
+        },
+        {
+            "SchedulerSolveTime": 0.003885718,
+            "SchedulerGuidePathTime": 1.1691e-05,
+            "PlannerTime": 1.329811086,
+            "GuidePathLengthSum": 223.0,
+            "GuidePathCostSum": 223.0
+        },
+        {
+            "SchedulerSolveTime": 0.002868904,
+            "SchedulerGuidePathTime": 8.556e-06,
+            "PlannerTime": 1.390070679,
+            "GuidePathLengthSum": 148.0,
+            "GuidePathCostSum": 148.0
+        },
+        {
+            "SchedulerSolveTime": 0.002868904,
+            "SchedulerGuidePathTime": 8.556e-06,
+            "PlannerTime": 1.390070679,
+            "GuidePathLengthSum": 148.0,
+            "GuidePathCostSum": 148.0
+        },
+        {
+            "SchedulerSolveTime": 0.009027494,
+            "SchedulerGuidePathTime": 4.5965e-05,
+            "PlannerTime": 1.078543049,
+            "GuidePathLengthSum": 576.0,
+            "GuidePathCostSum": 576.0
+        },
+        {
+            "SchedulerSolveTime": 0.009027494,
+            "SchedulerGuidePathTime": 4.5965e-05,
+            "PlannerTime": 1.078543049,
+            "GuidePathLengthSum": 576.0,
+            "GuidePathCostSum": 576.0
+        },
+        {
+            "SchedulerSolveTime": 0.00868756,
+            "SchedulerGuidePathTime": 3.8711e-05,
+            "PlannerTime": 1.380239236,
+            "GuidePathLengthSum": 610.0,
+            "GuidePathCostSum": 610.0
+        },
+        {
+            "SchedulerSolveTime": 0.00868756,
+            "SchedulerGuidePathTime": 3.8711e-05,
+            "PlannerTime": 1.380239236,
+            "GuidePathLengthSum": 610.0,
+            "GuidePathCostSum": 610.0
+        },
+        {
+            "SchedulerSolveTime": 0.010693337,
+            "SchedulerGuidePathTime": 3.2612e-05,
+            "PlannerTime": 1.097397535,
+            "GuidePathLengthSum": 577.0,
+            "GuidePathCostSum": 577.0
+        },
+        {
+            "SchedulerSolveTime": 0.010693337,
+            "SchedulerGuidePathTime": 3.2612e-05,
+            "PlannerTime": 1.097397535,
+            "GuidePathLengthSum": 577.0,
+            "GuidePathCostSum": 577.0
+        },
+        {
+            "SchedulerSolveTime": 0.004567729,
+            "SchedulerGuidePathTime": 1.1812e-05,
+            "PlannerTime": 1.514590104,
+            "GuidePathLengthSum": 269.0,
+            "GuidePathCostSum": 269.0
+        },
+        {
+            "SchedulerSolveTime": 0.004567729,
+            "SchedulerGuidePathTime": 1.1812e-05,
+            "PlannerTime": 1.514590104,
+            "GuidePathLengthSum": 269.0,
+            "GuidePathCostSum": 269.0
+        },
+        {
+            "SchedulerSolveTime": 0.005564404,
+            "SchedulerGuidePathTime": 2.2984e-05,
+            "PlannerTime": 1.872335634,
+            "GuidePathLengthSum": 333.0,
+            "GuidePathCostSum": 333.0
+        },
+        {
+            "SchedulerSolveTime": 0.005564404,
+            "SchedulerGuidePathTime": 2.2984e-05,
+            "PlannerTime": 1.872335634,
+            "GuidePathLengthSum": 333.0,
+            "GuidePathCostSum": 333.0
+        },
+        {
+            "SchedulerSolveTime": 0.002859436,
+            "SchedulerGuidePathTime": 7.033e-06,
+            "PlannerTime": 1.022395771,
+            "GuidePathLengthSum": 117.0,
+            "GuidePathCostSum": 117.0
+        },
+        {
+            "SchedulerSolveTime": 0.002859436,
+            "SchedulerGuidePathTime": 7.033e-06,
+            "PlannerTime": 1.022395771,
+            "GuidePathLengthSum": 117.0,
+            "GuidePathCostSum": 117.0
+        },
+        {
+            "SchedulerSolveTime": 0.002821225,
+            "SchedulerGuidePathTime": 5.491e-06,
+            "PlannerTime": 1.414999722,
+            "GuidePathLengthSum": 122.0,
+            "GuidePathCostSum": 122.0
+        },
+        {
+            "SchedulerSolveTime": 0.002821225,
+            "SchedulerGuidePathTime": 5.491e-06,
+            "PlannerTime": 1.414999722,
+            "GuidePathLengthSum": 122.0,
+            "GuidePathCostSum": 122.0
+        },
+        {
+            "SchedulerSolveTime": 0.003871983,
+            "SchedulerGuidePathTime": 1.2853e-05,
+            "PlannerTime": 1.286877588,
+            "GuidePathLengthSum": 152.0,
+            "GuidePathCostSum": 152.0
+        },
+        {
+            "SchedulerSolveTime": 0.003871983,
+            "SchedulerGuidePathTime": 1.2853e-05,
+            "PlannerTime": 1.286877588,
+            "GuidePathLengthSum": 152.0,
+            "GuidePathCostSum": 152.0
+        },
+        {
+            "SchedulerSolveTime": 0.004356956,
+            "SchedulerGuidePathTime": 1.0439e-05,
+            "PlannerTime": 1.393475521,
+            "GuidePathLengthSum": 214.0,
+            "GuidePathCostSum": 214.0
+        },
+        {
+            "SchedulerSolveTime": 0.004356956,
+            "SchedulerGuidePathTime": 1.0439e-05,
+            "PlannerTime": 1.393475521,
+            "GuidePathLengthSum": 214.0,
+            "GuidePathCostSum": 214.0
+        },
+        {
+            "SchedulerSolveTime": 0.008813626,
+            "SchedulerGuidePathTime": 2.8594e-05,
+            "PlannerTime": 1.083312695,
+            "GuidePathLengthSum": 649.0,
+            "GuidePathCostSum": 649.0
+        },
+        {
+            "SchedulerSolveTime": 0.008813626,
+            "SchedulerGuidePathTime": 2.8594e-05,
+            "PlannerTime": 1.083312695,
+            "GuidePathLengthSum": 649.0,
+            "GuidePathCostSum": 649.0
+        },
+        {
+            "SchedulerSolveTime": 0.000941083,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.369813677,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000941083,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.369813677,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.011884269,
+            "SchedulerGuidePathTime": 8.3275e-05,
+            "PlannerTime": 0.902144791,
+            "GuidePathLengthSum": 453.0,
+            "GuidePathCostSum": 453.0
+        },
+        {
+            "SchedulerSolveTime": 0.00216302,
+            "SchedulerGuidePathTime": 2.705e-06,
+            "PlannerTime": 1.106416248,
+            "GuidePathLengthSum": 63.0,
+            "GuidePathCostSum": 63.0
+        },
+        {
+            "SchedulerSolveTime": 0.00216302,
+            "SchedulerGuidePathTime": 2.705e-06,
+            "PlannerTime": 1.106416248,
+            "GuidePathLengthSum": 63.0,
+            "GuidePathCostSum": 63.0
+        },
+        {
+            "SchedulerSolveTime": 0.001909626,
+            "SchedulerGuidePathTime": 3.887e-06,
+            "PlannerTime": 1.46270332,
+            "GuidePathLengthSum": 92.0,
+            "GuidePathCostSum": 92.0
+        },
+        {
+            "SchedulerSolveTime": 0.001909626,
+            "SchedulerGuidePathTime": 3.887e-06,
+            "PlannerTime": 1.46270332,
+            "GuidePathLengthSum": 92.0,
+            "GuidePathCostSum": 92.0
+        },
+        {
+            "SchedulerSolveTime": 0.004938608,
+            "SchedulerGuidePathTime": 1.8004e-05,
+            "PlannerTime": 1.874746612,
+            "GuidePathLengthSum": 364.0,
+            "GuidePathCostSum": 364.0
+        },
+        {
+            "SchedulerSolveTime": 0.004938608,
+            "SchedulerGuidePathTime": 1.8004e-05,
+            "PlannerTime": 1.874746612,
+            "GuidePathLengthSum": 364.0,
+            "GuidePathCostSum": 364.0
+        },
+        {
+            "SchedulerSolveTime": 0.007902419,
+            "SchedulerGuidePathTime": 2.8263e-05,
+            "PlannerTime": 1.024569271,
+            "GuidePathLengthSum": 368.0,
+            "GuidePathCostSum": 368.0
+        },
+        {
+            "SchedulerSolveTime": 0.007902419,
+            "SchedulerGuidePathTime": 2.8263e-05,
+            "PlannerTime": 1.024569271,
+            "GuidePathLengthSum": 368.0,
+            "GuidePathCostSum": 368.0
+        },
+        {
+            "SchedulerSolveTime": 0.004051416,
+            "SchedulerGuidePathTime": 1.4326e-05,
+            "PlannerTime": 1.417219799,
+            "GuidePathLengthSum": 214.0,
+            "GuidePathCostSum": 214.0
+        },
+        {
+            "SchedulerSolveTime": 0.004051416,
+            "SchedulerGuidePathTime": 1.4326e-05,
+            "PlannerTime": 1.417219799,
+            "GuidePathLengthSum": 214.0,
+            "GuidePathCostSum": 214.0
+        },
+        {
+            "SchedulerSolveTime": 0.0017657,
+            "SchedulerGuidePathTime": 4.348e-06,
+            "PlannerTime": 1.272375622,
+            "GuidePathLengthSum": 93.0,
+            "GuidePathCostSum": 93.0
+        },
+        {
+            "SchedulerSolveTime": 0.0017657,
+            "SchedulerGuidePathTime": 4.348e-06,
+            "PlannerTime": 1.272375622,
+            "GuidePathLengthSum": 93.0,
+            "GuidePathCostSum": 93.0
+        },
+        {
+            "SchedulerSolveTime": 0.002042004,
+            "SchedulerGuidePathTime": 4.598e-06,
+            "PlannerTime": 1.40222166,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.002042004,
+            "SchedulerGuidePathTime": 4.598e-06,
+            "PlannerTime": 1.40222166,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.002520997,
+            "SchedulerGuidePathTime": 6.242e-06,
+            "PlannerTime": 1.0648753,
+            "GuidePathLengthSum": 93.0,
+            "GuidePathCostSum": 93.0
+        },
+        {
+            "SchedulerSolveTime": 0.002520997,
+            "SchedulerGuidePathTime": 6.242e-06,
+            "PlannerTime": 1.0648753,
+            "GuidePathLengthSum": 93.0,
+            "GuidePathCostSum": 93.0
+        },
+        {
+            "SchedulerSolveTime": 0.001942217,
+            "SchedulerGuidePathTime": 2.845e-06,
+            "PlannerTime": 1.368417812,
+            "GuidePathLengthSum": 65.0,
+            "GuidePathCostSum": 65.0
+        },
+        {
+            "SchedulerSolveTime": 0.001942217,
+            "SchedulerGuidePathTime": 2.845e-06,
+            "PlannerTime": 1.368417812,
+            "GuidePathLengthSum": 65.0,
+            "GuidePathCostSum": 65.0
+        },
+        {
+            "SchedulerSolveTime": 0.003038038,
+            "SchedulerGuidePathTime": 9.297e-06,
+            "PlannerTime": 1.091671506,
+            "GuidePathLengthSum": 135.0,
+            "GuidePathCostSum": 135.0
+        },
+        {
+            "SchedulerSolveTime": 0.003038038,
+            "SchedulerGuidePathTime": 9.297e-06,
+            "PlannerTime": 1.091671506,
+            "GuidePathLengthSum": 135.0,
+            "GuidePathCostSum": 135.0
+        },
+        {
+            "SchedulerSolveTime": 0.00093956,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.464762633,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00093956,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.464762633,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.005885122,
+            "SchedulerGuidePathTime": 1.6191e-05,
+            "PlannerTime": 1.884665655,
+            "GuidePathLengthSum": 333.0,
+            "GuidePathCostSum": 333.0
+        },
+        {
+            "SchedulerSolveTime": 0.005885122,
+            "SchedulerGuidePathTime": 1.6191e-05,
+            "PlannerTime": 1.884665655,
+            "GuidePathLengthSum": 333.0,
+            "GuidePathCostSum": 333.0
+        },
+        {
+            "SchedulerSolveTime": 0.006881539,
+            "SchedulerGuidePathTime": 2.2022e-05,
+            "PlannerTime": 1.03582456,
+            "GuidePathLengthSum": 427.0,
+            "GuidePathCostSum": 427.0
+        },
+        {
+            "SchedulerSolveTime": 0.006881539,
+            "SchedulerGuidePathTime": 2.2022e-05,
+            "PlannerTime": 1.03582456,
+            "GuidePathLengthSum": 427.0,
+            "GuidePathCostSum": 427.0
+        },
+        {
+            "SchedulerSolveTime": 0.0048864930000000004,
+            "SchedulerGuidePathTime": 1.2595e-05,
+            "PlannerTime": 1.417417994,
+            "GuidePathLengthSum": 272.0,
+            "GuidePathCostSum": 272.0
+        },
+        {
+            "SchedulerSolveTime": 0.0048864930000000004,
+            "SchedulerGuidePathTime": 1.2595e-05,
+            "PlannerTime": 1.417417994,
+            "GuidePathLengthSum": 272.0,
+            "GuidePathCostSum": 272.0
+        },
+        {
+            "SchedulerSolveTime": 0.003429008,
+            "SchedulerGuidePathTime": 8.175e-06,
+            "PlannerTime": 1.317211602,
+            "GuidePathLengthSum": 171.0,
+            "GuidePathCostSum": 171.0
+        },
+        {
+            "SchedulerSolveTime": 0.003429008,
+            "SchedulerGuidePathTime": 8.175e-06,
+            "PlannerTime": 1.317211602,
+            "GuidePathLengthSum": 171.0,
+            "GuidePathCostSum": 171.0
+        },
+        {
+            "SchedulerSolveTime": 0.006959234,
+            "SchedulerGuidePathTime": 2.2571e-05,
+            "PlannerTime": 1.002457282,
+            "GuidePathLengthSum": 364.0,
+            "GuidePathCostSum": 364.0
+        },
+        {
+            "SchedulerSolveTime": 0.006959234,
+            "SchedulerGuidePathTime": 2.2571e-05,
+            "PlannerTime": 1.002457282,
+            "GuidePathLengthSum": 364.0,
+            "GuidePathCostSum": 364.0
+        },
+        {
+            "SchedulerSolveTime": 0.005465172,
+            "SchedulerGuidePathTime": 3.1839e-05,
+            "PlannerTime": 1.505996737,
+            "GuidePathLengthSum": 467.0,
+            "GuidePathCostSum": 467.0
+        },
+        {
+            "SchedulerSolveTime": 0.005465172,
+            "SchedulerGuidePathTime": 3.1839e-05,
+            "PlannerTime": 1.505996737,
+            "GuidePathLengthSum": 467.0,
+            "GuidePathCostSum": 467.0
+        },
+        {
+            "SchedulerSolveTime": 0.002503454,
+            "SchedulerGuidePathTime": 4.048e-06,
+            "PlannerTime": 1.373335195,
+            "GuidePathLengthSum": 101.0,
+            "GuidePathCostSum": 101.0
+        },
+        {
+            "SchedulerSolveTime": 0.002503454,
+            "SchedulerGuidePathTime": 4.048e-06,
+            "PlannerTime": 1.373335195,
+            "GuidePathLengthSum": 101.0,
+            "GuidePathCostSum": 101.0
+        },
+        {
+            "SchedulerSolveTime": 0.002531858,
+            "SchedulerGuidePathTime": 5.01e-06,
+            "PlannerTime": 1.119056885,
+            "GuidePathLengthSum": 94.0,
+            "GuidePathCostSum": 94.0
+        },
+        {
+            "SchedulerSolveTime": 0.002531858,
+            "SchedulerGuidePathTime": 5.01e-06,
+            "PlannerTime": 1.119056885,
+            "GuidePathLengthSum": 94.0,
+            "GuidePathCostSum": 94.0
+        },
+        {
+            "SchedulerSolveTime": 0.000952725,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.490122889,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000952725,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.490122889,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004028764,
+            "SchedulerGuidePathTime": 9.799e-06,
+            "PlannerTime": 1.877655539,
+            "GuidePathLengthSum": 251.0,
+            "GuidePathCostSum": 251.0
+        },
+        {
+            "SchedulerSolveTime": 0.004028764,
+            "SchedulerGuidePathTime": 9.799e-06,
+            "PlannerTime": 1.877655539,
+            "GuidePathLengthSum": 251.0,
+            "GuidePathCostSum": 251.0
+        },
+        {
+            "SchedulerSolveTime": 0.005049927,
+            "SchedulerGuidePathTime": 1.4898e-05,
+            "PlannerTime": 1.049320252,
+            "GuidePathLengthSum": 309.0,
+            "GuidePathCostSum": 309.0
+        },
+        {
+            "SchedulerSolveTime": 0.005049927,
+            "SchedulerGuidePathTime": 1.4898e-05,
+            "PlannerTime": 1.049320252,
+            "GuidePathLengthSum": 309.0,
+            "GuidePathCostSum": 309.0
+        },
+        {
+            "SchedulerSolveTime": 0.003316227,
+            "SchedulerGuidePathTime": 9.718e-06,
+            "PlannerTime": 1.43802568,
+            "GuidePathLengthSum": 198.0,
+            "GuidePathCostSum": 198.0
+        },
+        {
+            "SchedulerSolveTime": 0.003316227,
+            "SchedulerGuidePathTime": 9.718e-06,
+            "PlannerTime": 1.43802568,
+            "GuidePathLengthSum": 198.0,
+            "GuidePathCostSum": 198.0
+        },
+        {
+            "SchedulerSolveTime": 0.005131349,
+            "SchedulerGuidePathTime": 1.2794e-05,
+            "PlannerTime": 0.842321052,
+            "GuidePathLengthSum": 275.0,
+            "GuidePathCostSum": 275.0
+        },
+        {
+            "SchedulerSolveTime": 0.003541448,
+            "SchedulerGuidePathTime": 7.735e-06,
+            "PlannerTime": 1.314267538,
+            "GuidePathLengthSum": 153.0,
+            "GuidePathCostSum": 153.0
+        },
+        {
+            "SchedulerSolveTime": 0.003541448,
+            "SchedulerGuidePathTime": 7.735e-06,
+            "PlannerTime": 1.314267538,
+            "GuidePathLengthSum": 153.0,
+            "GuidePathCostSum": 153.0
+        },
+        {
+            "SchedulerSolveTime": 0.003793877,
+            "SchedulerGuidePathTime": 1.4488e-05,
+            "PlannerTime": 1.415739755,
+            "GuidePathLengthSum": 213.0,
+            "GuidePathCostSum": 213.0
+        },
+        {
+            "SchedulerSolveTime": 0.003793877,
+            "SchedulerGuidePathTime": 1.4488e-05,
+            "PlannerTime": 1.415739755,
+            "GuidePathLengthSum": 213.0,
+            "GuidePathCostSum": 213.0
+        },
+        {
+            "SchedulerSolveTime": 0.008888136,
+            "SchedulerGuidePathTime": 2.9215e-05,
+            "PlannerTime": 1.11042055,
+            "GuidePathLengthSum": 478.0,
+            "GuidePathCostSum": 478.0
+        },
+        {
+            "SchedulerSolveTime": 0.008888136,
+            "SchedulerGuidePathTime": 2.9215e-05,
+            "PlannerTime": 1.11042055,
+            "GuidePathLengthSum": 478.0,
+            "GuidePathCostSum": 478.0
+        },
+        {
+            "SchedulerSolveTime": 0.001810904,
+            "SchedulerGuidePathTime": 2.244e-06,
+            "PlannerTime": 1.300835807,
+            "GuidePathLengthSum": 46.0,
+            "GuidePathCostSum": 46.0
+        },
+        {
+            "SchedulerSolveTime": 0.001810904,
+            "SchedulerGuidePathTime": 2.244e-06,
+            "PlannerTime": 1.300835807,
+            "GuidePathLengthSum": 46.0,
+            "GuidePathCostSum": 46.0
+        },
+        {
+            "SchedulerSolveTime": 0.002563456,
+            "SchedulerGuidePathTime": 5.491e-06,
+            "PlannerTime": 1.231018847,
+            "GuidePathLengthSum": 119.0,
+            "GuidePathCostSum": 119.0
+        },
+        {
+            "SchedulerSolveTime": 0.002563456,
+            "SchedulerGuidePathTime": 5.491e-06,
+            "PlannerTime": 1.231018847,
+            "GuidePathLengthSum": 119.0,
+            "GuidePathCostSum": 119.0
+        },
+        {
+            "SchedulerSolveTime": 0.005011867,
+            "SchedulerGuidePathTime": 2.1851e-05,
+            "PlannerTime": 1.459484795,
+            "GuidePathLengthSum": 306.0,
+            "GuidePathCostSum": 306.0
+        },
+        {
+            "SchedulerSolveTime": 0.005011867,
+            "SchedulerGuidePathTime": 2.1851e-05,
+            "PlannerTime": 1.459484795,
+            "GuidePathLengthSum": 306.0,
+            "GuidePathCostSum": 306.0
+        },
+        {
+            "SchedulerSolveTime": 0.002914298,
+            "SchedulerGuidePathTime": 7.203e-06,
+            "PlannerTime": 1.879393239,
+            "GuidePathLengthSum": 140.0,
+            "GuidePathCostSum": 140.0
+        },
+        {
+            "SchedulerSolveTime": 0.002914298,
+            "SchedulerGuidePathTime": 7.203e-06,
+            "PlannerTime": 1.879393239,
+            "GuidePathLengthSum": 140.0,
+            "GuidePathCostSum": 140.0
+        },
+        {
+            "SchedulerSolveTime": 0.001749248,
+            "SchedulerGuidePathTime": 2.343e-06,
+            "PlannerTime": 1.019894236,
+            "GuidePathLengthSum": 39.0,
+            "GuidePathCostSum": 39.0
+        },
+        {
+            "SchedulerSolveTime": 0.001749248,
+            "SchedulerGuidePathTime": 2.343e-06,
+            "PlannerTime": 1.019894236,
+            "GuidePathLengthSum": 39.0,
+            "GuidePathCostSum": 39.0
+        },
+        {
+            "SchedulerSolveTime": 0.002660357,
+            "SchedulerGuidePathTime": 6.012e-06,
+            "PlannerTime": 1.408254968,
+            "GuidePathLengthSum": 157.0,
+            "GuidePathCostSum": 157.0
+        },
+        {
+            "SchedulerSolveTime": 0.002660357,
+            "SchedulerGuidePathTime": 6.012e-06,
+            "PlannerTime": 1.408254968,
+            "GuidePathLengthSum": 157.0,
+            "GuidePathCostSum": 157.0
+        },
+        {
+            "SchedulerSolveTime": 0.004788861,
+            "SchedulerGuidePathTime": 1.4246e-05,
+            "PlannerTime": 1.294139293,
+            "GuidePathLengthSum": 275.0,
+            "GuidePathCostSum": 275.0
+        },
+        {
+            "SchedulerSolveTime": 0.004788861,
+            "SchedulerGuidePathTime": 1.4246e-05,
+            "PlannerTime": 1.294139293,
+            "GuidePathLengthSum": 275.0,
+            "GuidePathCostSum": 275.0
+        },
+        {
+            "SchedulerSolveTime": 0.003059759,
+            "SchedulerGuidePathTime": 5.349e-06,
+            "PlannerTime": 1.39354788,
+            "GuidePathLengthSum": 147.0,
+            "GuidePathCostSum": 147.0
+        },
+        {
+            "SchedulerSolveTime": 0.003059759,
+            "SchedulerGuidePathTime": 5.349e-06,
+            "PlannerTime": 1.39354788,
+            "GuidePathLengthSum": 147.0,
+            "GuidePathCostSum": 147.0
+        },
+        {
+            "SchedulerSolveTime": 0.002141048,
+            "SchedulerGuidePathTime": 2.7611e-05,
+            "PlannerTime": 1.123129469,
+            "GuidePathLengthSum": 98.0,
+            "GuidePathCostSum": 98.0
+        },
+        {
+            "SchedulerSolveTime": 0.002141048,
+            "SchedulerGuidePathTime": 2.7611e-05,
+            "PlannerTime": 1.123129469,
+            "GuidePathLengthSum": 98.0,
+            "GuidePathCostSum": 98.0
+        },
+        {
+            "SchedulerSolveTime": 0.002355599,
+            "SchedulerGuidePathTime": 4.538e-06,
+            "PlannerTime": 1.385043294,
+            "GuidePathLengthSum": 97.0,
+            "GuidePathCostSum": 97.0
+        },
+        {
+            "SchedulerSolveTime": 0.002355599,
+            "SchedulerGuidePathTime": 4.538e-06,
+            "PlannerTime": 1.385043294,
+            "GuidePathLengthSum": 97.0,
+            "GuidePathCostSum": 97.0
+        },
+        {
+            "SchedulerSolveTime": 0.002230086,
+            "SchedulerGuidePathTime": 2.975e-06,
+            "PlannerTime": 1.119245273,
+            "GuidePathLengthSum": 71.0,
+            "GuidePathCostSum": 71.0
+        },
+        {
+            "SchedulerSolveTime": 0.002230086,
+            "SchedulerGuidePathTime": 2.975e-06,
+            "PlannerTime": 1.119245273,
+            "GuidePathLengthSum": 71.0,
+            "GuidePathCostSum": 71.0
+        },
+        {
+            "SchedulerSolveTime": 0.005984218,
+            "SchedulerGuidePathTime": 1.5038e-05,
+            "PlannerTime": 1.483176365,
+            "GuidePathLengthSum": 286.0,
+            "GuidePathCostSum": 286.0
+        },
+        {
+            "SchedulerSolveTime": 0.005984218,
+            "SchedulerGuidePathTime": 1.5038e-05,
+            "PlannerTime": 1.483176365,
+            "GuidePathLengthSum": 286.0,
+            "GuidePathCostSum": 286.0
+        },
+        {
+            "SchedulerSolveTime": 0.001691411,
+            "SchedulerGuidePathTime": 1.653e-06,
+            "PlannerTime": 1.880832217,
+            "GuidePathLengthSum": 27.0,
+            "GuidePathCostSum": 27.0
+        },
+        {
+            "SchedulerSolveTime": 0.001691411,
+            "SchedulerGuidePathTime": 1.653e-06,
+            "PlannerTime": 1.880832217,
+            "GuidePathLengthSum": 27.0,
+            "GuidePathCostSum": 27.0
+        },
+        {
+            "SchedulerSolveTime": 0.002684512,
+            "SchedulerGuidePathTime": 5.25e-06,
+            "PlannerTime": 1.026518588,
+            "GuidePathLengthSum": 96.0,
+            "GuidePathCostSum": 96.0
+        },
+        {
+            "SchedulerSolveTime": 0.002684512,
+            "SchedulerGuidePathTime": 5.25e-06,
+            "PlannerTime": 1.026518588,
+            "GuidePathLengthSum": 96.0,
+            "GuidePathCostSum": 96.0
+        },
+        {
+            "SchedulerSolveTime": 0.004023747,
+            "SchedulerGuidePathTime": 2.126e-05,
+            "PlannerTime": 1.437466862,
+            "GuidePathLengthSum": 251.0,
+            "GuidePathCostSum": 251.0
+        },
+        {
+            "SchedulerSolveTime": 0.004023747,
+            "SchedulerGuidePathTime": 2.126e-05,
+            "PlannerTime": 1.437466862,
+            "GuidePathLengthSum": 251.0,
+            "GuidePathCostSum": 251.0
+        },
+        {
+            "SchedulerSolveTime": 0.003145398,
+            "SchedulerGuidePathTime": 2.688e-05,
+            "PlannerTime": 1.296083448,
+            "GuidePathLengthSum": 180.0,
+            "GuidePathCostSum": 180.0
+        },
+        {
+            "SchedulerSolveTime": 0.003145398,
+            "SchedulerGuidePathTime": 2.688e-05,
+            "PlannerTime": 1.296083448,
+            "GuidePathLengthSum": 180.0,
+            "GuidePathCostSum": 180.0
+        },
+        {
+            "SchedulerSolveTime": 0.001887036,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.625929742,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.001887036,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.625929742,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.005030322,
+            "SchedulerGuidePathTime": 1.126e-05,
+            "PlannerTime": 1.379288348,
+            "GuidePathLengthSum": 201.0,
+            "GuidePathCostSum": 201.0
+        },
+        {
+            "SchedulerSolveTime": 0.005030322,
+            "SchedulerGuidePathTime": 1.126e-05,
+            "PlannerTime": 1.379288348,
+            "GuidePathLengthSum": 201.0,
+            "GuidePathCostSum": 201.0
+        },
+        {
+            "SchedulerSolveTime": 0.003589226,
+            "SchedulerGuidePathTime": 8.055e-06,
+            "PlannerTime": 1.098653238,
+            "GuidePathLengthSum": 168.0,
+            "GuidePathCostSum": 168.0
+        },
+        {
+            "SchedulerSolveTime": 0.003589226,
+            "SchedulerGuidePathTime": 8.055e-06,
+            "PlannerTime": 1.098653238,
+            "GuidePathLengthSum": 168.0,
+            "GuidePathCostSum": 168.0
+        },
+        {
+            "SchedulerSolveTime": 0.001993535,
+            "SchedulerGuidePathTime": 3.507e-06,
+            "PlannerTime": 1.492246717,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.001993535,
+            "SchedulerGuidePathTime": 3.507e-06,
+            "PlannerTime": 1.492246717,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.002064756,
+            "SchedulerGuidePathTime": 2.935e-06,
+            "PlannerTime": 1.904821549,
+            "GuidePathLengthSum": 63.0,
+            "GuidePathCostSum": 63.0
+        },
+        {
+            "SchedulerSolveTime": 0.002064756,
+            "SchedulerGuidePathTime": 2.935e-06,
+            "PlannerTime": 1.904821549,
+            "GuidePathLengthSum": 63.0,
+            "GuidePathCostSum": 63.0
+        },
+        {
+            "SchedulerSolveTime": 0.003990496,
+            "SchedulerGuidePathTime": 7.282e-06,
+            "PlannerTime": 1.053157154,
+            "GuidePathLengthSum": 156.0,
+            "GuidePathCostSum": 156.0
+        },
+        {
+            "SchedulerSolveTime": 0.003990496,
+            "SchedulerGuidePathTime": 7.282e-06,
+            "PlannerTime": 1.053157154,
+            "GuidePathLengthSum": 156.0,
+            "GuidePathCostSum": 156.0
+        },
+        {
+            "SchedulerSolveTime": 0.005041803,
+            "SchedulerGuidePathTime": 1.6128e-05,
+            "PlannerTime": 1.416205344,
+            "GuidePathLengthSum": 258.0,
+            "GuidePathCostSum": 258.0
+        },
+        {
+            "SchedulerSolveTime": 0.005041803,
+            "SchedulerGuidePathTime": 1.6128e-05,
+            "PlannerTime": 1.416205344,
+            "GuidePathLengthSum": 258.0,
+            "GuidePathCostSum": 258.0
+        },
+        {
+            "SchedulerSolveTime": 0.005027607,
+            "SchedulerGuidePathTime": 2.1311e-05,
+            "PlannerTime": 1.321925805,
+            "GuidePathLengthSum": 290.0,
+            "GuidePathCostSum": 290.0
+        },
+        {
+            "SchedulerSolveTime": 0.005027607,
+            "SchedulerGuidePathTime": 2.1311e-05,
+            "PlannerTime": 1.321925805,
+            "GuidePathLengthSum": 290.0,
+            "GuidePathCostSum": 290.0
+        },
+        {
+            "SchedulerSolveTime": 0.000932386,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.370352337,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000932386,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.370352337,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.006080069,
+            "SchedulerGuidePathTime": 2.5247e-05,
+            "PlannerTime": 1.069923659,
+            "GuidePathLengthSum": 301.0,
+            "GuidePathCostSum": 301.0
+        },
+        {
+            "SchedulerSolveTime": 0.006080069,
+            "SchedulerGuidePathTime": 2.5247e-05,
+            "PlannerTime": 1.069923659,
+            "GuidePathLengthSum": 301.0,
+            "GuidePathCostSum": 301.0
+        },
+        {
+            "SchedulerSolveTime": 0.004332081,
+            "SchedulerGuidePathTime": 1.1802e-05,
+            "PlannerTime": 1.367519169,
+            "GuidePathLengthSum": 163.0,
+            "GuidePathCostSum": 163.0
+        },
+        {
+            "SchedulerSolveTime": 0.004332081,
+            "SchedulerGuidePathTime": 1.1802e-05,
+            "PlannerTime": 1.367519169,
+            "GuidePathLengthSum": 163.0,
+            "GuidePathCostSum": 163.0
+        },
+        {
+            "SchedulerSolveTime": 0.002145206,
+            "SchedulerGuidePathTime": 2.725e-06,
+            "PlannerTime": 1.090847944,
+            "GuidePathLengthSum": 57.0,
+            "GuidePathCostSum": 57.0
+        },
+        {
+            "SchedulerSolveTime": 0.002145206,
+            "SchedulerGuidePathTime": 2.725e-06,
+            "PlannerTime": 1.090847944,
+            "GuidePathLengthSum": 57.0,
+            "GuidePathCostSum": 57.0
+        },
+        {
+            "SchedulerSolveTime": 0.000930012,
+            "SchedulerGuidePathTime": 6.81e-07,
+            "PlannerTime": 1.447196226,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000930012,
+            "SchedulerGuidePathTime": 6.81e-07,
+            "PlannerTime": 1.447196226,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002122755,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.062339385,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002122755,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.062339385,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000935893,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.411055084,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000935893,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.411055084,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.003348027,
+            "SchedulerGuidePathTime": 8.585e-06,
+            "PlannerTime": 1.292338117,
+            "GuidePathLengthSum": 185.0,
+            "GuidePathCostSum": 185.0
+        },
+        {
+            "SchedulerSolveTime": 0.003348027,
+            "SchedulerGuidePathTime": 8.585e-06,
+            "PlannerTime": 1.292338117,
+            "GuidePathLengthSum": 185.0,
+            "GuidePathCostSum": 185.0
+        },
+        {
+            "SchedulerSolveTime": 0.002841475,
+            "SchedulerGuidePathTime": 7.284e-06,
+            "PlannerTime": 1.390494218,
+            "GuidePathLengthSum": 111.0,
+            "GuidePathCostSum": 111.0
+        },
+        {
+            "SchedulerSolveTime": 0.002841475,
+            "SchedulerGuidePathTime": 7.284e-06,
+            "PlannerTime": 1.390494218,
+            "GuidePathLengthSum": 111.0,
+            "GuidePathCostSum": 111.0
+        },
+        {
+            "SchedulerSolveTime": 0.000931355,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.063278903,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000931355,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.063278903,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000940592,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.383531626,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000940592,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.383531626,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002117376,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.047602646,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002117376,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.047602646,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004925057,
+            "SchedulerGuidePathTime": 1.5529e-05,
+            "PlannerTime": 1.475818885,
+            "GuidePathLengthSum": 243.0,
+            "GuidePathCostSum": 243.0
+        },
+        {
+            "SchedulerSolveTime": 0.004925057,
+            "SchedulerGuidePathTime": 1.5529e-05,
+            "PlannerTime": 1.475818885,
+            "GuidePathLengthSum": 243.0,
+            "GuidePathCostSum": 243.0
+        },
+        {
+            "SchedulerSolveTime": 0.003644952,
+            "SchedulerGuidePathTime": 7.345e-06,
+            "PlannerTime": 1.893100116,
+            "GuidePathLengthSum": 104.0,
+            "GuidePathCostSum": 104.0
+        },
+        {
+            "SchedulerSolveTime": 0.003644952,
+            "SchedulerGuidePathTime": 7.345e-06,
+            "PlannerTime": 1.893100116,
+            "GuidePathLengthSum": 104.0,
+            "GuidePathCostSum": 104.0
+        },
+        {
+            "SchedulerSolveTime": 0.003221434,
+            "SchedulerGuidePathTime": 8.726e-06,
+            "PlannerTime": 1.029298415,
+            "GuidePathLengthSum": 192.0,
+            "GuidePathCostSum": 192.0
+        },
+        {
+            "SchedulerSolveTime": 0.003221434,
+            "SchedulerGuidePathTime": 8.726e-06,
+            "PlannerTime": 1.029298415,
+            "GuidePathLengthSum": 192.0,
+            "GuidePathCostSum": 192.0
+        },
+        {
+            "SchedulerSolveTime": 0.001988635,
+            "SchedulerGuidePathTime": 3.527e-06,
+            "PlannerTime": 1.407909379,
+            "GuidePathLengthSum": 57.0,
+            "GuidePathCostSum": 57.0
+        },
+        {
+            "SchedulerSolveTime": 0.001988635,
+            "SchedulerGuidePathTime": 3.527e-06,
+            "PlannerTime": 1.407909379,
+            "GuidePathLengthSum": 57.0,
+            "GuidePathCostSum": 57.0
+        },
+        {
+            "SchedulerSolveTime": 0.004274324,
+            "SchedulerGuidePathTime": 9.568e-06,
+            "PlannerTime": 1.290194313,
+            "GuidePathLengthSum": 166.0,
+            "GuidePathCostSum": 166.0
+        },
+        {
+            "SchedulerSolveTime": 0.004274324,
+            "SchedulerGuidePathTime": 9.568e-06,
+            "PlannerTime": 1.290194313,
+            "GuidePathLengthSum": 166.0,
+            "GuidePathCostSum": 166.0
+        },
+        {
+            "SchedulerSolveTime": 0.004613326,
+            "SchedulerGuidePathTime": 1.2594e-05,
+            "PlannerTime": 1.381613103,
+            "GuidePathLengthSum": 272.0,
+            "GuidePathCostSum": 272.0
+        },
+        {
+            "SchedulerSolveTime": 0.004613326,
+            "SchedulerGuidePathTime": 1.2594e-05,
+            "PlannerTime": 1.381613103,
+            "GuidePathLengthSum": 272.0,
+            "GuidePathCostSum": 272.0
+        },
+        {
+            "SchedulerSolveTime": 0.000952806,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 0.925580269,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0009555,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.089649262,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0009555,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.089649262,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00289809,
+            "SchedulerGuidePathTime": 2.4074e-05,
+            "PlannerTime": 1.395212685,
+            "GuidePathLengthSum": 94.0,
+            "GuidePathCostSum": 94.0
+        },
+        {
+            "SchedulerSolveTime": 0.00289809,
+            "SchedulerGuidePathTime": 2.4074e-05,
+            "PlannerTime": 1.395212685,
+            "GuidePathLengthSum": 94.0,
+            "GuidePathCostSum": 94.0
+        },
+        {
+            "SchedulerSolveTime": 0.000968103,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.391070432,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000968103,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.391070432,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000940952,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.500454648,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000940952,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.500454648,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004885132,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 0.891721689,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002497013,
+            "SchedulerGuidePathTime": 3.086e-06,
+            "PlannerTime": 1.945036522,
+            "GuidePathLengthSum": 67.0,
+            "GuidePathCostSum": 67.0
+        },
+        {
+            "SchedulerSolveTime": 0.002497013,
+            "SchedulerGuidePathTime": 3.086e-06,
+            "PlannerTime": 1.945036522,
+            "GuidePathLengthSum": 67.0,
+            "GuidePathCostSum": 67.0
+        },
+        {
+            "SchedulerSolveTime": 0.000959959,
+            "SchedulerGuidePathTime": 3.71e-07,
+            "PlannerTime": 0.933221094,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000953456,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.035034867,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000953456,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.035034867,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00092869,
+            "SchedulerGuidePathTime": 5.21e-07,
+            "PlannerTime": 1.438035817,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00092869,
+            "SchedulerGuidePathTime": 5.21e-07,
+            "PlannerTime": 1.438035817,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00094504,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.300365927,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00094504,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.300365927,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000964548,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.404934007,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000964548,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.404934007,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.001993705,
+            "SchedulerGuidePathTime": 2.875e-06,
+            "PlannerTime": 1.092409973,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.001993705,
+            "SchedulerGuidePathTime": 2.875e-06,
+            "PlannerTime": 1.092409973,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.002237749,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.682873983,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002237749,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.682873983,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000939952,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.480353508,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000939952,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.480353508,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000942768,
+            "SchedulerGuidePathTime": 3.5e-07,
+            "PlannerTime": 1.906018801,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000942768,
+            "SchedulerGuidePathTime": 3.5e-07,
+            "PlannerTime": 1.906018801,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000921798,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.029888785,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000921798,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.029888785,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000942546,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.454605208,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000942546,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.454605208,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0039081,
+            "SchedulerGuidePathTime": 2.294e-06,
+            "PlannerTime": 1.006119402,
+            "GuidePathLengthSum": 28.0,
+            "GuidePathCostSum": 28.0
+        },
+        {
+            "SchedulerSolveTime": 0.0039081,
+            "SchedulerGuidePathTime": 2.294e-06,
+            "PlannerTime": 1.006119402,
+            "GuidePathLengthSum": 28.0,
+            "GuidePathCostSum": 28.0
+        },
+        {
+            "SchedulerSolveTime": 0.00399752,
+            "SchedulerGuidePathTime": 7.523e-06,
+            "PlannerTime": 1.349900098,
+            "GuidePathLengthSum": 205.0,
+            "GuidePathCostSum": 205.0
+        },
+        {
+            "SchedulerSolveTime": 0.00399752,
+            "SchedulerGuidePathTime": 7.523e-06,
+            "PlannerTime": 1.349900098,
+            "GuidePathLengthSum": 205.0,
+            "GuidePathCostSum": 205.0
+        },
+        {
+            "SchedulerSolveTime": 0.000958625,
+            "SchedulerGuidePathTime": 3.81e-07,
+            "PlannerTime": 1.417554916,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000958625,
+            "SchedulerGuidePathTime": 3.81e-07,
+            "PlannerTime": 1.417554916,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.005764372,
+            "SchedulerGuidePathTime": 3.707e-05,
+            "PlannerTime": 1.111272267,
+            "GuidePathLengthSum": 172.0,
+            "GuidePathCostSum": 172.0
+        },
+        {
+            "SchedulerSolveTime": 0.005764372,
+            "SchedulerGuidePathTime": 3.707e-05,
+            "PlannerTime": 1.111272267,
+            "GuidePathLengthSum": 172.0,
+            "GuidePathCostSum": 172.0
+        },
+        {
+            "SchedulerSolveTime": 0.001895121,
+            "SchedulerGuidePathTime": 3.837e-06,
+            "PlannerTime": 1.404460382,
+            "GuidePathLengthSum": 96.0,
+            "GuidePathCostSum": 96.0
+        },
+        {
+            "SchedulerSolveTime": 0.001895121,
+            "SchedulerGuidePathTime": 3.837e-06,
+            "PlannerTime": 1.404460382,
+            "GuidePathLengthSum": 96.0,
+            "GuidePathCostSum": 96.0
+        },
+        {
+            "SchedulerSolveTime": 0.002236459,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.082937015,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002236459,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.082937015,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002028109,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.452252594,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002028109,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.452252594,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000932598,
+            "SchedulerGuidePathTime": 3.5e-07,
+            "PlannerTime": 1.915527075,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000932598,
+            "SchedulerGuidePathTime": 3.5e-07,
+            "PlannerTime": 1.915527075,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002024312,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.016079234,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002024312,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.016079234,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.003318013,
+            "SchedulerGuidePathTime": 3.407e-06,
+            "PlannerTime": 1.503103589,
+            "GuidePathLengthSum": 69.0,
+            "GuidePathCostSum": 69.0
+        },
+        {
+            "SchedulerSolveTime": 0.003318013,
+            "SchedulerGuidePathTime": 3.407e-06,
+            "PlannerTime": 1.503103589,
+            "GuidePathLengthSum": 69.0,
+            "GuidePathCostSum": 69.0
+        },
+        {
+            "SchedulerSolveTime": 0.002069977,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.250217566,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002069977,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.250217566,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002368394,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.614885883,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002368394,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.614885883,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.005192977,
+            "SchedulerGuidePathTime": 3.306e-06,
+            "PlannerTime": 0.962505632,
+            "GuidePathLengthSum": 26.0,
+            "GuidePathCostSum": 26.0
+        },
+        {
+            "SchedulerSolveTime": 0.000944811,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.384812601,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000944811,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.384812601,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000959317,
+            "SchedulerGuidePathTime": 3.5e-07,
+            "PlannerTime": 0.890122866,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002327236,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.074970462,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002327236,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.074970462,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.006498811,
+            "SchedulerGuidePathTime": 1.3204e-05,
+            "PlannerTime": 1.260240051,
+            "GuidePathLengthSum": 128.0,
+            "GuidePathCostSum": 128.0
+        },
+        {
+            "SchedulerSolveTime": 0.006498811,
+            "SchedulerGuidePathTime": 1.3204e-05,
+            "PlannerTime": 1.260240051,
+            "GuidePathLengthSum": 128.0,
+            "GuidePathCostSum": 128.0
+        },
+        {
+            "SchedulerSolveTime": 0.002028671,
+            "SchedulerGuidePathTime": 2.134e-06,
+            "PlannerTime": 1.054505563,
+            "GuidePathLengthSum": 40.0,
+            "GuidePathCostSum": 40.0
+        },
+        {
+            "SchedulerSolveTime": 0.002028671,
+            "SchedulerGuidePathTime": 2.134e-06,
+            "PlannerTime": 1.054505563,
+            "GuidePathLengthSum": 40.0,
+            "GuidePathCostSum": 40.0
+        },
+        {
+            "SchedulerSolveTime": 0.005659767,
+            "SchedulerGuidePathTime": 1.1612e-05,
+            "PlannerTime": 1.92664411,
+            "GuidePathLengthSum": 146.0,
+            "GuidePathCostSum": 146.0
+        },
+        {
+            "SchedulerSolveTime": 0.005659767,
+            "SchedulerGuidePathTime": 1.1612e-05,
+            "PlannerTime": 1.92664411,
+            "GuidePathLengthSum": 146.0,
+            "GuidePathCostSum": 146.0
+        },
+        {
+            "SchedulerSolveTime": 0.002747378,
+            "SchedulerGuidePathTime": 2.725e-06,
+            "PlannerTime": 1.060028168,
+            "GuidePathLengthSum": 54.0,
+            "GuidePathCostSum": 54.0
+        },
+        {
+            "SchedulerSolveTime": 0.002747378,
+            "SchedulerGuidePathTime": 2.725e-06,
+            "PlannerTime": 1.060028168,
+            "GuidePathLengthSum": 54.0,
+            "GuidePathCostSum": 54.0
+        },
+        {
+            "SchedulerSolveTime": 0.002138125,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.942538886,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002138125,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.942538886,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00100909,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 0.84935642,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002023219,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.681049687,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002023219,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.681049687,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004010303,
+            "SchedulerGuidePathTime": 4.708e-06,
+            "PlannerTime": 1.300836201,
+            "GuidePathLengthSum": 81.0,
+            "GuidePathCostSum": 81.0
+        },
+        {
+            "SchedulerSolveTime": 0.004010303,
+            "SchedulerGuidePathTime": 4.708e-06,
+            "PlannerTime": 1.300836201,
+            "GuidePathLengthSum": 81.0,
+            "GuidePathCostSum": 81.0
+        },
+        {
+            "SchedulerSolveTime": 0.002395604,
+            "SchedulerGuidePathTime": 1.984e-06,
+            "PlannerTime": 0.920459558,
+            "GuidePathLengthSum": 28.0,
+            "GuidePathCostSum": 28.0
+        },
+        {
+            "SchedulerSolveTime": 0.006091491,
+            "SchedulerGuidePathTime": 1.4287e-05,
+            "PlannerTime": 1.126007314,
+            "GuidePathLengthSum": 191.0,
+            "GuidePathCostSum": 191.0
+        },
+        {
+            "SchedulerSolveTime": 0.006091491,
+            "SchedulerGuidePathTime": 1.4287e-05,
+            "PlannerTime": 1.126007314,
+            "GuidePathLengthSum": 191.0,
+            "GuidePathCostSum": 191.0
+        },
+        {
+            "SchedulerSolveTime": 0.003565926,
+            "SchedulerGuidePathTime": 5.119e-06,
+            "PlannerTime": 1.256782031,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.003565926,
+            "SchedulerGuidePathTime": 5.119e-06,
+            "PlannerTime": 1.256782031,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.002340683,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.023755816,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002340683,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.023755816,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.005541286,
+            "SchedulerGuidePathTime": 9.388e-06,
+            "PlannerTime": 1.516689308,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        },
+        {
+            "SchedulerSolveTime": 0.005541286,
+            "SchedulerGuidePathTime": 9.388e-06,
+            "PlannerTime": 1.516689308,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        },
+        {
+            "SchedulerSolveTime": 0.002327438,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.460362868,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002327438,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.460362868,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002656571,
+            "SchedulerGuidePathTime": 3.186e-06,
+            "PlannerTime": 1.464313705,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.002656571,
+            "SchedulerGuidePathTime": 3.186e-06,
+            "PlannerTime": 1.464313705,
+            "GuidePathLengthSum": 59.0,
+            "GuidePathCostSum": 59.0
+        },
+        {
+            "SchedulerSolveTime": 0.002293104,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.301902457,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002293104,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.301902457,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002067563,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.395739095,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002067563,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.395739095,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002392499,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.511238924,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002392499,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.511238924,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002209247,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.171901572,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002209247,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.171901572,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002300577,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.409581164,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002300577,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.409581164,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000947817,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 0.875523614,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002496203,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.07431326,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002496203,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.07431326,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0009871,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.412916407,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0009871,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.412916407,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002304143,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.229971249,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002304143,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.229971249,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000943457,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.364210306,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000943457,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.364210306,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002318843,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.577738792,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002318843,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.577738792,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004256772,
+            "SchedulerGuidePathTime": 7.975e-06,
+            "PlannerTime": 1.078114292,
+            "GuidePathLengthSum": 101.0,
+            "GuidePathCostSum": 101.0
+        },
+        {
+            "SchedulerSolveTime": 0.004256772,
+            "SchedulerGuidePathTime": 7.975e-06,
+            "PlannerTime": 1.078114292,
+            "GuidePathLengthSum": 101.0,
+            "GuidePathCostSum": 101.0
+        },
+        {
+            "SchedulerSolveTime": 0.002306179,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.068393762,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002306179,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.068393762,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002227602,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.368662034,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002227602,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.368662034,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000934261,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.391850477,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000934261,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.391850477,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002295739,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.275183381,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002295739,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.275183381,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002285169,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.582117423,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002285169,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.582117423,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004369545,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.349882962,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004369545,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.349882962,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00093356,
+            "SchedulerGuidePathTime": 4.22e-07,
+            "PlannerTime": 1.170030858,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00093356,
+            "SchedulerGuidePathTime": 4.22e-07,
+            "PlannerTime": 1.170030858,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00208737,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.061504304,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00208737,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.061504304,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002671809,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.44749388,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002671809,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.44749388,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002137173,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.828728369,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002137173,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.828728369,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002106357,
+            "SchedulerGuidePathTime": 2.484e-06,
+            "PlannerTime": 1.353386798,
+            "GuidePathLengthSum": 54.0,
+            "GuidePathCostSum": 54.0
+        },
+        {
+            "SchedulerSolveTime": 0.002106357,
+            "SchedulerGuidePathTime": 2.484e-06,
+            "PlannerTime": 1.353386798,
+            "GuidePathLengthSum": 54.0,
+            "GuidePathCostSum": 54.0
+        },
+        {
+            "SchedulerSolveTime": 0.001014521,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.302025621,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.001014521,
+            "SchedulerGuidePathTime": 3.61e-07,
+            "PlannerTime": 1.302025621,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002293023,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.616213482,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002293023,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.616213482,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000950081,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.426793843,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000950081,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.426793843,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002703489,
+            "SchedulerGuidePathTime": 2.756e-06,
+            "PlannerTime": 1.845078336,
+            "GuidePathLengthSum": 67.0,
+            "GuidePathCostSum": 67.0
+        },
+        {
+            "SchedulerSolveTime": 0.002703489,
+            "SchedulerGuidePathTime": 2.756e-06,
+            "PlannerTime": 1.845078336,
+            "GuidePathLengthSum": 67.0,
+            "GuidePathCostSum": 67.0
+        },
+        {
+            "SchedulerSolveTime": 0.00216194,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 0.962521152,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002539432,
+            "SchedulerGuidePathTime": 3.166e-06,
+            "PlannerTime": 1.385080345,
+            "GuidePathLengthSum": 74.0,
+            "GuidePathCostSum": 74.0
+        },
+        {
+            "SchedulerSolveTime": 0.002539432,
+            "SchedulerGuidePathTime": 3.166e-06,
+            "PlannerTime": 1.385080345,
+            "GuidePathLengthSum": 74.0,
+            "GuidePathCostSum": 74.0
+        },
+        {
+            "SchedulerSolveTime": 0.005032448,
+            "SchedulerGuidePathTime": 8.415e-06,
+            "PlannerTime": 1.259644251,
+            "GuidePathLengthSum": 99.0,
+            "GuidePathCostSum": 99.0
+        },
+        {
+            "SchedulerSolveTime": 0.005032448,
+            "SchedulerGuidePathTime": 8.415e-06,
+            "PlannerTime": 1.259644251,
+            "GuidePathLengthSum": 99.0,
+            "GuidePathCostSum": 99.0
+        },
+        {
+            "SchedulerSolveTime": 0.002370448,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.600086029,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002370448,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.600086029,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002122405,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.599968076,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002122405,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.599968076,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002343247,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.05732226,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002343247,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.05732226,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002100916,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.348340194,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002100916,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.348340194,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000946025,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.401106268,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000946025,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.401106268,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002094413,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.401881504,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002094413,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.401881504,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004866119,
+            "SchedulerGuidePathTime": 7.995e-06,
+            "PlannerTime": 1.438458055,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.004866119,
+            "SchedulerGuidePathTime": 7.995e-06,
+            "PlannerTime": 1.438458055,
+            "GuidePathLengthSum": 100.0,
+            "GuidePathCostSum": 100.0
+        },
+        {
+            "SchedulerSolveTime": 0.002136102,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.588052456,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002136102,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.588052456,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00230663,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.049576973,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00230663,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.049576973,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002100815,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.344169865,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002100815,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.344169865,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002401225,
+            "SchedulerGuidePathTime": 2.274e-06,
+            "PlannerTime": 1.382184315,
+            "GuidePathLengthSum": 43.0,
+            "GuidePathCostSum": 43.0
+        },
+        {
+            "SchedulerSolveTime": 0.002401225,
+            "SchedulerGuidePathTime": 2.274e-06,
+            "PlannerTime": 1.382184315,
+            "GuidePathLengthSum": 43.0,
+            "GuidePathCostSum": 43.0
+        },
+        {
+            "SchedulerSolveTime": 0.00095488,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.284724222,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00095488,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.284724222,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000941656,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.346250588,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.000941656,
+            "SchedulerGuidePathTime": 3.6e-07,
+            "PlannerTime": 1.346250588,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002192346,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.492492263,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002192346,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.492492263,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002356863,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.119703647,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002356863,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.119703647,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.004492513,
+            "SchedulerGuidePathTime": 7.875e-06,
+            "PlannerTime": 1.425165312,
+            "GuidePathLengthSum": 119.0,
+            "GuidePathCostSum": 119.0
+        },
+        {
+            "SchedulerSolveTime": 0.004492513,
+            "SchedulerGuidePathTime": 7.875e-06,
+            "PlannerTime": 1.425165312,
+            "GuidePathLengthSum": 119.0,
+            "GuidePathCostSum": 119.0
+        },
+        {
+            "SchedulerSolveTime": 0.002301981,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.020877942,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002301981,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.020877942,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002195732,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.867538192,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002195732,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.867538192,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002488107,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.568115038,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002488107,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.568115038,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00225908,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.641909633,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00225908,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.641909633,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002298825,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.053084714,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002298825,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 2.053084714,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002104842,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.342240846,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002104842,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.342240846,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00094957,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.373500703,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.00094957,
+            "SchedulerGuidePathTime": 3.51e-07,
+            "PlannerTime": 1.373500703,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002127826,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.399058442,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.002127826,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 1.399058442,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.006123595,
+            "SchedulerGuidePathTime": 1.7673e-05,
+            "PlannerTime": 1.436078004,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        },
+        {
+            "SchedulerSolveTime": 0.006123595,
+            "SchedulerGuidePathTime": 1.7673e-05,
+            "PlannerTime": 1.436078004,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        },
+        {
+            "SchedulerSolveTime": 0.006123595,
+            "SchedulerGuidePathTime": 1.7673e-05,
+            "PlannerTime": 1.000480181,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        },
+        {
+            "SchedulerSolveTime": 0.006123595,
+            "SchedulerGuidePathTime": 1.7673e-05,
+            "PlannerTime": 1.000480181,
+            "GuidePathLengthSum": 181.0,
+            "GuidePathCostSum": 181.0
+        }
+    ]
+}
