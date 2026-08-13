@@ -9,4 +9,5 @@ python/tmp
 python/__pycache__
 output.json
 Benchmark-Archive
-outputs/coarsening_viz/**/*_edges.csv
+outputs/coarsening_viz/**/*.csv
+*.hierarchy
