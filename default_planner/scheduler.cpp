@@ -39,6 +39,8 @@ void set_last_timing(double solve_time, double guide_path_time,
     last_timing.hierarchy_level_node_counts.clear();
     last_timing.guide_path_length_sum = guide_path_length_sum;
     last_timing.guide_path_cost_sum = guide_path_cost_sum;
+    last_timing.local_node_match_count = 0;
+    last_timing.flow_match_count = 0;
 }
 
 void set_last_reduced_timing(double solve_time,
@@ -46,7 +48,9 @@ void set_last_reduced_timing(double solve_time,
                              double hierarchy_build_time,
                              const std::vector<int>& hierarchy_level_node_counts,
                              double guide_path_length_sum,
-                             double guide_path_cost_sum)
+                             double guide_path_cost_sum,
+                             int local_node_match_count,
+                             int flow_match_count)
 {
     last_timing.solve_time = solve_time;
     last_timing.guide_path_time = guide_path_time;
@@ -54,6 +58,8 @@ void set_last_reduced_timing(double solve_time,
     last_timing.hierarchy_level_node_counts = hierarchy_level_node_counts;
     last_timing.guide_path_length_sum = guide_path_length_sum;
     last_timing.guide_path_cost_sum = guide_path_cost_sum;
+    last_timing.local_node_match_count = local_node_match_count;
+    last_timing.flow_match_count = flow_match_count;
 }
 
 ScheduleTiming get_last_timing()
@@ -1038,6 +1044,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     std::unordered_map<int,std::list<int>> guide_paths;
     double solve_time = 0.0, guide_time = 0.0;
     double guide_path_length_sum = 0.0, guide_path_cost_sum = 0.0;
+    int local_node_match_count = 0, flow_match_count = 0;
     // The planner only ever consumes agent_guide_path (below) under this gate
     // -- unchanged from before. But the fine-grained lift (Steps 3/4 inside
     // compute_reduced_assignment) is now requested unconditionally so
@@ -1051,7 +1058,8 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     const bool need_guide_paths = true;
     const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_reduced_assignment(
         env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths,
-        &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum);
+        &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum,
+        &local_node_match_count, &flow_match_count);
 
     for (const auto &kv : assignments)
     {
@@ -1072,7 +1080,8 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     }
 
     set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts,
-                             guide_path_length_sum, guide_path_cost_sum);
+                             guide_path_length_sum, guide_path_cost_sum,
+                             local_node_match_count, flow_match_count);
 }
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)

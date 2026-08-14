@@ -1455,11 +1455,15 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                                         double* solve_time_out,
                                                                         double* guide_time_out,
                                                                         double* guide_path_length_sum_out,
-                                                                        double* guide_path_cost_sum_out){
+                                                                        double* guide_path_cost_sum_out,
+                                                                        int* local_match_count_out,
+                                                                        int* flow_match_count_out){
     std::unordered_map<int,int> assignments;
     out_agent_guide_paths.clear();
     if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
     if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
+    if (local_match_count_out) *local_match_count_out = 0;
+    if (flow_match_count_out) *flow_match_count_out = 0;
 
     if (!env)
         return assignments;
@@ -1566,6 +1570,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
             matched_agents.insert(p.agent_id);
             matched_tasks.insert(p.task_id);
         }
+        if (local_match_count_out) *local_match_count_out += static_cast<int>(pairs.size());
 
         for (int agent_id : node_agent_ids)
         {
@@ -1782,6 +1787,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         top_task_ids[reached_sink_node].pop_front();
 
         assignments[agent_id] = task_id;
+        if (flow_match_count_out) (*flow_match_count_out)++;
 
         successful_agent_ids.push_back(agent_id);
         coarse_paths.push_back(std::move(top_path));

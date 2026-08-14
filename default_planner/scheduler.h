@@ -30,6 +30,12 @@ struct ScheduleTiming
 	// solver 6 but can diverge for solver 1.
 	double guide_path_length_sum = 0.0;
 	double guide_path_cost_sum = 0.0;
+	// How many agents this scheduler call assigned via the within-coarse-node
+	// local matcher (LocalNodeMatch.h) vs. via the coarse flow solve -- solver
+	// 6 only (schedule_plan_flow_reduced); always 0/0 for other solvers,
+	// which don't have a local-matching step. See ai/local_node_matching.md.
+	int local_node_match_count = 0;
+	int flow_match_count = 0;
 };
 
 void set_last_timing(double solve_time, double guide_path_time,
@@ -42,7 +48,9 @@ void set_last_reduced_timing(double solve_time,
 						     double hierarchy_build_time,
 						     const std::vector<int>& hierarchy_level_node_counts,
 						     double guide_path_length_sum = 0.0,
-						     double guide_path_cost_sum = 0.0);
+						     double guide_path_cost_sum = 0.0,
+						     int local_node_match_count = 0,
+						     int flow_match_count = 0);
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 

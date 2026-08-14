@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/scene_sp_endmaps.map",
+    "agentFile": "agents/scene_sp_endmaps_10000.agents",
+    "teamSize": 10000,
+    "taskFile": "tasks/scene_sp_endmaps.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

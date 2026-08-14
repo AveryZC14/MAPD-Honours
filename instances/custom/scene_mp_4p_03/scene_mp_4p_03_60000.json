@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/scene_mp_4p_03.map",
+    "agentFile": "agents/scene_mp_4p_03_60000.agents",
+    "teamSize": 60000,
+    "taskFile": "tasks/tasks/scene_mp_4p_03.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

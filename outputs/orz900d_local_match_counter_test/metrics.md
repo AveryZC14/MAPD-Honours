@@ -1,0 +1,8 @@
+| file | agents | label | tasks | steps | makespan | tp_makespan |
+|---|---|---|---|---|---|---|
+| orz900d_10000_solver6_level2.json | 10000 | solver6_level2 | 3946 | 201 | 201 | 19.632 |
+| orz900d_10000_solver6_level4.json | 10000 | solver6_level4 | 4013 | 200 | 200 | 20.065 |
+| orz900d_10000_solver6_level6.json | 10000 | solver6_level6 | 4117 | 200 | 200 | 20.585 |
+| orz900d_20000_solver6_level2.json | 20000 | solver6_level2 | 8220 | 200 | 200 | 41.100 |
+| orz900d_20000_solver6_level4.json | 20000 | solver6_level4 | 8493 | 200 | 200 | 42.465 |
+| orz900d_20000_solver6_level6.json | 20000 | solver6_level6 | 8601 | 199 | 200 | 43.005 |

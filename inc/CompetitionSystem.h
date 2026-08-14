@@ -25,6 +25,15 @@ struct TimeStepMetric
     // comparable across every run.
     double GuidePathLengthSum = 0.0;
     double GuidePathCostSum = 0.0;
+    // How many agents this timestep were assigned via solver 6's within-
+    // coarse-node local matcher vs. via the coarse flow solve (always 0/0
+    // for other solvers -- see ai/local_node_matching.md). The Cumulative
+    // fields are the running total of each count from the start of the run
+    // through this timestep, inclusive.
+    int LocalNodeMatchCount = 0;
+    int FlowMatchCount = 0;
+    long long LocalNodeMatchCountCumulative = 0;
+    long long FlowMatchCountCumulative = 0;
 };
 /* End per-timestep metrics model. */
 
@@ -164,6 +173,12 @@ protected:
     /* Begin cached scheduler timing for the current planner step. */
     DefaultPlanner::ScheduleTiming last_scheduler_timing;
     /* End cached scheduler timing for the current planner step. */
+
+    /* Begin running totals of local-node-match vs. flow-match counts, accumulated
+     * across every TimeStepMetric recorded so far this run -- see ai/local_node_matching.md. */
+    long long total_local_node_match_count = 0;
+    long long total_flow_match_count = 0;
+    /* End running totals of local-node-match vs. flow-match counts. */
 
 
     void initialize();

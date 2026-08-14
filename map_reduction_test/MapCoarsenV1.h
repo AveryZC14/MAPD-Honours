@@ -245,6 +245,9 @@ public:
     // `guide_path_length_sum_out`/`guide_path_cost_sum_out`, when steps 3/4 run, receive the
     // sum over every lifted path of (edges) and (sum of that path's fine-graph arc costs)
     // respectively -- 0 if need_guide_paths is false or no agent was successfully matched.
+    // `local_match_count_out`/`flow_match_count_out` receive how many agents this call
+    // assigned via the within-coarse-node local matcher (Step 1, LocalNodeMatch.h) vs. via
+    // the coarse flow solve (Step 2) -- see ai/local_node_matching.md.
     std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
                                                            const std::vector<int>& flexible_agent_ids,
                                                            const std::vector<int>& flexible_task_ids,
@@ -253,7 +256,9 @@ public:
                                                            double* solve_time_out = nullptr,
                                                            double* guide_time_out = nullptr,
                                                            double* guide_path_length_sum_out = nullptr,
-                                                           double* guide_path_cost_sum_out = nullptr);
+                                                           double* guide_path_cost_sum_out = nullptr,
+                                                           int* local_match_count_out = nullptr,
+                                                           int* flow_match_count_out = nullptr);
 
 private:
     ReducedHierarchy();

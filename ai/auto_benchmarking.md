@@ -19,6 +19,8 @@ this by hand — see `ai/todo.md`.
 | 2 | `IH_mp_2p_01` (1912x1800, ~3.44M cells, ~2.22M walkable) | 2026-07-23 | 5000/10000/20000 | solver 1; solver 6 @ coarsen depth 2 and 4 | **Inverts sweep 1**: solver 6 wins by ~4-7x on `tp/makespan` at every agent count. | `ai/auto_benchmarking_IH_mp_2p_01.md` |
 | 3 | `warehouseXL` (1900x1800, ~3.42M cells, ~1.73M walkable; generated, structured warehouse layout, not a maze map) | 2026-08-06 | 5000/10000/20000 | solver 1; solver 6 @ coarsen levels 1-4 | Solver 6 still wins at every agent count, same direction as sweep 2, but margin is much narrower (~4.3x at 5000 agents down to ~1.5x at 20000) and *shrinks* with agent count instead of staying roughly constant. | `ai/auto_benchmarking_warehouseXL.md` |
 | 4 | `scene_mp_4p_03` (3728x3728, ~13.9M cells, ~6.3M walkable — largest map benchmarked so far) | 2026-08-12 | 5000 only (10000/20000 pending) | solver 1; solver 6 @ coarsen levels 1-4 (via new `--flowSolveLevel` CLI lever, `kDefaultCoarsenLevels` raised to 6) | **Widest margin yet**: solver 6 wins by ~44x (level 1) to ~93x (level 4) on `tp/makespan`. Also the first sweep where depth *helps* monotonically instead of costing a little — level 4 beats level 1. | `ai/auto_benchmarking_scene_mp_4p_03.md` |
+| 5 | `scene_sp_pol_06` (4192x4328, ~18.1M cells, ~9.9M walkable) | 2026-08-13/14 | 10000/20000/60000 | solver 6 only @ `--flowSolveLevel` 2/4/6/8 (`kDefaultCoarsenLevels` already 9, no recompile needed) | Solver-6-only sweep (no solver-1 baseline this time, by request). Throughput scales ~linearly with agent count; level effect is small (~6% band) and non-monotonic, unlike `scene_mp_4p_03`'s clean depth-helps trend. Hierarchy build at depth 9: 94.5s. | `ai/auto_benchmarking_scene_sp_pol_06.md` |
+| 6 | `scene_sp_endmaps` (4760x6400, ~30.5M cells, ~24.5M walkable — largest map ever attempted here) | 2026-08-13/14 (attempted) | none — blocked | n/a | **No results.** OOM-killed on every attempt (32GB+). Bisected and found it's *not* hierarchy depth or `--hierarchyCache` serialization (both ruled out) — `--scheduleModel 1`, which never touches the hierarchy at all, already peaks at 28.4GB just loading+simulating 1 timestep on this map. General (non-solver-6) memory scaling issue in the shared `lifelong` map-loading path, unprecedented map size (2.2x the prior largest). Needs real profiling or more RAM, not a config fix. | `ai/auto_benchmarking_scene_sp_endmaps.md` |
 
 ## Cross-sweep synthesis (what we currently believe)
 
@@ -67,6 +69,18 @@ this by hand — see `ai/todo.md`.
   its own natural completion each timestep. Its `tp/makespan` figures should
   be read as "under a shared, practical time budget," not "at solver 1's true
   unconstrained quality."
+- **There's a map-size ceiling that has nothing to do with solver 6.** Sweep
+  6 (`scene_sp_endmaps`, ~30.5M cells) never produced a result: even
+  `--scheduleModel 1`, which never touches the hierarchy, peaks at 28.4GB
+  RSS just loading and simulating one timestep — on a 31GB-RAM machine,
+  that's already a near-miss before solver 6's own hierarchy is added on
+  top. Every map benchmarked before this one (up to `scene_mp_4p_03`'s
+  13.9M cells) stayed well clear of this; it's specifically a >2x jump in
+  map size that exposed it. Worth knowing before scaling any future sweep's
+  map size further: the current bottleneck for "how big a map can be
+  benchmarked at all" is this general (non-thesis) memory scaling, not
+  anything solver-6-specific. See `ai/auto_benchmarking_scene_sp_endmaps.md`
+  for the full bisection.
 
 ## Reusable methodology (read before running or interpreting a new sweep)
 

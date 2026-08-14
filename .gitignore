@@ -11,3 +11,4 @@ output.json
 Benchmark-Archive
 outputs/coarsening_viz/**/*.csv
 *.hierarchy
+*_runs.log

@@ -8,6 +8,40 @@ the date and what changed) rather than deleting them outright.
 
 ## Open
 
+- [ ] **[HIGH] General (non-solver-6) memory ceiling on huge maps — blocks
+  `scene_sp_endmaps` entirely.** Found 2026-08-14 while chasing an
+  overnight-sweep OOM. `--scheduleModel 1` (which never builds or touches
+  solver 6's reduced hierarchy — see `ai/project_context.md` "Solver 6") on
+  `scene_sp_endmaps` (30.5M cells, the largest map ever run in this repo)
+  peaks at **28.4GB RSS just loading the map and simulating one timestep**
+  (`-s 1`), on a 31GB-RAM machine. Solver 6 adds its own hierarchy on top of
+  that and goes over into an actual OOM-kill (confirmed via `dmesg`/
+  `journalctl -k`, not inferred). This is **not** solver-6/thesis code —
+  it's somewhere in the shared `lifelong` map-loading/simulation path
+  (`Grid`, `SharedEnvironment`, task pool, or per-timestep planner setup),
+  and has never been exercised at this map size before (`scene_mp_4p_03`,
+  the previous largest at 13.9M cells / ~2.2x smaller, never came close to
+  this on any prior sweep, including higher agent counts than tested here).
+  Full bisection (ruled out hierarchy depth, ruled out `--hierarchyCache`
+  serialization, isolated to "general, present even with solver 1") in
+  `ai/auto_benchmarking_scene_sp_endmaps.md`.
+  - **Next step**: profile `--scheduleModel 1 -s 1` on
+    `instances/custom/scene_sp_endmaps/scene_sp_endmaps_10000.json` with
+    `valgrind --tool=massif` (or similar) to find what's actually
+    proportional to map size — needs a real profiler, not more guessing via
+    `/usr/bin/time -v` peak-RSS bisection (which is how far this got
+    tonight: confirms *that* it happens and roughly *where in the call
+    stack* it doesn't happen — build-only via `dump_coarsening`'s
+    lightweight loader is fine at 17.3GB even at hierarchy depth 8 — but not
+    *which specific allocation*).
+  - Until fixed, `scene_sp_endmaps` cannot be benchmarked at all on this
+    machine, at any agent count, with any solver. Instances (10000/20000/
+    40000/60000/90000 agents, shared 135000-task pool) already exist and are
+    valid — only the hierarchy-build/simulation step is blocked.
+  - A fix here would help every solver, not just solver 6 — worth
+    prioritizing over solver-6-specific efficiency work if bigger maps are
+    wanted again.
+
 - [ ] **New output metric: timesteps actually scheduled/planned for, distinct
   from `makespan`.** `makespan` (see `ai/project_context.md` "Makespan vs.
   'timesteps solved'") counts real elapsed simulated ticks, including
@@ -92,6 +126,46 @@ the date and what changed) rather than deleting them outright.
   errors and plausible throughput numbers, so not a correctness bug, but the
   metrics gap itself is unexplained — worth a look if these fields matter
   for a future writeup.
+
+- [ ] **Coarse-flow all-or-nothing infeasibility when leftover tasks < leftover
+  agents.** Found 2026-08-13 while explaining solver 6's per-timestep
+  assignment behavior. `compute_reduced_assignment`'s Step 1 cross-node flow
+  (`MapCoarsenV1.cpp:1450`, after same-coarse-node local matching pulls out
+  what it can) builds the flow with **equality** supply/demand:
+  `supply[source] = N` (leftover idle agents), `supply[sink] = -N`, and sink
+  capacity out of each coarse node capped at that node's leftover task count
+  (`MapCoarsenV1.cpp:1619-1651`). Since total supply sums to zero, LEMON's
+  `NetworkSimplex` treats this as a hard equality, not a best-effort match:
+  if leftover tasks system-wide are fewer than `N`, `ns.run()` returns
+  non-`OPTIMAL` and the code immediately does `return assignments;`
+  (`MapCoarsenV1.cpp:1687-1688`) — **zero** leftover agents get a new
+  assignment that timestep, not just the `N - tasks` shortfall. Same-node
+  local matches from Step 1 are unaffected (they never touch this flow).
+  Self-healing (nothing is discarded, both pools are rebuilt fresh from
+  `env->task_pool` next call), so not a stuck state — but likely bursty
+  idle time in any task-scarce-relative-to-agents regime.
+  - Solver 1 (`schedule_plan_flow`, `scheduler.cpp:750-751`) has the
+    identical equality-supply structure, so this isn't solver-6-specific —
+    but solver 6 is fast enough to actually reach this code path every
+    timestep, while solver 1 often times out before it does.
+  - Suspected live in the `scene_mp_4p_03` sweeps already run (10k/20k
+    agents vs. only ~3-7k tasks completed over 500 timesteps, see
+    `outputs/scene_mp_4p_03_10k_20k_localmatch_comparison/metrics.md`) — an
+    agent-heavy, task-scarce regime that's exactly the trigger condition.
+  - **No existing signal to check frequency**: `compute_reduced_assignment`
+    prints nothing on the infeasible path today, so there's no way to tell
+    from past logs/outputs how often this has actually fired. First step
+    before deciding whether to fix: add a counter/print on the infeasible
+    branch and re-run one of the large `scene_mp_4p_03` instances to see how
+    often it triggers.
+  - **Candidate fix** (standard unbalanced-transportation trick, not yet
+    designed in detail): add one extra arc directly from source to sink with
+    a penalty cost higher than any real coarse-graph path cost and capacity
+    = `N`, so the equality constraint is always satisfiable — real
+    assignments are still preferred wherever they exist, and only the
+    genuinely-unmatchable surplus falls through to the penalty arc instead
+    of blocking the whole batch. Scoped to Step 1's flow-graph construction
+    only; doesn't touch local matching or Steps 3-4 (guide-path lifting).
 
 - [ ] **scene_mp_4p_03 at 10000/20000 agents.** 5000-agent sweep (4x solver
   6 levels 1-4 + solver 1, see `ai/auto_benchmarking_scene_mp_4p_03.md`) took

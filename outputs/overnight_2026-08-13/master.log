@@ -1,0 +1,139 @@
+[2026-08-13T19:35:07+00:00] ########## OVERNIGHT SWEEP START ##########
+[2026-08-13T19:35:07+00:00] disk check: 11030968KB available
+[2026-08-13T19:35:07+00:00] === scene_sp_pol_06: waiting for instance generation to finish ===
+[2026-08-13T19:40:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (300s so far)
+[2026-08-13T19:45:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (600s so far)
+[2026-08-13T19:50:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (900s so far)
+[2026-08-13T19:55:06+00:00] === local-match ablation: waiting for main overnight sweep (pid 250243) to fully exit ===
+[2026-08-13T19:55:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (1200s so far)
+[2026-08-13T20:00:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (1500s so far)
+[2026-08-13T20:05:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (1800s so far)
+[2026-08-13T20:10:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (2100s so far)
+[2026-08-13T20:15:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (2400s so far)
+[2026-08-13T20:20:08+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (2700s so far)
+[2026-08-13T20:25:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (3000s so far)
+[2026-08-13T20:30:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (3300s so far)
+[2026-08-13T20:35:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (3600s so far)
+[2026-08-13T20:40:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (3900s so far)
+[2026-08-13T20:45:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (4200s so far)
+[2026-08-13T20:50:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (4500s so far)
+[2026-08-13T20:55:09+00:00] still waiting for instances/custom/scene_sp_pol_06/scene_sp_pol_06_90000.json (4800s so far)
+[2026-08-13T20:58:29+00:00] === scene_sp_pol_06: instances present, starting ===
+[2026-08-13T20:58:29+00:00] scene_sp_pol_06: smoke test (-s 5, flowSolveLevel 8) -- this also does the first hierarchy build+cache
+[2026-08-13T21:00:38+00:00] scene_sp_pol_06: smoke test exit=0
+hierarchy build time (s): 94.462504408
+hierarchy level node counts: [18142976, 2517697, 645370, 169801, 46380, 13405, 4196, 1490, 631, 334]
+[2026-08-13T21:00:38+00:00] disk check: 8604280KB available
+[2026-08-13T21:00:38+00:00] scene_sp_pol_06: running team=10000 level=2
+[2026-08-13T21:09:26+00:00] scene_sp_pol_06: team=10000 level=2 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_10000_solver6_level2.json)
+[2026-08-13T21:09:26+00:00] disk check: 8601500KB available
+[2026-08-13T21:09:26+00:00] scene_sp_pol_06: running team=10000 level=4
+[2026-08-13T21:17:30+00:00] scene_sp_pol_06: team=10000 level=4 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_10000_solver6_level4.json)
+[2026-08-13T21:17:30+00:00] disk check: 8598648KB available
+[2026-08-13T21:17:30+00:00] scene_sp_pol_06: running team=10000 level=6
+[2026-08-13T21:23:33+00:00] scene_sp_pol_06: team=10000 level=6 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_10000_solver6_level6.json)
+[2026-08-13T21:23:33+00:00] disk check: 8595756KB available
+[2026-08-13T21:23:33+00:00] scene_sp_pol_06: running team=10000 level=8
+[2026-08-13T21:32:11+00:00] scene_sp_pol_06: team=10000 level=8 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_10000_solver6_level8.json)
+[2026-08-13T21:32:11+00:00] disk check: 8592856KB available
+[2026-08-13T21:32:11+00:00] scene_sp_pol_06: running team=20000 level=2
+[2026-08-13T21:40:44+00:00] scene_sp_pol_06: team=20000 level=2 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level2.json)
+[2026-08-13T21:40:44+00:00] disk check: 8587104KB available
+[2026-08-13T21:40:44+00:00] scene_sp_pol_06: running team=20000 level=4
+[2026-08-13T21:48:41+00:00] scene_sp_pol_06: team=20000 level=4 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level4.json)
+[2026-08-13T21:48:41+00:00] disk check: 8581416KB available
+[2026-08-13T21:48:41+00:00] scene_sp_pol_06: running team=20000 level=6
+[2026-08-13T21:55:06+00:00] scene_sp_pol_06: team=20000 level=6 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level6.json)
+[2026-08-13T21:55:06+00:00] disk check: 8575712KB available
+[2026-08-13T21:55:06+00:00] scene_sp_pol_06: running team=20000 level=8
+[2026-08-13T22:01:54+00:00] scene_sp_pol_06: team=20000 level=8 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level8.json)
+[2026-08-13T22:01:54+00:00] disk check: 8570020KB available
+[2026-08-13T22:01:54+00:00] scene_sp_pol_06: running team=60000 level=2
+[2026-08-13T22:10:49+00:00] scene_sp_pol_06: team=60000 level=2 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level2.json)
+[2026-08-13T22:10:49+00:00] disk check: 8552996KB available
+[2026-08-13T22:10:49+00:00] scene_sp_pol_06: running team=60000 level=4
+[2026-08-13T22:19:06+00:00] scene_sp_pol_06: team=60000 level=4 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level4.json)
+[2026-08-13T22:19:06+00:00] disk check: 8535936KB available
+[2026-08-13T22:19:06+00:00] scene_sp_pol_06: running team=60000 level=6
+[2026-08-13T22:25:46+00:00] scene_sp_pol_06: team=60000 level=6 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level6.json)
+[2026-08-13T22:25:46+00:00] disk check: 8518852KB available
+[2026-08-13T22:25:46+00:00] scene_sp_pol_06: running team=60000 level=8
+[2026-08-13T22:32:28+00:00] scene_sp_pol_06: team=60000 level=8 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level8.json)
+[2026-08-13T22:32:28+00:00] disk check: 8501768KB available
+[2026-08-13T22:32:28+00:00] scene_sp_pol_06: writing throughput metrics summary
+[2026-08-13T22:32:28+00:00] scene_sp_pol_06: metrics summary exit=0
+[2026-08-13T22:32:28+00:00] scene_sp_pol_06: coarsening visualisation (9 levels)
+[2026-08-13T22:34:08+00:00] scene_sp_pol_06: dump_coarsening exit=0
+[2026-08-13T22:37:07+00:00] scene_sp_pol_06: plot_coarsening exit=0 (see outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_fullmap.png and outputs/coarsening_viz/scene_sp_pol_06_l9/per_level/)
+[2026-08-13T22:37:07+00:00] scene_sp_pol_06: removed intermediate coarsening CSVs, kept PNGs
+[2026-08-13T22:37:07+00:00] disk check: 8478740KB available
+[2026-08-13T22:37:07+00:00] === scene_sp_pol_06: done ===
+[2026-08-13T22:37:07+00:00] === scene_sp_endmaps: waiting for instance generation to finish ===
+[2026-08-13T22:42:07+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (300s so far)
+[2026-08-13T22:47:07+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (600s so far)
+[2026-08-13T22:52:07+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (900s so far)
+[2026-08-13T22:57:07+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (1200s so far)
+[2026-08-13T23:02:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (1500s so far)
+[2026-08-13T23:07:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (1800s so far)
+[2026-08-13T23:12:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (2100s so far)
+[2026-08-13T23:17:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (2400s so far)
+[2026-08-13T23:22:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (2700s so far)
+[2026-08-13T23:27:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (3000s so far)
+[2026-08-13T23:32:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (3300s so far)
+[2026-08-13T23:37:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (3600s so far)
+[2026-08-13T23:42:08+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (3900s so far)
+[2026-08-13T23:47:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (4200s so far)
+[2026-08-13T23:52:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (4500s so far)
+[2026-08-13T23:57:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (4800s so far)
+[2026-08-14T00:02:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (5100s so far)
+[2026-08-14T00:07:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (5400s so far)
+[2026-08-14T00:12:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (5700s so far)
+[2026-08-14T00:17:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (6000s so far)
+[2026-08-14T00:22:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (6300s so far)
+[2026-08-14T00:27:09+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (6600s so far)
+[2026-08-14T00:32:10+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (6900s so far)
+[2026-08-14T00:37:10+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (7200s so far)
+[2026-08-14T00:42:10+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (7500s so far)
+[2026-08-14T00:47:10+00:00] still waiting for instances/custom/scene_sp_endmaps/scene_sp_endmaps_90000.json (7800s so far)
+[2026-08-14T00:47:10+00:00] === scene_sp_endmaps: instances present, starting ===
+[2026-08-14T00:47:10+00:00] scene_sp_endmaps: smoke test (-s 5, flowSolveLevel 8) -- this also does the first hierarchy build+cache
+[2026-08-14T00:48:07+00:00] scene_sp_endmaps: smoke test exit=137
+[2026-08-14T00:48:07+00:00] scene_sp_endmaps: SMOKE TEST FAILED, skipping sweep+coarsening for this map (see outputs/overnight_2026-08-13/scene_sp_endmaps_smoketest.log)
+[2026-08-14T00:48:07+00:00] disk check: 8477176KB available
+[2026-08-14T00:48:07+00:00] ########## OVERNIGHT SWEEP COMPLETE ##########
+[2026-08-14T00:48:09+00:00] === main sweep process gone, proceeding with ablation ===
+[2026-08-14T00:48:09+00:00] flipping kEnableLocalNodeMatching to false in map_reduction_test/MapCoarsenV1.cpp
+[2026-08-14T00:48:09+00:00] rebuilding with kEnableLocalNodeMatching = false
+[2026-08-14T00:48:27+00:00] false-flag rebuild exit=0
+[2026-08-14T00:48:27+00:00] ERROR: expected hierarchy cache outputs/scene_sp_endmaps_solver_comparison/scene_sp_endmaps_level9.hierarchy from the main sweep but it's missing -- aborting ablation runs
+[2026-08-14T00:48:27+00:00] restoring kEnableLocalNodeMatching = true in map_reduction_test/MapCoarsenV1.cpp
+[2026-08-14T00:48:27+00:00] rebuilding with kEnableLocalNodeMatching = true (restored)
+[2026-08-14T00:48:36+00:00] restore rebuild exit=0
+[2026-08-14T01:37:35+00:00] === endmaps depth-8 continuation: flipping kDefaultCoarsenLevels 9 -> 8 ===
+[2026-08-14T01:37:44+00:00] depth-8 rebuild exit=0
+[2026-08-14T01:37:44+00:00] scene_sp_endmaps: smoke test (-s 5, flowSolveLevel 8, depth-8 build) -- also does the first hierarchy build+cache
+[2026-08-14T01:38:32+00:00] scene_sp_endmaps: depth-8 smoke test exit=137
+[2026-08-14T01:38:32+00:00] scene_sp_endmaps: DEPTH-8 SMOKE TEST STILL FAILED, giving up on endmaps sweep+viz (see outputs/overnight_2026-08-13/scene_sp_endmaps_depth8_smoketest.log)
+[2026-08-14T01:38:32+00:00] FINAL RESTORE: setting kDefaultCoarsenLevels=9, kEnableLocalNodeMatching=true and rebuilding
+[2026-08-14T01:38:45+00:00] final restore rebuild exit=0
+[2026-08-14T01:38:45+00:00] confirmed: map_reduction_test/MapCoarsenV1.cpp back to committed defaults
+[2026-08-14T01:59:53+00:00] pol06 ablation: flipping kEnableLocalNodeMatching to false and rebuilding
+[2026-08-14T02:00:07+00:00] pol06 ablation (local-match off) rebuild exit=0
+[2026-08-14T02:00:07+00:00] scene_sp_pol_06 (local-match OFF): running team=20000 level=4
+[2026-08-14T02:08:06+00:00] scene_sp_pol_06 (local-match OFF): team=20000 level=4 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level4_nolocalmatch.json)
+[2026-08-14T02:08:06+00:00] scene_sp_pol_06 (local-match OFF): running team=20000 level=6
+[2026-08-14T02:16:06+00:00] scene_sp_pol_06 (local-match OFF): team=20000 level=6 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level6_nolocalmatch.json)
+[2026-08-14T02:16:06+00:00] scene_sp_pol_06 (local-match OFF): running team=20000 level=8
+[2026-08-14T02:22:36+00:00] scene_sp_pol_06 (local-match OFF): team=20000 level=8 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_20000_solver6_level8_nolocalmatch.json)
+[2026-08-14T02:22:36+00:00] scene_sp_pol_06 (local-match OFF): running team=60000 level=4
+[2026-08-14T02:30:45+00:00] scene_sp_pol_06 (local-match OFF): team=60000 level=4 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level4_nolocalmatch.json)
+[2026-08-14T02:30:45+00:00] scene_sp_pol_06 (local-match OFF): running team=60000 level=6
+[2026-08-14T02:37:32+00:00] scene_sp_pol_06 (local-match OFF): team=60000 level=6 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level6_nolocalmatch.json)
+[2026-08-14T02:37:32+00:00] scene_sp_pol_06 (local-match OFF): running team=60000 level=8
+[2026-08-14T02:45:34+00:00] scene_sp_pol_06 (local-match OFF): team=60000 level=8 exit=0 (output: outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_60000_solver6_level8_nolocalmatch.json)
+[2026-08-14T02:45:34+00:00] scene_sp_pol_06: writing updated throughput metrics (includes both on/off runs)
+[2026-08-14T02:45:34+00:00] scene_sp_pol_06: ablation metrics summary exit=0
+[2026-08-14T02:45:34+00:00] === pol06 ablation runs complete, restore will run via trap ===
+[2026-08-14T02:45:34+00:00] pol06 ablation: restoring kEnableLocalNodeMatching = true
+[2026-08-14T02:45:43+00:00] pol06 ablation restore rebuild exit=0
+[2026-08-14T02:45:43+00:00] confirmed: kEnableLocalNodeMatching restored to true

@@ -1,0 +1,24 @@
+Instance: instances/custom/scene_sp_pol_06/scene_sp_pol_06_10000.json  cells=18142976 (4328x4192)
+Built 9 coarse level(s) on top of the fine map (requested 9)
+  level 0: 18142976 nodes
+  level 1: 2517697 nodes
+  level 2: 645370 nodes
+  level 3: 169801 nodes
+  level 4: 46380 nodes
+  level 5: 13405 nodes
+  level 6: 4196 nodes
+  level 7: 1490 nodes
+  level 8: 631 nodes
+  level 9: 334 nodes
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level1.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level2.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level3.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level4.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level5.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level6.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level7.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level8.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_partition_level9.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_nodes.csv
+wrote outputs/coarsening_viz/scene_sp_pol_06_l9/scene_sp_pol_06_edges.csv
+Done.

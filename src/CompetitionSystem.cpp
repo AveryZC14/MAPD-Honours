@@ -201,6 +201,17 @@ void BaseSystem::simulate(int simulation_time)
         plan(timeout_timesteps);
         auto end = std::chrono::steady_clock::now();
 
+        /* Begin running-total accumulation for local-node-match/flow-match counts.
+         * Done exactly once per plan() call (i.e. per real scheduler invocation),
+         * not once per TimeStepMetric push below -- a single slow call can push
+         * two entries sharing the same last_scheduler_timing (one catch-up entry
+         * plus one normal entry, see "Makespan vs 'timesteps solved'" in
+         * ai/project_context.md), and both entries reflect one assignment
+         * decision, not two. */
+        total_local_node_match_count += last_scheduler_timing.local_node_match_count;
+        total_flow_match_count += last_scheduler_timing.flow_match_count;
+        /* End running-total accumulation. */
+
         /* Begin per-timestep guide-path dump.
          * Reads get_all_guide_paths() -- the dump-only capture populated
          * whenever set_dump_all_guide_paths(true) was called above,
@@ -252,6 +263,10 @@ void BaseSystem::simulate(int simulation_time)
             metric.PlannerTime = planner_time;
             metric.GuidePathLengthSum = last_scheduler_timing.guide_path_length_sum;
             metric.GuidePathCostSum = last_scheduler_timing.guide_path_cost_sum;
+            metric.LocalNodeMatchCount = last_scheduler_timing.local_node_match_count;
+            metric.FlowMatchCount = last_scheduler_timing.flow_match_count;
+            metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
+            metric.FlowMatchCountCumulative = total_flow_match_count;
             time_step_metrics.push_back(metric);
             /* End storing final per-timestep scheduler and planner metrics. */
 
@@ -278,6 +293,10 @@ void BaseSystem::simulate(int simulation_time)
         metric.PlannerTime = planner_time;
         metric.GuidePathLengthSum = last_scheduler_timing.guide_path_length_sum;
         metric.GuidePathCostSum = last_scheduler_timing.guide_path_cost_sum;
+        metric.LocalNodeMatchCount = last_scheduler_timing.local_node_match_count;
+        metric.FlowMatchCount = last_scheduler_timing.flow_match_count;
+        metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
+        metric.FlowMatchCountCumulative = total_flow_match_count;
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
 
@@ -366,6 +385,9 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     js["schedulerHierarchyBuildTime"] = last_scheduler_timing.hierarchy_build_time;
     js["schedulerHierarchyLevelNodeCounts"] = last_scheduler_timing.hierarchy_level_node_counts;
 
+    js["totalLocalNodeMatchCount"] = total_local_node_match_count;
+    js["totalFlowMatchCount"] = total_flow_match_count;
+
     /* Begin planner timing output selection. */
     if (kUseTimeStepMetricsOutput)
     {
@@ -378,6 +400,10 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["PlannerTime"] = metric.PlannerTime;
             step["GuidePathLengthSum"] = metric.GuidePathLengthSum;
             step["GuidePathCostSum"] = metric.GuidePathCostSum;
+            step["LocalNodeMatchCount"] = metric.LocalNodeMatchCount;
+            step["FlowMatchCount"] = metric.FlowMatchCount;
+            step["LocalNodeMatchCountCumulative"] = metric.LocalNodeMatchCountCumulative;
+            step["FlowMatchCountCumulative"] = metric.FlowMatchCountCumulative;
             time_step_metrics_json.push_back(step);
         }
         js["timeStepMetrics"] = time_step_metrics_json;

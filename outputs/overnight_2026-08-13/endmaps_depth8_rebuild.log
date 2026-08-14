@@ -1,0 +1,156 @@
+CMake Warning (dev) at CMakeLists.txt:1 (project):
+  cmake_minimum_required() should be called prior to this top-level project()
+  call.  Please see the cmake-commands(7) manual for usage documentation of
+  both commands.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/share/cmake-3.28/Modules/Compiler/GNU.cmake:170 (if):
+  Policy CMP0054 is not set: Only interpret if() arguments as variables or
+  keywords when unquoted.  Run "cmake --help-policy CMP0054" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  Quoted variables like "CXX" will no longer be dereferenced when the policy
+  is set to NEW.  Since the policy is not set the OLD behavior will be used.
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/Compiler/GNU-C.cmake:2 (__compiler_gnu)
+  /usr/share/cmake-3.28/Modules/CMakeCInformation.cmake:25 (include)
+  CMakeLists.txt:1 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- PYTHON: false
+-- Python support is disabled
+-- Configuring done (0.0s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/ubuntu/MAPD-Honours/build
+make: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[1]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+[  1%] Building CXX object CMakeFiles/dump_coarsening.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  2%] Building CXX object CMakeFiles/analyze_coarse_collisions.dir/map_reduction_test/MapCoarsenV1.cpp.o
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+[  2%] Building CXX object CMakeFiles/map_reduction_test.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  3%] Building CXX object CMakeFiles/hierarchy_cache_validator.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  4%] Building CXX object CMakeFiles/lifelong.dir/map_reduction_test/MapCoarsenV1.cpp.o
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+[  4%] Building CXX object CMakeFiles/guide_path_validator.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  4%] Building CXX object CMakeFiles/dump_guide_paths.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  5%] Linking CXX executable analyze_coarse_collisions
+[  5%] Linking CXX executable dump_coarsening
+[  6%] Linking CXX executable map_reduction_test
+[  6%] Linking CXX executable dump_guide_paths
+[  6%] Linking CXX executable lifelong
+[  7%] Linking CXX executable guide_path_validator
+[  8%] Linking CXX executable hierarchy_cache_validator
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 20%] Built target analyze_coarse_collisions
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 34%] Built target map_reduction_test
+[ 47%] Built target lifelong
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 61%] Built target guide_path_validator
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 74%] Built target dump_coarsening
+[ 88%] Built target dump_guide_paths
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[100%] Built target hierarchy_cache_validator
+make[1]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+CMake Warning (dev) at CMakeLists.txt:1 (project):
+  cmake_minimum_required() should be called prior to this top-level project()
+  call.  Please see the cmake-commands(7) manual for usage documentation of
+  both commands.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at /usr/share/cmake-3.28/Modules/Compiler/GNU.cmake:170 (if):
+  Policy CMP0054 is not set: Only interpret if() arguments as variables or
+  keywords when unquoted.  Run "cmake --help-policy CMP0054" for policy
+  details.  Use the cmake_policy command to set the policy and suppress this
+  warning.
+
+  Quoted variables like "CXX" will no longer be dereferenced when the policy
+  is set to NEW.  Since the policy is not set the OLD behavior will be used.
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/Compiler/GNU-C.cmake:2 (__compiler_gnu)
+  /usr/share/cmake-3.28/Modules/CMakeCInformation.cmake:25 (include)
+  CMakeLists.txt:1 (project)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- PYTHON: false
+-- Python support is disabled
+-- Configuring done (0.3s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/ubuntu/MAPD-Honours/build
+make: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[1]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+[  1%] Building CXX object CMakeFiles/dump_coarsening.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  1%] Building CXX object CMakeFiles/guide_path_validator.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  1%] Building CXX object CMakeFiles/dump_guide_paths.dir/map_reduction_test/MapCoarsenV1.cpp.o
+make[2]: Entering directory '/home/ubuntu/MAPD-Honours/build'
+[  3%] Building CXX object CMakeFiles/hierarchy_cache_validator.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  3%] Building CXX object CMakeFiles/analyze_coarse_collisions.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  3%] Building CXX object CMakeFiles/map_reduction_test.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  4%] Building CXX object CMakeFiles/lifelong.dir/map_reduction_test/MapCoarsenV1.cpp.o
+[  4%] Linking CXX executable lifelong
+[  5%] Linking CXX executable hierarchy_cache_validator
+[  5%] Linking CXX executable dump_guide_paths
+[  6%] Linking CXX executable analyze_coarse_collisions
+[  7%] Linking CXX executable map_reduction_test
+[  8%] Linking CXX executable dump_coarsening
+[  8%] Linking CXX executable guide_path_validator
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 20%] Built target hierarchy_cache_validator
+[ 33%] Built target dump_coarsening
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[ 47%] Built target guide_path_validator
+[ 61%] Built target dump_guide_paths
+[ 73%] Built target analyze_coarse_collisions
+[ 87%] Built target map_reduction_test
+make[2]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+[100%] Built target lifelong
+make[1]: Leaving directory '/home/ubuntu/MAPD-Honours/build'
+make: Leaving directory '/home/ubuntu/MAPD-Honours/build'

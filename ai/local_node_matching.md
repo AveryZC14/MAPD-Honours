@@ -207,3 +207,103 @@ sed -i 's/kEnableLocalNodeMatching = false/kEnableLocalNodeMatching = true/' \
 Behaves identically to before this feature existed when disabled — the
 matcher call site returns zero pairs and every agent/task falls through to
 the coarse flow graph unchanged.
+
+## Metrics: local-match vs. flow-match counts
+
+Added 2026-08-14. Every `./build/lifelong --scheduleModel 6` run now reports
+how many agents each timestep were assigned via the local matcher above vs.
+via the coarse flow solve (Step 2), threaded the same way as
+`GuidePathLengthSum`/`GuidePathCostSum` (`compute_reduced_assignment` out-params
+-> `ScheduleTiming` -> `TimeStepMetric`, see `ai/project_context.md`'s
+"Guide paths" plumbing for the pattern). Solver-6-only — always 0/0 for other
+solvers, which have no local-matching step.
+
+Output JSON fields:
+- Per-timestep, in each `timeStepMetrics[i]` entry: `LocalNodeMatchCount`,
+  `FlowMatchCount` (that timestep's split), plus `LocalNodeMatchCountCumulative`/
+  `FlowMatchCountCumulative` (running totals from the start of the run through
+  that timestep, inclusive).
+- Run-level: `totalLocalNodeMatchCount`/`totalFlowMatchCount` (top-level
+  fields, equal to the last timestep's cumulative values).
+
+Note only *flexible* (unassigned / re-offerable) agents ever reach Step 1 each
+timestep — already-opened-but-unassigned tasks are pinned directly (see
+"Problem" above) and never touch either matcher, so most timesteps after the
+first show 0/0 with the totals climbing only as new tasks/agents free up.
+
+### Bug found + fixed while verifying: double-counted running total
+
+The first live sweep (below) surfaced a real bug in the running-total
+accumulation, caught before it was trusted: `BaseSystem::plan()`
+(`CompetitionSystem.cpp`) can push **two** `TimeStepMetric` entries for one
+real scheduler call whenever that call is slow enough to exceed
+`--planTimeLimit` — a "catch-up" entry plus a "normal" entry, both copied
+from the same `last_scheduler_timing` (see `ai/project_context.md`,
+"Makespan vs. 'timesteps solved'"). The running-total accumulator originally
+added `LocalNodeMatchCount`/`FlowMatchCount` at *each* push site, so a single
+slow call got counted twice. Fixed by moving the accumulation to run exactly
+once per `plan()` call (right after it returns, before either push site),
+with both push sites now just reading the already-updated running total.
+Caught by comparing consecutive `timeStepMetrics` entries with identical
+`PlannerTime` (a sure sign of a duplicate push) in a first-draft sweep on
+`orz900d`, where the very first timestep's cold hierarchy-cache load pushed
+total time past the default 1000ms `--planTimeLimit` on 4 of 6 runs — before
+the fix this inflated `totalLocalNodeMatchCount` by as much as ~1.7x on the
+worst-affected run.
+
+### Verification sweep (`orz900d`, `outputs/orz900d_local_match_counter_test/`)
+
+2026-08-14. 6 runs, `orz900d` (656x1491, ~978K walkable cells),
+`--scheduleModel 6`, `--flowSolveLevel {2,4,6}` x `{10000,20000}` agents,
+`-s 200`, shared `--hierarchyCache` (built once at `kDefaultCoarsenLevels =
+9`, reused across all 6 — the cache only depends on the map, not agent
+count). 0 planner/schedule/timeout errors on every run.
+
+| file | agents | level | tasksFinished | totalLocalMatch | totalFlowMatch | local:flow |
+|---|---|---|---|---|---|---|
+| orz900d_10000_solver6_level2.json | 10000 | 2 | 3946 | 5880 | 8066 | 0.73 |
+| orz900d_10000_solver6_level4.json | 10000 | 4 | 4013 | 10020 | 3988 | 2.51 |
+| orz900d_10000_solver6_level6.json | 10000 | 6 | 4117 | 12122 | 1994 | 6.08 |
+| orz900d_20000_solver6_level2.json | 20000 | 2 | 8220 | 13386 | 14828 | 0.90 |
+| orz900d_20000_solver6_level4.json | 20000 | 4 | 8493 | 21637 | 6850 | 3.16 |
+| orz900d_20000_solver6_level6.json | 20000 | 6 | 8601 | 25282 | 3315 | 7.63 |
+
+Sanity-confirms the mechanism the counters are meant to expose: the
+local:flow ratio climbs monotonically with `--flowSolveLevel` at both agent
+counts (deeper coarsening -> bigger coarse nodes -> more same-node
+collisions -> more work absorbed by the local matcher instead of the coarse
+flow solve), and `tasksFinished` also climbs with level here — consistent
+with the full-simulation validation above (the tie-breaker fix's benefit
+growing with agent count/coarsening depth).
+
+### Second verification sweep (`scene_sp_pol_06`, `outputs/scene_sp_pol_06_local_match_counter_test/`)
+
+2026-08-14. 6 runs, `scene_sp_pol_06` (4192x4328, ~9.94M walkable cells —
+~10x `orz900d`), `--scheduleModel 6`, `--flowSolveLevel {4,6,8}` x
+`{20000,60000}` agents, `-s 500`, `--preprocessTimeLimit 1800000`, reusing
+the pre-built depth-9 hierarchy cache from
+`ai/auto_benchmarking_scene_sp_pol_06.md`'s earlier sweep (no rebuild
+needed). 0 planner/schedule/timeout errors on every run; total wall-clock
+~43 minutes for the 6 runs.
+
+| agents | level | tasksFinished | totalLocalMatch | totalFlowMatch | local:flow |
+|---|---|---|---|---|---|
+| 20000 | 4 | 6375 | 9601 | 16774 | 0.57 |
+| 20000 | 6 | 6264 | 22913 | 3350 | 6.84 |
+| 20000 | 8 | 6341 | 26241 | 100 | 262.41 |
+| 60000 | 4 | 19834 | 49328 | 30505 | 1.62 |
+| 60000 | 6 | 19848 | 77059 | 2789 | 27.63 |
+| 60000 | 8 | 19805 | 79731 | 74 | 1077.45 |
+
+Same monotonic-with-level trend as `orz900d`, far more pronounced: by level
+8 the coarse flow solve handles almost nothing (74-100 pairs across the
+whole 500-timestep run) and the local matcher absorbs nearly everything —
+consistent with this map's much larger absolute size meaning even a "small"
+top-level coarse node spans a huge region at deep levels, pushing most
+agent/task pairs into same-node collisions. Also a much stronger test of the
+double-count fix above: this map's heavier per-timestep guide-path lifting
+cost means the timeout-catchup duplicate-push path (see "Bug found + fixed"
+above) triggered far more often than on `orz900d` — 157-250 duplicated
+`timeStepMetrics` entries per run, out of only 300-500 total recorded steps
+— yet every run's cumulative-vs-total consistency and monotonicity checks
+still passed.

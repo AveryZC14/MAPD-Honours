@@ -1,0 +1,15 @@
+| file | agents | label | tasks | steps | makespan | tp_makespan |
+|---|---|---|---|---|---|---|
+| scene_sp_pol_06_10000_solver6_level2.json | 10000 | 10000_solver6_level2 | 2961 | 172 | 500 | 5.922 |
+| scene_sp_pol_06_10000_solver6_level4.json | 10000 | 10000_solver6_level4 | 3153 | 307 | 501 | 6.293 |
+| scene_sp_pol_06_10000_solver6_level6.json | 10000 | 10000_solver6_level6 | 3090 | 498 | 500 | 6.180 |
+| scene_sp_pol_06_10000_solver6_level8.json | 10000 | 10000_solver6_level8 | 3145 | 499 | 500 | 6.290 |
+| scene_sp_pol_06_smoketest.json | 10000 | smoketest | 14 | 4 | 6 | 2.333 |
+| scene_sp_pol_06_20000_solver6_level2.json | 20000 | 20000_solver6_level2 | 6166 | 168 | 501 | 12.307 |
+| scene_sp_pol_06_20000_solver6_level4.json | 20000 | 20000_solver6_level4 | 6375 | 325 | 501 | 12.725 |
+| scene_sp_pol_06_20000_solver6_level6.json | 20000 | 20000_solver6_level6 | 6270 | 500 | 501 | 12.515 |
+| scene_sp_pol_06_20000_solver6_level8.json | 20000 | 20000_solver6_level8 | 6335 | 501 | 501 | 12.645 |
+| scene_sp_pol_06_60000_solver6_level2.json | 60000 | 60000_solver6_level2 | 19742 | 156 | 501 | 39.405 |
+| scene_sp_pol_06_60000_solver6_level4.json | 60000 | 60000_solver6_level4 | 19837 | 336 | 501 | 39.595 |
+| scene_sp_pol_06_60000_solver6_level6.json | 60000 | 60000_solver6_level6 | 19848 | 500 | 501 | 39.617 |
+| scene_sp_pol_06_60000_solver6_level8.json | 60000 | 60000_solver6_level8 | 19805 | 498 | 501 | 39.531 |
