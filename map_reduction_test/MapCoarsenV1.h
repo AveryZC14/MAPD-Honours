@@ -235,6 +235,14 @@ public:
     double hierarchy_build_time() const;
     std::vector<int> hierarchy_level_node_counts() const;
 
+    // Read-only access to the underlying multi-level hierarchy, for a
+    // caller building its own structure on top of it without a second
+    // hierarchy build -- e.g. solver 7's edge-node-augmented coarse graph
+    // (EdgeAugmentedCoarsen.h), which needs every level from 0 up to
+    // whichever level it solves on to compute region bounding boxes. Not
+    // meaningful before ready() is true.
+    const MultiLevelCoarsenedGraph& hierarchy() const { return hierarchy_; }
+
     // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids).
     // Optionally, `solve_time_out` receives the NetworkSimplex solve time in seconds and
     // `guide_time_out` receives the flow-decomposition + path-lifting time in seconds.
@@ -265,6 +273,36 @@ public:
                                                            int* local_match_count_out = nullptr,
                                                            int* flow_match_count_out = nullptr,
                                                            double* local_match_time_out = nullptr);
+
+    // Lift an already-decided batch of (agent, task, region-node-only coarse
+    // path) triples down to concrete fine-graph guide paths -- exactly what
+    // compute_reduced_assignment's own Steps 3/4 do internally for its own
+    // coarse-flow-derived paths, extracted here so a second caller with its
+    // own Step 1/2 (e.g. an edge-node-augmented coarse flow, see
+    // ai/edge_node_representation.md) can reuse the same lifting logic
+    // without a second copy of it. `coarse_region_paths[i]` must already be
+    // a path of plain region-node ids at `top_level_idx` (no edge-nodes or
+    // proxy nodes -- the caller filters those out first) matching
+    // `agent_ids[i]`/`task_ids[i]`.
+    //
+    // `expand_time_out` receives the level-by-level expand + endpoint
+    // verification/fallback time (what this file calls "Step 3");
+    // `guide_time_out` receives the final packaging-into-out_agent_guide_paths
+    // time ("Step 4") -- kept separate, rather than one combined duration, so
+    // compute_reduced_assignment can still report its historical
+    // solve_time_out/guide_time_out split (Step 3 counted in solve_time,
+    // Step 4 in guide_time) unchanged after switching to call this method
+    // internally.
+    void lift_coarse_paths_to_fine(SharedEnvironment* env,
+                                   int top_level_idx,
+                                   const std::vector<int>& agent_ids,
+                                   const std::vector<int>& task_ids,
+                                   std::vector<std::vector<int>> coarse_region_paths,
+                                   std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                   double* expand_time_out = nullptr,
+                                   double* guide_time_out = nullptr,
+                                   double* guide_path_length_sum_out = nullptr,
+                                   double* guide_path_cost_sum_out = nullptr);
 
 private:
     ReducedHierarchy();

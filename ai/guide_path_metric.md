@@ -207,7 +207,7 @@ entirely and is safe to compare either way.
 
 ## New tool: `./build/guide_path_validator`
 
-`map_reduction_test/validate_guide_paths.cpp` (new CMake target
+`utils/validation/validate_guide_paths.cpp` (new CMake target
 `guide_path_validator`, built automatically by `./compile.sh` alongside
 `lifelong`/`map_reduction_test`). Usage:
 

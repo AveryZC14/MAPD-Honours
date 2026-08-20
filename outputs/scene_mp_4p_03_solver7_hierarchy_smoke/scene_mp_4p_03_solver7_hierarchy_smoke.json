@@ -1,0 +1,41 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 0,
+    "makespan": 0,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.0,
+    "schedulerHierarchyLevelNodeCounts": [],
+    "totalLocalNodeMatchCount": 0,
+    "totalFlowMatchCount": 0,
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.0,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 5.001630187,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0,
+            "LocalNodeMatchCount": 0,
+            "FlowMatchCount": 0,
+            "LocalNodeMatchCountCumulative": 0,
+            "FlowMatchCountCumulative": 0,
+            "SchedulerLocalMatchTime": 0.0,
+            "SchedulerBackboneBuildTime": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.0,
+            "SchedulerGuidePathTime": 0.0,
+            "PlannerTime": 5.001630187,
+            "GuidePathLengthSum": 0.0,
+            "GuidePathCostSum": 0.0,
+            "LocalNodeMatchCount": 0,
+            "FlowMatchCount": 0,
+            "LocalNodeMatchCountCumulative": 0,
+            "FlowMatchCountCumulative": 0,
+            "SchedulerLocalMatchTime": 0.0,
+            "SchedulerBackboneBuildTime": 0.0
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+file,agents,label,tasks,steps,makespan,tp_makespan
+scene_mp_4p_03_10000_solver7_level2.json,10000,10000_solver7_level2,2475,74,501,4.940119760479042
+scene_mp_4p_03_10000_solver7_level4.json,10000,10000_solver7_level4,3123,277,501,6.233532934131737
+scene_mp_4p_03_10000_solver7_level6.json,10000,10000_solver7_level6,3168,482,500,6.336
+scene_mp_4p_03_20000_solver7_level2.json,20000,20000_solver7_level2,6133,78,501,12.241516966067865
+scene_mp_4p_03_20000_solver7_level4.json,20000,20000_solver7_level4,6910,286,501,13.792415169660678
+scene_mp_4p_03_20000_solver7_level6.json,20000,20000_solver7_level6,7009,501,501,13.99001996007984

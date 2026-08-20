@@ -54,12 +54,25 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
 - `--inputFile,-i` (required), `--output,-o`
 - `--scheduleModel,-m` (default 1): **1**=flow, 2=flow+history edge cost,
   3=matching+dijkstra, 4=matching+lazy heuristic, 5=greedy, **6**=reduced
-  hierarchy (thesis scheduler; not in the help string, added later)
+  hierarchy (thesis scheduler; not in the help string, added later),
+  **7**=reduced hierarchy with an edge-node-augmented coarse flow graph
+  (thesis scheduler, builds on solver 6's hierarchy; not in the help string)
+  — see `ai/edge_node_representation.md`
 - `--simulationTime,-s` (default 5000 timesteps)
 - `--planTimeLimit,-t` (ms per timestep, default 1000), `--preprocessTimeLimit,-p` (default 30000)
 - `--hierarchyCache <path>` (default `""`, disabled): cache solver 6's map-coarsening
   hierarchy to disk and reuse it on later runs against the same map instead of
-  rebuilding from scratch — see `ai/hierarchy_cache.md`
+  rebuilding from scratch — see `ai/hierarchy_cache.md`. Solver 7 reuses the
+  same hierarchy build unchanged, so it takes the same flag and benefits
+  identically. **All built `.hierarchy` cache files now live in one place,
+  `hierarchy_cache/`** (repo root; consolidated 2026-08-20 from several
+  scattered `outputs/<map>_*/*.hierarchy` copies) — point `--hierarchyCache`
+  there for any map, e.g. `hierarchy_cache/scene_mp_4p_03_level9.hierarchy`.
+  `*.hierarchy` is gitignored (these are large, multi-GB build artifacts, not
+  checked in); the one exception is `hierarchy_cache/orz900d.hier` (`.hier`,
+  not `.hierarchy` — deliberately a different extension so it's *not*
+  gitignore-matched), a small early-dev reference copy that predates this
+  convention and is tracked in git on purpose.
 - `--flowSolveLevel` (default 2): solver 6 only — which already-built hierarchy
   level (0 = fine map) to solve the per-timestep flow assignment on, at
   runtime; out-of-range values fall back to the compile-time
@@ -165,6 +178,7 @@ else if (solver == 3) schedule_plan_matching(...);
 else if (solver == 4) schedule_plan_h(...);
 else if (solver == 5) schedule_plan_raw(...);
 else if (solver == 6) schedule_plan_flow_reduced(...); // thesis: coarsened hierarchy
+else if (solver == 7) schedule_plan_flow_reduced_edge(...); // thesis: edge-node-augmented coarsened hierarchy
 ```
 All `schedule_plan_*` functions live in `default_planner/scheduler.cpp` and
 share the same signature shape: given `env->task_pool` / `env->new_freeagents`,
@@ -281,6 +295,26 @@ quick solver-1-vs-solver-6 experimentation without running the full
 `lifelong` binary. Also home to `LGFtoGEXF.py` / `convertLGFtoCSV.py` /
 `convertLGFtoDOT.py` (visualization/export of the coarsened graph structure)
 and a `visualisation`/`visualisation_csv` output directory.
+
+## Solver 7 — `schedule_plan_flow_reduced_edge` (`scheduler.cpp`) + `MapReductionTest::EdgeAugmentedHierarchy`
+
+Additive variant of solver 6, added 2026-08-20: reuses solver 6's hierarchy
+build unchanged (`ReducedHierarchy::instance()`, same `--hierarchyCache`),
+but solves the per-timestep coarse flow on a second, derived graph
+(`map_reduction_test/EdgeAugmentedCoarsen.{h,cpp}`, a new sibling module, not
+a modification of `MapCoarsenV1.*`) where every coarse-to-coarse arc at the
+chosen `--flowSolveLevel` is subdivided by an explicit "edge-node"
+(region↔edge↔region, cost halved each way, built once and reused via
+`lemon::digraphCopy` every timestep), and surplus agents/tasks connect
+directly to the edge-nodes adjacent to their own region — never the region
+node itself — with arc cost approximated as the Manhattan distance from the
+agent/task's real location to the *neighboring* region's fine-cell bounding
+box. Motivation: solver 6 gives every surplus agent/task a flat cost-0 arc to
+its own region regardless of where in that region it actually sits; this
+gives the coarse flow a real (if approximate) position-aware signal instead.
+Full design, alternatives considered, and implementation notes (including a
+real bug found and fixed — `NetworkSimplex::flowMap()` must be called after
+`run()`, not before) in `ai/edge_node_representation.md`.
 
 ## Low-level planner (shared by all schedulers): `default_planner/`
 
@@ -623,6 +657,17 @@ Headline pitfalls documented there, worth knowing before touching this again:
   level 8 has no dominant outlier (largest group ~2.3% of total), so it
   would parallelize well — but not worth doing at the scale tested here,
   since even the worst case stayed well under `--planTimeLimit`.
+- `ai/edge_node_representation.md` — **solver 7**: design + implementation
+  notes for the edge-node-augmented coarse graph described in "Solver 7"
+  above. New `map_reduction_test/EdgeAugmentedCoarsen.{h,cpp}` (additive
+  sibling to `MapCoarsenV1.*`, not a modification of it) plus one extracted-
+  but-behavior-preserving method on `ReducedHierarchy`
+  (`lift_coarse_paths_to_fine`, reused by both solvers 6 and 7). Includes the
+  alternatives considered for the position-aware cost formula (bounding-box
+  Manhattan distance, chosen for O(1)-per-query speed) and a real bug found
+  during initial testing (`NetworkSimplex::flowMap()` must be called after
+  `run()`, not before -- also present, latent and harmless, in solver 6's own
+  code).
 
 (Update this list if more `ai/*.md` files are added later.)
 
@@ -644,18 +689,18 @@ default_planner/         the "default" reference planner+scheduler implementatio
   flow.cpp/.h              Frank-Wolfe traffic-flow guide-path optimization
   TrajLNS.h                per-agent trajectory / heuristic state bundle
   utils.*, heap.h, search*.h, Memory.h, Types.h, const.h   supporting utilities/types/tunables
-map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
+map_reduction_test/      thesis-authored map-coarsening scheduler (solvers 6 and 7)
   MapCoarsenV1.cpp/.h       CoarsenedGraph, Coarsen(), ReducedHierarchy, compute_reduced_assignment
+  EdgeAugmentedCoarsen.cpp/.h  solver 7: EdgeAugmentedTopGraph, EdgeAugmentedHierarchy,
+                            compute_reduced_assignment_edge_augmented -- additive sibling to
+                            MapCoarsenV1.*, built on the same ReducedHierarchy, see
+                            ai/edge_node_representation.md
   MapCoarsenSerialize.cpp/.h  save/load a MultiLevelCoarsenedGraph to/from disk (--hierarchyCache),
                             see ai/hierarchy_cache.md
   mapReductionV0.cpp/.h     earlier/simpler map-reduction prototype (superseded by V1, still compiled in)
   run.cpp                   standalone comparison-harness executable (./build/map_reduction_test)
   instance_loader.cpp/.h    shared instance-JSON loading helper (used by run.cpp, validate_guide_paths.cpp,
                             and dump_guide_paths.cpp)
-  validate_guide_paths.cpp  standalone guide-path format/validity checker (./build/guide_path_validator),
-                            see ai/guide_path_metric.md
-  validate_hierarchy_cache.cpp  standalone hierarchy-cache round-trip checker (./build/hierarchy_cache_validator),
-                            see ai/hierarchy_cache.md
   dump_guide_paths.cpp      standalone tool dumping solver 1 vs. solver 6 guide paths to CSV for
                             visualisation (./build/dump_guide_paths), see ai/guide_path_visualisation.md
   dump_coarsening.cpp       standalone tool dumping the map-coarsening hierarchy itself (per-level
@@ -669,6 +714,13 @@ map_reduction_test/      thesis-authored map-coarsening scheduler (solver 6)
                             ai/coarsening_visualisation.md) -- scripts living alongside output
                             artifacts in the same dir, not a clean separation
   visualisation_csv/        CSV output dir for LGFtoGEXF.py etc.
+utils/validation/       standalone validator executables, split out of map_reduction_test/
+  validate_guide_paths.cpp  standalone guide-path format/validity checker (./build/guide_path_validator),
+                            see ai/guide_path_metric.md
+  validate_hierarchy_cache.cpp  standalone hierarchy-cache round-trip checker (./build/hierarchy_cache_validator),
+                            see ai/hierarchy_cache.md
+  validate_edge_augmented_graph.cpp  standalone structural rigor check for solver 7's edge-node
+                            backbone (./build/edge_augmented_validator), see ai/edge_node_representation.md
 python/                 Python bindings track (pybind11) — separate from the C++ path above; not
                          touched by the solver 1/6 work. set_track.bash selects planner/scheduler/combined.
 instances/               benchmark maps+agents+tasks (warehouseSmall/Large, sortationLarge, random,

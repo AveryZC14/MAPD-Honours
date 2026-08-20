@@ -39,6 +39,11 @@ struct TimeStepMetric
     // solvers. Distinct from SchedulerSolveTime, which only starts once
     // Step 1 is done. See ai/local_node_matching.md.
     double SchedulerLocalMatchTime = 0.0;
+    // Wall-clock time (seconds) spent this timestep (re)building solver 7's
+    // edge-node backbone -- always 0 for other solvers, and 0 for most
+    // solver-7 timesteps too (only nonzero on a call that actually rebuilt
+    // it, e.g. the first one). See ai/edge_node_representation.md.
+    double SchedulerBackboneBuildTime = 0.0;
 };
 /* End per-timestep metrics model. */
 

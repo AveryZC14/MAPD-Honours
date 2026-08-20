@@ -177,22 +177,6 @@ the date and what changed) rather than deleting them outright.
   `--hierarchyCache` file already built, so a follow-up sweep is cheap to
   run whenever wanted.
 
-- [ ] **New solver 7: edge-node augmented coarse graph.** Planned
-  2026-08-20, not yet implemented. Design doc + full implementation plan
-  (files, wiring, cost formula, alternatives considered) written up in
-  `ai/edge_node_representation.md` — read that before starting. Short
-  version: solver 6's per-timestep coarse flow gives every surplus
-  agent/task a flat cost-0 arc to its own top-level node regardless of
-  where in that (possibly large) region it actually sits; solver 7 inserts
-  an explicit node on every coarse-to-coarse edge (region↔edge↔region,
-  costs halved) and routes agent/task proxy nodes directly to the
-  *adjacent* edge-nodes instead, with arc cost = Manhattan distance from
-  the agent's real location to the neighboring region's fine-cell bounding
-  box. Scoped to be additive only — reuses solver 6's hierarchy build,
-  bridge caches, and Steps 3/4 lifting untouched; new code lives in a new
-  `map_reduction_test/EdgeAugmentedCoarsen.{h,cpp}` sibling module, same
-  precedent as `mapReductionV0.*` living alongside `MapCoarsenV1.*`.
-
 ## Done
 
 - [x] **2026-08-13: Solver 6 within-coarse-node agent<->task pairing fix
@@ -381,3 +365,28 @@ the date and what changed) rather than deleting them outright.
   `guide_path_validator` (128,062/0 failed) and re-run at every scale from
   50 up to the full 5000/10000/20000-agent instances with zero guide paths
   missing. Full writeup: `ai/guide_path_visualisation.md`.
+
+- [x] **2026-08-20: New solver 7 (edge-node augmented coarse graph) implemented
+  and validated.** New `map_reduction_test/EdgeAugmentedCoarsen.{h,cpp}`
+  sibling module (solver 6's hierarchy, bridge caches, and Steps 3/4 lifting
+  left untouched); one behavior-preserving extraction out of `MapCoarsenV1.cpp`
+  (`ReducedHierarchy::lift_coarse_paths_to_fine`, verified byte-identical
+  solver 6 output before/after). Found and fixed a real bug during initial
+  testing: `NetworkSimplex::flowMap()` must be called after `run()`, not
+  before (latent, harmless copy of the same mistake also sits in solver 6's
+  own code, which never reads that map). Structural correctness confirmed
+  with a new tool, `./build/edge_augmented_validator` (arc-count, degree,
+  cost-reconstruction, and bounding-box invariants — the last cross-checked
+  against an independent naive reference implementation) — 10/10 checks pass
+  on `tiny` and on `orz900d` at every hierarchy level tested. Scale-tested on
+  `orz900d_5000` (~978K cells, 5000 agents, 250 timesteps): completes cleanly
+  at every level, comparable-or-better task throughput than solver 6, memory
+  flat (non-leaking) throughout. Confirmed `--hierarchyCache` is fully shared
+  with solver 6 (same `ReducedHierarchy::ensure()` call). Two non-blocking
+  caveats found and documented: solve-time headroom shrinks at shallow
+  `--flowSolveLevel` on huge maps (worth checking directly before trusting
+  levels 1-2 on anything bigger than `orz900d`), and a ~870MB RSS plateau gap
+  vs. solver 6 at level 4 specifically, likely (not yet directly proven)
+  explained by the pre-existing ~1GB-capped `global_heuristictable` LRU cache
+  responding to different per-agent routing decisions. Full design,
+  implementation notes, and validation results: `ai/edge_node_representation.md`.

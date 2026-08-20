@@ -268,6 +268,7 @@ void BaseSystem::simulate(int simulation_time)
             metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
             metric.FlowMatchCountCumulative = total_flow_match_count;
             metric.SchedulerLocalMatchTime = last_scheduler_timing.local_match_time;
+            metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
             time_step_metrics.push_back(metric);
             /* End storing final per-timestep scheduler and planner metrics. */
 
@@ -299,6 +300,7 @@ void BaseSystem::simulate(int simulation_time)
         metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
         metric.FlowMatchCountCumulative = total_flow_match_count;
         metric.SchedulerLocalMatchTime = last_scheduler_timing.local_match_time;
+        metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
 
@@ -407,6 +409,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["LocalNodeMatchCountCumulative"] = metric.LocalNodeMatchCountCumulative;
             step["FlowMatchCountCumulative"] = metric.FlowMatchCountCumulative;
             step["SchedulerLocalMatchTime"] = metric.SchedulerLocalMatchTime;
+            step["SchedulerBackboneBuildTime"] = metric.SchedulerBackboneBuildTime;
             time_step_metrics_json.push_back(step);
         }
         js["timeStepMetrics"] = time_step_metrics_json;

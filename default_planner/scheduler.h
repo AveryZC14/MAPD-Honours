@@ -40,13 +40,22 @@ struct ScheduleTiming
 	// (match_local_node_exact) -- solver 6 only, 0 for other solvers. See
 	// ai/local_node_matching.md.
 	double local_match_time = 0.0;
+	// Wall-clock time (seconds) this call's EdgeAugmentedHierarchy::ensure()
+	// spent (re)building the region+edge backbone -- solver 7 only, 0 for
+	// other solvers (including 0 on solver 7 calls that reused an
+	// already-valid cached backbone, the common case). See
+	// ai/edge_node_representation.md.
+	double backbone_build_time = 0.0;
 };
 
 void set_last_timing(double solve_time, double guide_path_time,
                       double guide_path_length_sum = 0.0, double guide_path_cost_sum = 0.0);
 // Same as set_last_timing, but for solver 6 (schedule_plan_flow_reduced),
 // which additionally reports how long the one-time coarsened-hierarchy
-// build took and how many nodes each hierarchy level has.
+// build took and how many nodes each hierarchy level has. `backbone_build_time`
+// is solver-7-only (schedule_plan_flow_reduced_edge, see
+// ai/edge_node_representation.md); defaults to 0 so solver 6's call site is
+// unaffected.
 void set_last_reduced_timing(double solve_time,
 						     double guide_path_time,
 						     double hierarchy_build_time,
@@ -55,7 +64,8 @@ void set_last_reduced_timing(double solve_time,
 						     double guide_path_cost_sum = 0.0,
 						     int local_node_match_count = 0,
 						     int flow_match_count = 0,
-						     double local_match_time = 0.0);
+						     double local_match_time = 0.0,
+						     double backbone_build_time = 0.0);
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 
@@ -69,6 +79,10 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
 void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only, int maximum_edges);
 void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
 void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
+// Solver 7: same shape as schedule_plan_flow_reduced, but solves the
+// per-timestep coarse flow on an edge-node-augmented graph instead -- see
+// ai/edge_node_representation.md.
+void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
 void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, bool new_only);
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only);

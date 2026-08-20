@@ -64,9 +64,14 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
         std::cout << "planning flow reduced" << std::endl;
         DefaultPlanner::schedule_plan_flow_reduced(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
     }
+    else if (solver == 7)
+    {
+        std::cout << "planning flow reduced (edge-augmented)" << std::endl;
+        DefaultPlanner::schedule_plan_flow_reduced_edge(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
+    }
     else
     {
-        std::cerr << "Invalid solver type. Please choose 1..6." << std::endl;
+        std::cerr << "Invalid solver type. Please choose 1..7." << std::endl;
         exit(1);
     }
 

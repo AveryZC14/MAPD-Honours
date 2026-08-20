@@ -36,6 +36,9 @@ include_directories("inc")
 # default planner
 include_directories("default_planner")
 
+# map reduction / coarsening headers (needed by utils/validation tools)
+include_directories("map_reduction_test")
+
 file(GLOB SOURCES "src/*.cpp" "default_planner/*.cpp")
 
 #-------
@@ -46,6 +49,7 @@ list(APPEND SOURCES "map_reduction_test/MapCoarsenV1.cpp")
 list(APPEND SOURCES "map_reduction_test/MapCoarsenSerialize.cpp")
 list(APPEND SOURCES "map_reduction_test/instance_loader.cpp")
 list(APPEND SOURCES "map_reduction_test/LocalNodeMatch.cpp")
+list(APPEND SOURCES "map_reduction_test/EdgeAugmentedCoarsen.cpp")
 #------
 
 
@@ -124,7 +128,7 @@ target_compile_definitions(map_reduction_test PRIVATE PYTHON=${PYTHON_FLAG})
 # solver 6's agent_guide_path output are structurally interchangeable (same
 # type, valid start/end/adjacency, no empty entries) and can be fed to the
 # low-level planner the same way. See ai/guide_path_metric.md.
-add_executable(guide_path_validator map_reduction_test/validate_guide_paths.cpp ${PROJECT_SOURCES})
+add_executable(guide_path_validator utils/validation/validate_guide_paths.cpp ${PROJECT_SOURCES})
 target_link_libraries(guide_path_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(guide_path_validator PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
@@ -135,7 +139,7 @@ target_compile_definitions(guide_path_validator PRIVATE PYTHON=${PYTHON_FLAG})
 # (node coordinates/mappings, arcs, both bridge caches) plus that a
 # mismatched signature/level-count is correctly rejected. See
 # ai/hierarchy_cache.md.
-add_executable(hierarchy_cache_validator map_reduction_test/validate_hierarchy_cache.cpp ${PROJECT_SOURCES})
+add_executable(hierarchy_cache_validator utils/validation/validate_hierarchy_cache.cpp ${PROJECT_SOURCES})
 target_link_libraries(hierarchy_cache_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(hierarchy_cache_validator PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
@@ -168,6 +172,16 @@ target_compile_definitions(dump_coarsening PRIVATE PYTHON=${PYTHON_FLAG})
 add_executable(analyze_coarse_collisions map_reduction_test/analyze_coarse_collisions.cpp ${PROJECT_SOURCES})
 target_link_libraries(analyze_coarse_collisions ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
 target_compile_definitions(analyze_coarse_collisions PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
+# Standalone tool: structural rigor check for solver 7's edge-node-augmented
+# backbone (EdgeAugmentedCoarsen.{h,cpp}) -- degree/arc-count invariants plus
+# a cross-check of the fast bounding-box sweep against a naive recursive
+# reference, see ai/edge_node_representation.md.
+add_executable(edge_augmented_validator utils/validation/validate_edge_augmented_graph.cpp ${PROJECT_SOURCES})
+target_link_libraries(edge_augmented_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(edge_augmented_validator PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
 

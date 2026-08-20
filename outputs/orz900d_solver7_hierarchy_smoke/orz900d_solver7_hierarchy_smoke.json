@@ -1,0 +1,91 @@
+{
+    "actionModel": "MAPF",
+    "teamSize": 5000,
+    "numTaskFinished": 916,
+    "makespan": 5,
+    "numPlannerErrors": 0,
+    "numScheduleErrors": 0,
+    "numEntryTimeouts": 0,
+    "schedulerHierarchyBuildTime": 0.998000047,
+    "schedulerHierarchyLevelNodeCounts": [
+        978096,
+        26384,
+        7661,
+        2414,
+        866,
+        342,
+        144,
+        71,
+        33,
+        15
+    ],
+    "totalLocalNodeMatchCount": 2136,
+    "totalFlowMatchCount": 3699,
+    "timeStepMetrics": [
+        {
+            "SchedulerSolveTime": 0.831556851,
+            "SchedulerGuidePathTime": 0.008805002,
+            "PlannerTime": 0.937602895,
+            "GuidePathLengthSum": 83313.0,
+            "GuidePathCostSum": 83313.0,
+            "LocalNodeMatchCount": 2109,
+            "FlowMatchCount": 2891,
+            "LocalNodeMatchCountCumulative": 2109,
+            "FlowMatchCountCumulative": 2891,
+            "SchedulerLocalMatchTime": 0.008275131000000002,
+            "SchedulerBackboneBuildTime": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.24225990800000002,
+            "SchedulerGuidePathTime": 0.00197614,
+            "PlannerTime": 0.914259224,
+            "GuidePathLengthSum": 22218.0,
+            "GuidePathCostSum": 22218.0,
+            "LocalNodeMatchCount": 8,
+            "FlowMatchCount": 276,
+            "LocalNodeMatchCountCumulative": 2117,
+            "FlowMatchCountCumulative": 3167,
+            "SchedulerLocalMatchTime": 5.5372000000000004e-05,
+            "SchedulerBackboneBuildTime": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.27920337100000003,
+            "SchedulerGuidePathTime": 0.001929502,
+            "PlannerTime": 0.918443951,
+            "GuidePathLengthSum": 21877.0,
+            "GuidePathCostSum": 21877.0,
+            "LocalNodeMatchCount": 12,
+            "FlowMatchCount": 229,
+            "LocalNodeMatchCountCumulative": 2129,
+            "FlowMatchCountCumulative": 3396,
+            "SchedulerLocalMatchTime": 9.191100000000001e-05,
+            "SchedulerBackboneBuildTime": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.252222291,
+            "SchedulerGuidePathTime": 0.001813547,
+            "PlannerTime": 0.993828232,
+            "GuidePathLengthSum": 16216.0,
+            "GuidePathCostSum": 16216.0,
+            "LocalNodeMatchCount": 6,
+            "FlowMatchCount": 159,
+            "LocalNodeMatchCountCumulative": 2135,
+            "FlowMatchCountCumulative": 3555,
+            "SchedulerLocalMatchTime": 5.5753999999999995e-05,
+            "SchedulerBackboneBuildTime": 0.0
+        },
+        {
+            "SchedulerSolveTime": 0.332300995,
+            "SchedulerGuidePathTime": 0.001900178,
+            "PlannerTime": 0.981456388,
+            "GuidePathLengthSum": 21288.0,
+            "GuidePathCostSum": 21288.0,
+            "LocalNodeMatchCount": 1,
+            "FlowMatchCount": 144,
+            "LocalNodeMatchCountCumulative": 2136,
+            "FlowMatchCountCumulative": 3699,
+            "SchedulerLocalMatchTime": 2.7411e-05,
+            "SchedulerBackboneBuildTime": 0.0
+        }
+    ]
+}

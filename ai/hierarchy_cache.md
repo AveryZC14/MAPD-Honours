@@ -34,7 +34,7 @@ cached copy already exists on disk.
   cache check and the on-disk cache's validity check hash against — no
   duplicated hash logic to drift out of sync.
 - `./build/hierarchy_cache_validator <instance.json>` — new standalone tool
-  (`map_reduction_test/validate_hierarchy_cache.cpp`), mirroring the existing
+  (`utils/validation/validate_hierarchy_cache.cpp`), mirroring the existing
   `guide_path_validator` pattern. Builds a hierarchy, saves it, reloads it,
   and asserts the two are structurally identical level-by-level (every
   node's coordinates/hierarchy-mapping fields/directional-arc metrics, every

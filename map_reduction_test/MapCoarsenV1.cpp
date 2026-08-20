@@ -1447,6 +1447,140 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
     return lower_paths;
 }
 
+void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
+                                                 int top_level_idx,
+                                                 const std::vector<int>& agent_ids,
+                                                 const std::vector<int>& task_ids,
+                                                 std::vector<std::vector<int>> coarse_region_paths,
+                                                 std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                 double* expand_time_out,
+                                                 double* guide_time_out,
+                                                 double* guide_path_length_sum_out,
+                                                 double* guide_path_cost_sum_out)
+{
+    if (expand_time_out) *expand_time_out = 0.0;
+    if (guide_time_out) *guide_time_out = 0.0;
+    if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
+    if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
+
+    const CoarsenedGraph* fine = hierarchy_.fine_graph();
+    if (!env || !fine ||
+        agent_ids.size() != task_ids.size() || agent_ids.size() != coarse_region_paths.size())
+    {
+        return;
+    }
+
+    const auto expand_start = std::chrono::high_resolution_clock::now();
+
+    // Step 3: expand the whole batch of coarse paths level-by-level until the
+    // paths live on the fine graph. The last expansion uses the real agent
+    // start locations and task locations as endpoint anchors.
+    std::vector<std::vector<int>> current_paths = std::move(coarse_region_paths);
+    for (int level = top_level_idx; level >= 1; --level)
+    {
+        const CoarsenedGraph* upper = hierarchy_.level(level);
+        const CoarsenedGraph* lower = hierarchy_.level(level - 1);
+        if (!upper || !lower)
+        {
+            current_paths.clear();
+            break;
+        }
+
+        std::vector<int> preferred_starts;
+        std::vector<int> preferred_goals;
+        if (level == 1)
+        {
+            preferred_starts.reserve(current_paths.size());
+            preferred_goals.reserve(current_paths.size());
+            for (std::size_t i = 0; i < current_paths.size(); ++i)
+            {
+                preferred_starts.push_back(env->curr_states[agent_ids[i]].location);
+                preferred_goals.push_back(env->task_pool[task_ids[i]].locations[0]);
+            }
+        }
+
+        current_paths = expand_path_batch_one_level_local(std::move(current_paths),
+                                                          *lower,
+                                                          *upper,
+                                                          preferred_starts,
+                                                          preferred_goals);
+    }
+
+    // The level-by-level lift can fail for individual agents (e.g. a bridge
+    // segment wasn't cached) while succeeding for the rest of the batch, so
+    // each agent's path is checked -- and, if needed, recovered with a direct
+    // fine-map search -- independently rather than failing the whole batch.
+    //
+    // The lift can also come back *non-empty but wrong*: a single coarse
+    // parent can contain multiple disconnected sub-components at an
+    // intermediate level, and the intermediate expansion has no real-location
+    // anchor to correct against. Verified endpoints here, not just
+    // non-emptiness, so a bad lift is always caught and replaced with a
+    // correct-by-construction direct search.
+    for (std::size_t i = 0; i < current_paths.size(); ++i)
+    {
+        const int agent_id = agent_ids[i];
+        const int task_id = task_ids[i];
+        const int start_loc = env->curr_states[agent_id].location;
+        const int task_loc = env->task_pool[task_id].locations[0];
+
+        const bool endpoints_wrong = !current_paths[i].empty() &&
+            (current_paths[i].front() != start_loc || current_paths[i].back() != task_loc);
+
+        if (current_paths[i].empty() || endpoints_wrong)
+        {
+            current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false, /*use_heuristic=*/true);
+        }
+    }
+
+    if (expand_time_out)
+    {
+        *expand_time_out = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - expand_start).count();
+    }
+
+    // Step 4: each entry in `current_paths` is already a concrete, verified
+    // start-to-task path on the fine graph -- package it as the agent's guide.
+    const auto guide_start = std::chrono::high_resolution_clock::now();
+    double guide_path_length_sum = 0.0;
+    double guide_path_cost_sum = 0.0;
+
+    for (std::size_t i = 0; i < current_paths.size(); ++i)
+    {
+        if (i >= agent_ids.size() || i >= task_ids.size())
+            break;
+
+        // A path can still be empty here if both the level-by-level lift AND
+        // the direct-Dijkstra fallback above failed (e.g. start/task land in
+        // genuinely disconnected fine-graph components). Skip rather than
+        // hand the planner an empty guide: planner.cpp treats a missing
+        // agent_guide_path entry as "fall back to update_traj" (its normal,
+        // safe path), whereas add_traj/remove_traj (flow.cpp) compute
+        // `trajs[agent].size() - 1` on an unsigned size_t before checking for
+        // emptiness, which underflows to a huge value on a truly empty traj.
+        if (current_paths[i].empty())
+            continue;
+
+        const int agent_id = agent_ids[i];
+
+        guide_path_length_sum += static_cast<double>(current_paths[i].size() - 1);
+        guide_path_cost_sum += path_cost_on_fine_graph_local(*fine, current_paths[i]);
+
+        std::list<int> guide(current_paths[i].begin(), current_paths[i].end());
+        out_agent_guide_paths[agent_id] = std::move(guide);
+    }
+
+    if (guide_time_out)
+    {
+        *guide_time_out = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - guide_start).count();
+    }
+    if (guide_path_length_sum_out)
+        *guide_path_length_sum_out = guide_path_length_sum;
+    if (guide_path_cost_sum_out)
+        *guide_path_cost_sum_out = guide_path_cost_sum;
+}
+
 std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedEnvironment* env,
                                                                         const std::vector<int>& flexible_agent_ids,
                                                                         const std::vector<int>& flexible_task_ids,
@@ -1818,130 +1952,36 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         return assignments;
     }
 
-    // Step 3: expand the whole batch of coarse paths level-by-level until the
-    // paths live on the fine graph. The last expansion uses the real agent
-    // start locations and task locations as endpoint anchors.
-    // auto guide_start = std::chrono::high_resolution_clock::now();
-     
-    std::vector<std::vector<int>> current_paths = std::move(coarse_paths);
-    for (int level = top_level_idx; level >= 1; --level)
-    {
-        const CoarsenedGraph* upper = hierarchy_.level(level);
-        const CoarsenedGraph* lower = hierarchy_.level(level - 1);
-        if (!upper || !lower)
-        {
-            current_paths.clear();
-            break;
-        }
+    // Steps 3-4: lift the batch of coarse (region-node-only) paths down to
+    // concrete fine-graph guide paths. Extracted into the reusable
+    // lift_coarse_paths_to_fine() (see MapCoarsenV1.h) so a second caller
+    // with its own Step 1/2 -- solver 7's edge-node-augmented coarse flow,
+    // see ai/edge_node_representation.md -- can reuse the exact same lifting
+    // logic without a second copy of it. This call site's own timing split
+    // (solve_time_out includes Step 3's expand+fallback, guide_time_out
+    // covers only Step 4) is preserved exactly as before the extraction: we
+    // capture elapsed time up to the call, add the method's own reported
+    // Step-3 duration to reconstruct solve_time_out, and pass guide_time_out
+    // straight through.
+    const auto pre_lift_now = std::chrono::high_resolution_clock::now();
+    const double pre_lift_elapsed = std::chrono::duration<double>(pre_lift_now - solve_start).count();
 
-        std::vector<int> preferred_starts;
-        std::vector<int> preferred_goals;
-        if (level == 1)
-        {
-            preferred_starts.reserve(current_paths.size());
-            preferred_goals.reserve(current_paths.size());
-            for (std::size_t i = 0; i < current_paths.size(); ++i)
-            {
-                const int agent_id = successful_agent_ids[i];
-                const int task_id = assigned_task_ids[i];
-                preferred_starts.push_back(env->curr_states[agent_id].location);
-                preferred_goals.push_back(env->task_pool[task_id].locations[0]);
-            }
-        }
+    double expand_time = 0.0;
+    double guide_time = 0.0;
+    double guide_path_length_sum = 0.0;
+    double guide_path_cost_sum = 0.0;
+    lift_coarse_paths_to_fine(env, top_level_idx, successful_agent_ids, assigned_task_ids,
+                              std::move(coarse_paths), out_agent_guide_paths,
+                              &expand_time, &guide_time,
+                              &guide_path_length_sum, &guide_path_cost_sum);
 
-        current_paths = expand_path_batch_one_level_local(std::move(current_paths),
-                                                          *lower,
-                                                          *upper,
-                                                          preferred_starts,
-                                                          preferred_goals);
-    }
-
-    // The level-by-level lift can fail for individual agents (e.g. a bridge
-    // segment wasn't cached) while succeeding for the rest of the batch, so
-    // each agent's path is checked -- and, if needed, recovered with a direct
-    // fine-map search -- independently rather than failing the whole batch.
-    //
-    // The lift can also come back *non-empty but wrong*: `preferred_starts`/
-    // `preferred_goals` (and the lead-in/lead-out bridge splicing) only
-    // correct for a mismatch between an agent's real location and its
-    // component's chosen representative at the FINAL (level 1 -> fine)
-    // expansion. One level up, a single coarse parent can still contain
-    // multiple disconnected sub-components (e.g. two pockets separated by a
-    // wall that both landed in the same coarsened block), and the
-    // intermediate expansion has no real-location anchor to correct against
-    // -- it just walks representative-to-representative. On a small/maze-like
-    // map this can silently hand back a path anchored on the wrong
-    // sub-component's representative node instead of the agent's actual
-    // start/task location. Verified endpoints here, not just non-emptiness,
-    // so a bad lift is always caught and replaced with a correct-by-
-    // construction direct search rather than silently seeding the planner
-    // with a guide path that starts or ends somewhere the agent isn't.
-    for (std::size_t i = 0; i < current_paths.size(); ++i)
-    {
-        const int agent_id = successful_agent_ids[i];
-        const int task_id = assigned_task_ids[i];
-        const int start_loc = env->curr_states[agent_id].location;
-        const int task_loc = env->task_pool[task_id].locations[0];
-
-        const bool endpoints_wrong = !current_paths[i].empty() &&
-            (current_paths[i].front() != start_loc || current_paths[i].back() != task_loc);
-
-        if (current_paths[i].empty() || endpoints_wrong)
-        {
-            current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false, /*use_heuristic=*/true);
-        }
-    }
-
-    const auto solve_end = std::chrono::high_resolution_clock::now();
     if (solve_time_out)
-        *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
+        *solve_time_out = pre_lift_elapsed + expand_time;
     if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
         return assignments;
 
-    auto guide_start = std::chrono::high_resolution_clock::now();
-
-    // Step 4: each entry in `current_paths` is already a concrete, verified
-    // start-to-task path on the fine graph (built directly in Step 3, or via
-    // the direct-Dijkstra fallback above) -- just hand it to the caller as
-    // the agent's guide. We used to re-derive this by aggregating all paths
-    // into a shared arc-flow-count map and "following positive residual
-    // flow" node by node (mirroring how `schedule_plan_flow` must recover a
-    // path from a raw NetworkSimplex flow, since it never assembles one
-    // itself). That reconstruction had no cycle guard or length cap, and
-    // since the arc-count map merges flow from every agent's path, a walk
-    // could wander across other agents' routes through a large shared flow
-    // budget before stalling or reaching the goal -- on large/maze-like maps
-    // this produced multi-million-node guide lists and OOM'd the process.
-    double guide_path_length_sum = 0.0;
-    double guide_path_cost_sum = 0.0;
-
-    for (std::size_t i = 0; i < current_paths.size(); ++i)
-    {
-        if (i >= successful_agent_ids.size() || i >= assigned_task_ids.size())
-            break;
-
-        // A path can still be empty here if both the level-by-level lift AND
-        // the direct-Dijkstra fallback above failed (e.g. start/task land in
-        // genuinely disconnected fine-graph components). Skip rather than
-        // hand the planner an empty guide: planner.cpp treats a missing
-        // agent_guide_path entry as "fall back to update_traj" (its normal,
-        // safe path), whereas add_traj/remove_traj (flow.cpp) compute
-        // `trajs[agent].size() - 1` on an unsigned size_t before checking for
-        // emptiness, which underflows to a huge value on a truly empty traj.
-        if (current_paths[i].empty())
-            continue;
-
-        const int agent_id = successful_agent_ids[i];
-
-        guide_path_length_sum += static_cast<double>(current_paths[i].size() - 1);
-        guide_path_cost_sum += path_cost_on_fine_graph_local(*fine, current_paths[i]);
-
-        std::list<int> guide(current_paths[i].begin(), current_paths[i].end());
-        out_agent_guide_paths[agent_id] = std::move(guide);
-    }
-
     if (guide_time_out)
-        *guide_time_out = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - guide_start).count();
+        *guide_time_out = guide_time;
     if (guide_path_length_sum_out)
         *guide_path_length_sum_out = guide_path_length_sum;
     if (guide_path_cost_sum_out)

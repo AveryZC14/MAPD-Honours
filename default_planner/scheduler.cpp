@@ -3,6 +3,7 @@
 #include <boost/heap/pairing_heap.hpp>
 #include "../map_reduction_test/mapReductionV0.h"
 #include "../map_reduction_test/MapCoarsenV1.h"
+#include "../map_reduction_test/EdgeAugmentedCoarsen.h"
 
 namespace DefaultPlanner{
 
@@ -42,6 +43,7 @@ void set_last_timing(double solve_time, double guide_path_time,
     last_timing.local_node_match_count = 0;
     last_timing.flow_match_count = 0;
     last_timing.local_match_time = 0.0;
+    last_timing.backbone_build_time = 0.0;
 }
 
 void set_last_reduced_timing(double solve_time,
@@ -52,7 +54,8 @@ void set_last_reduced_timing(double solve_time,
                              double guide_path_cost_sum,
                              int local_node_match_count,
                              int flow_match_count,
-                             double local_match_time)
+                             double local_match_time,
+                             double backbone_build_time)
 {
     last_timing.solve_time = solve_time;
     last_timing.guide_path_time = guide_path_time;
@@ -63,6 +66,7 @@ void set_last_reduced_timing(double solve_time,
     last_timing.local_node_match_count = local_node_match_count;
     last_timing.flow_match_count = flow_match_count;
     last_timing.local_match_time = local_match_time;
+    last_timing.backbone_build_time = backbone_build_time;
 }
 
 ScheduleTiming get_last_timing()
@@ -96,11 +100,25 @@ void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env, int 
     // cout<<"schedule initialise limit" << preprocess_time_limit<<endl;
     DefaultPlanner::init_heuristics(env);
     mt.seed(0);
-    // Only solver 6 (schedule_plan_flow_reduced) ever reads the reduced
-    // hierarchy, so only it needs to pay for building it.
-    if (solver == 6)
+    // Only solvers 6 (schedule_plan_flow_reduced) and 7
+    // (schedule_plan_flow_reduced_edge) ever read the reduced hierarchy, so
+    // only they need to pay for building it.
+    if (solver == 6 || solver == 7)
     {
         MapReductionTest::ReducedHierarchy::instance().ensure(env);
+    }
+    // Solver 7 additionally needs its edge-node backbone built on top of
+    // that hierarchy (MapReductionTest::EdgeAugmentedHierarchy, see
+    // ai/edge_node_representation.md). Built here too, eagerly, during
+    // preprocessing (env->flow_solve_level is already set from
+    // --flowSolveLevel by this point) rather than lazily on the first
+    // per-timestep call -- otherwise that one-time build cost would land on
+    // the first timestep's much tighter --planTimeLimit budget instead of
+    // preprocessing's --preprocessTimeLimit one, exactly the problem
+    // solver 6's own hierarchy build was already moved here to avoid.
+    if (solver == 7)
+    {
+        MapReductionTest::EdgeAugmentedHierarchy::instance().ensure(env, env->flow_solve_level);
     }
     return;
 }
@@ -1086,6 +1104,117 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts,
                              guide_path_length_sum, guide_path_cost_sum,
                              local_node_match_count, flow_match_count, local_match_time);
+}
+
+// Solver 7: same shape as schedule_plan_flow_reduced above (this is a
+// near-verbatim copy of it, not a refactor -- see ai/edge_node_representation.md
+// for why: it shares solver 6's Step 1 bucketing/local-matching logic
+// unchanged, and only the coarse-flow graph construction/solve differs,
+// which lives entirely inside EdgeAugmentedHierarchy). Solves the
+// per-timestep coarse flow on an edge-node-augmented graph instead of
+// solver 6's plain region-node graph.
+void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
+{
+    auto solve_start_time = std::chrono::high_resolution_clock::now();
+    agent_guide_path.clear();
+    if (dump_all_guide_paths)
+        agent_guide_path_all.clear();
+
+    proposed_schedule.resize(env->num_of_agents, -1);
+
+    std::vector<int> flexible_agent_ids(env->new_freeagents);
+    std::vector<int> flexible_task_ids;
+
+    std::unordered_map<int, std::list<int>> task_loc_ids;
+    for (auto task : env->task_pool)
+    {
+        if (task.second.idx_next_loc > 0)
+        {
+            proposed_schedule[task.second.agent_assigned] = task.first;
+            continue;
+        }
+
+        if (new_only)
+        {
+            if (task.second.agent_assigned == -1)
+            {
+                flexible_task_ids.push_back(task.first);
+                task_loc_ids[task.second.locations[0]].push_back(task.first);
+            }
+        }
+        else if (task.second.agent_assigned != -1)
+        {
+            // Pin already-assigned-but-unopened tasks instead of re-offering
+            // them to the coarse flow solve every timestep -- same reasoning
+            // as schedule_plan_flow_reduced above.
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
+        else
+        {
+            flexible_task_ids.push_back(task.first);
+            task_loc_ids[task.second.locations[0]].push_back(task.first);
+        }
+    }
+
+    const int num_workers = static_cast<int>(flexible_agent_ids.size());
+    if (num_workers == 0 || flexible_task_ids.empty())
+    {
+        auto end_time = std::chrono::high_resolution_clock::now();
+        const double solve_elapsed_time = std::chrono::duration<double>(end_time - solve_start_time).count();
+        set_last_timing(solve_elapsed_time, 0.0);
+        return;
+    }
+
+    MapReductionTest::EdgeAugmentedHierarchy::instance().ensure(env, env->flow_solve_level);
+    if (!MapReductionTest::EdgeAugmentedHierarchy::instance().ready())
+    {
+        schedule_plan_flow(time_limit, proposed_schedule, env, background_flow, use_traffic, new_only);
+        return;
+    }
+
+    const double hierarchy_build_time = MapReductionTest::ReducedHierarchy::instance().hierarchy_build_time();
+    const std::vector<int> hierarchy_level_node_counts =
+        MapReductionTest::ReducedHierarchy::instance().hierarchy_level_node_counts();
+
+    std::unordered_map<int,std::list<int>> guide_paths;
+    double solve_time = 0.0, guide_time = 0.0;
+    double guide_path_length_sum = 0.0, guide_path_cost_sum = 0.0;
+    int local_node_match_count = 0, flow_match_count = 0;
+    double local_match_time = 0.0;
+    double backbone_build_time = 0.0;
+    // Matches schedule_plan_flow_reduced: fine-grained lifting is requested
+    // unconditionally so GuidePathLengthSum/GuidePathCostSum are populated
+    // every timestep regardless of --useTraffic, keeping solver 7 comparable
+    // to solvers 1/6 on this metric.
+    const bool need_guide_paths_for_seed = use_traffic && env->curr_timestep >= 100;
+    const bool need_guide_paths = true;
+    const auto assignments = MapReductionTest::EdgeAugmentedHierarchy::instance().compute_reduced_assignment_edge_augmented(
+        env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths,
+        &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum,
+        &local_node_match_count, &flow_match_count, &local_match_time, &backbone_build_time);
+
+    for (const auto &kv : assignments)
+    {
+        const int agent_id = kv.first;
+        const int task_id = kv.second;
+        proposed_schedule[agent_id] = task_id;
+        if (need_guide_paths_for_seed || dump_all_guide_paths)
+        {
+            const auto guide_it = guide_paths.find(agent_id);
+            if (guide_it != guide_paths.end())
+            {
+                if (need_guide_paths_for_seed)
+                    agent_guide_path[agent_id] = guide_it->second;
+                if (dump_all_guide_paths)
+                    agent_guide_path_all[agent_id] = guide_it->second;
+            }
+        }
+    }
+
+    set_last_reduced_timing(solve_time, guide_time, hierarchy_build_time, hierarchy_level_node_counts,
+                             guide_path_length_sum, guide_path_cost_sum,
+                             local_node_match_count, flow_match_count, local_match_time,
+                             backbone_build_time);
 }
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only)
