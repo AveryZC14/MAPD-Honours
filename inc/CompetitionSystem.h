@@ -34,6 +34,11 @@ struct TimeStepMetric
     int FlowMatchCount = 0;
     long long LocalNodeMatchCountCumulative = 0;
     long long FlowMatchCountCumulative = 0;
+    // Wall-clock time (seconds) spent this timestep inside solver 6's Step 1
+    // local-matcher calls (match_local_node_exact) -- always 0 for other
+    // solvers. Distinct from SchedulerSolveTime, which only starts once
+    // Step 1 is done. See ai/local_node_matching.md.
+    double SchedulerLocalMatchTime = 0.0;
 };
 /* End per-timestep metrics model. */
 

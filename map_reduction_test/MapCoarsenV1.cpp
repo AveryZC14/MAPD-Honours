@@ -1457,13 +1457,16 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                                         double* guide_path_length_sum_out,
                                                                         double* guide_path_cost_sum_out,
                                                                         int* local_match_count_out,
-                                                                        int* flow_match_count_out){
+                                                                        int* flow_match_count_out,
+                                                                        double* local_match_time_out){
     std::unordered_map<int,int> assignments;
     out_agent_guide_paths.clear();
     if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
     if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
     if (local_match_count_out) *local_match_count_out = 0;
     if (flow_match_count_out) *flow_match_count_out = 0;
+    if (local_match_time_out) *local_match_time_out = 0.0;
+    double local_match_time_accum = 0.0;
 
     if (!env)
         return assignments;
@@ -1559,9 +1562,12 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         for (int task_id : node_task_ids)
             node_task_locs.push_back(task_loc_by_id[task_id]);
 
+        const auto local_match_start = std::chrono::high_resolution_clock::now();
         const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
             ? match_local_node_exact(*env, node_agent_ids, node_agent_locs, node_task_ids, node_task_locs)
             : std::vector<LocalMatchPair>();
+        local_match_time_accum += std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - local_match_start).count();
 
         std::unordered_set<int> matched_agents, matched_tasks;
         for (const auto& p : pairs)
@@ -1593,6 +1599,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         for (int task_id : kv.second)
             top_task_ids[kv.first].push_back(task_id);
     }
+    if (local_match_time_out) *local_match_time_out = local_match_time_accum;
 
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);

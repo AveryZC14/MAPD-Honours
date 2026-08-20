@@ -612,6 +612,17 @@ Headline pitfalls documented there, worth knowing before touching this again:
   5000/10000/20000 agents — benefit grows with agent count, up to +7.2% tasks
   finished at level 6/20000 agents, and fixes a "deeper coarsening starts
   hurting" regression at that level.
+- `ai/local_node_matching_runtime.md` — runtime breakdown of local node
+  matching (Step 1) vs. the coarse flow solve, by `--flowSolveLevel`. New
+  `SchedulerLocalMatchTime` metric (`timeStepMetrics`). Finding: negligible
+  at shallow levels (flow solve dominates, e.g. 108.9s vs. 0.01s total at
+  level 2 on a 20000-agent sweep), rivals/exceeds the flow solve at deep
+  levels (43% of combined time at level 8; worst single call spent more
+  time in local matching than the flow solve). Step 1 is embarrassingly
+  parallel across coarse nodes and the per-node group-size distribution at
+  level 8 has no dominant outlier (largest group ~2.3% of total), so it
+  would parallelize well — but not worth doing at the scale tested here,
+  since even the worst case stayed well under `--planTimeLimit`.
 
 (Update this list if more `ai/*.md` files are added later.)
 

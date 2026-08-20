@@ -36,6 +36,10 @@ struct ScheduleTiming
 	// which don't have a local-matching step. See ai/local_node_matching.md.
 	int local_node_match_count = 0;
 	int flow_match_count = 0;
+	// Wall-clock time (seconds) spent inside Step 1's local-matcher calls
+	// (match_local_node_exact) -- solver 6 only, 0 for other solvers. See
+	// ai/local_node_matching.md.
+	double local_match_time = 0.0;
 };
 
 void set_last_timing(double solve_time, double guide_path_time,
@@ -50,7 +54,8 @@ void set_last_reduced_timing(double solve_time,
 						     double guide_path_length_sum = 0.0,
 						     double guide_path_cost_sum = 0.0,
 						     int local_node_match_count = 0,
-						     int flow_match_count = 0);
+						     int flow_match_count = 0,
+						     double local_match_time = 0.0);
 ScheduleTiming get_last_timing();
 /* End scheduler timing metrics. */
 

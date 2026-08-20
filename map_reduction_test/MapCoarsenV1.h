@@ -248,6 +248,11 @@ public:
     // `local_match_count_out`/`flow_match_count_out` receive how many agents this call
     // assigned via the within-coarse-node local matcher (Step 1, LocalNodeMatch.h) vs. via
     // the coarse flow solve (Step 2) -- see ai/local_node_matching.md.
+    // `local_match_time_out` receives the wall-clock time (seconds) spent inside Step 1's
+    // calls to match_local_node_exact() across every same-node agent/task group this call --
+    // i.e. just the local-matcher compute, not the bucketing/bookkeeping around it. Distinct
+    // from `solve_time_out`, which starts only after Step 1 is entirely done (coarse graph
+    // build + NetworkSimplex + Step 2 recovery + Step 3 lift).
     std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
                                                            const std::vector<int>& flexible_agent_ids,
                                                            const std::vector<int>& flexible_task_ids,
@@ -258,7 +263,8 @@ public:
                                                            double* guide_path_length_sum_out = nullptr,
                                                            double* guide_path_cost_sum_out = nullptr,
                                                            int* local_match_count_out = nullptr,
-                                                           int* flow_match_count_out = nullptr);
+                                                           int* flow_match_count_out = nullptr,
+                                                           double* local_match_time_out = nullptr);
 
 private:
     ReducedHierarchy();

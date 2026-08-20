@@ -276,6 +276,11 @@ flow solve), and `tasksFinished` also climbs with level here — consistent
 with the full-simulation validation above (the tie-breaker fix's benefit
 growing with agent count/coarsening depth).
 
+See `ai/local_node_matching_runtime.md` for the *runtime* (not just count)
+breakdown between local matching and the flow solve — the same
+match-count-ratio trend above, mirrored in wall-clock time, and an analysis
+of whether parallelizing the local matcher is worth it.
+
 ### Second verification sweep (`scene_sp_pol_06`, `outputs/scene_sp_pol_06_local_match_counter_test/`)
 
 2026-08-14. 6 runs, `scene_sp_pol_06` (4192x4328, ~9.94M walkable cells —

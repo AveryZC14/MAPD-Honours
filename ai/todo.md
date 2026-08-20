@@ -177,6 +177,22 @@ the date and what changed) rather than deleting them outright.
   `--hierarchyCache` file already built, so a follow-up sweep is cheap to
   run whenever wanted.
 
+- [ ] **New solver 7: edge-node augmented coarse graph.** Planned
+  2026-08-20, not yet implemented. Design doc + full implementation plan
+  (files, wiring, cost formula, alternatives considered) written up in
+  `ai/edge_node_representation.md` — read that before starting. Short
+  version: solver 6's per-timestep coarse flow gives every surplus
+  agent/task a flat cost-0 arc to its own top-level node regardless of
+  where in that (possibly large) region it actually sits; solver 7 inserts
+  an explicit node on every coarse-to-coarse edge (region↔edge↔region,
+  costs halved) and routes agent/task proxy nodes directly to the
+  *adjacent* edge-nodes instead, with arc cost = Manhattan distance from
+  the agent's real location to the neighboring region's fine-cell bounding
+  box. Scoped to be additive only — reuses solver 6's hierarchy build,
+  bridge caches, and Steps 3/4 lifting untouched; new code lives in a new
+  `map_reduction_test/EdgeAugmentedCoarsen.{h,cpp}` sibling module, same
+  precedent as `mapReductionV0.*` living alongside `MapCoarsenV1.*`.
+
 ## Done
 
 - [x] **2026-08-13: Solver 6 within-coarse-node agent<->task pairing fix
