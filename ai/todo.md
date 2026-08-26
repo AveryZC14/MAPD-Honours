@@ -8,6 +8,90 @@ the date and what changed) rather than deleting them outright.
 
 ## Open
 
+- [ ] **Solver 7 metric instrumentation: two bugs in `SchedulerBackboneBuildTime`
+  and `SchedulerSolveTime`, found auditing all of solver 7's per-timestep
+  fields for correctness (2026-08-21).** Everything else checked out fine
+  (`GuidePathLengthSum`/`GuidePathCostSum`/`SchedulerGuidePathTime`/
+  `LocalNodeMatchCount`/`FlowMatchCount` are all correctly scoped, reset per
+  call, and computed on solver 7's own actual output — not reused from
+  solver 6). Two real problems in the timing fields specifically:
+
+  1. **`SchedulerBackboneBuildTime` always reads 0.0, on every call,
+     including the one that actually rebuilds.** Root cause:
+     `EdgeAugmentedHierarchy::ensure()` unconditionally resets
+     `last_backbone_build_time_ = 0.0` at the top
+     (`map_reduction_test/EdgeAugmentedCoarsen.cpp:277`), before doing
+     anything else. `ensure()` is called **twice** per scheduler invocation
+     with identical `(env, flow_solve_level)` arguments — once at
+     `default_planner/scheduler.cpp:1168` (just to check `ready()` for the
+     solver-1 fallback branch), and again inside
+     `compute_reduced_assignment_edge_augmented` itself at
+     `EdgeAugmentedCoarsen.cpp:357`, whose result is what actually gets read
+     into the output field. `compute_env_signature` (`MapCoarsenV1.cpp:1018-1028`)
+     only hashes static map dimensions/cells, which can't change mid-run, so
+     both calls always see the identical signature within one timestep.
+     Whichever call does the real rebuild (always the first one, since
+     nothing invalidates the cache between the two calls), the *second*
+     call's cache-validity check (`EdgeAugmentedCoarsen.cpp:305-306`) finds
+     it already valid and returns immediately — but only after line 277 has
+     already zeroed the timer back out. Confirmed by direct code read, not
+     just the auditing subagent's report.
+     - Note this field being *mostly* zero across a run is actually correct
+       by design, not itself a bug: the backbone is meant to be built once
+       (keyed on map+`--flowSolveLevel`, both fixed for a whole run) and
+       reused via `lemon::digraphCopy` every timestep after that (see
+       `ai/edge_node_representation.md`), so the healthy shape for this
+       field is "one real nonzero value on the first successful call, zeros
+       forever after" — confirming the cache is working. The bug is that the
+       one nonzero value that should exist is also erased, so there's no way
+       to see the real one-time build cost at all, ever.
+     - **Candidate fix**: don't call `ensure()` twice per invocation. Either
+       have `schedule_plan_flow_reduced_edge` (`scheduler.cpp:1168`) reuse
+       the same `ensure()` result that `compute_reduced_assignment_edge_augmented`
+       will produce internally (restructure so `ensure()` is called once and
+       both the readiness check and the backbone-time capture read off that
+       single call), or have the second call at `EdgeAugmentedCoarsen.cpp:357`
+       skip resetting/re-running `ensure()` if the first call this timestep
+       already confirmed validity. Not yet designed in detail.
+
+  2. **`SchedulerSolveTime` has a wider, undocumented scope than solver 6's
+     equivalent field, and silently overlaps `SchedulerLocalMatchTime`.**
+     Solver 6's `solve_start` timer (`MapCoarsenV1.cpp:1828`) starts
+     immediately before `ns.run()` — *after* its own Step 1 local matching
+     (starting at line 1627) has already finished, so `SchedulerSolveTime`
+     and `SchedulerLocalMatchTime` are disjoint for solver 6 (explicitly
+     documented in a comment at `MapCoarsenV1.cpp:1960-1965`). Solver 7's
+     `solve_start` timer (`EdgeAugmentedCoarsen.cpp:362`) starts *before* its
+     own Step 1 (starting at line 371) — so solver 7's `SchedulerSolveTime`
+     includes Step 1 local matching, the backbone `digraphCopy`, edge-node
+     arc construction, `ns.run()`, and Step 2 path recovery all bundled
+     together, with no comment flagging the divergence from solver 6's
+     narrower scope. Confirmed by direct code read (both timer placements
+     checked line-by-line against each other).
+     - Not a "wrong value" bug — each field measures exactly what its own
+       code says — but it means `SchedulerLocalMatchTime` is a *subset* of
+       `SchedulerSolveTime` for solver 7 while being a *disjoint sibling* of
+       it for solver 6. Any analysis that sums or directly compares these
+       two fields across solvers 6 and 7 (e.g. "how much of the timestep was
+       spent in the flow solve alone") will silently double-count solver 7's
+       local-match time and get numbers that aren't apples-to-apples against
+       solver 6's.
+     - **Candidate fix**: move solver 7's `solve_start` to immediately before
+       `ns.run()` (mirroring solver 6's placement exactly), and account for
+       Step 1 local-match time and backbone-copy/arc-construction time
+       separately (the former already has its own field,
+       `SchedulerLocalMatchTime`; the latter has no field at all right now
+       and would either need one or get folded into `SchedulerSolveTime`
+       deliberately with a comment saying so, matching solver 6's documented
+       reasoning for the timing split it uses).
+
+  Both bugs are scoped entirely to `map_reduction_test/EdgeAugmentedCoarsen.cpp`
+  (solver 7's own module) — no solver 6 code needs touching. Worth fixing
+  together with the `timeStepMetrics` duplication bug above (Option 1 there
+  restructures the same call sites), since both are about making solver 7's
+  timing metrics trustworthy enough to actually use for the solver-6-vs-7
+  comparison work already underway.
+
 - [ ] **[HIGH] General (non-solver-6) memory ceiling on huge maps — blocks
   `scene_sp_endmaps` entirely.** Found 2026-08-14 while chasing an
   overnight-sweep OOM. `--scheduleModel 1` (which never builds or touches
@@ -42,24 +126,80 @@ the date and what changed) rather than deleting them outright.
     prioritizing over solver-6-specific efficiency work if bigger maps are
     wanted again.
 
-- [ ] **New output metric: timesteps actually scheduled/planned for, distinct
-  from `makespan`.** `makespan` (see `ai/project_context.md` "Makespan vs.
-  'timesteps solved'") counts real elapsed simulated ticks, including
-  forced-wait ticks replayed while a slow scheduler/planner call was still
-  running. The existing `len(timeStepMetrics)` isn't the right thing either —
-  it appends 1 entry for a whole burst of catch-up ticks plus 1 more for the
-  real move, i.e. up to 2 log rows per *single* underlying planning decision,
-  not a count of decisions itself. What's wanted is a clean counter of how
-  many times the scheduler+planner were actually invoked and produced a
-  fresh decision — i.e. the number of `BaseSystem::simulate()` outer-loop
-  iterations / `plan()` calls that returned a real result, as opposed to
-  `makespan`'s count of simulated clock ticks (real + forced-wait). Natural
-  place to add it: a counter incremented once per outer-loop iteration in
-  `BaseSystem::simulate()` (`src/CompetitionSystem.cpp:147`), written to the
-  output JSON alongside `makespan` in `saveResults()` (`:258`). Would make it
-  possible to directly see, e.g., "solver 1 only got 6 real scheduling
-  decisions in during 201 simulated timesteps" instead of inferring it from
-  the "steps recorded" workaround used in `ai/auto_benchmarking.md`.
+- [ ] **`timeStepMetrics` duplicate-row bug: `len(timeStepMetrics)` ("steps")
+  is not a real per-timestep count, and it's worse than previously
+  documented.** Root cause (`BaseSystem::simulate`, `src/CompetitionSystem.cpp:148`):
+  whenever `plan()` times out and forces `timeout_timesteps` catch-up ticks
+  before the real move, the loop pushes **exactly 2** `TimeStepMetric` rows
+  for that whole burst — one "catch-up" row (`:259-273`) and one "real move"
+  row (`:291-305`) — both reading the *same* `last_scheduler_timing`, so
+  they're byte-identical duplicates. When `timeout_timesteps == 0` (no
+  timeout), only 1 row is pushed. So `len(timeStepMetrics)` is neither the
+  number of real elapsed timesteps (`makespan` is) nor the number of genuine
+  planning decisions (always 1 per outer-loop iteration, timeout or not) —
+  it's an inconsistent mix that happens to equal 2x decisions on a timed-out
+  iteration and 1x decisions on a clean one. Purely a logging artifact:
+  `time_step_metrics` is write-only (nothing in `simulate()` reads it back to
+  drive simulation state), so `makespan`/`numTaskFinished`/`tp_makespan` are
+  all unaffected — confirmed by checking that the outer `while` loop is
+  gated on `simulator.get_curr_timestep()`, never on this list's length.
+  - **Quantified 2026-08-21** across `outputs/solver_6_solver_7_comparison/`
+    (`scene_sp_pol_06`, solvers 6 & 7, `--flowSolveLevel` 2/4/6/8, 10k/20k/60k
+    agents): duplication rate tracks timeout frequency exactly, and it's
+    severe at shallow levels. At 60000 agents: level 2 has only **21 (solver
+    7) / 78 (solver 6)** genuine planning decisions across the full ~500-tick
+    run — meaning the fleet is idling in forced-wait for the large majority
+    of simulated time. Level 6 still has **0 of 250** decisions finish
+    without a timeout. `orz900d_5000` (smaller/faster map) is much healthier
+    by comparison — only 2 of 198 decisions duplicated. Also surfaced a
+    possibly-thesis-relevant side finding: **solver 7 has substantially more
+    timeouts than solver 6 at the same agent count/level at shallow levels**
+    (21 vs. 78 real decisions at 60000/level2) — plausible cause is the
+    edge-node backbone subdividing every coarse arc, which costs more in
+    absolute terms when the graph is still large (shallow level); the gap
+    mostly disappears by level 6/8. Worth a dedicated look once the metric
+    itself is trustworthy enough to quantify cleanly instead of via the
+    duplicate-run-detection script used for this pass.
+  - **Fix option 1 (recommended): one `TimeStepMetric` row per real elapsed
+    timestep.** In the `timeout_timesteps > 0` branch (`:244-276`), instead
+    of pushing one aggregate "catch-up" row, push `timeout_timesteps`
+    *zeroed* rows (no real scheduler/planner work happened on those specific
+    ticks — there's nothing genuine to report per-tick, since the only
+    measurement available is the wall-clock of the whole burst), then push
+    the final row with the real measured values on the tick where planning
+    actually completed. Result: `len(timeStepMetrics) == makespan` always
+    (mod the pre-existing, separately-documented off-by-one where `simulate()`
+    can overshoot the requested `-s N` by 1), for every solver. Sums over the
+    array (e.g. total `SchedulerSolveTime`) stay exactly correct since the
+    zeroed rows contribute 0 — no accounting is lost, it's just spread
+    honestly across the ticks it actually covers instead of double-stamping
+    two rows with one call's numbers. This also turns "fraction of timesteps
+    that were pure idle-waits" into a directly computable per-run metric
+    (`count of zeroed rows / len(timeStepMetrics)`), which the 2026-08-21
+    data above suggests is a real, load-bearing signal (esp. the solver
+    6-vs-7 gap at level 2), not just a logging nicety.
+  - **Fix option 2: tag each row with its real timestep number.** Add an
+    `int timestep` field to `TimeStepMetric` (`inc/CompetitionSystem.h:15`),
+    set from `simulator.get_curr_timestep()` at each push site. Combine with
+    option 1 so downstream consumers never have to infer real-timestep
+    identity from array position — robust to any future change in push
+    logic, and makes it trivial to plot a metric against actual simulated
+    time instead of assuming index == timestep.
+  - **Considered and deprioritized: option 3**, a separate top-level scalar
+    (`js["realElapsedTimesteps"] = simulator.get_curr_timestep()`, captured
+    at loop end in `saveResults()`) fully decoupled from `timeStepMetrics`.
+    Minimal/non-invasive, but doesn't fix the actual granularity problem
+    (still can't trust `len(timeStepMetrics)` or map an index to a timestep)
+    and is close to redundant with `makespan`, which already tracks
+    essentially the same thing outside edge cases.
+  - Scope: change is entirely inside the shared `BaseSystem::simulate()` loop
+    (`src/CompetitionSystem.cpp`) plus the `TimeStepMetric` struct
+    (`inc/CompetitionSystem.h`) — no solver-specific code involved, since the
+    bug is in the shared simulation loop, not `scheduler.cpp`. Should also
+    update `visualisation/compute_throughput_metrics.py`'s `steps` column
+    (currently `len(timeStepMetrics)`) and its docstring once fixed — the
+    `tp_steps`/"steps" caveat language there was written under the old,
+    worse-than-realized understanding of this bug.
 
 - [ ] **Split `PlannerTime` into its scheduler and path-planner components.**
   Confusing right now: the `PlannerTime` field in each timestep's output

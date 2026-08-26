@@ -1,0 +1,39 @@
+# Directories to include when rebuilding the results index/dashboard.
+#
+# One path per line, relative to the repo root. Blank lines and lines
+# starting with '#' are ignored. Each listed directory is scanned
+# recursively for result JSON files (anything with a "makespan" and
+# "numTaskFinished" field -- other JSON/CSV/log files in the same folder
+# are skipped automatically).
+#
+# Rebuild after editing this list (or after rerunning/adding sweeps) with:
+#   python3 visualisation/compute_throughput_metrics.py --dirs-file outputs/dashboard_dirs.txt
+#
+# To temporarily exclude a directory, comment it out (prefix with '#')
+# rather than deleting the line, so it's easy to bring back later.
+
+outputs/orz900d_solver_comparison
+outputs/IH_mp_2p_01_solver_comparison
+outputs/warehouseXL_solver_comparison
+outputs/scene_mp_4p_03_solver_comparison
+outputs/scene_mp_4p_03_solver7_comparison
+outputs/scene_mp_4p_03_10k_20k_localmatch_comparison
+outputs/scene_sp_pol_06_solver_comparison
+outputs/scene_sp_pol_06_solver7_comparison
+outputs/scene_sp_pol_06_local_match_counter_test
+outputs/orz900d_local_match_counter_test
+
+# Known dirs not included by default -- uncomment any you want in the index:
+# outputs/IH_mp_2p_01_solver7_hierarchy_smoke
+# outputs/IH_mp_2p_01_guide_paths
+# outputs/IH_mp_2p_01_per_timestep
+# outputs/orz900d_solver7_hierarchy_smoke
+# outputs/orz900d_guide_paths
+# outputs/scene_mp_4p_03_solver7_hierarchy_smoke
+# outputs/scene_mp_4p_03_guide_paths
+# outputs/scene_sp_pol_06_solver7_hierarchy_smoke
+# outputs/scene_sp_endmaps_solver7_hierarchy_smoke
+# outputs/warehouseXL_solver7_hierarchy_smoke
+# outputs/warehouseXL_guide_paths
+# outputs/coarsening_viz
+# outputs/old

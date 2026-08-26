@@ -1,0 +1,43 @@
+# Manual field overrides for the results index (outputs/dashboard/metrics.csv),
+# for facts that can't be recovered from a filename alone.
+#
+# Format: one rule per line.
+#   <glob-pattern>  <field>=<value> [<field>=<value> ...]
+#
+# - <glob-pattern> matches each result file's path relative to the repo root
+#   (fnmatch-style: * ? [seq] all work, e.g. outputs/foo/*.json).
+# - <value> "true"/"false" become booleans, digits become ints, anything
+#   else stays a string. Quote values containing spaces: notes="like this".
+# - Rules apply top-to-bottom; when several rules match the same file, later
+#   ones win field-by-field. Put broad defaults first, specific exceptions
+#   after.
+# - Any field name works, not just the ones below -- an override can also
+#   fix a mis-parsed map/solver/level, or add an arbitrary new column
+#   (e.g. "hardware=laptop").
+#
+# Rebuild after editing: python3 visualisation/compute_throughput_metrics.py --dirs-file outputs/dashboard_dirs.txt
+
+# --- local_node_match ---
+# Solver 1 (schedule_plan_flow) never touches the coarsened hierarchy at
+# all, so local node matching (a step within solver 6/7's coarse-flow
+# assignment) doesn't apply to it -- true by construction, not a guess.
+outputs/*/*_solver1*.json  local_node_match=false notes="solver 1 baseline, no hierarchy/local matching involved"
+
+# kEnableLocalNodeMatching (map_reduction_test/MapCoarsenV1.cpp) landed in
+# commit f4432a3, 2026-08-13. Runs from directories built entirely before
+# that date could not have used it, regardless of filename. (The
+# "nolocalmatch" column, parsed automatically from "_nolocalmatch" in the
+# filename, already reliably marks the ablation-off runs within the
+# solver_comparison dirs built after that date -- these rules just cover
+# the case a filename alone can't: whole directories from before the
+# feature existed at all.)
+outputs/orz900d_solver_comparison/*.json      local_node_match=false notes="predates local node matching (f4432a3, 2026-08-13)"
+outputs/IH_mp_2p_01_solver_comparison/*.json  local_node_match=false notes="predates local node matching (f4432a3, 2026-08-13)"
+outputs/warehouseXL_solver_comparison/*.json  local_node_match=false notes="predates local node matching (f4432a3, 2026-08-13)"
+
+# scene_mp_4p_03 / scene_sp_pol_06 solver_comparison + solver7_comparison dirs
+# were all built on/after 2026-08-13 -- local node matching is on by default
+# there except where "_nolocalmatch" is in the filename (already handled).
+# No override needed for those unless you know a specific file is wrong --
+# add a line here if so, e.g.:
+# outputs/scene_mp_4p_03_solver_comparison/scene_mp_4p_03_5000_solver1.json  local_node_match=false notes="solver1 doesn't use the hierarchy at all"
