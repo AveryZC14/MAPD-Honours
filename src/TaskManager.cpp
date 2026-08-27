@@ -209,13 +209,15 @@ void TaskManager::reveal_tasks(int timestep)
  * @param states a vector of states of all agents, including the current location of each agent on the map.
  * @param assignment a vector of task_ids, one for each agent. The length of the vector should be equal to the number of agents.
  * @param timestep the current timestep.
+ * @return the number of tasks that finished this call.
  */
-void TaskManager::update_tasks(vector<State>& states, vector<int>& assignment, int timestep)
+int TaskManager::update_tasks(vector<State>& states, vector<int>& assignment, int timestep)
 {
     curr_timestep = timestep;
     set_task_assignment(assignment);
-    check_finished_tasks(states,timestep);
+    int num_finished = check_finished_tasks(states,timestep).size();
     reveal_tasks(timestep);
+    return num_finished;
 }
 
 /**

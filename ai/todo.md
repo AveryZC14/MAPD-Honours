@@ -126,81 +126,6 @@ the date and what changed) rather than deleting them outright.
     prioritizing over solver-6-specific efficiency work if bigger maps are
     wanted again.
 
-- [ ] **`timeStepMetrics` duplicate-row bug: `len(timeStepMetrics)` ("steps")
-  is not a real per-timestep count, and it's worse than previously
-  documented.** Root cause (`BaseSystem::simulate`, `src/CompetitionSystem.cpp:148`):
-  whenever `plan()` times out and forces `timeout_timesteps` catch-up ticks
-  before the real move, the loop pushes **exactly 2** `TimeStepMetric` rows
-  for that whole burst — one "catch-up" row (`:259-273`) and one "real move"
-  row (`:291-305`) — both reading the *same* `last_scheduler_timing`, so
-  they're byte-identical duplicates. When `timeout_timesteps == 0` (no
-  timeout), only 1 row is pushed. So `len(timeStepMetrics)` is neither the
-  number of real elapsed timesteps (`makespan` is) nor the number of genuine
-  planning decisions (always 1 per outer-loop iteration, timeout or not) —
-  it's an inconsistent mix that happens to equal 2x decisions on a timed-out
-  iteration and 1x decisions on a clean one. Purely a logging artifact:
-  `time_step_metrics` is write-only (nothing in `simulate()` reads it back to
-  drive simulation state), so `makespan`/`numTaskFinished`/`tp_makespan` are
-  all unaffected — confirmed by checking that the outer `while` loop is
-  gated on `simulator.get_curr_timestep()`, never on this list's length.
-  - **Quantified 2026-08-21** across `outputs/solver_6_solver_7_comparison/`
-    (`scene_sp_pol_06`, solvers 6 & 7, `--flowSolveLevel` 2/4/6/8, 10k/20k/60k
-    agents): duplication rate tracks timeout frequency exactly, and it's
-    severe at shallow levels. At 60000 agents: level 2 has only **21 (solver
-    7) / 78 (solver 6)** genuine planning decisions across the full ~500-tick
-    run — meaning the fleet is idling in forced-wait for the large majority
-    of simulated time. Level 6 still has **0 of 250** decisions finish
-    without a timeout. `orz900d_5000` (smaller/faster map) is much healthier
-    by comparison — only 2 of 198 decisions duplicated. Also surfaced a
-    possibly-thesis-relevant side finding: **solver 7 has substantially more
-    timeouts than solver 6 at the same agent count/level at shallow levels**
-    (21 vs. 78 real decisions at 60000/level2) — plausible cause is the
-    edge-node backbone subdividing every coarse arc, which costs more in
-    absolute terms when the graph is still large (shallow level); the gap
-    mostly disappears by level 6/8. Worth a dedicated look once the metric
-    itself is trustworthy enough to quantify cleanly instead of via the
-    duplicate-run-detection script used for this pass.
-  - **Fix option 1 (recommended): one `TimeStepMetric` row per real elapsed
-    timestep.** In the `timeout_timesteps > 0` branch (`:244-276`), instead
-    of pushing one aggregate "catch-up" row, push `timeout_timesteps`
-    *zeroed* rows (no real scheduler/planner work happened on those specific
-    ticks — there's nothing genuine to report per-tick, since the only
-    measurement available is the wall-clock of the whole burst), then push
-    the final row with the real measured values on the tick where planning
-    actually completed. Result: `len(timeStepMetrics) == makespan` always
-    (mod the pre-existing, separately-documented off-by-one where `simulate()`
-    can overshoot the requested `-s N` by 1), for every solver. Sums over the
-    array (e.g. total `SchedulerSolveTime`) stay exactly correct since the
-    zeroed rows contribute 0 — no accounting is lost, it's just spread
-    honestly across the ticks it actually covers instead of double-stamping
-    two rows with one call's numbers. This also turns "fraction of timesteps
-    that were pure idle-waits" into a directly computable per-run metric
-    (`count of zeroed rows / len(timeStepMetrics)`), which the 2026-08-21
-    data above suggests is a real, load-bearing signal (esp. the solver
-    6-vs-7 gap at level 2), not just a logging nicety.
-  - **Fix option 2: tag each row with its real timestep number.** Add an
-    `int timestep` field to `TimeStepMetric` (`inc/CompetitionSystem.h:15`),
-    set from `simulator.get_curr_timestep()` at each push site. Combine with
-    option 1 so downstream consumers never have to infer real-timestep
-    identity from array position — robust to any future change in push
-    logic, and makes it trivial to plot a metric against actual simulated
-    time instead of assuming index == timestep.
-  - **Considered and deprioritized: option 3**, a separate top-level scalar
-    (`js["realElapsedTimesteps"] = simulator.get_curr_timestep()`, captured
-    at loop end in `saveResults()`) fully decoupled from `timeStepMetrics`.
-    Minimal/non-invasive, but doesn't fix the actual granularity problem
-    (still can't trust `len(timeStepMetrics)` or map an index to a timestep)
-    and is close to redundant with `makespan`, which already tracks
-    essentially the same thing outside edge cases.
-  - Scope: change is entirely inside the shared `BaseSystem::simulate()` loop
-    (`src/CompetitionSystem.cpp`) plus the `TimeStepMetric` struct
-    (`inc/CompetitionSystem.h`) — no solver-specific code involved, since the
-    bug is in the shared simulation loop, not `scheduler.cpp`. Should also
-    update `visualisation/compute_throughput_metrics.py`'s `steps` column
-    (currently `len(timeStepMetrics)`) and its docstring once fixed — the
-    `tp_steps`/"steps" caveat language there was written under the old,
-    worse-than-realized understanding of this bug.
-
 - [ ] **Split `PlannerTime` into its scheduler and path-planner components.**
   Confusing right now: the `PlannerTime` field in each timestep's output
   (`TimeStepMetric::PlannerTime`, `inc/CompetitionSystem.h:19`) isn't just the
@@ -318,6 +243,134 @@ the date and what changed) rather than deleting them outright.
   run whenever wanted.
 
 ## Done
+
+- [x] **2026-08-26: Per-timestep task-completion count added to
+  `timeStepMetrics`.** User asked whether per-timestep throughput (tasks
+  completed each timestep, not just a cumulative/aggregate rate) was
+  available anywhere — it wasn't: `TaskManager::check_finished_tasks()`
+  already computed exactly which tasks finished each call
+  (`src/TaskManager.cpp:128-160`) but the result was discarded at its only
+  call site, `TaskManager::update_tasks` (`src/TaskManager.cpp:213-219`), and
+  neither the JSON output nor `TimeStepMetric` recorded it anywhere.
+
+  **Fix:** `update_tasks` now returns the finished-task count (its signature
+  changed `void` -> `int`, `inc/TaskManager.h:27`, `src/TaskManager.cpp`).
+  `TimeStepMetric` (`inc/CompetitionSystem.h`) gained two fields:
+  `Timestep` (the real simulated timestep this entry corresponds to,
+  `simulator.get_curr_timestep()`) and `TasksFinishedThisStep`. In
+  `BaseSystem::simulate()` (`src/CompetitionSystem.cpp`), the `update_tasks()`
+  call was moved to run *before* the `TimeStepMetric` push (was after) so the
+  count lands on the same entry as the rest of that timestep's metrics; both
+  new fields are set there and serialized into `timeStepMetrics` in
+  `saveResults`.
+
+  **Important caveat carried over from the `len(timeStepMetrics)` fix above:**
+  because one `timeStepMetrics` entry can still represent several real
+  elapsed timesteps collapsing together is no longer possible post-fix (one
+  row per genuine decision, not one per elapsed timestep) — but `Timestep`
+  can still jump by more than 1 between consecutive rows whenever a planner
+  timeout forces catch-up ticks in between. So a per-timestep throughput
+  curve must be plotted against each entry's `Timestep` value, not against
+  array index or a naive `TasksFinishedThisStep / 1` per row.
+
+  **Validated** on `instances/custom/tiny/tiny.json` (solver 1, 50
+  timesteps): `sum(TasksFinishedThisStep)` across all 50 entries equals
+  `numTaskFinished` exactly (4 = 4), and the 4 nonzero entries land on
+  distinct, correct real timesteps (15, 20, 40, 41), confirming completions
+  aren't smeared onto the wrong entry or double-counted.
+
+  Not done as part of this pass (flagged to the user, not yet requested):
+  a plotting/aggregation mode in `visualisation/compute_throughput_metrics.py`
+  for per-timestep throughput curves, and a dedicated `ai/*.md` writeup.
+
+- [x] **2026-08-26: `timeStepMetrics` duplicate-row bug fixed and validated**
+  (was: "`len(timeStepMetrics)` ('steps') is not a real per-timestep count,
+  and it's worse than previously documented"). Root cause (`BaseSystem::simulate`,
+  `src/CompetitionSystem.cpp:148`):
+  whenever `plan()` times out and forces `timeout_timesteps` catch-up ticks
+  before the real move, the loop pushed **exactly 2** `TimeStepMetric` rows
+  for that whole burst — one "catch-up" row (`:259-273`) and one "real move"
+  row (`:291-305`) — both reading the *same* `last_scheduler_timing`, so
+  they were byte-identical duplicates. When `timeout_timesteps == 0` (no
+  timeout), only 1 row was pushed. So `len(timeStepMetrics)` was neither the
+  number of real elapsed timesteps (`makespan` is) nor the number of genuine
+  planning decisions (always 1 per outer-loop iteration, timeout or not) —
+  it was an inconsistent mix that happened to equal 2x decisions on a
+  timed-out iteration and 1x decisions on a clean one. Purely a logging
+  artifact: `time_step_metrics` is write-only (nothing in `simulate()` reads
+  it back to drive simulation state), so `makespan`/`numTaskFinished`/
+  `tp_makespan` were all unaffected — confirmed by checking that the outer
+  `while` loop is gated on `simulator.get_curr_timestep()`, never on this
+  list's length.
+
+  **Quantified 2026-08-21** across `outputs/solver_6_solver_7_comparison/`
+  (`scene_sp_pol_06`, solvers 6 & 7, `--flowSolveLevel` 2/4/6/8, 10k/20k/60k
+  agents): duplication rate tracked timeout frequency exactly, and was
+  severe at shallow levels. At 60000 agents: level 2 had only **21 (solver
+  7) / 78 (solver 6)** genuine planning decisions across the full ~500-tick
+  run — meaning the fleet was idling in forced-wait for the large majority
+  of simulated time. Level 6 had **0 of 250** decisions finish without a
+  timeout. `orz900d_5000` (smaller/faster map) was much healthier by
+  comparison — only 2 of 198 decisions duplicated. Also surfaced a
+  possibly-thesis-relevant side finding: **solver 7 has substantially more
+  timeouts than solver 6 at the same agent count/level at shallow levels**
+  (21 vs. 78 real decisions at 60000/level2) — plausible cause is the
+  edge-node backbone subdividing every coarse arc, which costs more in
+  absolute terms when the graph is still large (shallow level); the gap
+  mostly disappears by level 6/8. Worth a dedicated look now that the metric
+  is trustworthy enough to quantify cleanly.
+
+  **User decision (2026-08-26):** `len(timeStepMetrics)` should mean the
+  genuine number of times the solver actually solved — i.e. one row per
+  `plan()` call / outer-loop iteration, matching the "decisions" framing
+  from the quantification above, not one row per real elapsed timestep.
+  This ruled out an earlier-considered fix of padding to
+  `len(timeStepMetrics) == makespan` with zeroed rows on catch-up ticks
+  (that would have made "steps" track simulated time instead of solver
+  activity — the opposite of what's wanted). One tradeoff noted and
+  accepted: padding would have given a directly-computable "fraction of
+  idle timesteps" signal (`zeroed rows / len`); under the fix actually
+  taken, the equivalent signal is still recoverable as
+  `makespan - len(timeStepMetrics)`, just not read off zeroed rows directly.
+
+  **Implementation:** deleted the "catch-up" `TimeStepMetric`
+  construction/push at the old `:259-273` inside the `timeout_timesteps > 0`
+  branch — a pure deletion, nothing restructured. The unconditional push
+  after the branch (old `:291-305`) is now the only place `time_step_metrics`
+  gets appended, so every outer-loop iteration contributes exactly one row,
+  regardless of whether it timed out. Also updated the stale comment at
+  `:204-213` (previously explained why match-count totals were accumulated
+  outside `time_step_metrics` *because* of the double-push; that reasoning no
+  longer applies now that the push is single). Did not touch the separate,
+  pre-existing `planner_times` double-push in the same branch (`:256-257`
+  and `:289`) — that list only feeds the dead `kUseTimeStepMetricsOutput ==
+  false` output branch today, so it's latent and out of scope for this fix.
+
+  **Docs updated:** `ai/project_context.md`'s "Makespan vs. 'timesteps
+  solved'" section and its "Other gotchas" bullet now describe the new,
+  fixed semantics (steps = genuine decisions by design, diverges from
+  makespan intentionally, not as a bug). `ai/auto_benchmarking.md` got a note
+  flagging that its worked historical numbers (`orz900d` ~26%, `IH_mp_2p_01`
+  up to 177.5 tp/steps) predate the fix and are up to 2x inflated in `steps`
+  count versus a fresh run — don't compare old and new sweep `steps` columns
+  directly. `visualisation/compute_throughput_metrics.py`'s docstring was
+  rewritten, and `tp_steps` was re-enabled in both `compute_metrics` and
+  `compute_metrics_indexed` (plus both CSV `fieldnames` lists) now that it's
+  a meaningful "throughput per genuine decision" metric rather than a
+  misleading artifact — `tp_makespan` remains the one to use for real-time
+  throughput comparisons.
+
+  **Validation:** `warehouseSmall_100`, solver 6, 200 timesteps — no
+  timeouts occurred (solver 6 is fast on this map), so `makespan == 200 ==
+  len(timeStepMetrics)` as expected (nothing to collapse when nothing times
+  out). `orz900d_5000`, solver 1, 20 timesteps requested — hit 16 logged
+  planner timeouts, `makespan` reached 21 (one tick of overshoot, the
+  separately-documented pre-existing off-by-one) while `len(timeStepMetrics)`
+  was 5 — a real, expected divergence (5 genuine decisions covering 21
+  simulated timesteps). Checked all 5 rows pairwise for byte-identical
+  duplicates: zero found, confirming the double-push is gone even under
+  heavy, repeated timeout pressure (the exact condition that used to produce
+  it).
 
 - [x] **2026-08-13: Solver 6 within-coarse-node agent<->task pairing fix
   implemented and validated** (was: "quantified 2026-08-13, fix design

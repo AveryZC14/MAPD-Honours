@@ -3,24 +3,30 @@
 Compute throughput metrics from lifelong-MAPF result JSON(s).
 
 Background: the simulator's output JSON has two different counters that
-both look like "number of timesteps" but are not the same thing (see
-ai/auto_benchmarking.md for the full writeup):
+both look like "number of timesteps" but measure different things by
+design (see ai/auto_benchmarking.md and ai/project_context.md, "Makespan
+vs. 'timesteps solved'", for the full writeup):
 
-  - "steps" (len(timeStepMetrics)): one log entry is appended per pass
-    through the main simulation loop (src/CompetitionSystem.cpp,
-    BaseSystem::simulate). When the planner times out and the simulator has
-    to force several "wait" timesteps to catch up, that whole multi-step
-    batch can still only add 1-2 log entries -- so this number can
-    *undercount* real elapsed simulated time.
+  - "steps" (len(timeStepMetrics)): one log entry per genuine scheduler
+    decision (one entry per pass through the main simulation loop's
+    plan() call, src/CompetitionSystem.cpp, BaseSystem::simulate). When
+    the planner times out and the simulator has to force several "wait"
+    timesteps to catch up, that whole multi-step batch still only adds
+    1 log entry -- so this number *undercounts* real elapsed simulated
+    time whenever timeouts occur, by design (it's a decision count, not
+    a clock).
   - "makespan": the max, over all agents, of a per-agent counter that is
     incremented once per *real* elapsed simulator timestep (including
-    forced wait-timesteps). This is the more accurate measure of how much
+    forced wait-timesteps). This is the accurate measure of how much
     simulated time actually passed.
 
-Dividing tasksFinished by "steps" therefore overstates throughput for any
-run where the planner timed out a lot (observed for --scheduleModel 1 on
-the orz900d map). Dividing by "makespan" gives real-time throughput
-instead. This script reports both so you can compare/plot either.
+Dividing tasksFinished by "steps" gives throughput per genuine solver
+decision; dividing by "makespan" gives real-time throughput. These answer
+different questions -- use "makespan" for real-time throughput comparisons
+across solvers/configs, and "steps" if you want cost-per-decision (e.g.
+to compare how much a solver accomplishes each time it actually runs,
+independent of how often it times out). This script reports both so you
+can compare/plot either.
 
 Usage:
     python3 compute_throughput_metrics.py <result.json>
@@ -194,7 +200,7 @@ def compute_metrics(json_path: Path) -> dict:
         "steps": steps,
         "makespan": makespan,
         # Guard against div-by-zero on a degenerate/empty run.
-        # "tp_steps": tasks / steps if steps else float("nan"),
+        "tp_steps": tasks / steps if steps else float("nan"),
         "tp_makespan": tasks / makespan if makespan else float("nan"),
     }
 
@@ -232,6 +238,7 @@ def compute_metrics_indexed(json_path: Path, source_dir: Path, known_maps) -> di
         "tasks": tasks,
         "steps": steps,
         "makespan": makespan,
+        "tp_steps": tasks / steps if steps else float("nan"),
         "tp_makespan": tasks / makespan if makespan else float("nan"),
     }
 
@@ -380,7 +387,8 @@ def main():
             sys.exit("error: no result JSON files found under any listed directory")
 
         fieldnames = ["dir", "file", "map", "agents", "solver", "level", "nolocalmatch",
-                      "local_node_match", "variant", "label", "tasks", "steps", "makespan", "tp_makespan"]
+                      "local_node_match", "variant", "label", "tasks", "steps", "makespan",
+                      "tp_steps", "tp_makespan"]
 
         overrides_file = args.overrides_file or (args.dirs_file.parent / "dashboard_overrides.txt")
         if not args.no_overrides and overrides_file.exists():
@@ -430,7 +438,7 @@ def main():
     # Sort by agent count then label so multi-config sweeps plot in a sane order.
     rows.sort(key=lambda r: (r["agents"] if r["agents"] is not None else -1, r["label"]))
 
-    fieldnames = ["file", "agents", "label", "tasks", "steps", "makespan", "tp_makespan"]
+    fieldnames = ["file", "agents", "label", "tasks", "steps", "makespan", "tp_steps", "tp_makespan"]
     md_path = args.md or (args.output.with_suffix(".md") if args.output else None)
     write_outputs(rows, fieldnames, args.output, md_path)
 

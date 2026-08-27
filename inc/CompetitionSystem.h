@@ -44,6 +44,16 @@ struct TimeStepMetric
     // solver-7 timesteps too (only nonzero on a call that actually rebuilt
     // it, e.g. the first one). See ai/edge_node_representation.md.
     double SchedulerBackboneBuildTime = 0.0;
+    // Real simulated timestep this entry was recorded at (simulator.get_curr_timestep()
+    // right after this call's moves), and how many tasks TaskManager marked
+    // finished during that same call. Catch-up ticks forced by a planner
+    // timeout advance the clock with all-wait actions and complete no tasks,
+    // so they are correctly 0 here -- but since one push can still represent
+    // several real elapsed timesteps (see "Makespan vs 'timesteps solved'" in
+    // ai/project_context.md), pair TasksFinishedThisStep with Timestep rather
+    // than the entry's array index when computing a per-timestep rate.
+    int Timestep = 0;
+    int TasksFinishedThisStep = 0;
 };
 /* End per-timestep metrics model. */
 

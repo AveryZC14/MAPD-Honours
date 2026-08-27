@@ -24,7 +24,7 @@ public:
 
     // reveal new task
     void reveal_tasks(int timestep);
-    void update_tasks(vector<State>& states, vector<int>& assignment, int timestep);
+    int update_tasks(vector<State>& states, vector<int>& assignment, int timestep);
 
     void sync_shared_env(SharedEnvironment* env);
 

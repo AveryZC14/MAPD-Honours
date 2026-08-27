@@ -86,6 +86,19 @@ this by hand — see `ai/todo.md`.
 
 ### `tp/steps` vs `tp/makespan` — always prefer `tp/makespan`
 
+**Note (2026-08-26):** the worked numbers below (`orz900d` ~26%, `IH_mp_2p_01`
+up to 177.5 tp/steps) were generated before a fix to a duplicate-row bug in
+`timeStepMetrics` (see `ai/todo.md`, "`timeStepMetrics` duplicate-row bug") —
+pre-fix, a timed-out iteration pushed **two** byte-identical rows instead of
+one, so `len(timeStepMetrics)` on those old result JSONs is up to 2x the
+genuine decision count, not just "undercounts real elapsed time" as described
+below. The direction of the conclusion (`tp/steps` overstates throughput,
+prefer `tp/makespan`) still holds and if anything was understated pre-fix.
+Any *new* sweep run after the fix will have smaller, now-meaningful `steps`
+counts (one row per genuine solver decision) — don't directly compare a new
+sweep's `steps`/`tp/steps` column against an old one's without accounting for
+this.
+
 The simulator's output JSON has two different counters that both look like
 "number of timesteps" but aren't:
 

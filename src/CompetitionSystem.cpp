@@ -203,11 +203,8 @@ void BaseSystem::simulate(int simulation_time)
 
         /* Begin running-total accumulation for local-node-match/flow-match counts.
          * Done exactly once per plan() call (i.e. per real scheduler invocation),
-         * not once per TimeStepMetric push below -- a single slow call can push
-         * two entries sharing the same last_scheduler_timing (one catch-up entry
-         * plus one normal entry, see "Makespan vs 'timesteps solved'" in
-         * ai/project_context.md), and both entries reflect one assignment
-         * decision, not two. */
+         * matching the single TimeStepMetric push below one-for-one -- see
+         * "Makespan vs 'timesteps solved'" in ai/project_context.md. */
         total_local_node_match_count += last_scheduler_timing.local_node_match_count;
         total_flow_match_count += last_scheduler_timing.flow_match_count;
         /* End running-total accumulation. */
@@ -256,21 +253,11 @@ void BaseSystem::simulate(int simulation_time)
             double planner_time = std::chrono::duration<double>(end - start).count();
             planner_times.push_back(planner_time);
 
-            /* Begin storing final per-timestep scheduler and planner metrics. */
-            TimeStepMetric metric;
-            metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
-            metric.SchedulerGuidePathTime = last_scheduler_timing.guide_path_time;
-            metric.PlannerTime = planner_time;
-            metric.GuidePathLengthSum = last_scheduler_timing.guide_path_length_sum;
-            metric.GuidePathCostSum = last_scheduler_timing.guide_path_cost_sum;
-            metric.LocalNodeMatchCount = last_scheduler_timing.local_node_match_count;
-            metric.FlowMatchCount = last_scheduler_timing.flow_match_count;
-            metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
-            metric.FlowMatchCountCumulative = total_flow_match_count;
-            metric.SchedulerLocalMatchTime = last_scheduler_timing.local_match_time;
-            metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
-            time_step_metrics.push_back(metric);
-            /* End storing final per-timestep scheduler and planner metrics. */
+            // No TimeStepMetric push here: the catch-up ticks advanced above
+            // did no real scheduler/planner work of their own, and the
+            // unconditional push below (same last_scheduler_timing/planner_time,
+            // one plan() call) already records this decision -- see
+            // "Makespan vs 'timesteps solved'" in ai/project_context.md.
 
             // break; // exit simulation loop after advancing timeout timesteps
         }
@@ -288,6 +275,10 @@ void BaseSystem::simulate(int simulation_time)
         double planner_time = std::chrono::duration<double>(end - start).count();
         planner_times.push_back(planner_time);
 
+        // update tasks using moved states -- done before the metric push below
+        // so TasksFinishedThisStep can be recorded on the same entry.
+        int tasks_finished_this_step = task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
+
         /* Begin storing per-timestep scheduler and planner metrics. */
         TimeStepMetric metric;
         metric.SchedulerSolveTime = last_scheduler_timing.solve_time;
@@ -301,11 +292,10 @@ void BaseSystem::simulate(int simulation_time)
         metric.FlowMatchCountCumulative = total_flow_match_count;
         metric.SchedulerLocalMatchTime = last_scheduler_timing.local_match_time;
         metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
+        metric.Timestep = simulator.get_curr_timestep();
+        metric.TasksFinishedThisStep = tasks_finished_this_step;
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
-
-        // update tasks using moved states
-        task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
     }
 
     /* Begin per-timestep guide-path / agent-position CSV dump teardown. */
@@ -410,6 +400,8 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["FlowMatchCountCumulative"] = metric.FlowMatchCountCumulative;
             step["SchedulerLocalMatchTime"] = metric.SchedulerLocalMatchTime;
             step["SchedulerBackboneBuildTime"] = metric.SchedulerBackboneBuildTime;
+            step["Timestep"] = metric.Timestep;
+            step["TasksFinishedThisStep"] = metric.TasksFinishedThisStep;
             time_step_metrics_json.push_back(step);
         }
         js["timeStepMetrics"] = time_step_metrics_json;

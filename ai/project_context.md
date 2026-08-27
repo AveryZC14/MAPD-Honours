@@ -133,27 +133,36 @@ These are computed from different variables and can diverge:
   right before `simulator.move(proposed_actions)`) and in the catch-up path
   described below (`:170-178`). It tracks real simulated time.
 - **"timesteps solved" / "steps recorded"** = `len(timeStepMetrics)`, one
-  entry appended per *call into the planner*, not per elapsed timestep. The
-  outer loop (`simulate()`) calls `plan(timeout_timesteps)` once per
-  iteration; `plan()` (`:91-104`) itself loops internally, incrementing
-  `timeout_timesteps` once for every additional simulated timestep it has to
-  burn waiting for a still-running planner thread. Back in `simulate()`, that
-  whole burst of `timeout_timesteps` forced real timestep advances
-  (`simulator.move(all_wait_actions)` in a `for` loop, `:170-178`) gets
-  **exactly one** `TimeStepMetric` appended for the entire batch (`:183-189`),
-  then one more real move + one more metric entry happens for the "actual"
-  planned step (`:194-213`). So one outer-loop iteration can advance the
-  simulated clock by `timeout_timesteps + 1` real timesteps while only adding
-  1-2 rows to `timeStepMetrics`.
+  entry appended per *call into the planner* (i.e. one genuine solver
+  decision), not per elapsed timestep. The outer loop (`simulate()`) calls
+  `plan(timeout_timesteps)` once per iteration; `plan()` (`:91-104`) itself
+  loops internally, incrementing `timeout_timesteps` once for every
+  additional simulated timestep it has to burn waiting for a still-running
+  planner thread. Back in `simulate()`, that whole burst of
+  `timeout_timesteps` forced real timestep advances
+  (`simulator.move(all_wait_actions)` in a `for` loop) does **not** append
+  its own `TimeStepMetric` — only the "actual" planned step's push does
+  (one `TimeStepMetric` per outer-loop iteration, always). So one
+  outer-loop iteration can advance the simulated clock by
+  `timeout_timesteps + 1` real timesteps while adding exactly 1 row to
+  `timeStepMetrics`. (Prior to 2026-08-26 the catch-up branch pushed a
+  second, byte-identical row per timed-out iteration — a duplicate-row bug,
+  since fixed; `len(timeStepMetrics)` used to be an inconsistent mix of 1x
+  and 2x the genuine decision count depending on whether that iteration
+  timed out.)
 - **Net effect**: whenever the planner is slow enough to time out and force
   multiple catch-up timesteps in a single call (solver 1 on `orz900d` does
   this constantly — see "planner timeout" log spam), `len(timeStepMetrics)`
-  under-counts real elapsed time, while `makespan` does not. Dividing
-  tasks-finished by `len(timeStepMetrics)` therefore **overstates** throughput
-  for whichever solver times out more; dividing by `makespan` gives the
-  real-time-accurate figure. `visualisation/compute_throughput_metrics.py`
-  reports both (`tp/steps` and `tp/makespan`) — prefer `tp/makespan`. Full
-  worked example with real numbers in `ai/auto_benchmarking.md`.
+  under-counts real elapsed time, while `makespan` does not — **by design**:
+  `len(timeStepMetrics)` is meant to track genuine solver activity, not
+  simulated time. The gap (`makespan - len(timeStepMetrics)`) is itself a
+  useful idle/catch-up-time signal. Dividing tasks-finished by
+  `len(timeStepMetrics)` therefore **overstates** throughput for whichever
+  solver times out more; dividing by `makespan` gives the real-time-accurate
+  figure. `visualisation/compute_throughput_metrics.py` reports both
+  (`tp/steps` and `tp/makespan`) — prefer `tp/makespan` for throughput,
+  `tp/steps` if what you want is cost-per-genuine-decision. Full worked
+  example with real numbers in `ai/auto_benchmarking.md`.
 - Separately, `makespan` can overshoot the requested `-s N` by 1: `plan()`'s
   internal loop condition (`timestep + timeout_timesteps < simulation_time`)
   stops advancing `timeout_timesteps` once the cap is hit, but `simulate()`
@@ -535,9 +544,10 @@ Headline pitfalls documented there, worth knowing before touching this again:
   within ~12 timesteps at `--planTimeLimit 10000`. Never fixed — out of scope
   for that sweep. Anyone raising solver 1's time limit should know this first.
 - `makespan` and `len(timeStepMetrics)` ("steps recorded") are **not the same
-  number** and can diverge badly — see "Makespan vs. 'timesteps solved'"
-  above for the mechanics; always use `tp/makespan`, never `tp/steps`, for
-  throughput comparisons (`visualisation/compute_throughput_metrics.py`
+  number** and diverge by design (steps = genuine solver decisions, makespan =
+  real elapsed simulated time) — see "Makespan vs. 'timesteps solved'" above
+  for the mechanics; use `tp/makespan` for real-time throughput comparisons,
+  `tp/steps` for cost-per-decision (`visualisation/compute_throughput_metrics.py`
   reports both from a result JSON or folder of them).
 - The coarsen-level/depth toggle (`kDefaultCoarsenLevels`, a `constexpr int`
   at `MapCoarsenV1.cpp:31`) is compile-time only — there's no CLI flag, so
