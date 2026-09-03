@@ -1,0 +1,2141 @@
+planner init
+finish init
+current timestep 0
+num of flexible agents: 10000
+num of flexible tasks: 15000
+Solving time: 38.5491 seconds
+Guide path time: 0.0968516 seconds
+Total scheduler time: 38.6459 seconds
+plan limit -38426
+compute initial stop until 0
+current timestep 40
+num of flexible agents: 9777
+num of flexible tasks: 14777
+Solving time: 39.9851 seconds
+Guide path time: 0.0863651 seconds
+Total scheduler time: 40.0714 seconds
+plan limit -39685
+compute initial stop until 0
+current timestep 81
+num of flexible agents: 9441
+num of flexible tasks: 14441
+Solving time: 39.276 seconds
+Guide path time: 0.0870478 seconds
+Total scheduler time: 39.363 seconds
+plan limit -38995
+compute initial stop until 0
+current timestep 121
+num of flexible agents: 8970
+num of flexible tasks: 13970
+Solving time: 38.5783 seconds
+Guide path time: 0.0820741 seconds
+Total scheduler time: 38.6604 seconds
+plan limit -38296
+compute initial stop until 0
+current timestep 161
+num of flexible agents: 8456
+num of flexible tasks: 13456
+Solving time: 38.5446 seconds
+Guide path time: 0.0947126 seconds
+Total scheduler time: 38.6393 seconds
+plan limit -38285
+compute initial stop until 0
+current timestep 201
+num of flexible agents: 7871
+num of flexible tasks: 12871
+Solving time: 37.7243 seconds
+Guide path time: 0.100312 seconds
+Total scheduler time: 37.8246 seconds
+plan limit -37488
+compute initial stop until 0
+current timestep 240
+num of flexible agents: 7260
+num of flexible tasks: 12260
+Solving time: 37.3822 seconds
+Guide path time: 0.0933054 seconds
+Total scheduler time: 37.4755 seconds
+plan limit -37171
+compute initial stop until 0
+current timestep 279
+num of flexible agents: 6680
+num of flexible tasks: 11680
+Solving time: 36.4506 seconds
+Guide path time: 0.0997961 seconds
+Total scheduler time: 36.5504 seconds
+plan limit -36249
+compute initial stop until 0
+current timestep 317
+num of flexible agents: 6135
+num of flexible tasks: 11135
+Solving time: 36.6666 seconds
+Guide path time: 0.107521 seconds
+Total scheduler time: 36.7741 seconds
+plan limit -36461
+compute initial stop until 0
+current timestep 355
+num of flexible agents: 5582
+num of flexible tasks: 10582
+Solving time: 35.8805 seconds
+Guide path time: 0.101051 seconds
+Total scheduler time: 35.9816 seconds
+plan limit -35679
+compute initial stop until 0
+current timestep 392
+num of flexible agents: 5102
+num of flexible tasks: 10102
+Solving time: 34.7631 seconds
+Guide path time: 0.0911782 seconds
+Total scheduler time: 34.8543 seconds
+plan limit -34547
+compute initial stop until 0
+current timestep 428
+num of flexible agents: 4637
+num of flexible tasks: 9637
+Solving time: 35.8848 seconds
+Guide path time: 0.0519893 seconds
+Total scheduler time: 35.9368 seconds
+plan limit -35590
+compute initial stop until 0
+current timestep 465
+num of flexible agents: 4216
+num of flexible tasks: 9216
+Solving time: 34.7761 seconds
+Guide path time: 0.034759 seconds
+Total scheduler time: 34.8109 seconds
+plan limit -34567
+compute initial stop until 0
+current timestep 501
+num of flexible agents: 3813
+num of flexible tasks: 8813
+Solving time: 34.8914 seconds
+Guide path time: 0.035046 seconds
+Total scheduler time: 34.9265 seconds
+plan limit -34586
+compute initial stop until 0
+current timestep 537
+num of flexible agents: 3506
+num of flexible tasks: 8506
+Solving time: 33.8024 seconds
+Guide path time: 0.0354244 seconds
+Total scheduler time: 33.8379 seconds
+plan limit -33478
+compute initial stop until 0
+current timestep 572
+num of flexible agents: 3207
+num of flexible tasks: 8207
+Solving time: 33.5098 seconds
+Guide path time: 0.0307469 seconds
+Total scheduler time: 33.5405 seconds
+plan limit -33189
+compute initial stop until 0
+current timestep 607
+num of flexible agents: 2946
+num of flexible tasks: 7946
+Solving time: 32.9171 seconds
+Guide path time: 0.0276239 seconds
+Total scheduler time: 32.9447 seconds
+plan limit -32610
+compute initial stop until 0
+current timestep 641
+num of flexible agents: 2679
+num of flexible tasks: 7679
+Solving time: 32.4339 seconds
+Guide path time: 0.0257229 seconds
+Total scheduler time: 32.4596 seconds
+plan limit -32088
+compute initial stop until 0
+current timestep 675
+num of flexible agents: 2492
+num of flexible tasks: 7492
+Solving time: 31.5383 seconds
+Guide path time: 0.0269522 seconds
+Total scheduler time: 31.5652 seconds
+plan limit -31188
+compute initial stop until 0
+current timestep 708
+num of flexible agents: 2297
+num of flexible tasks: 7297
+Solving time: 30.642 seconds
+Guide path time: 0.0232077 seconds
+Total scheduler time: 30.6653 seconds
+plan limit -30293
+compute initial stop until 0
+current timestep 740
+num of flexible agents: 2097
+num of flexible tasks: 7097
+Solving time: 30.5626 seconds
+Guide path time: 0.0265505 seconds
+Total scheduler time: 30.5891 seconds
+plan limit -30240
+compute initial stop until 0
+current timestep 772
+num of flexible agents: 1937
+num of flexible tasks: 6937
+Solving time: 30.2787 seconds
+Guide path time: 0.0305244 seconds
+Total scheduler time: 30.3092 seconds
+plan limit -29949
+compute initial stop until 0
+current timestep 803
+num of flexible agents: 1807
+num of flexible tasks: 6807
+Solving time: 29.5963 seconds
+Guide path time: 0.0433717 seconds
+Total scheduler time: 29.6397 seconds
+plan limit -29308
+compute initial stop until 0
+current timestep 834
+num of flexible agents: 1677
+num of flexible tasks: 6677
+Solving time: 29.169 seconds
+Guide path time: 0.0413119 seconds
+Total scheduler time: 29.2103 seconds
+plan limit -28905
+compute initial stop until 0
+current timestep 864
+num of flexible agents: 1561
+num of flexible tasks: 6561
+Solving time: 28.8277 seconds
+Guide path time: 0.0471899 seconds
+Total scheduler time: 28.8749 seconds
+plan limit -28587
+compute initial stop until 0
+current timestep 894
+num of flexible agents: 1460
+num of flexible tasks: 6460
+Solving time: 28.9845 seconds
+Guide path time: 0.0470817 seconds
+Total scheduler time: 29.0316 seconds
+plan limit -28765
+compute initial stop until 0
+current timestep 924
+num of flexible agents: 1361
+num of flexible tasks: 6361
+Solving time: 29.0129 seconds
+Guide path time: 0.0472683 seconds
+Total scheduler time: 29.0601 seconds
+plan limit -28775
+compute initial stop until 0
+current timestep 954
+num of flexible agents: 1265
+num of flexible tasks: 6265
+Solving time: 27.5097 seconds
+Guide path time: 0.0354127 seconds
+Total scheduler time: 27.5451 seconds
+plan limit -27235
+compute initial stop until 0
+current timestep 983
+num of flexible agents: 1191
+num of flexible tasks: 6191
+Solving time: 27.2016 seconds
+Guide path time: 0.0196906 seconds
+Total scheduler time: 27.2213 seconds
+plan limit -27018
+compute initial stop until 0
+current timestep 1012
+num of flexible agents: 1108
+num of flexible tasks: 6108
+Solving time: 26.9991 seconds
+Guide path time: 0.0142179 seconds
+Total scheduler time: 27.0133 seconds
+plan limit -26658
+compute initial stop until 0
+current timestep 1040
+num of flexible agents: 1025
+num of flexible tasks: 6025
+Solving time: 26.6752 seconds
+Guide path time: 0.0131989 seconds
+Total scheduler time: 26.6884 seconds
+plan limit -26326
+compute initial stop until 0
+current timestep 1068
+num of flexible agents: 959
+num of flexible tasks: 5959
+Solving time: 26.529 seconds
+Guide path time: 0.0123661 seconds
+Total scheduler time: 26.5414 seconds
+plan limit -26172
+compute initial stop until 0
+current timestep 1096
+num of flexible agents: 883
+num of flexible tasks: 5883
+Solving time: 26.1577 seconds
+Guide path time: 0.0118779 seconds
+Total scheduler time: 26.1696 seconds
+plan limit -25794
+compute initial stop until 0
+current timestep 1123
+num of flexible agents: 827
+num of flexible tasks: 5827
+Solving time: 25.2996 seconds
+Guide path time: 0.0116024 seconds
+Total scheduler time: 25.3112 seconds
+plan limit -24947
+compute initial stop until 0
+current timestep 1149
+num of flexible agents: 776
+num of flexible tasks: 5776
+Solving time: 24.9822 seconds
+Guide path time: 0.0114713 seconds
+Total scheduler time: 24.9937 seconds
+plan limit -24620
+compute initial stop until 0
+current timestep 1175
+num of flexible agents: 738
+num of flexible tasks: 5738
+Solving time: 25.2046 seconds
+Guide path time: 0.0107021 seconds
+Total scheduler time: 25.2153 seconds
+plan limit -24849
+compute initial stop until 0
+current timestep 1201
+num of flexible agents: 697
+num of flexible tasks: 5697
+Solving time: 25.3212 seconds
+Guide path time: 0.0106845 seconds
+Total scheduler time: 25.3318 seconds
+plan limit -24964
+compute initial stop until 0
+current timestep 1227
+num of flexible agents: 666
+num of flexible tasks: 5666
+Solving time: 25.3634 seconds
+Guide path time: 0.0099678 seconds
+Total scheduler time: 25.3734 seconds
+plan limit -25010
+compute initial stop until 0
+current timestep 1254
+num of flexible agents: 627
+num of flexible tasks: 5627
+Solving time: 25.0091 seconds
+Guide path time: 0.00930783 seconds
+Total scheduler time: 25.0184 seconds
+plan limit -24654
+compute initial stop until 0
+current timestep 1280
+num of flexible agents: 586
+num of flexible tasks: 5586
+Solving time: 25.5389 seconds
+Guide path time: 0.00911594 seconds
+Total scheduler time: 25.548 seconds
+plan limit -25187
+compute initial stop until 0
+current timestep 1307
+num of flexible agents: 553
+num of flexible tasks: 5553
+Solving time: 25.2096 seconds
+Guide path time: 0.00849256 seconds
+Total scheduler time: 25.2181 seconds
+plan limit -24853
+compute initial stop until 0
+current timestep 1333
+num of flexible agents: 511
+num of flexible tasks: 5511
+Solving time: 24.9921 seconds
+Guide path time: 0.00838185 seconds
+Total scheduler time: 25.0005 seconds
+plan limit -24633
+compute initial stop until 0
+current timestep 1359
+num of flexible agents: 484
+num of flexible tasks: 5484
+Solving time: 25.4443 seconds
+Guide path time: 0.00947478 seconds
+Total scheduler time: 25.4538 seconds
+plan limit -25120
+compute initial stop until 0
+current timestep 1386
+num of flexible agents: 456
+num of flexible tasks: 5456
+Solving time: 25.2937 seconds
+Guide path time: 0.00957399 seconds
+Total scheduler time: 25.3033 seconds
+plan limit -24962
+compute initial stop until 0
+current timestep 1412
+num of flexible agents: 431
+num of flexible tasks: 5431
+Solving time: 25.6828 seconds
+Guide path time: 0.0194883 seconds
+Total scheduler time: 25.7023 seconds
+plan limit -25375
+compute initial stop until 0
+current timestep 1439
+num of flexible agents: 410
+num of flexible tasks: 5410
+Solving time: 24.6177 seconds
+Guide path time: 0.0165275 seconds
+Total scheduler time: 24.6342 seconds
+plan limit -24350
+compute initial stop until 0
+current timestep 1465
+num of flexible agents: 387
+num of flexible tasks: 5387
+Solving time: 25.091 seconds
+Guide path time: 0.0252809 seconds
+Total scheduler time: 25.1163 seconds
+plan limit -24881
+compute initial stop until 0
+current timestep 1491
+num of flexible agents: 365
+num of flexible tasks: 5365
+Solving time: 25.0827 seconds
+Guide path time: 0.02516 seconds
+Total scheduler time: 25.1078 seconds
+plan limit -24876
+compute initial stop until 0
+current timestep 1517
+num of flexible agents: 345
+num of flexible tasks: 5345
+Solving time: 24.6625 seconds
+Guide path time: 0.00993282 seconds
+Total scheduler time: 24.6724 seconds
+plan limit -24468
+compute initial stop until 0
+current timestep 1543
+num of flexible agents: 328
+num of flexible tasks: 5328
+Solving time: 24.2646 seconds
+Guide path time: 0.00612299 seconds
+Total scheduler time: 24.2707 seconds
+plan limit -23942
+compute initial stop until 0
+current timestep 1568
+num of flexible agents: 313
+num of flexible tasks: 5313
+Solving time: 24.6646 seconds
+Guide path time: 0.0061003 seconds
+Total scheduler time: 24.6707 seconds
+plan limit -24309
+compute initial stop until 0
+current timestep 1594
+num of flexible agents: 295
+num of flexible tasks: 5295
+Solving time: 24.4221 seconds
+Guide path time: 0.00554126 seconds
+Total scheduler time: 24.4277 seconds
+plan limit -24056
+compute initial stop until 0
+current timestep 1620
+num of flexible agents: 283
+num of flexible tasks: 5283
+Solving time: 24.5455 seconds
+Guide path time: 0.00541225 seconds
+Total scheduler time: 24.5509 seconds
+plan limit -24179
+compute initial stop until 0
+current timestep 1646
+num of flexible agents: 272
+num of flexible tasks: 5272
+Solving time: 24.4417 seconds
+Guide path time: 0.00514804 seconds
+Total scheduler time: 24.4468 seconds
+plan limit -24079
+compute initial stop until 0
+current timestep 1672
+num of flexible agents: 262
+num of flexible tasks: 5262
+Solving time: 24.2241 seconds
+Guide path time: 0.00504686 seconds
+Total scheduler time: 24.2291 seconds
+plan limit -23860
+compute initial stop until 0
+current timestep 1697
+num of flexible agents: 249
+num of flexible tasks: 5249
+Solving time: 24.0586 seconds
+Guide path time: 0.00486512 seconds
+Total scheduler time: 24.0634 seconds
+plan limit -23690
+compute initial stop until 0
+current timestep 1722
+num of flexible agents: 239
+num of flexible tasks: 5239
+Solving time: 23.9075 seconds
+Guide path time: 0.00478252 seconds
+Total scheduler time: 23.9123 seconds
+plan limit -23544
+compute initial stop until 0
+current timestep 1747
+num of flexible agents: 230
+num of flexible tasks: 5230
+Solving time: 24.1985 seconds
+Guide path time: 0.00462491 seconds
+Total scheduler time: 24.2031 seconds
+plan limit -23832
+compute initial stop until 0
+current timestep 1772
+num of flexible agents: 224
+num of flexible tasks: 5224
+Solving time: 23.7245 seconds
+Guide path time: 0.00475498 seconds
+Total scheduler time: 23.7292 seconds
+plan limit -23360
+compute initial stop until 0
+current timestep 1797
+num of flexible agents: 215
+num of flexible tasks: 5215
+Solving time: 24.1497 seconds
+Guide path time: 0.00430044 seconds
+Total scheduler time: 24.154 seconds
+plan limit -23786
+compute initial stop until 0
+current timestep 1822
+num of flexible agents: 209
+num of flexible tasks: 5209
+Solving time: 24.1618 seconds
+Guide path time: 0.0041708 seconds
+Total scheduler time: 24.166 seconds
+plan limit -23800
+compute initial stop until 0
+current timestep 1847
+num of flexible agents: 200
+num of flexible tasks: 5200
+Solving time: 23.6444 seconds
+Guide path time: 0.0040219 seconds
+Total scheduler time: 23.6484 seconds
+plan limit -23279
+compute initial stop until 0
+current timestep 1872
+num of flexible agents: 197
+num of flexible tasks: 5197
+Solving time: 23.7 seconds
+Guide path time: 0.00399104 seconds
+Total scheduler time: 23.7039 seconds
+plan limit -23330
+compute initial stop until 0
+current timestep 1897
+num of flexible agents: 193
+num of flexible tasks: 5193
+Solving time: 23.9086 seconds
+Guide path time: 0.00376781 seconds
+Total scheduler time: 23.9124 seconds
+plan limit -23534
+compute initial stop until 0
+current timestep 1922
+num of flexible agents: 187
+num of flexible tasks: 5187
+Solving time: 23.7581 seconds
+Guide path time: 0.00367547 seconds
+Total scheduler time: 23.7617 seconds
+plan limit -23390
+compute initial stop until 0
+current timestep 1947
+num of flexible agents: 183
+num of flexible tasks: 5183
+Solving time: 23.7091 seconds
+Guide path time: 0.00352817 seconds
+Total scheduler time: 23.7127 seconds
+plan limit -23335
+compute initial stop until 0
+current timestep 1972
+num of flexible agents: 171
+num of flexible tasks: 5171
+Solving time: 23.9812 seconds
+Guide path time: 0.00334716 seconds
+Total scheduler time: 23.9845 seconds
+plan limit -23625
+compute initial stop until 0
+current timestep 1997
+num of flexible agents: 165
+num of flexible tasks: 5165
+Solving time: 24.3591 seconds
+Guide path time: 0.00330384 seconds
+Total scheduler time: 24.3624 seconds
+plan limit -23994
+compute initial stop until 0
+current timestep 2022
+num of flexible agents: 160
+num of flexible tasks: 5160
+Solving time: 23.7084 seconds
+Guide path time: 0.00310759 seconds
+Total scheduler time: 23.7115 seconds
+plan limit -23342
+compute initial stop until 0
+current timestep 2047
+num of flexible agents: 150
+num of flexible tasks: 5150
+Solving time: 23.6353 seconds
+Guide path time: 0.00349188 seconds
+Total scheduler time: 23.6388 seconds
+plan limit -23264
+compute initial stop until 0
+current timestep 2072
+num of flexible agents: 144
+num of flexible tasks: 5144
+Solving time: 24.0002 seconds
+Guide path time: 0.00308187 seconds
+Total scheduler time: 24.0032 seconds
+plan limit -23631
+compute initial stop until 0
+current timestep 2097
+num of flexible agents: 141
+num of flexible tasks: 5141
+Solving time: 23.6897 seconds
+Guide path time: 0.00319386 seconds
+Total scheduler time: 23.6929 seconds
+plan limit -23323
+compute initial stop until 0
+current timestep 2122
+num of flexible agents: 135
+num of flexible tasks: 5135
+Solving time: 23.6169 seconds
+Guide path time: 0.00320588 seconds
+Total scheduler time: 23.6201 seconds
+plan limit -23263
+compute initial stop until 0
+current timestep 2147
+num of flexible agents: 128
+num of flexible tasks: 5128
+Solving time: 23.5935 seconds
+Guide path time: 0.00485169 seconds
+Total scheduler time: 23.5984 seconds
+plan limit -23244
+compute initial stop until 0
+current timestep 2172
+num of flexible agents: 125
+num of flexible tasks: 5125
+Solving time: 24.4191 seconds
+Guide path time: 0.00529349 seconds
+Total scheduler time: 24.4246 seconds
+plan limit -24096
+compute initial stop until 0
+current timestep 2198
+num of flexible agents: 122
+num of flexible tasks: 5122
+Solving time: 23.9235 seconds
+Guide path time: 0.00572073 seconds
+Total scheduler time: 23.9292 seconds
+plan limit -23613
+compute initial stop until 0
+current timestep 2223
+num of flexible agents: 114
+num of flexible tasks: 5114
+Solving time: 24.1124 seconds
+Guide path time: 0.00548791 seconds
+Total scheduler time: 24.1179 seconds
+plan limit -23813
+compute initial stop until 0
+current timestep 2248
+num of flexible agents: 112
+num of flexible tasks: 5112
+Solving time: 23.8782 seconds
+Guide path time: 0.00601716 seconds
+Total scheduler time: 23.8842 seconds
+plan limit -23594
+compute initial stop until 0
+current timestep 2273
+num of flexible agents: 110
+num of flexible tasks: 5110
+Solving time: 24.0979 seconds
+Guide path time: 0.00703926 seconds
+Total scheduler time: 24.105 seconds
+plan limit -23815
+compute initial stop until 0
+current timestep 2298
+num of flexible agents: 105
+num of flexible tasks: 5105
+Solving time: 26.0871 seconds
+Guide path time: 0.0104613 seconds
+Total scheduler time: 26.0975 seconds
+plan limit -25928
+compute initial stop until 0
+current timestep 2325
+num of flexible agents: 102
+num of flexible tasks: 5102
+Solving time: 24.6407 seconds
+Guide path time: 0.00385608 seconds
+Total scheduler time: 24.6446 seconds
+plan limit -24446
+compute initial stop until 0
+current timestep 2351
+num of flexible agents: 94
+num of flexible tasks: 5094
+Solving time: 26.593 seconds
+Guide path time: 0.00304647 seconds
+Total scheduler time: 26.5961 seconds
+plan limit -26490
+compute initial stop until 0
+current timestep 2379
+num of flexible agents: 92
+num of flexible tasks: 5092
+Solving time: 24.6632 seconds
+Guide path time: 0.00233171 seconds
+Total scheduler time: 24.6655 seconds
+plan limit -24312
+compute initial stop until 0
+current timestep 2405
+num of flexible agents: 89
+num of flexible tasks: 5089
+Solving time: 24.6203 seconds
+Guide path time: 0.00227957 seconds
+Total scheduler time: 24.6226 seconds
+plan limit -24268
+compute initial stop until 0
+current timestep 2431
+num of flexible agents: 86
+num of flexible tasks: 5086
+Solving time: 24.1565 seconds
+Guide path time: 0.00214308 seconds
+Total scheduler time: 24.1586 seconds
+plan limit -23795
+compute initial stop until 0
+current timestep 2456
+num of flexible agents: 82
+num of flexible tasks: 5082
+Solving time: 24.224 seconds
+Guide path time: 0.00212327 seconds
+Total scheduler time: 24.2261 seconds
+plan limit -23860
+compute initial stop until 0
+current timestep 2481
+num of flexible agents: 79
+num of flexible tasks: 5079
+Solving time: 24.1936 seconds
+Guide path time: 0.00219222 seconds
+Total scheduler time: 24.1958 seconds
+plan limit -23834
+compute initial stop until 0
+current timestep 2506
+num of flexible agents: 77
+num of flexible tasks: 5077
+Solving time: 24.4054 seconds
+Guide path time: 0.00218324 seconds
+Total scheduler time: 24.4076 seconds
+plan limit -24051
+compute initial stop until 0
+current timestep 2532
+num of flexible agents: 76
+num of flexible tasks: 5076
+Solving time: 24.2583 seconds
+Guide path time: 0.00300081 seconds
+Total scheduler time: 24.2613 seconds
+plan limit -23904
+compute initial stop until 0
+current timestep 2557
+num of flexible agents: 74
+num of flexible tasks: 5074
+Solving time: 23.9091 seconds
+Guide path time: 0.00245475 seconds
+Total scheduler time: 23.9115 seconds
+plan limit -23551
+compute initial stop until 0
+current timestep 2582
+num of flexible agents: 75
+num of flexible tasks: 5075
+Solving time: 24.2808 seconds
+Guide path time: 0.00306331 seconds
+Total scheduler time: 24.2839 seconds
+plan limit -23947
+compute initial stop until 0
+current timestep 2607
+num of flexible agents: 74
+num of flexible tasks: 5074
+Solving time: 24.338 seconds
+Guide path time: 0.0038253 seconds
+Total scheduler time: 24.3419 seconds
+plan limit -24011
+compute initial stop until 0
+current timestep 2633
+num of flexible agents: 72
+num of flexible tasks: 5072
+Solving time: 24.0817 seconds
+Guide path time: 0.00407226 seconds
+Total scheduler time: 24.0857 seconds
+plan limit -23780
+compute initial stop until 0
+current timestep 2658
+num of flexible agents: 71
+num of flexible tasks: 5071
+Solving time: 25.2568 seconds
+Guide path time: 0.00399366 seconds
+Total scheduler time: 25.2608 seconds
+plan limit -24960
+compute initial stop until 0
+current timestep 2684
+num of flexible agents: 70
+num of flexible tasks: 5070
+Solving time: 24.8903 seconds
+Guide path time: 0.00410562 seconds
+Total scheduler time: 24.8944 seconds
+plan limit -24601
+compute initial stop until 0
+current timestep 2710
+num of flexible agents: 70
+num of flexible tasks: 5070
+Solving time: 24.9784 seconds
+Guide path time: 0.00647552 seconds
+Total scheduler time: 24.9849 seconds
+plan limit -24711
+compute initial stop until 0
+current timestep 2736
+num of flexible agents: 71
+num of flexible tasks: 5071
+Solving time: 25.1839 seconds
+Guide path time: 0.00571197 seconds
+Total scheduler time: 25.1896 seconds
+plan limit -24956
+compute initial stop until 0
+current timestep 2762
+num of flexible agents: 70
+num of flexible tasks: 5070
+Solving time: 25.0272 seconds
+Guide path time: 0.00471332 seconds
+Total scheduler time: 25.032 seconds
+plan limit -24773
+compute initial stop until 0
+current timestep 2788
+num of flexible agents: 67
+num of flexible tasks: 5067
+Solving time: 24.9535 seconds
+Guide path time: 0.00319142 seconds
+Total scheduler time: 24.9567 seconds
+plan limit -24745
+compute initial stop until 0
+current timestep 2814
+num of flexible agents: 65
+num of flexible tasks: 5065
+Solving time: 24.0496 seconds
+Guide path time: 0.00172442 seconds
+Total scheduler time: 24.0513 seconds
+plan limit -23728
+compute initial stop until 0
+current timestep 2839
+num of flexible agents: 64
+num of flexible tasks: 5064
+Solving time: 24.0614 seconds
+Guide path time: 0.00191726 seconds
+Total scheduler time: 24.0633 seconds
+plan limit -23700
+compute initial stop until 0
+current timestep 2864
+num of flexible agents: 64
+num of flexible tasks: 5064
+Solving time: 25.0252 seconds
+Guide path time: 0.00172386 seconds
+Total scheduler time: 25.0269 seconds
+plan limit -24657
+compute initial stop until 0
+current timestep 2890
+num of flexible agents: 62
+num of flexible tasks: 5062
+Solving time: 23.9898 seconds
+Guide path time: 0.00167192 seconds
+Total scheduler time: 23.9915 seconds
+plan limit -23620
+compute initial stop until 0
+current timestep 2915
+num of flexible agents: 59
+num of flexible tasks: 5059
+Solving time: 24.4756 seconds
+Guide path time: 0.00161203 seconds
+Total scheduler time: 24.4772 seconds
+plan limit -24114
+compute initial stop until 0
+current timestep 2941
+num of flexible agents: 58
+num of flexible tasks: 5058
+Solving time: 23.6799 seconds
+Guide path time: 0.0016212 seconds
+Total scheduler time: 23.6815 seconds
+plan limit -23311
+compute initial stop until 0
+current timestep 2966
+num of flexible agents: 57
+num of flexible tasks: 5057
+Solving time: 24.3295 seconds
+Guide path time: 0.00157208 seconds
+Total scheduler time: 24.3311 seconds
+plan limit -23953
+compute initial stop until 0
+current timestep 2991
+num of flexible agents: 56
+num of flexible tasks: 5056
+Solving time: 23.9343 seconds
+Guide path time: 0.00154229 seconds
+Total scheduler time: 23.9358 seconds
+plan limit -23566
+compute initial stop until 0
+current timestep 3016
+num of flexible agents: 55
+num of flexible tasks: 5055
+Solving time: 24.5283 seconds
+Guide path time: 0.00176315 seconds
+Total scheduler time: 24.5301 seconds
+plan limit -24166
+compute initial stop until 0
+current timestep 3042
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.5653 seconds
+Guide path time: 0.00232274 seconds
+Total scheduler time: 23.5677 seconds
+plan limit -23214
+compute initial stop until 0
+current timestep 3067
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.7567 seconds
+Guide path time: 0.00460566 seconds
+Total scheduler time: 23.7613 seconds
+plan limit -23448
+compute initial stop until 0
+current timestep 3092
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.7492 seconds
+Guide path time: 0.00506726 seconds
+Total scheduler time: 23.7543 seconds
+plan limit -23499
+compute initial stop until 0
+current timestep 3117
+num of flexible agents: 52
+num of flexible tasks: 5052
+Solving time: 24.6651 seconds
+Guide path time: 0.00638521 seconds
+Total scheduler time: 24.6715 seconds
+plan limit -24490
+compute initial stop until 0
+current timestep 3143
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 24.1497 seconds
+Guide path time: 0.0052374 seconds
+Total scheduler time: 24.1549 seconds
+plan limit -23904
+compute initial stop until 0
+current timestep 3168
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.5218 seconds
+Guide path time: 0.00180457 seconds
+Total scheduler time: 23.5236 seconds
+plan limit -23316
+compute initial stop until 0
+current timestep 3193
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.3789 seconds
+Guide path time: 0.00151165 seconds
+Total scheduler time: 23.3804 seconds
+plan limit -23015
+compute initial stop until 0
+current timestep 3218
+num of flexible agents: 53
+num of flexible tasks: 5053
+Solving time: 23.5264 seconds
+Guide path time: 0.00153185 seconds
+Total scheduler time: 23.528 seconds
+plan limit -23193
+compute initial stop until 0
+current timestep 3243
+num of flexible agents: 51
+num of flexible tasks: 5051
+Solving time: 24.0488 seconds
+Guide path time: 0.00156968 seconds
+Total scheduler time: 24.0504 seconds
+plan limit -23689
+compute initial stop until 0
+current timestep 3268
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.6668 seconds
+Guide path time: 0.00156416 seconds
+Total scheduler time: 23.6684 seconds
+plan limit -23303
+compute initial stop until 0
+current timestep 3293
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.7212 seconds
+Guide path time: 0.00152242 seconds
+Total scheduler time: 23.7227 seconds
+plan limit -23353
+compute initial stop until 0
+current timestep 3318
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 26.0936 seconds
+Guide path time: 0.00149578 seconds
+Total scheduler time: 26.0951 seconds
+plan limit -25721
+compute initial stop until 0
+current timestep 3345
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.8234 seconds
+Guide path time: 0.00150499 seconds
+Total scheduler time: 23.8249 seconds
+plan limit -23456
+compute initial stop until 0
+current timestep 3370
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.9584 seconds
+Guide path time: 0.00152079 seconds
+Total scheduler time: 23.96 seconds
+plan limit -23588
+compute initial stop until 0
+current timestep 3395
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 24.1774 seconds
+Guide path time: 0.00167879 seconds
+Total scheduler time: 24.1791 seconds
+plan limit -23833
+compute initial stop until 0
+current timestep 3420
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.5908 seconds
+Guide path time: 0.00180991 seconds
+Total scheduler time: 23.5926 seconds
+plan limit -23233
+compute initial stop until 0
+current timestep 3445
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.8454 seconds
+Guide path time: 0.00173872 seconds
+Total scheduler time: 23.8471 seconds
+plan limit -23485
+compute initial stop until 0
+current timestep 3470
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.942 seconds
+Guide path time: 0.00381714 seconds
+Total scheduler time: 23.9458 seconds
+plan limit -23622
+compute initial stop until 0
+current timestep 3495
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.7342 seconds
+Guide path time: 0.00405856 seconds
+Total scheduler time: 23.7383 seconds
+plan limit -23463
+compute initial stop until 0
+current timestep 3520
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.9247 seconds
+Guide path time: 0.00354851 seconds
+Total scheduler time: 23.9282 seconds
+plan limit -23657
+compute initial stop until 0
+current timestep 3545
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.8891 seconds
+Guide path time: 0.005883 seconds
+Total scheduler time: 23.895 seconds
+plan limit -23642
+compute initial stop until 0
+current timestep 3570
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.7984 seconds
+Guide path time: 0.0048971 seconds
+Total scheduler time: 23.8033 seconds
+plan limit -23539
+compute initial stop until 0
+current timestep 3595
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.693 seconds
+Guide path time: 0.00165842 seconds
+Total scheduler time: 23.6947 seconds
+plan limit -23493
+compute initial stop until 0
+current timestep 3620
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.42 seconds
+Guide path time: 0.00152973 seconds
+Total scheduler time: 23.4215 seconds
+plan limit -23058
+compute initial stop until 0
+current timestep 3645
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 24.0818 seconds
+Guide path time: 0.00146613 seconds
+Total scheduler time: 24.0833 seconds
+plan limit -23713
+compute initial stop until 0
+current timestep 3670
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.4584 seconds
+Guide path time: 0.00149062 seconds
+Total scheduler time: 23.4599 seconds
+plan limit -23087
+compute initial stop until 0
+current timestep 3695
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.6709 seconds
+Guide path time: 0.00148762 seconds
+Total scheduler time: 23.6724 seconds
+plan limit -23306
+compute initial stop until 0
+current timestep 3720
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.8333 seconds
+Guide path time: 0.00162118 seconds
+Total scheduler time: 23.8349 seconds
+plan limit -23466
+compute initial stop until 0
+current timestep 3745
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 24.0228 seconds
+Guide path time: 0.00140323 seconds
+Total scheduler time: 24.0242 seconds
+plan limit -23655
+compute initial stop until 0
+current timestep 3770
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.6535 seconds
+Guide path time: 0.0014114 seconds
+Total scheduler time: 23.6549 seconds
+plan limit -23278
+compute initial stop until 0
+current timestep 3795
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.8684 seconds
+Guide path time: 0.00207406 seconds
+Total scheduler time: 23.8705 seconds
+plan limit -23505
+compute initial stop until 0
+current timestep 3820
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.3742 seconds
+Guide path time: 0.00159882 seconds
+Total scheduler time: 23.3758 seconds
+plan limit -23008
+compute initial stop until 0
+current timestep 3845
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.678 seconds
+Guide path time: 0.00242623 seconds
+Total scheduler time: 23.6805 seconds
+plan limit -23331
+compute initial stop until 0
+current timestep 3870
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.9761 seconds
+Guide path time: 0.00264224 seconds
+Total scheduler time: 23.9788 seconds
+plan limit -23657
+compute initial stop until 0
+current timestep 3895
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.4315 seconds
+Guide path time: 0.00262658 seconds
+Total scheduler time: 24.4341 seconds
+plan limit -24139
+compute initial stop until 0
+current timestep 3921
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.1636 seconds
+Guide path time: 0.00274397 seconds
+Total scheduler time: 24.1663 seconds
+plan limit -23843
+compute initial stop until 0
+current timestep 3946
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.2251 seconds
+Guide path time: 0.0026008 seconds
+Total scheduler time: 24.2277 seconds
+plan limit -23916
+compute initial stop until 0
+current timestep 3971
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.7718 seconds
+Guide path time: 0.00223653 seconds
+Total scheduler time: 23.7741 seconds
+plan limit -23446
+compute initial stop until 0
+current timestep 3996
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.6863 seconds
+Guide path time: 0.0024152 seconds
+Total scheduler time: 23.6887 seconds
+plan limit -23362
+compute initial stop until 0
+current timestep 4021
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.6785 seconds
+Guide path time: 0.00246613 seconds
+Total scheduler time: 23.681 seconds
+plan limit -23352
+compute initial stop until 0
+current timestep 4046
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.7379 seconds
+Guide path time: 0.00271075 seconds
+Total scheduler time: 23.7406 seconds
+plan limit -23417
+compute initial stop until 0
+current timestep 4071
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.5131 seconds
+Guide path time: 0.00260568 seconds
+Total scheduler time: 23.5157 seconds
+plan limit -23192
+compute initial stop until 0
+current timestep 4096
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 24.0728 seconds
+Guide path time: 0.0027253 seconds
+Total scheduler time: 24.0755 seconds
+plan limit -23749
+compute initial stop until 0
+current timestep 4121
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.5748 seconds
+Guide path time: 0.00258603 seconds
+Total scheduler time: 23.5774 seconds
+plan limit -23233
+compute initial stop until 0
+current timestep 4146
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.7465 seconds
+Guide path time: 0.00223289 seconds
+Total scheduler time: 23.7488 seconds
+plan limit -23403
+compute initial stop until 0
+current timestep 4171
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.595 seconds
+Guide path time: 0.00149521 seconds
+Total scheduler time: 23.5965 seconds
+plan limit -23342
+compute initial stop until 0
+current timestep 4196
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.743 seconds
+Guide path time: 0.00145053 seconds
+Total scheduler time: 23.7445 seconds
+plan limit -23373
+compute initial stop until 0
+current timestep 4221
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.3756 seconds
+Guide path time: 0.00148728 seconds
+Total scheduler time: 23.3771 seconds
+plan limit -23001
+compute initial stop until 0
+current timestep 4245
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.9965 seconds
+Guide path time: 0.00146722 seconds
+Total scheduler time: 23.998 seconds
+plan limit -23632
+compute initial stop until 0
+current timestep 4270
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.7447 seconds
+Guide path time: 0.0014284 seconds
+Total scheduler time: 23.7461 seconds
+plan limit -23386
+compute initial stop until 0
+current timestep 4295
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.5603 seconds
+Guide path time: 0.00172401 seconds
+Total scheduler time: 23.562 seconds
+plan limit -23197
+compute initial stop until 0
+current timestep 4320
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.6355 seconds
+Guide path time: 0.00148446 seconds
+Total scheduler time: 23.637 seconds
+plan limit -23270
+compute initial stop until 0
+current timestep 4345
+num of flexible agents: 51
+num of flexible tasks: 5051
+Solving time: 23.2961 seconds
+Guide path time: 0.00148604 seconds
+Total scheduler time: 23.2976 seconds
+plan limit -22933
+compute initial stop until 0
+current timestep 4369
+num of flexible agents: 50
+num of flexible tasks: 5050
+Solving time: 23.5546 seconds
+Guide path time: 0.00144976 seconds
+Total scheduler time: 23.556 seconds
+plan limit -23183
+compute initial stop until 0
+current timestep 4394
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.444 seconds
+Guide path time: 0.00143651 seconds
+Total scheduler time: 23.4455 seconds
+plan limit -23083
+compute initial stop until 0
+current timestep 4419
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.9499 seconds
+Guide path time: 0.00142856 seconds
+Total scheduler time: 23.9514 seconds
+plan limit -23582
+compute initial stop until 0
+current timestep 4444
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.5939 seconds
+Guide path time: 0.00143622 seconds
+Total scheduler time: 23.5954 seconds
+plan limit -23218
+compute initial stop until 0
+current timestep 4469
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.918 seconds
+Guide path time: 0.00140034 seconds
+Total scheduler time: 23.9194 seconds
+plan limit -23547
+compute initial stop until 0
+current timestep 4494
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.6838 seconds
+Guide path time: 0.00143665 seconds
+Total scheduler time: 23.6852 seconds
+plan limit -23322
+compute initial stop until 0
+current timestep 4519
+num of flexible agents: 49
+num of flexible tasks: 5049
+Solving time: 23.6879 seconds
+Guide path time: 0.00136941 seconds
+Total scheduler time: 23.6893 seconds
+plan limit -23330
+compute initial stop until 0
+current timestep 4544
+num of flexible agents: 48
+num of flexible tasks: 5048
+Solving time: 23.4221 seconds
+Guide path time: 0.00167611 seconds
+Total scheduler time: 23.4238 seconds
+plan limit -23051
+compute initial stop until 0
+current timestep 4569
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.7739 seconds
+Guide path time: 0.00147727 seconds
+Total scheduler time: 23.7754 seconds
+plan limit -23407
+compute initial stop until 0
+current timestep 4594
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 24.1686 seconds
+Guide path time: 0.00150318 seconds
+Total scheduler time: 24.1701 seconds
+plan limit -23803
+compute initial stop until 0
+current timestep 4619
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.4041 seconds
+Guide path time: 0.0014827 seconds
+Total scheduler time: 23.4056 seconds
+plan limit -23037
+compute initial stop until 0
+current timestep 4644
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.3247 seconds
+Guide path time: 0.00213475 seconds
+Total scheduler time: 23.3268 seconds
+plan limit -22977
+compute initial stop until 0
+current timestep 4668
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.314 seconds
+Guide path time: 0.00194374 seconds
+Total scheduler time: 23.3159 seconds
+plan limit -22971
+compute initial stop until 0
+current timestep 4692
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.5421 seconds
+Guide path time: 0.00187211 seconds
+Total scheduler time: 23.544 seconds
+plan limit -23200
+compute initial stop until 0
+current timestep 4717
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.5653 seconds
+Guide path time: 0.00201749 seconds
+Total scheduler time: 23.5673 seconds
+plan limit -23226
+compute initial stop until 0
+current timestep 4742
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.552 seconds
+Guide path time: 0.00194702 seconds
+Total scheduler time: 23.554 seconds
+plan limit -23214
+compute initial stop until 0
+current timestep 4767
+num of flexible agents: 41
+num of flexible tasks: 5041
+Solving time: 23.8534 seconds
+Guide path time: 0.00175395 seconds
+Total scheduler time: 23.8552 seconds
+plan limit -23522
+compute initial stop until 0
+current timestep 4792
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.9136 seconds
+Guide path time: 0.00219856 seconds
+Total scheduler time: 23.9158 seconds
+plan limit -23580
+compute initial stop until 0
+current timestep 4817
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.9323 seconds
+Guide path time: 0.00220464 seconds
+Total scheduler time: 23.9345 seconds
+plan limit -23599
+compute initial stop until 0
+current timestep 4842
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.9069 seconds
+Guide path time: 0.00219714 seconds
+Total scheduler time: 23.9091 seconds
+plan limit -23578
+compute initial stop until 0
+current timestep 4867
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.8447 seconds
+Guide path time: 0.00261639 seconds
+Total scheduler time: 23.8473 seconds
+plan limit -23523
+compute initial stop until 0
+current timestep 4892
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 24.1452 seconds
+Guide path time: 0.00255392 seconds
+Total scheduler time: 24.1477 seconds
+plan limit -23824
+compute initial stop until 0
+current timestep 4917
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.4796 seconds
+Guide path time: 0.00228375 seconds
+Total scheduler time: 23.4819 seconds
+plan limit -23157
+compute initial stop until 0
+current timestep 4942
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.5728 seconds
+Guide path time: 0.00227705 seconds
+Total scheduler time: 23.5751 seconds
+plan limit -23239
+compute initial stop until 0
+current timestep 4967
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.4785 seconds
+Guide path time: 0.00222505 seconds
+Total scheduler time: 23.4808 seconds
+plan limit -23139
+compute initial stop until 0
+current timestep 4992
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.3505 seconds
+Guide path time: 0.0018384 seconds
+Total scheduler time: 23.3524 seconds
+plan limit -22999
+compute initial stop until 0
+current timestep 5017
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.3451 seconds
+Guide path time: 0.00170058 seconds
+Total scheduler time: 23.3468 seconds
+plan limit -22994
+compute initial stop until 0
+current timestep 5041
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.3847 seconds
+Guide path time: 0.00138306 seconds
+Total scheduler time: 23.3861 seconds
+plan limit -23119
+compute initial stop until 0
+current timestep 5066
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.6967 seconds
+Guide path time: 0.0014018 seconds
+Total scheduler time: 23.6982 seconds
+plan limit -23329
+compute initial stop until 0
+current timestep 5091
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.5583 seconds
+Guide path time: 0.00129574 seconds
+Total scheduler time: 23.5596 seconds
+plan limit -23192
+compute initial stop until 0
+current timestep 5116
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.0279 seconds
+Guide path time: 0.0013262 seconds
+Total scheduler time: 24.0292 seconds
+plan limit -23658
+compute initial stop until 0
+current timestep 5141
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.5441 seconds
+Guide path time: 0.00135901 seconds
+Total scheduler time: 23.5454 seconds
+plan limit -23172
+compute initial stop until 0
+current timestep 5166
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.7763 seconds
+Guide path time: 0.0013547 seconds
+Total scheduler time: 23.7777 seconds
+plan limit -23408
+compute initial stop until 0
+current timestep 5191
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.6573 seconds
+Guide path time: 0.00131763 seconds
+Total scheduler time: 23.6586 seconds
+plan limit -23285
+compute initial stop until 0
+current timestep 5216
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.848 seconds
+Guide path time: 0.00132658 seconds
+Total scheduler time: 23.8493 seconds
+plan limit -23475
+compute initial stop until 0
+current timestep 5241
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.3013 seconds
+Guide path time: 0.00130081 seconds
+Total scheduler time: 24.3026 seconds
+plan limit -23931
+compute initial stop until 0
+current timestep 5266
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 24.3325 seconds
+Guide path time: 0.00133215 seconds
+Total scheduler time: 24.3338 seconds
+plan limit -23960
+compute initial stop until 0
+current timestep 5291
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.6542 seconds
+Guide path time: 0.0012899 seconds
+Total scheduler time: 23.6555 seconds
+plan limit -23283
+compute initial stop until 0
+current timestep 5316
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.6784 seconds
+Guide path time: 0.00130094 seconds
+Total scheduler time: 23.6797 seconds
+plan limit -23326
+compute initial stop until 0
+current timestep 5341
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 24.0093 seconds
+Guide path time: 0.00130867 seconds
+Total scheduler time: 24.0106 seconds
+plan limit -23642
+compute initial stop until 0
+current timestep 5366
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.7427 seconds
+Guide path time: 0.00127293 seconds
+Total scheduler time: 23.744 seconds
+plan limit -23372
+compute initial stop until 0
+current timestep 5391
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.6484 seconds
+Guide path time: 0.00131802 seconds
+Total scheduler time: 23.6498 seconds
+plan limit -23279
+compute initial stop until 0
+current timestep 5416
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.7479 seconds
+Guide path time: 0.00133344 seconds
+Total scheduler time: 23.7492 seconds
+plan limit -23376
+compute initial stop until 0
+current timestep 5441
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.7795 seconds
+Guide path time: 0.00141055 seconds
+Total scheduler time: 23.7809 seconds
+plan limit -23415
+compute initial stop until 0
+current timestep 5466
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.6799 seconds
+Guide path time: 0.00128324 seconds
+Total scheduler time: 23.6812 seconds
+plan limit -23308
+compute initial stop until 0
+current timestep 5491
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1048 seconds
+Guide path time: 0.00136496 seconds
+Total scheduler time: 23.1062 seconds
+plan limit -22732
+compute initial stop until 0
+current timestep 5515
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.4178 seconds
+Guide path time: 0.0013616 seconds
+Total scheduler time: 23.4191 seconds
+plan limit -23048
+compute initial stop until 0
+current timestep 5540
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.1595 seconds
+Guide path time: 0.00137317 seconds
+Total scheduler time: 23.1609 seconds
+plan limit -22792
+compute initial stop until 0
+current timestep 5564
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.1112 seconds
+Guide path time: 0.00157799 seconds
+Total scheduler time: 23.1128 seconds
+plan limit -22744
+compute initial stop until 0
+current timestep 5588
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.1606 seconds
+Guide path time: 0.00134984 seconds
+Total scheduler time: 23.1619 seconds
+plan limit -22789
+compute initial stop until 0
+current timestep 5612
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.1301 seconds
+Guide path time: 0.00184404 seconds
+Total scheduler time: 23.132 seconds
+plan limit -22762
+compute initial stop until 0
+current timestep 5636
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.2357 seconds
+Guide path time: 0.00184037 seconds
+Total scheduler time: 23.2375 seconds
+plan limit -22877
+compute initial stop until 0
+current timestep 5660
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.6782 seconds
+Guide path time: 0.00152977 seconds
+Total scheduler time: 23.6798 seconds
+plan limit -23311
+compute initial stop until 0
+current timestep 5685
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 22.9317 seconds
+Guide path time: 0.00184926 seconds
+Total scheduler time: 22.9336 seconds
+plan limit -22572
+compute initial stop until 0
+current timestep 5709
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.3889 seconds
+Guide path time: 0.00218817 seconds
+Total scheduler time: 23.3911 seconds
+plan limit -23040
+compute initial stop until 0
+current timestep 5734
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.282 seconds
+Guide path time: 0.00187664 seconds
+Total scheduler time: 23.2838 seconds
+plan limit -22933
+compute initial stop until 0
+current timestep 5758
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.0927 seconds
+Guide path time: 0.00202575 seconds
+Total scheduler time: 23.0947 seconds
+plan limit -22749
+compute initial stop until 0
+current timestep 5782
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.5825 seconds
+Guide path time: 0.00202109 seconds
+Total scheduler time: 23.5845 seconds
+plan limit -23237
+compute initial stop until 0
+current timestep 5807
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.0876 seconds
+Guide path time: 0.00191198 seconds
+Total scheduler time: 23.0895 seconds
+plan limit -22742
+compute initial stop until 0
+current timestep 5831
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.0546 seconds
+Guide path time: 0.00195677 seconds
+Total scheduler time: 23.0565 seconds
+plan limit -22703
+compute initial stop until 0
+current timestep 5855
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.1621 seconds
+Guide path time: 0.00238788 seconds
+Total scheduler time: 23.1645 seconds
+plan limit -22820
+compute initial stop until 0
+current timestep 5879
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.5786 seconds
+Guide path time: 0.00236441 seconds
+Total scheduler time: 23.581 seconds
+plan limit -23233
+compute initial stop until 0
+current timestep 5904
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.672 seconds
+Guide path time: 0.0023855 seconds
+Total scheduler time: 23.6744 seconds
+plan limit -23339
+compute initial stop until 0
+current timestep 5929
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.3923 seconds
+Guide path time: 0.00225435 seconds
+Total scheduler time: 23.3945 seconds
+plan limit -23065
+compute initial stop until 0
+current timestep 5954
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.9665 seconds
+Guide path time: 0.00262999 seconds
+Total scheduler time: 23.9691 seconds
+plan limit -23636
+compute initial stop until 0
+current timestep 5979
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.2732 seconds
+Guide path time: 0.00253846 seconds
+Total scheduler time: 23.2757 seconds
+plan limit -22937
+compute initial stop until 0
+current timestep 6003
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.2118 seconds
+Guide path time: 0.00214479 seconds
+Total scheduler time: 23.2139 seconds
+plan limit -22882
+compute initial stop until 0
+current timestep 6027
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.3587 seconds
+Guide path time: 0.00226942 seconds
+Total scheduler time: 23.361 seconds
+plan limit -23022
+compute initial stop until 0
+current timestep 6052
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.4979 seconds
+Guide path time: 0.00240483 seconds
+Total scheduler time: 23.5003 seconds
+plan limit -23167
+compute initial stop until 0
+current timestep 6077
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.8327 seconds
+Guide path time: 0.00241669 seconds
+Total scheduler time: 23.8351 seconds
+plan limit -23491
+compute initial stop until 0
+current timestep 6102
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.913 seconds
+Guide path time: 0.00189472 seconds
+Total scheduler time: 23.9149 seconds
+plan limit -23560
+compute initial stop until 0
+current timestep 6127
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.3536 seconds
+Guide path time: 0.00174554 seconds
+Total scheduler time: 23.3554 seconds
+plan limit -23005
+compute initial stop until 0
+current timestep 6152
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.5969 seconds
+Guide path time: 0.00140544 seconds
+Total scheduler time: 23.5983 seconds
+plan limit -23376
+compute initial stop until 0
+current timestep 6177
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.5324 seconds
+Guide path time: 0.00135404 seconds
+Total scheduler time: 23.5337 seconds
+plan limit -23177
+compute initial stop until 0
+current timestep 6202
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.2551 seconds
+Guide path time: 0.00136338 seconds
+Total scheduler time: 23.2565 seconds
+plan limit -22879
+compute initial stop until 0
+current timestep 6226
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.123 seconds
+Guide path time: 0.00134861 seconds
+Total scheduler time: 23.1244 seconds
+plan limit -22751
+compute initial stop until 0
+current timestep 6250
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1634 seconds
+Guide path time: 0.00136645 seconds
+Total scheduler time: 23.1648 seconds
+plan limit -22791
+compute initial stop until 0
+current timestep 6274
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.2495 seconds
+Guide path time: 0.00131217 seconds
+Total scheduler time: 23.2508 seconds
+plan limit -22880
+compute initial stop until 0
+current timestep 6298
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.146 seconds
+Guide path time: 0.00130599 seconds
+Total scheduler time: 23.1473 seconds
+plan limit -22773
+compute initial stop until 0
+current timestep 6322
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.6357 seconds
+Guide path time: 0.00126019 seconds
+Total scheduler time: 23.6369 seconds
+plan limit -23268
+compute initial stop until 0
+current timestep 6347
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.4877 seconds
+Guide path time: 0.00180357 seconds
+Total scheduler time: 23.4895 seconds
+plan limit -23124
+compute initial stop until 0
+current timestep 6372
+num of flexible agents: 42
+num of flexible tasks: 5042
+Solving time: 23.2772 seconds
+Guide path time: 0.0016875 seconds
+Total scheduler time: 23.2788 seconds
+plan limit -22934
+compute initial stop until 0
+current timestep 6396
+num of flexible agents: 41
+num of flexible tasks: 5041
+Solving time: 23.1788 seconds
+Guide path time: 0.00174067 seconds
+Total scheduler time: 23.1806 seconds
+plan limit -22839
+compute initial stop until 0
+current timestep 6420
+num of flexible agents: 41
+num of flexible tasks: 5041
+Solving time: 23.5127 seconds
+Guide path time: 0.00233874 seconds
+Total scheduler time: 23.515 seconds
+plan limit -23192
+compute initial stop until 0
+current timestep 6445
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.4955 seconds
+Guide path time: 0.00265693 seconds
+Total scheduler time: 23.4981 seconds
+plan limit -23188
+compute initial stop until 0
+current timestep 6470
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.2956 seconds
+Guide path time: 0.00280076 seconds
+Total scheduler time: 23.2984 seconds
+plan limit -22979
+compute initial stop until 0
+current timestep 6494
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.4681 seconds
+Guide path time: 0.00338055 seconds
+Total scheduler time: 23.4714 seconds
+plan limit -23184
+compute initial stop until 0
+current timestep 6519
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.8047 seconds
+Guide path time: 0.00352463 seconds
+Total scheduler time: 23.8082 seconds
+plan limit -23524
+compute initial stop until 0
+current timestep 6544
+num of flexible agents: 46
+num of flexible tasks: 5046
+Solving time: 23.3412 seconds
+Guide path time: 0.00338635 seconds
+Total scheduler time: 23.3446 seconds
+plan limit -23057
+compute initial stop until 0
+current timestep 6569
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.2668 seconds
+Guide path time: 0.00330202 seconds
+Total scheduler time: 23.2701 seconds
+plan limit -22976
+compute initial stop until 0
+current timestep 6593
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.0908 seconds
+Guide path time: 0.0023687 seconds
+Total scheduler time: 23.0932 seconds
+plan limit -22761
+compute initial stop until 0
+current timestep 6617
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.3858 seconds
+Guide path time: 0.00143525 seconds
+Total scheduler time: 23.3872 seconds
+plan limit -23155
+compute initial stop until 0
+current timestep 6642
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.1061 seconds
+Guide path time: 0.00133347 seconds
+Total scheduler time: 23.1074 seconds
+plan limit -22739
+compute initial stop until 0
+current timestep 6666
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1061 seconds
+Guide path time: 0.00134664 seconds
+Total scheduler time: 23.1075 seconds
+plan limit -22742
+compute initial stop until 0
+current timestep 6690
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 22.9445 seconds
+Guide path time: 0.00133139 seconds
+Total scheduler time: 22.9459 seconds
+plan limit -22577
+compute initial stop until 0
+current timestep 6714
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1872 seconds
+Guide path time: 0.00130439 seconds
+Total scheduler time: 23.1885 seconds
+plan limit -22827
+compute initial stop until 0
+current timestep 6738
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1466 seconds
+Guide path time: 0.00128566 seconds
+Total scheduler time: 23.1478 seconds
+plan limit -22775
+compute initial stop until 0
+current timestep 6762
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.4774 seconds
+Guide path time: 0.00130854 seconds
+Total scheduler time: 23.4787 seconds
+plan limit -23110
+compute initial stop until 0
+current timestep 6787
+num of flexible agents: 41
+num of flexible tasks: 5041
+Solving time: 23.2196 seconds
+Guide path time: 0.00129934 seconds
+Total scheduler time: 23.2209 seconds
+plan limit -22858
+compute initial stop until 0
+current timestep 6811
+num of flexible agents: 43
+num of flexible tasks: 5043
+Solving time: 23.1971 seconds
+Guide path time: 0.00128839 seconds
+Total scheduler time: 23.1984 seconds
+plan limit -22833
+compute initial stop until 0
+current timestep 6835
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.1107 seconds
+Guide path time: 0.00137521 seconds
+Total scheduler time: 23.112 seconds
+plan limit -22749
+compute initial stop until 0
+current timestep 6859
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.7705 seconds
+Guide path time: 0.00135126 seconds
+Total scheduler time: 23.7719 seconds
+plan limit -23405
+compute initial stop until 0
+current timestep 6884
+num of flexible agents: 44
+num of flexible tasks: 5044
+Solving time: 23.4264 seconds
+Guide path time: 0.00133505 seconds
+Total scheduler time: 23.4278 seconds
+plan limit -23061
+compute initial stop until 0
+current timestep 6909
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.6656 seconds
+Guide path time: 0.00135871 seconds
+Total scheduler time: 23.667 seconds
+plan limit -23299
+compute initial stop until 0
+current timestep 6934
+num of flexible agents: 45
+num of flexible tasks: 5045
+Solving time: 23.0968 seconds
+Guide path time: 0.0013409 seconds
+Total scheduler time: 23.0982 seconds
+plan limit -22731
+compute initial stop until 0
+current timestep 6958
+num of flexible agents: 47
+num of flexible tasks: 5047
+Solving time: 23.1818 seconds
+Guide path time: 0.001319 seconds
+Total scheduler time: 23.1831 seconds
+plan limit -22830
+compute initial stop until 0
+current timestep 6982
+num of flexible agents: 46
+num of flexible tasks: 5046

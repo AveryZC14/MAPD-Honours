@@ -8,6 +8,104 @@ the date and what changed) rather than deleting them outright.
 
 ## Open
 
+- [ ] **[HIGH] Solver 6's per-timestep coarse-flow solve re-solves the entire
+  backbone graph every call, regardless of how few agents/tasks actually need
+  matching — dominant cost of long runs, not a memory leak.** Found
+  2026-08-27 while investigating a 30+ minute single-decision stall during a
+  `scene_mp_4p_03`, solver 6, `--flowSolveLevel 1`, `-s 5000` long-run sweep
+  (see `ai/auto_benchmarking.md`/`ai/auto_benchmarking_scene_mp_4p_03.md` for
+  the sweep itself once written up). Two false leads ruled out first, worth
+  recording so a future session doesn't re-derive them:
+  - **Not task scarcity.** `numTasksReveal 1.5` keeps `ongoing_tasks` topped
+    up to `1.5 * num_agents`; since every busy agent locks up exactly one
+    task, the busy-agent term cancels out of the leftover-tasks-vs-leftover-
+    agents comparison algebraically — genuine system-wide task scarcity is
+    structurally impossible whenever the reveal ratio exceeds 1.0.
+  - **Not the "coarse-flow all-or-nothing infeasibility" bug** (a different,
+    real, still-open item below). Read `schedule_plan_flow_reduced`
+    (`default_planner/scheduler.cpp:994-1043`) directly: `flexible_agent_ids`
+    is sourced solely from `env->new_freeagents`, which
+    `TaskManager::check_finished_tasks` rebuilds from scratch every call —
+    so a batch that fails to match doesn't accumulate into a growing
+    backlog, it just drops out of consideration. Confirmed directly with
+    temporary diagnostic instrumentation (added and reverted the same
+    session, not committed): `surplus_agents` *shrank* from 4977 at
+    timestep 0 to single digits (1-9) by timestep ~1400 (most agents just
+    end up busy on long routes on a map this size), and zero non-`OPTIMAL`
+    results occurred across 82 decisions — no infeasibility fired at all.
+
+  **Actual root cause, confirmed by splitting the timing**: across those
+  same 82 decisions, `NetworkSimplex::run()` stayed in a flat 6.6-21.5s band
+  (median 13.5s) *regardless* of whether the surplus pool was 4977 or 1 —
+  pool size doesn't predict solve time at all. Separately timing the graph
+  construction (`map_reduction_test/MapCoarsenV1.cpp:1738-1832`, the loop
+  that copies `top->g`'s ~1.6M nodes and however many arcs into a fresh
+  `ListDigraph` every call) vs. the `ns.run()` call itself: build ~1-2.5s,
+  solve ~22s on the first decision — i.e. `NetworkSimplex`'s own
+  initialization+pivoting cost, not the graph copy, dominates. This makes
+  sense: simplex initialization cost scales with total graph size (V+E),
+  not with actual supply/demand magnitude, so a 1-agent match still pays
+  the full cost of solving over the entire backbone.
+  - **Why this matters specifically for long runs**: surplus pools shrink to
+    near-zero for most of a long run (agents settle onto long routes), so
+    *most* decisions in a long run pay this fixed backbone-sized cost for
+    almost no actual matching work. Directly explains why `scene_mp_4p_03`
+    level-1 real-time throughput (`tp/makespan`) dropped from 1.491 (the
+    original 500-tick sweep) to 0.286 (extended to 5000 ticks) — a ~5.2x
+    drop, not a warm-up effect.
+  - **Candidate fix, two complementary parts** (not yet implemented):
+    1. **Small-batch short-circuit (primary, highest ROI)**: when
+       `surplus_agents`/`surplus_tasks` is below a small threshold (e.g.
+       <50, tunable), skip the full-backbone `NetworkSimplex` solve
+       entirely and solve a much smaller point-to-point bipartite matching
+       instead (a handful of bounded shortest-path calls between just the
+       surplus agents/tasks) — same spirit as the existing
+       `match_local_node_exact` (`LocalNodeMatch.h`) but extended beyond
+       same-coarse-node pairs to genuine cross-node small matching.
+    2. **Cache/reuse the static backbone `ListDigraph`** (the 1.6M coarse
+       nodes + coarse-to-coarse arcs/costs) across calls instead of
+       rebuilding from scratch every timestep — only add/remove the small
+       per-call source/sink/surplus arcs. Only ~10% of the measured
+       per-call cost on its own (per the build-vs-solve split above), so
+       lower value than (1) alone, but free/complementary and helps every
+       call including large-surplus ones early in a run.
+  - **Explicitly not guaranteed byte-identical, discussed and accepted
+    2026-08-27**: total flow cost/optimality is guaranteed unchanged by
+    either fix (same graph/costs/capacities/supply always yields the same
+    optimal *value*), but the *specific* tie-broken assignment `NetworkSimplex`
+    returns among several equally-optimal solutions is not guaranteed to
+    match the current from-scratch-rebuild behavior — this repo already has
+    a documented instance of arc-order-dependent tie-breaking elsewhere
+    (`ai/solver6_preprocessing_efficiency.md`). Caching the backbone graph
+    could change effective arc insertion/ID order for the per-call dynamic
+    arcs (LEMON's `ListDigraph` reuses freed IDs on erase), and `ns.flowMap(flow)`
+    is called before `run()` — the analogous solver-1 code comments this as
+    a "warm start," so stale flow values surviving on unchanged backbone
+    arcs across calls could genuinely steer which optimal vertex the simplex
+    converges to, not just be a passive output buffer. User decided not to
+    require a before/after per-decision assignment diff before implementing
+    this — flagging here so a future session knows the tradeoff was
+    consciously accepted, not overlooked.
+  - **Deferred, lower-priority alternatives considered**: investigating
+    whether this LEMON version supports genuine `NetworkSimplex` warm-
+    starting between calls (uncertain API support, not researched); pruning
+    to a bounded relevant subgraph instead of a batch-size threshold (more
+    general than the small-batch short-circuit, but riskier — needs care to
+    guarantee the pruned region still contains the true optimal route).
+  - **Validation plan for whenever this is implemented**: temporarily
+    re-add the diagnostic timers (reverted this session, not committed) on
+    the same `scene_mp_4p_03` `--flowSolveLevel 1` repro to confirm
+    per-decision time actually drops for small-surplus calls; correctness-
+    check via `analyze_coarse_collisions` and a clean `warehouseSmall_100`
+    re-run, matching the validation pattern used for every prior solver-6
+    fix in this repo.
+  - Scoped entirely to `compute_reduced_assignment`
+    (`map_reduction_test/MapCoarsenV1.cpp`, roughly lines 1738-1832); no
+    changes needed elsewhere. Solver 7 has its own separate backbone-reuse
+    mechanism already (`lemon::digraphCopy`, built once — see
+    `ai/edge_node_representation.md`), so it may not share this problem to
+    the same degree, but wasn't specifically re-audited here.
+
 - [ ] **Solver 7 metric instrumentation: two bugs in `SchedulerBackboneBuildTime`
   and `SchedulerSolveTime`, found auditing all of solver 7's per-timestep
   fields for correctness (2026-08-21).** Everything else checked out fine

@@ -678,6 +678,29 @@ Headline pitfalls documented there, worth knowing before touching this again:
   during initial testing (`NetworkSimplex::flowMap()` must be called after
   `run()`, not before -- also present, latent and harmless, in solver 6's own
   code).
+- `ai/scene_mp_4p_03_5000ts_sweep_dashboard.md` — an interactive Claude
+  Artifact (live URL + source HTML checked into
+  `outputs/scene_mp_4p_03_5000ts_sweep/throughput_dashboard.html`), now
+  covering **two datasets** behind a top-level switcher (added 2026-08-31):
+  the `scene_mp_4p_03` sweep (solver 6 at every flowSolveLevel 1-8 + solver 1
+  baseline, plus a 20000ts-extended baseline and 10000ts-extended levels
+  1-2) and a new `IH_mp_2p_01` sweep (solver 6 levels 1-6 + solver 1,
+  ~7000-timestep horizon, from `outputs/IH_mp_2p_01_10000_7000ts_sweep/`,
+  run via `scripts/run_benchmarks.py`). Within each dataset: 3 charts
+  (cumulative tasks, per-decision wall-clock cost, new-tasks-per-step), a
+  summary table with column definitions, and a point-lookup tool, all
+  behind a shared makespan/steps toggle plus a zoom control and a master
+  series-visibility filter; each dataset keeps its own visibility/zoom
+  state when you switch away and back. Doc covers how to read/edit/extend
+  it (including how to add a whole new dataset vs. just a new config), plus
+  the findings baked into its notes (a units bug in an early read of
+  `PlannerTime`/`SchedulerSolveTime`, why flowSolveLevel 1/2 stall/spike
+  while 3+ don't, the tp_steps/tp_makespan ranking flip, a palette redesign
+  — 8 levels + solver 1 blew past the categorical palette's 8-hue cap, so
+  levels now share one sequential ramp instead — and, added 2026-08-31, the
+  `scene_mp_4p_03` `_10k` extensions and `IH_mp_2p_01`'s narrow throughput
+  band both bearing on the solver-6 backbone-rebuild-cost finding in
+  `ai/todo.md`).
 
 (Update this list if more `ai/*.md` files are added later.)
 

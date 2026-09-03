@@ -1,0 +1,8 @@
+run,agents,solver,level,exit_code,wall_clock_s,ok,note,makespan,tasksFinished
+IH_mp_2p_01_10000_solver1,10000,1,,0,6911.1,True,,7001,3390
+IH_mp_2p_01_10000_solver6_level1,10000,6,1,0,7018.3,True,,7001,3236
+IH_mp_2p_01_10000_solver6_level2,10000,6,2,0,6850.8,True,,7001,3538
+IH_mp_2p_01_10000_solver6_level3,10000,6,3,0,6210.9,True,,7001,3837
+IH_mp_2p_01_10000_solver6_level4,10000,6,4,0,6340.4,True,,7001,3807
+IH_mp_2p_01_10000_solver6_level5,10000,6,5,0,6344.8,True,,7000,3732
+IH_mp_2p_01_10000_solver6_level6,10000,6,6,0,6340.2,True,,7000,3762

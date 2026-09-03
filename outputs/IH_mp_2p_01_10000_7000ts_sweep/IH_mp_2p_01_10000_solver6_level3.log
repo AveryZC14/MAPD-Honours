@@ -1,0 +1,6962 @@
+planner init
+finish init
+current timestep 0
+planning flow reduced
+plan limit -46
+compute initial stop until 0
+current timestep 2
+planning flow reduced
+plan limit 684
+compute initial stop until 0
+current timestep 3
+planning flow reduced
+plan limit 688
+compute initial stop until 0
+current timestep 4
+planning flow reduced
+plan limit 675
+compute initial stop until 0
+current timestep 5
+planning flow reduced
+plan limit 587
+compute initial stop until 0
+current timestep 7
+planning flow reduced
+plan limit 696
+compute initial stop until 0
+current timestep 9
+planning flow reduced
+plan limit 673
+compute initial stop until 0
+current timestep 11
+planning flow reduced
+plan limit 683
+compute initial stop until 0
+current timestep 14
+planning flow reduced
+plan limit 688
+compute initial stop until 0
+current timestep 17
+planning flow reduced
+plan limit 587
+compute initial stop until 0
+current timestep 21
+planning flow reduced
+plan limit 684
+compute initial stop until 0
+current timestep 25
+planning flow reduced
+plan limit 695
+compute initial stop until 0
+current timestep 28
+planning flow reduced
+plan limit 665
+compute initial stop until 0
+current timestep 32
+planning flow reduced
+plan limit 674
+compute initial stop until 0
+current timestep 36
+planning flow reduced
+plan limit 680
+compute initial stop until 0
+current timestep 40
+planning flow reduced
+plan limit 678
+compute initial stop until 0
+current timestep 44
+planning flow reduced
+plan limit 690
+compute initial stop until 0
+current timestep 48
+planning flow reduced
+plan limit 697
+compute initial stop until 0
+current timestep 52
+planning flow reduced
+plan limit 695
+compute initial stop until 0
+current timestep 57
+planning flow reduced
+plan limit 699
+compute initial stop until 0
+current timestep 62
+planning flow reduced
+plan limit 696
+compute initial stop until 0
+current timestep 67
+planning flow reduced
+plan limit 699
+compute initial stop until 0
+current timestep 73
+planning flow reduced
+plan limit 677
+compute initial stop until 0
+current timestep 79
+planning flow reduced
+plan limit 688
+compute initial stop until 0
+current timestep 84
+planning flow reduced
+plan limit 665
+compute initial stop until 0
+current timestep 90
+planning flow reduced
+plan limit 700
+compute initial stop until 0
+current timestep 96
+planning flow reduced
+plan limit 694
+compute initial stop until 0
+current timestep 102
+planning flow reduced
+plan limit 701
+compute initial stop until 0
+current timestep 108
+planning flow reduced
+plan limit 658
+compute initial stop until 0
+current timestep 114
+planning flow reduced
+plan limit 691
+compute initial stop until 0
+current timestep 120
+planning flow reduced
+plan limit 696
+compute initial stop until 0
+current timestep 126
+planning flow reduced
+plan limit 670
+compute initial stop until 0
+current timestep 133
+planning flow reduced
+plan limit 672
+compute initial stop until 0
+current timestep 139
+planning flow reduced
+plan limit 676
+compute initial stop until 0
+current timestep 146
+planning flow reduced
+plan limit 703
+compute initial stop until 0
+current timestep 151
+planning flow reduced
+plan limit 701
+compute initial stop until 0
+current timestep 156
+planning flow reduced
+plan limit 673
+compute initial stop until 0
+current timestep 162
+planning flow reduced
+plan limit 676
+compute initial stop until 0
+current timestep 168
+planning flow reduced
+plan limit 711
+compute initial stop until 0
+current timestep 173
+planning flow reduced
+plan limit 703
+compute initial stop until 0
+current timestep 178
+planning flow reduced
+plan limit 707
+compute initial stop until 0
+current timestep 184
+planning flow reduced
+plan limit 696
+compute initial stop until 0
+current timestep 189
+planning flow reduced
+plan limit 701
+compute initial stop until 0
+current timestep 195
+planning flow reduced
+plan limit 708
+compute initial stop until 0
+current timestep 201
+planning flow reduced
+plan limit 704
+compute initial stop until 0
+current timestep 207
+planning flow reduced
+plan limit 704
+compute initial stop until 0
+current timestep 213
+planning flow reduced
+plan limit 697
+compute initial stop until 0
+current timestep 219
+planning flow reduced
+plan limit 692
+compute initial stop until 0
+current timestep 226
+planning flow reduced
+plan limit 696
+compute initial stop until 0
+current timestep 233
+planning flow reduced
+plan limit -2297
+compute initial stop until 0
+current timestep 237
+planning flow reduced
+plan limit 700
+compute initial stop until 0
+current timestep 244
+planning flow reduced
+plan limit -2311
+compute initial stop until 0
+current timestep 248
+planning flow reduced
+plan limit 709
+compute initial stop until 0
+current timestep 254
+planning flow reduced
+plan limit -1011
+compute initial stop until 0
+current timestep 257
+planning flow reduced
+plan limit 699
+compute initial stop until 0
+current timestep 263
+planning flow reduced
+plan limit -2355
+compute initial stop until 0
+current timestep 267
+planning flow reduced
+plan limit -2295
+compute initial stop until 0
+current timestep 271
+planning flow reduced
+plan limit -2356
+compute initial stop until 0
+current timestep 275
+planning flow reduced
+plan limit 705
+compute initial stop until 0
+current timestep 281
+planning flow reduced
+plan limit 703
+compute initial stop until 0
+current timestep 287
+planning flow reduced
+plan limit -2382
+compute initial stop until 0
+current timestep 291
+planning flow reduced
+plan limit -1200
+compute initial stop until 0
+current timestep 294
+planning flow reduced
+plan limit -2395
+compute initial stop until 0
+current timestep 298
+planning flow reduced
+plan limit -2648
+compute initial stop until 0
+current timestep 302
+planning flow reduced
+plan limit -2267
+compute initial stop until 0
+current timestep 306
+planning flow reduced
+plan limit -1955
+compute initial stop until 0
+current timestep 309
+planning flow reduced
+plan limit -1979
+compute initial stop until 0
+current timestep 312
+planning flow reduced
+plan limit -1982
+compute initial stop until 0
+current timestep 315
+planning flow reduced
+plan limit -1993
+compute initial stop until 0
+current timestep 318
+planning flow reduced
+plan limit -2015
+compute initial stop until 0
+current timestep 322
+planning flow reduced
+plan limit -2071
+compute initial stop until 0
+current timestep 326
+planning flow reduced
+plan limit -2109
+compute initial stop until 0
+current timestep 330
+planning flow reduced
+plan limit -1029
+compute initial stop until 0
+current timestep 333
+planning flow reduced
+plan limit -2249
+compute initial stop until 0
+current timestep 337
+planning flow reduced
+plan limit -2249
+compute initial stop until 0
+current timestep 341
+planning flow reduced
+plan limit -395
+compute initial stop until 0
+current timestep 343
+planning flow reduced
+plan limit -2282
+compute initial stop until 0
+current timestep 347
+planning flow reduced
+plan limit -1994
+compute initial stop until 0
+current timestep 350
+planning flow reduced
+plan limit -2521
+compute initial stop until 0
+current timestep 354
+planning flow reduced
+plan limit -2303
+compute initial stop until 0
+current timestep 358
+planning flow reduced
+plan limit -1180
+compute initial stop until 0
+current timestep 361
+planning flow reduced
+plan limit 731
+compute initial stop until 0
+current timestep 367
+planning flow reduced
+plan limit -1980
+compute initial stop until 0
+current timestep 370
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 376
+planning flow reduced
+plan limit -2197
+compute initial stop until 0
+current timestep 380
+planning flow reduced
+plan limit -1010
+compute initial stop until 0
+current timestep 383
+planning flow reduced
+plan limit -2277
+compute initial stop until 0
+current timestep 387
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 394
+planning flow reduced
+plan limit -2098
+compute initial stop until 0
+current timestep 398
+planning flow reduced
+plan limit 469
+compute initial stop until 0
+current timestep 404
+planning flow reduced
+plan limit 118
+compute initial stop until 0
+current timestep 405
+planning flow reduced
+plan limit -2266
+compute initial stop until 0
+current timestep 409
+planning flow reduced
+plan limit -2499
+compute initial stop until 0
+current timestep 413
+planning flow reduced
+plan limit -95
+compute initial stop until 0
+current timestep 415
+planning flow reduced
+plan limit 361
+compute initial stop until 0
+current timestep 420
+planning flow reduced
+plan limit -2199
+compute initial stop until 0
+current timestep 424
+planning flow reduced
+plan limit -1422
+compute initial stop until 0
+current timestep 427
+planning flow reduced
+plan limit 736
+compute initial stop until 0
+current timestep 434
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 441
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 447
+planning flow reduced
+plan limit 420
+compute initial stop until 0
+current timestep 453
+planning flow reduced
+plan limit 134
+compute initial stop until 0
+current timestep 454
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 461
+planning flow reduced
+plan limit -2264
+compute initial stop until 0
+current timestep 465
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 472
+planning flow reduced
+plan limit 156
+compute initial stop until 0
+current timestep 473
+planning flow reduced
+plan limit -8
+compute initial stop until 0
+current timestep 475
+planning flow reduced
+plan limit -1964
+compute initial stop until 0
+current timestep 478
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 485
+planning flow reduced
+plan limit 454
+compute initial stop until 0
+current timestep 491
+planning flow reduced
+plan limit -1916
+compute initial stop until 0
+current timestep 494
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 500
+planning flow reduced
+plan limit -1952
+compute initial stop until 0
+current timestep 503
+planning flow reduced
+plan limit -2013
+compute initial stop until 0
+current timestep 507
+planning flow reduced
+plan limit 455
+compute initial stop until 0
+current timestep 513
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 519
+planning flow reduced
+plan limit 656
+compute initial stop until 0
+current timestep 526
+planning flow reduced
+plan limit 571
+compute initial stop until 0
+current timestep 532
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 538
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 544
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 550
+planning flow reduced
+plan limit -1624
+compute initial stop until 0
+current timestep 553
+planning flow reduced
+plan limit -1207
+compute initial stop until 0
+current timestep 556
+planning flow reduced
+plan limit -1408
+compute initial stop until 0
+current timestep 559
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 565
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 571
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 577
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 583
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 589
+planning flow reduced
+plan limit 199
+compute initial stop until 0
+current timestep 592
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 597
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 603
+planning flow reduced
+plan limit 307
+compute initial stop until 0
+current timestep 609
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 615
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 621
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 627
+planning flow reduced
+plan limit -1446
+compute initial stop until 0
+current timestep 630
+planning flow reduced
+plan limit -606
+compute initial stop until 0
+current timestep 632
+planning flow reduced
+plan limit -1445
+compute initial stop until 0
+current timestep 635
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 641
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 647
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 653
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 659
+planning flow reduced
+plan limit -1463
+compute initial stop until 0
+current timestep 662
+planning flow reduced
+plan limit -1472
+compute initial stop until 0
+current timestep 665
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 671
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 677
+planning flow reduced
+plan limit -192
+compute initial stop until 0
+current timestep 679
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 685
+planning flow reduced
+plan limit -2079
+compute initial stop until 0
+current timestep 689
+planning flow reduced
+plan limit 339
+compute initial stop until 0
+current timestep 695
+planning flow reduced
+plan limit 536
+compute initial stop until 0
+current timestep 701
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 707
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 713
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 719
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 725
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 731
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 736
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 742
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 748
+planning flow reduced
+plan limit -393
+compute initial stop until 0
+current timestep 750
+planning flow reduced
+plan limit 345
+compute initial stop until 0
+current timestep 756
+planning flow reduced
+plan limit 739
+compute initial stop until 0
+current timestep 762
+planning flow reduced
+plan limit -1508
+compute initial stop until 0
+current timestep 765
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 770
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 775
+planning flow reduced
+plan limit -1968
+compute initial stop until 0
+current timestep 778
+planning flow reduced
+plan limit 735
+compute initial stop until 0
+current timestep 784
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 790
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 795
+planning flow reduced
+plan limit -115
+compute initial stop until 0
+current timestep 797
+planning flow reduced
+plan limit -475
+compute initial stop until 0
+current timestep 799
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 804
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 809
+planning flow reduced
+plan limit -1904
+compute initial stop until 0
+current timestep 812
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 817
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 823
+planning flow reduced
+plan limit -1957
+compute initial stop until 0
+current timestep 826
+planning flow reduced
+plan limit -1933
+compute initial stop until 0
+current timestep 829
+planning flow reduced
+plan limit -1194
+compute initial stop until 0
+current timestep 832
+planning flow reduced
+plan limit -1088
+compute initial stop until 0
+current timestep 835
+planning flow reduced
+plan limit 559
+compute initial stop until 0
+current timestep 841
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 846
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 852
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 857
+planning flow reduced
+plan limit -1635
+compute initial stop until 0
+current timestep 860
+planning flow reduced
+plan limit 736
+compute initial stop until 0
+current timestep 866
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 871
+planning flow reduced
+plan limit -1393
+compute initial stop until 0
+current timestep 874
+planning flow reduced
+plan limit 425
+compute initial stop until 0
+current timestep 880
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 886
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 891
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 896
+planning flow reduced
+plan limit -194
+compute initial stop until 0
+current timestep 898
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 903
+planning flow reduced
+plan limit -649
+compute initial stop until 0
+current timestep 905
+planning flow reduced
+plan limit -1504
+compute initial stop until 0
+current timestep 908
+planning flow reduced
+plan limit -2029
+compute initial stop until 0
+current timestep 912
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 917
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 922
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 927
+planning flow reduced
+plan limit -1518
+compute initial stop until 0
+current timestep 930
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 935
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 940
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 945
+planning flow reduced
+plan limit -2296
+compute initial stop until 0
+current timestep 949
+planning flow reduced
+plan limit 469
+compute initial stop until 0
+current timestep 954
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 959
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 964
+planning flow reduced
+plan limit 511
+compute initial stop until 0
+current timestep 970
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 975
+planning flow reduced
+plan limit 647
+compute initial stop until 0
+current timestep 981
+planning flow reduced
+plan limit -1558
+compute initial stop until 0
+current timestep 984
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 989
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 994
+planning flow reduced
+plan limit 423
+compute initial stop until 0
+current timestep 1000
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1005
+planning flow reduced
+plan limit 481
+compute initial stop until 0
+current timestep 1011
+planning flow reduced
+plan limit 14
+compute initial stop until 0
+current timestep 1012
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 1017
+planning flow reduced
+plan limit -2295
+compute initial stop until 0
+current timestep 1021
+planning flow reduced
+plan limit -10
+compute initial stop until 0
+current timestep 1023
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1029
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1035
+planning flow reduced
+plan limit -2314
+compute initial stop until 0
+current timestep 1039
+planning flow reduced
+plan limit -1730
+compute initial stop until 0
+current timestep 1042
+planning flow reduced
+plan limit -2336
+compute initial stop until 0
+current timestep 1046
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1052
+planning flow reduced
+plan limit 713
+compute initial stop until 0
+current timestep 1059
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1065
+planning flow reduced
+plan limit -53
+compute initial stop until 0
+current timestep 1067
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 1073
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 1079
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 1085
+planning flow reduced
+plan limit 593
+compute initial stop until 0
+current timestep 1091
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1096
+planning flow reduced
+plan limit 805
+compute initial stop until 0
+current timestep 1102
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 1108
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 1114
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 1120
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1125
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1131
+planning flow reduced
+plan limit -1398
+compute initial stop until 0
+current timestep 1134
+planning flow reduced
+plan limit -728
+compute initial stop until 0
+current timestep 1136
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 1142
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 1148
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1154
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1160
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 1166
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 1172
+planning flow reduced
+plan limit 719
+compute initial stop until 0
+current timestep 1178
+planning flow reduced
+plan limit 711
+compute initial stop until 0
+current timestep 1184
+planning flow reduced
+plan limit -2164
+compute initial stop until 0
+current timestep 1188
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1195
+planning flow reduced
+plan limit 769
+compute initial stop until 0
+current timestep 1202
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 1208
+planning flow reduced
+plan limit -1506
+compute initial stop until 0
+current timestep 1211
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 1218
+planning flow reduced
+plan limit -1546
+compute initial stop until 0
+current timestep 1221
+planning flow reduced
+plan limit -1495
+compute initial stop until 0
+current timestep 1224
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 1230
+planning flow reduced
+plan limit 765
+compute initial stop until 0
+current timestep 1237
+planning flow reduced
+plan limit 767
+compute initial stop until 0
+current timestep 1243
+planning flow reduced
+plan limit 769
+compute initial stop until 0
+current timestep 1249
+planning flow reduced
+plan limit 771
+compute initial stop until 0
+current timestep 1256
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 1262
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 1268
+planning flow reduced
+plan limit -802
+compute initial stop until 0
+current timestep 1270
+planning flow reduced
+plan limit -1497
+compute initial stop until 0
+current timestep 1273
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 1279
+planning flow reduced
+plan limit 723
+compute initial stop until 0
+current timestep 1285
+planning flow reduced
+plan limit -2232
+compute initial stop until 0
+current timestep 1289
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 1294
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1300
+planning flow reduced
+plan limit 736
+compute initial stop until 0
+current timestep 1306
+planning flow reduced
+plan limit -2308
+compute initial stop until 0
+current timestep 1310
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1315
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1321
+planning flow reduced
+plan limit -1472
+compute initial stop until 0
+current timestep 1324
+planning flow reduced
+plan limit 210
+compute initial stop until 0
+current timestep 1328
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1334
+planning flow reduced
+plan limit -1527
+compute initial stop until 0
+current timestep 1337
+planning flow reduced
+plan limit -2109
+compute initial stop until 0
+current timestep 1341
+planning flow reduced
+plan limit 685
+compute initial stop until 0
+current timestep 1348
+planning flow reduced
+plan limit 41
+compute initial stop until 0
+current timestep 1349
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 1354
+planning flow reduced
+plan limit -2023
+compute initial stop until 0
+current timestep 1358
+planning flow reduced
+plan limit 220
+compute initial stop until 0
+current timestep 1362
+planning flow reduced
+plan limit -1532
+compute initial stop until 0
+current timestep 1365
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1370
+planning flow reduced
+plan limit 168
+compute initial stop until 0
+current timestep 1372
+planning flow reduced
+plan limit 735
+compute initial stop until 0
+current timestep 1378
+planning flow reduced
+plan limit -2297
+compute initial stop until 0
+current timestep 1382
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1387
+planning flow reduced
+plan limit -735
+compute initial stop until 0
+current timestep 1389
+planning flow reduced
+plan limit 735
+compute initial stop until 0
+current timestep 1395
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 1400
+planning flow reduced
+plan limit 286
+compute initial stop until 0
+current timestep 1405
+planning flow reduced
+plan limit -808
+compute initial stop until 0
+current timestep 1407
+planning flow reduced
+plan limit -2113
+compute initial stop until 0
+current timestep 1411
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 1416
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 1421
+planning flow reduced
+plan limit 677
+compute initial stop until 0
+current timestep 1427
+planning flow reduced
+plan limit 552
+compute initial stop until 0
+current timestep 1433
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1438
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 1443
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 1448
+planning flow reduced
+plan limit -2032
+compute initial stop until 0
+current timestep 1452
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1457
+planning flow reduced
+plan limit -2154
+compute initial stop until 0
+current timestep 1461
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1467
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1472
+planning flow reduced
+plan limit -2148
+compute initial stop until 0
+current timestep 1476
+planning flow reduced
+plan limit -2112
+compute initial stop until 0
+current timestep 1480
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 1486
+planning flow reduced
+plan limit -2036
+compute initial stop until 0
+current timestep 1490
+planning flow reduced
+plan limit 540
+compute initial stop until 0
+current timestep 1496
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1501
+planning flow reduced
+plan limit -2028
+compute initial stop until 0
+current timestep 1505
+planning flow reduced
+plan limit 356
+compute initial stop until 0
+current timestep 1511
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1516
+planning flow reduced
+plan limit -1443
+compute initial stop until 0
+current timestep 1519
+planning flow reduced
+plan limit -1490
+compute initial stop until 0
+current timestep 1522
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1527
+planning flow reduced
+plan limit -2116
+compute initial stop until 0
+current timestep 1531
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1536
+planning flow reduced
+plan limit -1496
+compute initial stop until 0
+current timestep 1539
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 1544
+planning flow reduced
+plan limit 728
+compute initial stop until 0
+current timestep 1550
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1555
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 1560
+planning flow reduced
+plan limit 297
+compute initial stop until 0
+current timestep 1565
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 1570
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1575
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1580
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1585
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1590
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 1595
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 1600
+planning flow reduced
+plan limit -24
+compute initial stop until 0
+current timestep 1602
+planning flow reduced
+plan limit 641
+compute initial stop until 0
+current timestep 1607
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 1612
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1617
+planning flow reduced
+plan limit 724
+compute initial stop until 0
+current timestep 1624
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 1630
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 1635
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 1641
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 1646
+planning flow reduced
+plan limit 716
+compute initial stop until 0
+current timestep 1652
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 1658
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 1664
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 1670
+planning flow reduced
+plan limit -2158
+compute initial stop until 0
+current timestep 1674
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 1680
+planning flow reduced
+plan limit -421
+compute initial stop until 0
+current timestep 1682
+planning flow reduced
+plan limit -2087
+compute initial stop until 0
+current timestep 1686
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 1692
+planning flow reduced
+plan limit 762
+compute initial stop until 0
+current timestep 1698
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 1703
+planning flow reduced
+plan limit -2141
+compute initial stop until 0
+current timestep 1707
+planning flow reduced
+plan limit 464
+compute initial stop until 0
+current timestep 1712
+planning flow reduced
+plan limit 527
+compute initial stop until 0
+current timestep 1718
+planning flow reduced
+plan limit 411
+compute initial stop until 0
+current timestep 1724
+planning flow reduced
+plan limit -2096
+compute initial stop until 0
+current timestep 1728
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1733
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 1739
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1744
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1749
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 1754
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1759
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1764
+planning flow reduced
+plan limit 776
+compute initial stop until 0
+current timestep 1770
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1775
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1780
+planning flow reduced
+plan limit -453
+compute initial stop until 0
+current timestep 1782
+planning flow reduced
+plan limit 348
+compute initial stop until 0
+current timestep 1787
+planning flow reduced
+plan limit -2124
+compute initial stop until 0
+current timestep 1791
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1796
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 1801
+planning flow reduced
+plan limit -2361
+compute initial stop until 0
+current timestep 1805
+planning flow reduced
+plan limit 706
+compute initial stop until 0
+current timestep 1811
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 1816
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 1821
+planning flow reduced
+plan limit -433
+compute initial stop until 0
+current timestep 1823
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1828
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1833
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1838
+planning flow reduced
+plan limit -2350
+compute initial stop until 0
+current timestep 1842
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1847
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1852
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1857
+planning flow reduced
+plan limit -1556
+compute initial stop until 0
+current timestep 1860
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1865
+planning flow reduced
+plan limit 580
+compute initial stop until 0
+current timestep 1871
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1876
+planning flow reduced
+plan limit 174
+compute initial stop until 0
+current timestep 1878
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1883
+planning flow reduced
+plan limit -1089
+compute initial stop until 0
+current timestep 1886
+planning flow reduced
+plan limit 301
+compute initial stop until 0
+current timestep 1891
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 1896
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1901
+planning flow reduced
+plan limit -2142
+compute initial stop until 0
+current timestep 1905
+planning flow reduced
+plan limit -1401
+compute initial stop until 0
+current timestep 1908
+planning flow reduced
+plan limit -2167
+compute initial stop until 0
+current timestep 1912
+planning flow reduced
+plan limit 733
+compute initial stop until 0
+current timestep 1918
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1923
+planning flow reduced
+plan limit -2155
+compute initial stop until 0
+current timestep 1927
+planning flow reduced
+plan limit 735
+compute initial stop until 0
+current timestep 1933
+planning flow reduced
+plan limit -2187
+compute initial stop until 0
+current timestep 1937
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1942
+planning flow reduced
+plan limit -1505
+compute initial stop until 0
+current timestep 1945
+planning flow reduced
+plan limit -1373
+compute initial stop until 0
+current timestep 1948
+planning flow reduced
+plan limit 758
+compute initial stop until 0
+current timestep 1953
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1958
+planning flow reduced
+plan limit -1104
+compute initial stop until 0
+current timestep 1961
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 1966
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 1971
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 1976
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 1981
+planning flow reduced
+plan limit 737
+compute initial stop until 0
+current timestep 1986
+planning flow reduced
+plan limit -1385
+compute initial stop until 0
+current timestep 1989
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 1993
+planning flow reduced
+plan limit -720
+compute initial stop until 0
+current timestep 1995
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 2001
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2005
+planning flow reduced
+plan limit -1280
+compute initial stop until 0
+current timestep 2008
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2012
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2016
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2021
+planning flow reduced
+plan limit -234
+compute initial stop until 0
+current timestep 2023
+planning flow reduced
+plan limit 449
+compute initial stop until 0
+current timestep 2028
+planning flow reduced
+plan limit -1175
+compute initial stop until 0
+current timestep 2031
+planning flow reduced
+plan limit -1346
+compute initial stop until 0
+current timestep 2034
+planning flow reduced
+plan limit -66
+compute initial stop until 0
+current timestep 2036
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2040
+planning flow reduced
+plan limit -1303
+compute initial stop until 0
+current timestep 2043
+planning flow reduced
+plan limit -2159
+compute initial stop until 0
+current timestep 2047
+planning flow reduced
+plan limit -1978
+compute initial stop until 0
+current timestep 2050
+planning flow reduced
+plan limit -1005
+compute initial stop until 0
+current timestep 2053
+planning flow reduced
+plan limit 735
+compute initial stop until 0
+current timestep 2059
+planning flow reduced
+plan limit -1306
+compute initial stop until 0
+current timestep 2062
+planning flow reduced
+plan limit -1235
+compute initial stop until 0
+current timestep 2065
+planning flow reduced
+plan limit 358
+compute initial stop until 0
+current timestep 2070
+planning flow reduced
+plan limit 421
+compute initial stop until 0
+current timestep 2075
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2079
+planning flow reduced
+plan limit -410
+compute initial stop until 0
+current timestep 2081
+planning flow reduced
+plan limit -1002
+compute initial stop until 0
+current timestep 2084
+planning flow reduced
+plan limit -1406
+compute initial stop until 0
+current timestep 2087
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2091
+planning flow reduced
+plan limit -1620
+compute initial stop until 0
+current timestep 2094
+planning flow reduced
+plan limit -1610
+compute initial stop until 0
+current timestep 2097
+planning flow reduced
+plan limit -2326
+compute initial stop until 0
+current timestep 2101
+planning flow reduced
+plan limit 728
+compute initial stop until 0
+current timestep 2107
+planning flow reduced
+plan limit 545
+compute initial stop until 0
+current timestep 2113
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2117
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2123
+planning flow reduced
+plan limit -1466
+compute initial stop until 0
+current timestep 2126
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2132
+planning flow reduced
+plan limit 677
+compute initial stop until 0
+current timestep 2138
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2143
+planning flow reduced
+plan limit -2056
+compute initial stop until 0
+current timestep 2147
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2151
+planning flow reduced
+plan limit -1460
+compute initial stop until 0
+current timestep 2154
+planning flow reduced
+plan limit -1039
+compute initial stop until 0
+current timestep 2157
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2161
+planning flow reduced
+plan limit 222
+compute initial stop until 0
+current timestep 2165
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2170
+planning flow reduced
+plan limit 377
+compute initial stop until 0
+current timestep 2176
+planning flow reduced
+plan limit -989
+compute initial stop until 0
+current timestep 2178
+planning flow reduced
+plan limit 605
+compute initial stop until 0
+current timestep 2183
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2189
+planning flow reduced
+plan limit -155
+compute initial stop until 0
+current timestep 2191
+planning flow reduced
+plan limit -911
+compute initial stop until 0
+current timestep 2193
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2198
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2202
+planning flow reduced
+plan limit 26
+compute initial stop until 0
+current timestep 2203
+planning flow reduced
+plan limit -1237
+compute initial stop until 0
+current timestep 2206
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2210
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2214
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2218
+planning flow reduced
+plan limit -2113
+compute initial stop until 0
+current timestep 2222
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2226
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2230
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2234
+planning flow reduced
+plan limit 422
+compute initial stop until 0
+current timestep 2239
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2243
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2247
+planning flow reduced
+plan limit 250
+compute initial stop until 0
+current timestep 2251
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2257
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2261
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2266
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2270
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 2275
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2279
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2284
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2288
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 2292
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2296
+planning flow reduced
+plan limit 722
+compute initial stop until 0
+current timestep 2302
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2306
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2310
+planning flow reduced
+plan limit -1123
+compute initial stop until 0
+current timestep 2313
+planning flow reduced
+plan limit -292
+compute initial stop until 0
+current timestep 2315
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2319
+planning flow reduced
+plan limit 720
+compute initial stop until 0
+current timestep 2325
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2330
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 2334
+planning flow reduced
+plan limit -2059
+compute initial stop until 0
+current timestep 2338
+planning flow reduced
+plan limit 289
+compute initial stop until 0
+current timestep 2342
+planning flow reduced
+plan limit 723
+compute initial stop until 0
+current timestep 2348
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 2352
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2356
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 2361
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2365
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2370
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 2374
+planning flow reduced
+plan limit -909
+compute initial stop until 0
+current timestep 2376
+planning flow reduced
+plan limit 418
+compute initial stop until 0
+current timestep 2381
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2386
+planning flow reduced
+plan limit 126
+compute initial stop until 0
+current timestep 2387
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2391
+planning flow reduced
+plan limit 306
+compute initial stop until 0
+current timestep 2396
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2400
+planning flow reduced
+plan limit -648
+compute initial stop until 0
+current timestep 2402
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2406
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 2410
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 2415
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 2419
+planning flow reduced
+plan limit -802
+compute initial stop until 0
+current timestep 2421
+planning flow reduced
+plan limit -2146
+compute initial stop until 0
+current timestep 2425
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2431
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 2436
+planning flow reduced
+plan limit 149
+compute initial stop until 0
+current timestep 2437
+planning flow reduced
+plan limit 732
+compute initial stop until 0
+current timestep 2443
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 2447
+planning flow reduced
+plan limit 526
+compute initial stop until 0
+current timestep 2452
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 2456
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2460
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 2465
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2469
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 2473
+planning flow reduced
+plan limit -413
+compute initial stop until 0
+current timestep 2475
+planning flow reduced
+plan limit -2062
+compute initial stop until 0
+current timestep 2479
+planning flow reduced
+plan limit 86
+compute initial stop until 0
+current timestep 2480
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2485
+planning flow reduced
+plan limit 285
+compute initial stop until 0
+current timestep 2489
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 2493
+planning flow reduced
+plan limit -954
+compute initial stop until 0
+current timestep 2495
+planning flow reduced
+plan limit -527
+compute initial stop until 0
+current timestep 2497
+planning flow reduced
+plan limit -801
+compute initial stop until 0
+current timestep 2499
+planning flow reduced
+plan limit -1049
+compute initial stop until 0
+current timestep 2502
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2507
+planning flow reduced
+plan limit 129
+compute initial stop until 0
+current timestep 2508
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2512
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 2516
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2520
+planning flow reduced
+plan limit 186
+compute initial stop until 0
+current timestep 2522
+planning flow reduced
+plan limit -82
+compute initial stop until 0
+current timestep 2524
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2528
+planning flow reduced
+plan limit -531
+compute initial stop until 0
+current timestep 2530
+planning flow reduced
+plan limit -1524
+compute initial stop until 0
+current timestep 2533
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 2537
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 2541
+planning flow reduced
+plan limit -1336
+compute initial stop until 0
+current timestep 2544
+planning flow reduced
+plan limit 131
+compute initial stop until 0
+current timestep 2545
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2549
+planning flow reduced
+plan limit 282
+compute initial stop until 0
+current timestep 2553
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2557
+planning flow reduced
+plan limit 106
+compute initial stop until 0
+current timestep 2558
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2562
+planning flow reduced
+plan limit 755
+compute initial stop until 0
+current timestep 2570
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 2575
+planning flow reduced
+plan limit -2119
+compute initial stop until 0
+current timestep 2579
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2583
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2587
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2591
+planning flow reduced
+plan limit -1462
+compute initial stop until 0
+current timestep 2594
+planning flow reduced
+plan limit -1394
+compute initial stop until 0
+current timestep 2597
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2601
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2605
+planning flow reduced
+plan limit -1306
+compute initial stop until 0
+current timestep 2608
+planning flow reduced
+plan limit -1459
+compute initial stop until 0
+current timestep 2611
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2615
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2619
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2623
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2627
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2632
+planning flow reduced
+plan limit 358
+compute initial stop until 0
+current timestep 2638
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2642
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2646
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2650
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2654
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 2658
+planning flow reduced
+plan limit 257
+compute initial stop until 0
+current timestep 2662
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2668
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2672
+planning flow reduced
+plan limit 74
+compute initial stop until 0
+current timestep 2673
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2677
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2681
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2685
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 2689
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2693
+planning flow reduced
+plan limit -1483
+compute initial stop until 0
+current timestep 2696
+planning flow reduced
+plan limit -456
+compute initial stop until 0
+current timestep 2698
+planning flow reduced
+plan limit -852
+compute initial stop until 0
+current timestep 2700
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 2704
+planning flow reduced
+plan limit -1438
+compute initial stop until 0
+current timestep 2707
+planning flow reduced
+plan limit -1436
+compute initial stop until 0
+current timestep 2710
+planning flow reduced
+plan limit -2073
+compute initial stop until 0
+current timestep 2714
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2718
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2722
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2726
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2730
+planning flow reduced
+plan limit 664
+compute initial stop until 0
+current timestep 2736
+planning flow reduced
+plan limit -106
+compute initial stop until 0
+current timestep 2738
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 2742
+planning flow reduced
+plan limit 728
+compute initial stop until 0
+current timestep 2747
+planning flow reduced
+plan limit 81
+compute initial stop until 0
+current timestep 2748
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2752
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2756
+planning flow reduced
+plan limit 176
+compute initial stop until 0
+current timestep 2758
+planning flow reduced
+plan limit 422
+compute initial stop until 0
+current timestep 2763
+planning flow reduced
+plan limit -1046
+compute initial stop until 0
+current timestep 2766
+planning flow reduced
+plan limit 277
+compute initial stop until 0
+current timestep 2770
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2774
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2779
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2783
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2787
+planning flow reduced
+plan limit -1073
+compute initial stop until 0
+current timestep 2790
+planning flow reduced
+plan limit -2044
+compute initial stop until 0
+current timestep 2794
+planning flow reduced
+plan limit 637
+compute initial stop until 0
+current timestep 2800
+planning flow reduced
+plan limit 702
+compute initial stop until 0
+current timestep 2806
+planning flow reduced
+plan limit -2164
+compute initial stop until 0
+current timestep 2810
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2814
+planning flow reduced
+plan limit -1239
+compute initial stop until 0
+current timestep 2817
+planning flow reduced
+plan limit -129
+compute initial stop until 0
+current timestep 2819
+planning flow reduced
+plan limit -722
+compute initial stop until 0
+current timestep 2821
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2825
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2829
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2833
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2837
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 2841
+planning flow reduced
+plan limit 378
+compute initial stop until 0
+current timestep 2846
+planning flow reduced
+plan limit -1520
+compute initial stop until 0
+current timestep 2849
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2853
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 2857
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2861
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2865
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2869
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2874
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2878
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 2882
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 2887
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2891
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 2895
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2899
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 2903
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2907
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 2911
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2915
+planning flow reduced
+plan limit 345
+compute initial stop until 0
+current timestep 2919
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 2923
+planning flow reduced
+plan limit -1170
+compute initial stop until 0
+current timestep 2926
+planning flow reduced
+plan limit 731
+compute initial stop until 0
+current timestep 2932
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2936
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2940
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 2944
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2948
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 2952
+planning flow reduced
+plan limit 396
+compute initial stop until 0
+current timestep 2957
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 2961
+planning flow reduced
+plan limit 761
+compute initial stop until 0
+current timestep 2966
+planning flow reduced
+plan limit 747
+compute initial stop until 0
+current timestep 2971
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 2975
+planning flow reduced
+plan limit -1407
+compute initial stop until 0
+current timestep 2978
+planning flow reduced
+plan limit -1403
+compute initial stop until 0
+current timestep 2981
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 2987
+planning flow reduced
+plan limit 725
+compute initial stop until 0
+current timestep 2993
+planning flow reduced
+plan limit 771
+compute initial stop until 0
+current timestep 2998
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3002
+planning flow reduced
+plan limit 334
+compute initial stop until 0
+current timestep 3006
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3010
+planning flow reduced
+plan limit -1337
+compute initial stop until 0
+current timestep 3013
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3018
+planning flow reduced
+plan limit -1407
+compute initial stop until 0
+current timestep 3021
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3025
+planning flow reduced
+plan limit 424
+compute initial stop until 0
+current timestep 3030
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3034
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3038
+planning flow reduced
+plan limit 155
+compute initial stop until 0
+current timestep 3039
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3043
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 3047
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3051
+planning flow reduced
+plan limit 543
+compute initial stop until 0
+current timestep 3056
+planning flow reduced
+plan limit 773
+compute initial stop until 0
+current timestep 3061
+planning flow reduced
+plan limit 396
+compute initial stop until 0
+current timestep 3066
+planning flow reduced
+plan limit 582
+compute initial stop until 0
+current timestep 3071
+planning flow reduced
+plan limit 776
+compute initial stop until 0
+current timestep 3075
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 3079
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3083
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3087
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3091
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3095
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 3099
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 3104
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3108
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3112
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 3116
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3120
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3124
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3128
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3132
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3136
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3140
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3144
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3148
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3152
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 3156
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3160
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3164
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3168
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3172
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3176
+planning flow reduced
+plan limit 31
+compute initial stop until 0
+current timestep 3177
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3181
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3185
+planning flow reduced
+plan limit 325
+compute initial stop until 0
+current timestep 3189
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3193
+planning flow reduced
+plan limit -381
+compute initial stop until 0
+current timestep 3195
+planning flow reduced
+plan limit -1402
+compute initial stop until 0
+current timestep 3198
+planning flow reduced
+plan limit 53
+compute initial stop until 0
+current timestep 3199
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3203
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 3207
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3211
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3215
+planning flow reduced
+plan limit -1136
+compute initial stop until 0
+current timestep 3218
+planning flow reduced
+plan limit 456
+compute initial stop until 0
+current timestep 3222
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3226
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3230
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3234
+planning flow reduced
+plan limit -75
+compute initial stop until 0
+current timestep 3236
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 3241
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3245
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 3249
+planning flow reduced
+plan limit 762
+compute initial stop until 0
+current timestep 3255
+planning flow reduced
+plan limit 771
+compute initial stop until 0
+current timestep 3259
+planning flow reduced
+plan limit 767
+compute initial stop until 0
+current timestep 3265
+planning flow reduced
+plan limit -2142
+compute initial stop until 0
+current timestep 3269
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3273
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3277
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3281
+planning flow reduced
+plan limit -682
+compute initial stop until 0
+current timestep 3283
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3287
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3290
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 3293
+planning flow reduced
+plan limit 747
+compute initial stop until 0
+current timestep 3297
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3301
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3305
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3309
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3313
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3317
+planning flow reduced
+plan limit -2164
+compute initial stop until 0
+current timestep 3321
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3325
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3329
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3332
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3336
+planning flow reduced
+plan limit -2052
+compute initial stop until 0
+current timestep 3340
+planning flow reduced
+plan limit -830
+compute initial stop until 0
+current timestep 3342
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3346
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 3352
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3356
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3360
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3364
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3368
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3372
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3376
+planning flow reduced
+plan limit 211
+compute initial stop until 0
+current timestep 3379
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3384
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3388
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3392
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3396
+planning flow reduced
+plan limit -1453
+compute initial stop until 0
+current timestep 3399
+planning flow reduced
+plan limit -2266
+compute initial stop until 0
+current timestep 3403
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3407
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3411
+planning flow reduced
+plan limit 101
+compute initial stop until 0
+current timestep 3412
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3416
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3420
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3424
+planning flow reduced
+plan limit -2221
+compute initial stop until 0
+current timestep 3428
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3432
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3436
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3440
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3444
+planning flow reduced
+plan limit -1477
+compute initial stop until 0
+current timestep 3447
+planning flow reduced
+plan limit 731
+compute initial stop until 0
+current timestep 3452
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3456
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3460
+planning flow reduced
+plan limit -2375
+compute initial stop until 0
+current timestep 3464
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3468
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3472
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3476
+planning flow reduced
+plan limit -600
+compute initial stop until 0
+current timestep 3478
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3482
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3486
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3490
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3494
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3498
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3502
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3506
+planning flow reduced
+plan limit -2356
+compute initial stop until 0
+current timestep 3510
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3514
+planning flow reduced
+plan limit -260
+compute initial stop until 0
+current timestep 3516
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3520
+planning flow reduced
+plan limit 729
+compute initial stop until 0
+current timestep 3525
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 3529
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3533
+planning flow reduced
+plan limit 276
+compute initial stop until 0
+current timestep 3537
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3541
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3545
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3549
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3553
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3557
+planning flow reduced
+plan limit 727
+compute initial stop until 0
+current timestep 3562
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3566
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 3570
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3574
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3578
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3582
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3586
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3590
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3594
+planning flow reduced
+plan limit -152
+compute initial stop until 0
+current timestep 3596
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3600
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3604
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3608
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3612
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3616
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3620
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3624
+planning flow reduced
+plan limit 251
+compute initial stop until 0
+current timestep 3629
+planning flow reduced
+plan limit -1360
+compute initial stop until 0
+current timestep 3632
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3637
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3641
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3645
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3649
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3653
+planning flow reduced
+plan limit 161
+compute initial stop until 0
+current timestep 3654
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3658
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3662
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3666
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3670
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3674
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3678
+planning flow reduced
+plan limit 718
+compute initial stop until 0
+current timestep 3684
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3688
+planning flow reduced
+plan limit -2530
+compute initial stop until 0
+current timestep 3692
+planning flow reduced
+plan limit 246
+compute initial stop until 0
+current timestep 3696
+planning flow reduced
+plan limit 336
+compute initial stop until 0
+current timestep 3701
+planning flow reduced
+plan limit -30
+compute initial stop until 0
+current timestep 3703
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3707
+planning flow reduced
+plan limit 7
+compute initial stop until 0
+current timestep 3708
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3712
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3716
+planning flow reduced
+plan limit -1333
+compute initial stop until 0
+current timestep 3719
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3723
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 3727
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3731
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 3735
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3739
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3743
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 3747
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 3751
+planning flow reduced
+plan limit -2182
+compute initial stop until 0
+current timestep 3755
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 3761
+planning flow reduced
+plan limit 772
+compute initial stop until 0
+current timestep 3766
+planning flow reduced
+plan limit 775
+compute initial stop until 0
+current timestep 3771
+planning flow reduced
+plan limit 769
+compute initial stop until 0
+current timestep 3776
+planning flow reduced
+plan limit 698
+compute initial stop until 0
+current timestep 3782
+planning flow reduced
+plan limit 768
+compute initial stop until 0
+current timestep 3788
+planning flow reduced
+plan limit -1934
+compute initial stop until 0
+current timestep 3791
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 3797
+planning flow reduced
+plan limit 771
+compute initial stop until 0
+current timestep 3801
+planning flow reduced
+plan limit -1506
+compute initial stop until 0
+current timestep 3804
+planning flow reduced
+plan limit 125
+compute initial stop until 0
+current timestep 3805
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3809
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 3813
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 3817
+planning flow reduced
+plan limit -1536
+compute initial stop until 0
+current timestep 3820
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3824
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3828
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 3832
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3836
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3840
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3844
+planning flow reduced
+plan limit -330
+compute initial stop until 0
+current timestep 3846
+planning flow reduced
+plan limit 713
+compute initial stop until 0
+current timestep 3852
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3856
+planning flow reduced
+plan limit -858
+compute initial stop until 0
+current timestep 3858
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3862
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3866
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3870
+planning flow reduced
+plan limit -1423
+compute initial stop until 0
+current timestep 3873
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3877
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3881
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3885
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3889
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 3893
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3897
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3901
+planning flow reduced
+plan limit -1905
+compute initial stop until 0
+current timestep 3904
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3908
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 3912
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3916
+planning flow reduced
+plan limit -186
+compute initial stop until 0
+current timestep 3918
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 3922
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 3926
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3930
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3934
+planning flow reduced
+plan limit -1447
+compute initial stop until 0
+current timestep 3937
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 3941
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 3945
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 3949
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 3953
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 3957
+planning flow reduced
+plan limit 802
+compute initial stop until 0
+current timestep 3961
+planning flow reduced
+plan limit 749
+compute initial stop until 0
+current timestep 3965
+planning flow reduced
+plan limit 730
+compute initial stop until 0
+current timestep 3969
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 3973
+planning flow reduced
+plan limit 732
+compute initial stop until 0
+current timestep 3978
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3982
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 3986
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 3990
+planning flow reduced
+plan limit -9
+compute initial stop until 0
+current timestep 3992
+planning flow reduced
+plan limit 760
+compute initial stop until 0
+current timestep 3996
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 4000
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 4004
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 4008
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 4012
+planning flow reduced
+plan limit -852
+compute initial stop until 0
+current timestep 4014
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 4018
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 4022
+planning flow reduced
+plan limit -5
+compute initial stop until 0
+current timestep 4024
+planning flow reduced
+plan limit 805
+compute initial stop until 0
+current timestep 4028
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 4032
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 4036
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 4040
+planning flow reduced
+plan limit -80
+compute initial stop until 0
+current timestep 4042
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4046
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 4050
+planning flow reduced
+plan limit 270
+compute initial stop until 0
+current timestep 4054
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 4058
+planning flow reduced
+plan limit 803
+compute initial stop until 0
+current timestep 4062
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 4066
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 4070
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 4074
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4078
+planning flow reduced
+plan limit -922
+compute initial stop until 0
+current timestep 4080
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4084
+planning flow reduced
+plan limit 395
+compute initial stop until 0
+current timestep 4089
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4093
+planning flow reduced
+plan limit 798
+compute initial stop until 0
+current timestep 4097
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4101
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 4105
+planning flow reduced
+plan limit 58
+compute initial stop until 0
+current timestep 4106
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4110
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4114
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4118
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 4122
+planning flow reduced
+plan limit 288
+compute initial stop until 0
+current timestep 4126
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4130
+planning flow reduced
+plan limit 724
+compute initial stop until 0
+current timestep 4134
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4138
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4142
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 4146
+planning flow reduced
+plan limit -877
+compute initial stop until 0
+current timestep 4148
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4152
+planning flow reduced
+plan limit -350
+compute initial stop until 0
+current timestep 4154
+planning flow reduced
+plan limit 725
+compute initial stop until 0
+current timestep 4159
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4163
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4167
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4171
+planning flow reduced
+plan limit -897
+compute initial stop until 0
+current timestep 4173
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4177
+planning flow reduced
+plan limit -1370
+compute initial stop until 0
+current timestep 4180
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4184
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4188
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4192
+planning flow reduced
+plan limit 799
+compute initial stop until 0
+current timestep 4196
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4200
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4204
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4208
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4212
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4216
+planning flow reduced
+plan limit 722
+compute initial stop until 0
+current timestep 4221
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4225
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4229
+planning flow reduced
+plan limit 722
+compute initial stop until 0
+current timestep 4234
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4238
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4242
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4246
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4250
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4254
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4258
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 4261
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4265
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 4269
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4273
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 4277
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4281
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4285
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4289
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 4293
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4297
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 4302
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4306
+planning flow reduced
+plan limit -1490
+compute initial stop until 0
+current timestep 4309
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4313
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 4317
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4320
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4324
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4328
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4332
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4336
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 4339
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4343
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4346
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4350
+planning flow reduced
+plan limit -1178
+compute initial stop until 0
+current timestep 4353
+planning flow reduced
+plan limit -168
+compute initial stop until 0
+current timestep 4355
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4359
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 4363
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4367
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 4371
+planning flow reduced
+plan limit 471
+compute initial stop until 0
+current timestep 4376
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 4380
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4383
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 4387
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 4391
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 4395
+planning flow reduced
+plan limit -1592
+compute initial stop until 0
+current timestep 4398
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4402
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 4406
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4410
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 4414
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4418
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4422
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4426
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 4430
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4434
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4438
+planning flow reduced
+plan limit -727
+compute initial stop until 0
+current timestep 4440
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4444
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4448
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4452
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4456
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4460
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4464
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4468
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4472
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4476
+planning flow reduced
+plan limit -270
+compute initial stop until 0
+current timestep 4478
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 4482
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4486
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4490
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4494
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4498
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 4501
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4505
+planning flow reduced
+plan limit -724
+compute initial stop until 0
+current timestep 4507
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4511
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4515
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4519
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4523
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4527
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4530
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4534
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4537
+planning flow reduced
+plan limit -1489
+compute initial stop until 0
+current timestep 4540
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4544
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4548
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4552
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4555
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4559
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4563
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4567
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4571
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4575
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4579
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4583
+planning flow reduced
+plan limit -2279
+compute initial stop until 0
+current timestep 4587
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4591
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4595
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4598
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4602
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4606
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4609
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4613
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4617
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4621
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4625
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4629
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4633
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4636
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4640
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4643
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4647
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4651
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 4654
+planning flow reduced
+plan limit 695
+compute initial stop until 0
+current timestep 4659
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4662
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4665
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4668
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4671
+planning flow reduced
+plan limit 57
+compute initial stop until 0
+current timestep 4672
+planning flow reduced
+plan limit -880
+compute initial stop until 0
+current timestep 4674
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4678
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4682
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4685
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 4689
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4693
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4697
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4701
+planning flow reduced
+plan limit 728
+compute initial stop until 0
+current timestep 4705
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4708
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4711
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4715
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4719
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4723
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4727
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4731
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4735
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4738
+planning flow reduced
+plan limit -1417
+compute initial stop until 0
+current timestep 4741
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4744
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4747
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4750
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4753
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4757
+planning flow reduced
+plan limit 730
+compute initial stop until 0
+current timestep 4761
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 4764
+planning flow reduced
+plan limit 428
+compute initial stop until 0
+current timestep 4769
+planning flow reduced
+plan limit 726
+compute initial stop until 0
+current timestep 4773
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4777
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4780
+planning flow reduced
+plan limit 264
+compute initial stop until 0
+current timestep 4784
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4787
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4790
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4794
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4798
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4802
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4805
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4809
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4812
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4816
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 4819
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4822
+planning flow reduced
+plan limit -2497
+compute initial stop until 0
+current timestep 4826
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4830
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4833
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 4837
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4841
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4845
+planning flow reduced
+plan limit 397
+compute initial stop until 0
+current timestep 4850
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4854
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4858
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4861
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4864
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4868
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4872
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4876
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4879
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 4883
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4886
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 4889
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4893
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4897
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4900
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4904
+planning flow reduced
+plan limit -1437
+compute initial stop until 0
+current timestep 4907
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4911
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 4914
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 4918
+planning flow reduced
+plan limit -1423
+compute initial stop until 0
+current timestep 4921
+planning flow reduced
+plan limit -1346
+compute initial stop until 0
+current timestep 4924
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4928
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4932
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4935
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4939
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4943
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 4946
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4949
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4953
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 4956
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 4960
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 4964
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4968
+planning flow reduced
+plan limit -1143
+compute initial stop until 0
+current timestep 4971
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4974
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 4977
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4980
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 4984
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4987
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 4990
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 4994
+planning flow reduced
+plan limit -685
+compute initial stop until 0
+current timestep 4996
+planning flow reduced
+plan limit -2276
+compute initial stop until 0
+current timestep 5000
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5003
+planning flow reduced
+plan limit 725
+compute initial stop until 0
+current timestep 5008
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5011
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5015
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5018
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5022
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5026
+planning flow reduced
+plan limit -1405
+compute initial stop until 0
+current timestep 5029
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5033
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5037
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5040
+planning flow reduced
+plan limit 270
+compute initial stop until 0
+current timestep 5044
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5048
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5052
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5056
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5060
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5064
+planning flow reduced
+plan limit 719
+compute initial stop until 0
+current timestep 5068
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5071
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5075
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5078
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5081
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5085
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5088
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5092
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5095
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 5099
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5103
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5106
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5110
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5114
+planning flow reduced
+plan limit 141
+compute initial stop until 0
+current timestep 5115
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5118
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5121
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5125
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5128
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5132
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5136
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5140
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 5144
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5147
+planning flow reduced
+plan limit -2217
+compute initial stop until 0
+current timestep 5151
+planning flow reduced
+plan limit 727
+compute initial stop until 0
+current timestep 5155
+planning flow reduced
+plan limit -1348
+compute initial stop until 0
+current timestep 5158
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5162
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5166
+planning flow reduced
+plan limit -1379
+compute initial stop until 0
+current timestep 5169
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5173
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5176
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5180
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5183
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 5187
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5190
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5194
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5198
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5201
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5205
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5209
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5212
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5215
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5219
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5222
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5226
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5230
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5233
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5236
+planning flow reduced
+plan limit -1344
+compute initial stop until 0
+current timestep 5239
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5242
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5245
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5249
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5253
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5256
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5260
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5263
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5267
+planning flow reduced
+plan limit -627
+compute initial stop until 0
+current timestep 5269
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5272
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5275
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5278
+planning flow reduced
+plan limit -309
+compute initial stop until 0
+current timestep 5280
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5283
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5286
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5289
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5292
+planning flow reduced
+plan limit 455
+compute initial stop until 0
+current timestep 5297
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5300
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 5303
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 5307
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5311
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5315
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5319
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5323
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5327
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5331
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5335
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5339
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5343
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5347
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5351
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5355
+planning flow reduced
+plan limit 724
+compute initial stop until 0
+current timestep 5359
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5363
+planning flow reduced
+plan limit 533
+compute initial stop until 0
+current timestep 5368
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5372
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5376
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5380
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5384
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5388
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5392
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5396
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5400
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5404
+planning flow reduced
+plan limit 310
+compute initial stop until 0
+current timestep 5408
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5412
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5416
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5420
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5424
+planning flow reduced
+plan limit 775
+compute initial stop until 0
+current timestep 5428
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5432
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5436
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5440
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5444
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5448
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5452
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5456
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5460
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5464
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5467
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5470
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5474
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5478
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5481
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5485
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5489
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 5493
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5496
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5500
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5504
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5507
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5511
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5514
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5518
+planning flow reduced
+plan limit -1239
+compute initial stop until 0
+current timestep 5521
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5525
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5529
+planning flow reduced
+plan limit -2240
+compute initial stop until 0
+current timestep 5533
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5537
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5541
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5545
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5548
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5552
+planning flow reduced
+plan limit -863
+compute initial stop until 0
+current timestep 5554
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5558
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5562
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5566
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5570
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5574
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5578
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5581
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5585
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5588
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5592
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5596
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5600
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5604
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5608
+planning flow reduced
+plan limit -65
+compute initial stop until 0
+current timestep 5610
+planning flow reduced
+plan limit -215
+compute initial stop until 0
+current timestep 5612
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 5616
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5620
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5624
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5628
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5632
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5636
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5640
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5644
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5648
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5652
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5656
+planning flow reduced
+plan limit 178
+compute initial stop until 0
+current timestep 5658
+planning flow reduced
+plan limit -1689
+compute initial stop until 0
+current timestep 5661
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5665
+planning flow reduced
+plan limit -1381
+compute initial stop until 0
+current timestep 5668
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 5671
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 5674
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 5677
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 5680
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5684
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5688
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5692
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 5695
+planning flow reduced
+plan limit 708
+compute initial stop until 0
+current timestep 5699
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5703
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 5707
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5711
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5715
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 5719
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5723
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5727
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5730
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5734
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5738
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5742
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5746
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5750
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 5754
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5758
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5762
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5766
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5770
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5774
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5777
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5781
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5785
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5789
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5793
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5797
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5801
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5805
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 5808
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5812
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5816
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5820
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5824
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5828
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5832
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 5836
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5840
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5844
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5848
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 5852
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 5855
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5859
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5862
+planning flow reduced
+plan limit -1511
+compute initial stop until 0
+current timestep 5865
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5868
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5872
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5876
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5880
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 5884
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 5888
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5892
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5895
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 5899
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 5902
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5906
+planning flow reduced
+plan limit 536
+compute initial stop until 0
+current timestep 5911
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 5915
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5919
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5922
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5926
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5930
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 5934
+planning flow reduced
+plan limit -278
+compute initial stop until 0
+current timestep 5936
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 5941
+planning flow reduced
+plan limit 769
+compute initial stop until 0
+current timestep 5945
+planning flow reduced
+plan limit 754
+compute initial stop until 0
+current timestep 5950
+planning flow reduced
+plan limit 770
+compute initial stop until 0
+current timestep 5954
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5957
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 5961
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5965
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 5969
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 5973
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 5977
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 5980
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 5984
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5987
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5991
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 5994
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 5998
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 6001
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6005
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6009
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6013
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6017
+planning flow reduced
+plan limit 801
+compute initial stop until 0
+current timestep 6021
+planning flow reduced
+plan limit 800
+compute initial stop until 0
+current timestep 6025
+planning flow reduced
+plan limit -1422
+compute initial stop until 0
+current timestep 6028
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 6032
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6036
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 6040
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6044
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6048
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6052
+planning flow reduced
+plan limit -1125
+compute initial stop until 0
+current timestep 6055
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6059
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6062
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 6066
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6070
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6073
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6077
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6081
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 6084
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6088
+planning flow reduced
+plan limit -1134
+compute initial stop until 0
+current timestep 6091
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 6095
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6099
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6103
+planning flow reduced
+plan limit 261
+compute initial stop until 0
+current timestep 6107
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6111
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6114
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6118
+planning flow reduced
+plan limit 768
+compute initial stop until 0
+current timestep 6121
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6125
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6128
+planning flow reduced
+plan limit 727
+compute initial stop until 0
+current timestep 6132
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6135
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6139
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6143
+planning flow reduced
+plan limit 153
+compute initial stop until 0
+current timestep 6144
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6148
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6151
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6155
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6159
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6163
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6167
+planning flow reduced
+plan limit 797
+compute initial stop until 0
+current timestep 6171
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6175
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6179
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6183
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6186
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6189
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6193
+planning flow reduced
+plan limit -1444
+compute initial stop until 0
+current timestep 6196
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6199
+planning flow reduced
+plan limit -1319
+compute initial stop until 0
+current timestep 6202
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6206
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6209
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 6213
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6217
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6221
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6225
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6229
+planning flow reduced
+plan limit 265
+compute initial stop until 0
+current timestep 6233
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 6237
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6240
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 6244
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6248
+planning flow reduced
+plan limit -1376
+compute initial stop until 0
+current timestep 6251
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6255
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6258
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6261
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6264
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6267
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6270
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6273
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6276
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6279
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6283
+planning flow reduced
+plan limit 796
+compute initial stop until 0
+current timestep 6287
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6290
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6295
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6298
+planning flow reduced
+plan limit 772
+compute initial stop until 0
+current timestep 6303
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6307
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6311
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6315
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6319
+planning flow reduced
+plan limit 795
+compute initial stop until 0
+current timestep 6324
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6328
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6332
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6335
+planning flow reduced
+plan limit 723
+compute initial stop until 0
+current timestep 6340
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6344
+planning flow reduced
+plan limit -1291
+compute initial stop until 0
+current timestep 6347
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6352
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6356
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6360
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6364
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6368
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6372
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6376
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6380
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6384
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6388
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6392
+planning flow reduced
+plan limit 537
+compute initial stop until 0
+current timestep 6397
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6401
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6405
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6409
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6413
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6417
+planning flow reduced
+plan limit -1276
+compute initial stop until 0
+current timestep 6420
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6424
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6428
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6432
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6436
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6440
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6444
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6448
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6452
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6456
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6460
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6463
+planning flow reduced
+plan limit 778
+compute initial stop until 0
+current timestep 6466
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6470
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6474
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6478
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6481
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6484
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 6487
+planning flow reduced
+plan limit 695
+compute initial stop until 0
+current timestep 6493
+planning flow reduced
+plan limit 776
+compute initial stop until 0
+current timestep 6497
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6501
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 6505
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6509
+planning flow reduced
+plan limit 779
+compute initial stop until 0
+current timestep 6512
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6516
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6520
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6524
+planning flow reduced
+plan limit 778
+compute initial stop until 0
+current timestep 6528
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6532
+planning flow reduced
+plan limit 783
+compute initial stop until 0
+current timestep 6536
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6540
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6544
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6547
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 6550
+planning flow reduced
+plan limit 314
+compute initial stop until 0
+current timestep 6554
+planning flow reduced
+plan limit 780
+compute initial stop until 0
+current timestep 6557
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6561
+planning flow reduced
+plan limit 777
+compute initial stop until 0
+current timestep 6566
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6570
+planning flow reduced
+plan limit 778
+compute initial stop until 0
+current timestep 6574
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6577
+planning flow reduced
+plan limit 778
+compute initial stop until 0
+current timestep 6581
+planning flow reduced
+plan limit 781
+compute initial stop until 0
+current timestep 6584
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6588
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6592
+planning flow reduced
+plan limit 706
+compute initial stop until 0
+current timestep 6597
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6601
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6605
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6609
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6613
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6617
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6621
+planning flow reduced
+plan limit 784
+compute initial stop until 0
+current timestep 6625
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6629
+planning flow reduced
+plan limit 621
+compute initial stop until 0
+current timestep 6634
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6638
+planning flow reduced
+plan limit 778
+compute initial stop until 0
+current timestep 6642
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6646
+planning flow reduced
+plan limit 765
+compute initial stop until 0
+current timestep 6649
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6653
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6657
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6661
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6665
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6669
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6673
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6677
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6681
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6684
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6687
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6690
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6693
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6697
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6700
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6704
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6708
+planning flow reduced
+plan limit 782
+compute initial stop until 0
+current timestep 6712
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6716
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6720
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6724
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6728
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6732
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6736
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6740
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6744
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6747
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6751
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6755
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6759
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6763
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6767
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6771
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6775
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6779
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6783
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6787
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6791
+planning flow reduced
+plan limit 728
+compute initial stop until 0
+current timestep 6795
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6799
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6803
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6807
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6811
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6815
+planning flow reduced
+plan limit 787
+compute initial stop until 0
+current timestep 6819
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6823
+planning flow reduced
+plan limit 785
+compute initial stop until 0
+current timestep 6827
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6831
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6835
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6839
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6843
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6847
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6851
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6855
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6859
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6862
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6866
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6870
+planning flow reduced
+plan limit 791
+compute initial stop until 0
+current timestep 6874
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6878
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6882
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6886
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6890
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6894
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6898
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6902
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6906
+planning flow reduced
+plan limit 9
+compute initial stop until 0
+current timestep 6907
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6911
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6915
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6919
+planning flow reduced
+plan limit -192
+compute initial stop until 0
+current timestep 6921
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6925
+planning flow reduced
+plan limit 792
+compute initial stop until 0
+current timestep 6929
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6933
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6937
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6941
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6945
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6949
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6953
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6957
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6961
+planning flow reduced
+plan limit 793
+compute initial stop until 0
+current timestep 6965
+planning flow reduced
+plan limit 786
+compute initial stop until 0
+current timestep 6970
+planning flow reduced
+plan limit 788
+compute initial stop until 0
+current timestep 6974
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6978
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6982
+planning flow reduced
+plan limit 790
+compute initial stop until 0
+current timestep 6986
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6990
+planning flow reduced
+plan limit 789
+compute initial stop until 0
+current timestep 6994
+planning flow reduced
+plan limit 794
+compute initial stop until 0
+current timestep 6998
+planning flow reduced
+plan limit 789
+compute initial stop until 0
