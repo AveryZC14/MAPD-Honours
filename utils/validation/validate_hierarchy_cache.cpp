@@ -175,7 +175,7 @@ int main(int argc, char** argv)
         return 2;
     }
 
-    constexpr int kLevelsToAdd = 2; // mirrors kDefaultCoarsenLevels in MapCoarsenV1.cpp
+    constexpr int kLevelsToAdd = 2; // small fixed depth for a quick round-trip check
     MultiLevelCoarsenedGraph built;
     build_multilevel_from_environment(built, &env, kLevelsToAdd);
     check(!built.empty(), "fresh build produced a non-empty hierarchy");

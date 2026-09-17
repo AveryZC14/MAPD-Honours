@@ -145,6 +145,17 @@ target_compile_definitions(hierarchy_cache_validator PRIVATE PYTHON=${PYTHON_FLA
 #-----------
 
 #-----------
+# Standalone, timing-independent rigor check for
+# ReducedHierarchy::compute_hierarchical_assignment() (cascaded local
+# matching): disabled-cascade-equals-direct-call parity, assignment validity
+# (no duplicates, every id came from the input), and the "entirety mode
+# makes flow vacuous" claim. See ai/hierarchical_matching.md.
+add_executable(hierarchical_matching_validator utils/validation/validate_hierarchical_matching.cpp ${PROJECT_SOURCES})
+target_link_libraries(hierarchical_matching_validator ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(hierarchical_matching_validator PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
+#-----------
 # Standalone tool: dump solver 1 and solver 6 guide paths (for a handful of
 # agents) to a CSV for visualisation, see map_reduction_test/visualisation/
 # plot_guide_paths.py.

@@ -57,7 +57,8 @@ int main(int argc, char **argv)
         ("scheduleModel,m", po::value<int>()->default_value(1), "scheduler model, 1- flow, 2- flow with history edge cost, 3- matching + dijkstra, 4- matching + lazily stored h, 5- greedy")
         ("commitWindow,w", po::value<int>()->default_value(1), "commit window")
         ("hierarchyCache", po::value<std::string>()->default_value(""), "path to cache the solver-6 map-coarsening hierarchy on disk; loaded instead of rebuilt on later runs against the same map, and written after a fresh build. Empty (default) disables caching")
-        ("flowSolveLevel", po::value<int>()->default_value(2), "solver-6: hierarchy level (0 = fine map) to solve the per-timestep flow assignment on; out-of-range values fall back to the default");
+        ("flowSolveLevel", po::value<int>()->default_value(2), "solver-6: hierarchy level (0 = fine map) to solve the per-timestep flow assignment on; out-of-range values fall back to the default")
+        ("minCascadeLevel", po::value<int>()->default_value(999), "solver-6: first hierarchy level the hierarchical/cascaded local matcher attempts before handing leftovers to flowSolveLevel's usual local-match-then-flow handling; a value >= flowSolveLevel disables cascading (default: disabled)");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -142,6 +143,7 @@ int main(int argc, char **argv)
     planner->env->file_storage_path = file_storage_path;
     planner->env->hierarchy_cache_path = vm["hierarchyCache"].as<std::string>();
     planner->env->flow_solve_level = vm["flowSolveLevel"].as<int>();
+    planner->env->min_cascade_level = vm["minCascadeLevel"].as<int>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

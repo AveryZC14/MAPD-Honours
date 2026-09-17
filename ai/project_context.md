@@ -255,8 +255,18 @@ solver 1's own full-map flow solve can still be slow, see "Solver 1" above).
 - `MultiLevelCoarsenedGraph`: `levels[0]` = fine map, `levels[1..]` =
   successively coarser (`Coarsen()` groups 2x2 blocks of the previous level's
   nodes into connected components, roughly halving grid dimensions each
-  time). `kDefaultCoarsenLevels = 2` (`MapCoarsenV1.cpp:31`) → 3 total levels
-  for this repo.
+  time). `ReducedHierarchy::ensure()` now coarsens all the way to the natural
+  fixpoint (the level where the 2x2-block grid itself has collapsed to a
+  single block, `coarse_rows == coarse_cols == 1` — a further `Coarsen()`
+  call there would just reproduce the same graph) rather than a fixed depth;
+  `kMaxCoarsenLevels` (`MapCoarsenV1.cpp`) is only a generous safety ceiling
+  on that loop, not a target. The resulting level count is reported per-run
+  as `schedulerHierarchyNumLevels` in the output JSON, alongside the
+  existing per-level `schedulerHierarchyLevelNodeCounts`. (Before this
+  change, depth was a fixed compile-time constant, `kDefaultCoarsenLevels`,
+  varied by hand across benchmark sweeps — the `ai/auto_benchmarking_*.md`
+  docs and `ai/hierarchy_cache.md` still describe that older mechanism as it
+  was at the time.)
 - `ReducedHierarchy`: process-lifetime singleton (`instance()`) owning one
   `MultiLevelCoarsenedGraph`. `ensure(env)` builds it once (checked via a
   signature hash) and is cheap to call every timestep after that. If
@@ -549,11 +559,16 @@ Headline pitfalls documented there, worth knowing before touching this again:
   for the mechanics; use `tp/makespan` for real-time throughput comparisons,
   `tp/steps` for cost-per-decision (`visualisation/compute_throughput_metrics.py`
   reports both from a result JSON or folder of them).
-- The coarsen-level/depth toggle (`kDefaultCoarsenLevels`, a `constexpr int`
-  at `MapCoarsenV1.cpp:31`) is compile-time only — there's no CLI flag, so
-  comparing levels means editing that line and re-running `./compile.sh` per
-  level (both sweeps did this with `sed`, restoring the original value `2`
-  at the end).
+- At the time of these sweeps, hierarchy *build depth* (`kDefaultCoarsenLevels`,
+  a `constexpr int`) was compile-time only and separate from `--flowSolveLevel`
+  (which level the per-timestep solve runs on, already a CLI flag) — comparing
+  build depths meant editing that constant and re-running `./compile.sh` per
+  level (both sweeps did this with `sed`, restoring the original value at the
+  end). **This is no longer how build depth works**: `ReducedHierarchy::ensure()`
+  now always coarsens to the natural fixpoint (see "Solver 6" above) instead of
+  a chosen fixed depth, so there's nothing to `sed`/recompile for build depth
+  any more — `--flowSolveLevel` is still the only depth-related thing you set
+  per run, now just checked against however many levels the fixpoint produced.
 - Hierarchy build now only happens for solver 6 (see "Solver 6" above) —
   older sweep notes/scripts that inflate `--preprocessTimeLimit` for
   solver-1-only runs on huge maps on the hierarchy's account are no longer
@@ -678,6 +693,17 @@ Headline pitfalls documented there, worth knowing before touching this again:
   during initial testing (`NetworkSimplex::flowMap()` must be called after
   `run()`, not before -- also present, latent and harmless, in solver 6's own
   code).
+- `ai/hierarchical_matching.md` — **hierarchical (cascaded) local
+  matching**: extends solver 6's within-coarse-node local matcher
+  (`ai/local_node_matching.md`) from a single `--flowSolveLevel` to a
+  bottom-up cascade across many levels, to cut `match_local_node_exact`'s
+  cost at deep levels where it currently rivals/exceeds the flow solve
+  (`ai/local_node_matching_runtime.md`). New `ReducedHierarchy::
+  compute_hierarchical_assignment()`, a new `--minCascadeLevel` CLI flag,
+  and solver 6 upgraded in place to use it (opt-in, disabled by default —
+  unchanged CLI invocations behave exactly as before). Also documents why
+  reusing the hierarchy's fixpoint top level (see "Solver 6" above) lets
+  "cascade in its entirety" fall out for free with no special-casing.
 - `ai/scene_mp_4p_03_5000ts_sweep_dashboard.md` — an interactive Claude
   Artifact (live URL + source HTML checked into
   `outputs/scene_mp_4p_03_5000ts_sweep/throughput_dashboard.html`), now

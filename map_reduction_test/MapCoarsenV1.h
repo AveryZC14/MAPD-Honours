@@ -274,6 +274,54 @@ public:
                                                            int* flow_match_count_out = nullptr,
                                                            double* local_match_time_out = nullptr);
 
+    // Hierarchical ("cascaded") local matching: same contract and same
+    // return value as compute_reduced_assignment() above, but instead of
+    // local-matching once at env->flow_solve_level, walks the hierarchy
+    // bottom-up from `min_cascade_level`, exact-matching same-node
+    // agents/tasks (LocalNodeMatch.h, unchanged) at every level in turn and
+    // carrying only each level's leftover surplus up to the next level via
+    // that level's to_coarser_node_id -- before finally handing whatever's
+    // still unmatched at env->flow_solve_level to compute_reduced_assignment()
+    // itself, unmodified, for its usual local-match-then-flow handling.
+    // See ai/hierarchical_matching.md for the algorithm and rationale.
+    //
+    // `min_cascade_level` is clamped to >= 1 (level 0 is the uncoarsened
+    // fine map -- matching there would only ever catch agents/tasks already
+    // at the exact same fine cell) and to <= env->flow_solve_level. Passing
+    // a value >= flow_solve_level makes the cascade a no-op: the leftover
+    // set handed to compute_reduced_assignment() is just the original
+    // flexible set, unchanged, so this is byte-identical to calling
+    // compute_reduced_assignment() directly -- cascading is strictly
+    // opt-in. Setting env->flow_solve_level to the hierarchy's own top
+    // (fixpoint) level makes the cascade run "in its entirety": the final
+    // hand-off's own local match then covers every remaining pairing, and
+    // flow becomes a vacuous no-op automatically (see
+    // ai/hierarchical_matching.md), no special-casing needed here.
+    //
+    // Cascade-level match counts/time are folded into the *same*
+    // local_match_count_out/local_match_time_out out-params
+    // compute_reduced_assignment() uses, so existing metrics/dashboards
+    // keep meaning "matched without touching the coarse flow graph" without
+    // any new output fields. `cascade_time_out`, if provided, receives
+    // wall-clock time spent in the cascade loop itself (bucketing +
+    // matching across every cascade level), separate from solve_time_out/
+    // local_match_time_out, which continue to describe only the final
+    // hand-off call exactly as they did before this function existed.
+    std::unordered_map<int,int> compute_hierarchical_assignment(SharedEnvironment* env,
+                                                                 const std::vector<int>& flexible_agent_ids,
+                                                                 const std::vector<int>& flexible_task_ids,
+                                                                 int min_cascade_level,
+                                                                 std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                                 bool need_guide_paths = true,
+                                                                 double* solve_time_out = nullptr,
+                                                                 double* guide_time_out = nullptr,
+                                                                 double* guide_path_length_sum_out = nullptr,
+                                                                 double* guide_path_cost_sum_out = nullptr,
+                                                                 int* local_match_count_out = nullptr,
+                                                                 int* flow_match_count_out = nullptr,
+                                                                 double* local_match_time_out = nullptr,
+                                                                 double* cascade_time_out = nullptr);
+
     // Lift an already-decided batch of (agent, task, region-node-only coarse
     // path) triples down to concrete fine-graph guide paths -- exactly what
     // compute_reduced_assignment's own Steps 3/4 do internally for its own
@@ -311,6 +359,15 @@ private:
     // non-copyable
     ReducedHierarchy(const ReducedHierarchy&) = delete;
     ReducedHierarchy& operator=(const ReducedHierarchy&) = delete;
+
+    // Resolve which hierarchy level env->flow_solve_level actually refers
+    // to for the hierarchy that was built: falls back to
+    // kDefaultFlowSolveLevel, and then to the hierarchy's own top level, if
+    // env->flow_solve_level is unset/out of range. Shared by
+    // compute_reduced_assignment() and compute_hierarchical_assignment() so
+    // both always agree on which level is "the" flow/hand-off level.
+    // Only valid to call once ready_ is true.
+    int resolve_flow_solve_level(const SharedEnvironment* env) const;
 
     MultiLevelCoarsenedGraph hierarchy_;
     bool ready_ = false;

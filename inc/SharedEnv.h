@@ -32,6 +32,15 @@ public:
     // function's own default.
     int flow_solve_level = 2;
 
+    // First hierarchy level solver 6's hierarchical/cascaded local matcher
+    // (MapReductionTest::ReducedHierarchy::compute_hierarchical_assignment())
+    // attempts before handing any leftover to flow_solve_level's usual
+    // local-match-then-flow handling. Set from --minCascadeLevel. A value
+    // >= flow_solve_level disables cascading entirely (byte-identical to
+    // solver 6's pre-cascade behavior) -- this is the default, so cascading
+    // is strictly opt-in. See ai/hierarchical_matching.md.
+    int min_cascade_level = 999;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;

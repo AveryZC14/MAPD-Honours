@@ -378,6 +378,11 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     js["numEntryTimeouts"] = total_timetous;
     js["schedulerHierarchyBuildTime"] = last_scheduler_timing.hierarchy_build_time;
     js["schedulerHierarchyLevelNodeCounts"] = last_scheduler_timing.hierarchy_level_node_counts;
+    // Number of levels the hierarchy actually converged to (fine level +
+    // every coarsened level down to the single-block fixpoint) -- equal to
+    // hierarchy_level_node_counts.size(), broken out as its own field so it
+    // doesn't have to be read off an array length.
+    js["schedulerHierarchyNumLevels"] = last_scheduler_timing.hierarchy_level_node_counts.size();
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;
     js["totalFlowMatchCount"] = total_flow_match_count;

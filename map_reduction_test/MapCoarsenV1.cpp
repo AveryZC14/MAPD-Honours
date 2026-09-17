@@ -26,10 +26,15 @@ std::size_t CoarsenedGraph::PairHash::operator()(const std::pair<int, int>& p) c
 using lemon::INVALID;
 using lemon::ListDigraph;
 
-// Default number of coarsening steps to build from the fine graph.
-// Increase this to push the hierarchy deeper, or set it to 0 to keep only
-// the fine level.
-constexpr int kDefaultCoarsenLevels = 9;
+// Safety ceiling on how many coarsening steps build_multilevel_from_environment
+// will attempt from ReducedHierarchy::ensure(). The hierarchy is now coarsened
+// all the way to its natural fixpoint (see the coarse_rows/coarse_cols == 1
+// check in build_multilevel_from_environment) rather than a fixed target
+// depth, so this constant is never expected to actually bind for any real
+// map -- even a map a billion cells wide would converge in ~30 halvings.
+// It exists purely so a latent bug in the fixpoint check can't turn into an
+// infinite loop.
+constexpr int kMaxCoarsenLevels = 128;
 
 // Default hierarchy level (0 = fine map) that the per-timestep flow
 // assignment is solved on. Overridable at runtime via
@@ -1004,6 +1009,17 @@ void build_multilevel_from_environment(MultiLevelCoarsenedGraph& hierarchy,
     {
         if (!append_coarsened_level(hierarchy))
             break;
+        // Once a level's 2x2-block grid has collapsed to a single block
+        // (coarse_rows == coarse_cols == 1), every further Coarsen() call
+        // re-partitions that same single block and reproduces an identical
+        // graph -- there is nothing left to shrink. Stop here instead of
+        // appending duplicate levels forever. (A map with disconnected
+        // regions bottoms out at however many components survive within
+        // that one block, not necessarily a single node -- that's still the
+        // correct fixpoint.)
+        const CoarsenedGraph* top = hierarchy.levels.back().get();
+        if (top->coarse_rows <= 1 && top->coarse_cols <= 1)
+            break;
     }
 }
 
@@ -1047,25 +1063,29 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     // the new one while it's being constructed.
     hierarchy_.clear();
 
-    const int levels_to_add = std::max(0, kDefaultCoarsenLevels);
-    const int expected_num_levels = levels_to_add + 1; // fine level + coarsened levels
+    const int levels_to_add = kMaxCoarsenLevels;
 
     // If a cache path was given, try to load a previously-saved hierarchy
-    // for this exact map/level-count before paying to rebuild it. The load
-    // validates rows/cols/map-signature/level-count itself and fails
-    // (leaving `hierarchy_` untouched) on any mismatch or format problem,
-    // so a stale/foreign/corrupt cache file just falls through to a normal
-    // rebuild rather than being trusted. Timed the same as the build path
-    // below (not just "was it fast", but "how long did ensure() actually
-    // take this call") so `hierarchy_build_time()` stays meaningful on a
-    // cache hit instead of reading ~0 for work that did happen.
+    // for this exact map before paying to rebuild it. The load validates
+    // rows/cols/map-signature itself and fails (leaving `hierarchy_`
+    // untouched) on any mismatch or format problem, so a stale/foreign/
+    // corrupt cache file just falls through to a normal rebuild rather than
+    // being trusted. There's no separate expected-level-count check to pass
+    // here any more: the hierarchy is now coarsened to its natural fixpoint
+    // rather than a fixed target depth, so the level count is itself a
+    // deterministic function of the map -- if the signature matches, the
+    // level count is guaranteed to match too. Timed the same as the build
+    // path below (not just "was it fast", but "how long did ensure()
+    // actually take this call") so `hierarchy_build_time()` stays
+    // meaningful on a cache hit instead of reading ~0 for work that did
+    // happen.
     const auto build_start = std::chrono::high_resolution_clock::now();
 
     bool loaded_from_cache = false;
     if (!env->hierarchy_cache_path.empty())
     {
         MultiLevelCoarsenedGraph cached;
-        if (load_hierarchy_from_file(env->hierarchy_cache_path, env, expected_num_levels, cached))
+        if (load_hierarchy_from_file(env->hierarchy_cache_path, env, /*expected_num_levels=*/-1, cached))
         {
             hierarchy_ = std::move(cached);
             loaded_from_cache = true;
@@ -1581,6 +1601,16 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
         *guide_path_cost_sum_out = guide_path_cost_sum;
 }
 
+int ReducedHierarchy::resolve_flow_solve_level(const SharedEnvironment* env) const
+{
+    int top_level_idx = env->flow_solve_level;
+    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
+        top_level_idx = kDefaultFlowSolveLevel;
+    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
+        top_level_idx = hierarchy_.num_levels() - 1;
+    return top_level_idx;
+}
+
 std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedEnvironment* env,
                                                                         const std::vector<int>& flexible_agent_ids,
                                                                         const std::vector<int>& flexible_task_ids,
@@ -1614,11 +1644,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // kDefaultFlowSolveLevel, and if even that's out of range (e.g. a tiny
     // map whose hierarchy came out shallower than the default expects),
     // clamp down to the topmost level that does exist.
-    int top_level_idx = env->flow_solve_level;
-    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
-        top_level_idx = kDefaultFlowSolveLevel;
-    if (top_level_idx < 0 || top_level_idx >= hierarchy_.num_levels())
-        top_level_idx = hierarchy_.num_levels() - 1;
+    const int top_level_idx = resolve_flow_solve_level(env);
     const CoarsenedGraph* top = hierarchy_.level(top_level_idx);
     const CoarsenedGraph* fine = hierarchy_.fine_graph();
     if (!top || !fine)
@@ -1986,6 +2012,205 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         *guide_path_length_sum_out = guide_path_length_sum;
     if (guide_path_cost_sum_out)
         *guide_path_cost_sum_out = guide_path_cost_sum;
+
+    return assignments;
+}
+
+// Hierarchical ("cascaded") local matching -- see ai/hierarchical_matching.md
+// for the algorithm and rationale. Per-item state carried through the
+// cascade: real fine location (fixed) and current level's node id (climbs
+// one level at a time via that level's to_coarser_node_id).
+namespace {
+struct CascadeItem { int id; int loc; int node; };
+} // namespace
+
+std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(SharedEnvironment* env,
+                                                                              const std::vector<int>& flexible_agent_ids,
+                                                                              const std::vector<int>& flexible_task_ids,
+                                                                              int min_cascade_level,
+                                                                              std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
+                                                                              bool need_guide_paths,
+                                                                              double* solve_time_out,
+                                                                              double* guide_time_out,
+                                                                              double* guide_path_length_sum_out,
+                                                                              double* guide_path_cost_sum_out,
+                                                                              int* local_match_count_out,
+                                                                              int* flow_match_count_out,
+                                                                              double* local_match_time_out,
+                                                                              double* cascade_time_out){
+    std::unordered_map<int,int> assignments;
+    out_agent_guide_paths.clear();
+    if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
+    if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
+    if (local_match_count_out) *local_match_count_out = 0;
+    if (flow_match_count_out) *flow_match_count_out = 0;
+    if (local_match_time_out) *local_match_time_out = 0.0;
+    if (cascade_time_out) *cascade_time_out = 0.0;
+
+    if (!env)
+        return assignments;
+
+    ensure(env);
+    if (!ready_)
+        return assignments;
+
+    // Same hand-off level compute_reduced_assignment() would itself pick --
+    // the cascade always stops exactly where that function would take over.
+    const int top_level_idx = resolve_flow_solve_level(env);
+    // Level 0 is the uncoarsened fine map (matching there would only ever
+    // catch agents/tasks already at the exact same fine cell), so the
+    // cascade never starts below level 1. min_cascade_level >= top_level_idx
+    // makes the loop below a no-op -- the "leftover" handed to
+    // compute_reduced_assignment() is then just the original flexible set,
+    // unchanged, so this is byte-identical to calling it directly.
+    const int cascade_start = std::clamp(min_cascade_level, 1, top_level_idx);
+
+    const auto cascade_start_time = std::chrono::high_resolution_clock::now();
+
+    std::vector<CascadeItem> remaining_agents, remaining_tasks;
+    remaining_agents.reserve(flexible_agent_ids.size());
+    remaining_tasks.reserve(flexible_task_ids.size());
+    for (int agent_id : flexible_agent_ids)
+    {
+        const int loc = env->curr_states[agent_id].location;
+        const int node = map_fine_node_to_level_node_local(hierarchy_, loc, cascade_start);
+        if (node < 0) continue;
+        remaining_agents.push_back({agent_id, loc, node});
+    }
+    for (int task_id : flexible_task_ids)
+    {
+        const int loc = env->task_pool[task_id].locations[0];
+        const int node = map_fine_node_to_level_node_local(hierarchy_, loc, cascade_start);
+        if (node < 0) continue;
+        remaining_tasks.push_back({task_id, loc, node});
+    }
+
+    int cascade_local_match_count = 0;
+    double cascade_local_match_time_accum = 0.0;
+
+    for (int level = cascade_start;
+         level < top_level_idx && !remaining_agents.empty() && !remaining_tasks.empty();
+         ++level)
+    {
+        const CoarsenedGraph* level_graph = hierarchy_.level(level);
+        if (!level_graph) break;
+
+        std::unordered_map<int, std::vector<int>> agent_idxs_by_node, task_idxs_by_node;
+        for (int i = 0; i < static_cast<int>(remaining_agents.size()); ++i)
+            agent_idxs_by_node[remaining_agents[i].node].push_back(i);
+        for (int i = 0; i < static_cast<int>(remaining_tasks.size()); ++i)
+            task_idxs_by_node[remaining_tasks[i].node].push_back(i);
+
+        std::vector<char> agent_matched(remaining_agents.size(), false);
+        std::vector<char> task_matched(remaining_tasks.size(), false);
+
+        for (const auto& kv : agent_idxs_by_node)
+        {
+            const auto task_it = task_idxs_by_node.find(kv.first);
+            if (task_it == task_idxs_by_node.end() || task_it->second.empty())
+                continue; // no counterpart at this node yet -- carried forward below
+
+            const std::vector<int>& agent_idxs = kv.second;
+            const std::vector<int>& task_idxs = task_it->second;
+
+            std::vector<int> agent_ids, agent_locs, task_ids, task_locs;
+            agent_ids.reserve(agent_idxs.size());
+            agent_locs.reserve(agent_idxs.size());
+            task_ids.reserve(task_idxs.size());
+            task_locs.reserve(task_idxs.size());
+            for (int idx : agent_idxs)
+            {
+                agent_ids.push_back(remaining_agents[idx].id);
+                agent_locs.push_back(remaining_agents[idx].loc);
+            }
+            for (int idx : task_idxs)
+            {
+                task_ids.push_back(remaining_tasks[idx].id);
+                task_locs.push_back(remaining_tasks[idx].loc);
+            }
+
+            const auto match_start = std::chrono::high_resolution_clock::now();
+            const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
+                ? match_local_node_exact(*env, agent_ids, agent_locs, task_ids, task_locs)
+                : std::vector<LocalMatchPair>();
+            cascade_local_match_time_accum += std::chrono::duration<double>(
+                std::chrono::high_resolution_clock::now() - match_start).count();
+            if (pairs.empty()) continue;
+
+            std::unordered_set<int> matched_agent_ids, matched_task_ids;
+            for (const auto& p : pairs)
+            {
+                assignments[p.agent_id] = p.task_id;
+                matched_agent_ids.insert(p.agent_id);
+                matched_task_ids.insert(p.task_id);
+            }
+            cascade_local_match_count += static_cast<int>(pairs.size());
+
+            for (int idx : agent_idxs)
+                if (matched_agent_ids.count(remaining_agents[idx].id))
+                    agent_matched[idx] = true;
+            for (int idx : task_idxs)
+                if (matched_task_ids.count(remaining_tasks[idx].id))
+                    task_matched[idx] = true;
+        }
+
+        // Carry every still-unmatched item forward, climbing it to its
+        // parent node for the next iteration.
+        std::vector<CascadeItem> next_agents, next_tasks;
+        next_agents.reserve(remaining_agents.size());
+        next_tasks.reserve(remaining_tasks.size());
+        for (int i = 0; i < static_cast<int>(remaining_agents.size()); ++i)
+        {
+            if (agent_matched[i]) continue;
+            CascadeItem item = remaining_agents[i];
+            if (item.node < 0 || item.node >= static_cast<int>(level_graph->to_coarser_node_id.size()))
+                continue; // can't climb further -- drop defensively, mirrors existing checks elsewhere in this file
+            item.node = level_graph->to_coarser_node_id[item.node];
+            if (item.node < 0) continue;
+            next_agents.push_back(item);
+        }
+        for (int i = 0; i < static_cast<int>(remaining_tasks.size()); ++i)
+        {
+            if (task_matched[i]) continue;
+            CascadeItem item = remaining_tasks[i];
+            if (item.node < 0 || item.node >= static_cast<int>(level_graph->to_coarser_node_id.size()))
+                continue;
+            item.node = level_graph->to_coarser_node_id[item.node];
+            if (item.node < 0) continue;
+            next_tasks.push_back(item);
+        }
+        remaining_agents = std::move(next_agents);
+        remaining_tasks = std::move(next_tasks);
+    }
+
+    if (cascade_time_out)
+        *cascade_time_out = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - cascade_start_time).count();
+
+    // Hand off whatever's left at top_level_idx to the existing, unmodified
+    // compute_reduced_assignment(): its own Step 1 local-matches this level
+    // exactly as one more cascade iteration would, then Step 2 flows
+    // anything still left after that.
+    std::vector<int> leftover_agent_ids, leftover_task_ids;
+    leftover_agent_ids.reserve(remaining_agents.size());
+    leftover_task_ids.reserve(remaining_tasks.size());
+    for (const auto& item : remaining_agents) leftover_agent_ids.push_back(item.id);
+    for (const auto& item : remaining_tasks) leftover_task_ids.push_back(item.id);
+
+    int final_local_match_count = 0;
+    int final_flow_match_count = 0;
+    double final_local_match_time = 0.0;
+    const std::unordered_map<int,int> final_assignments = compute_reduced_assignment(
+        env, leftover_agent_ids, leftover_task_ids, out_agent_guide_paths, need_guide_paths,
+        solve_time_out, guide_time_out, guide_path_length_sum_out, guide_path_cost_sum_out,
+        &final_local_match_count, &final_flow_match_count, &final_local_match_time);
+
+    for (const auto& kv : final_assignments)
+        assignments[kv.first] = kv.second;
+
+    if (local_match_count_out) *local_match_count_out = cascade_local_match_count + final_local_match_count;
+    if (flow_match_count_out) *flow_match_count_out = final_flow_match_count;
+    if (local_match_time_out) *local_match_time_out = cascade_local_match_time_accum + final_local_match_time;
 
     return assignments;
 }
