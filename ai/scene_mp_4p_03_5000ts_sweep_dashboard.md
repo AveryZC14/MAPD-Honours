@@ -14,13 +14,17 @@ just no longer the only thing on the page:
    Source data: `outputs/scene_mp_4p_03_5000ts_sweep/`. The sweep referenced
    in `ai/auto_benchmarking_scene_mp_4p_03.md`.
 2. **`IH_mp_2p_01`** (~3.44M cells / ~2.22M walkable, 10000 agents, added
-   2026-08-31) — solver 6 at `--flowSolveLevel` 1-6 vs. the solver 1
-   baseline, ~7000-timestep horizon. Source data:
-   `outputs/IH_mp_2p_01_10000_7000ts_sweep/` (run via
-   `scripts/run_benchmarks.py`). A **longer-horizon rerun** of the map in
-   `ai/auto_benchmarking_IH_mp_2p_01.md` (that sweep was 500 timesteps) —
-   see "Findings" below for why the two disagree so much on solver-6's
-   margin.
+   2026-08-31, extended 2026-09-18) — solver 6 at `--flowSolveLevel` 1-6 vs.
+   the solver 1 baseline, ~7000-timestep horizon, plus (added 2026-09-18) 6
+   hierarchical-cascade configs (`--minCascadeLevel 1`, stride 1 and 2, at
+   flowSolveLevel 4/6/9) — 13 configs total. Source data:
+   `outputs/IH_mp_2p_01_10000_7000ts_sweep/` (original 7 run via
+   `scripts/run_benchmarks.py`, cascade 6 via
+   `scripts/run_cascade_overnight_sweep.sh`, see `ai/run_log.md`). A
+   **longer-horizon rerun** of the map in `ai/auto_benchmarking_IH_mp_2p_01.md`
+   (that sweep was 500 timesteps) — see "Findings" below for why the two
+   disagree so much on solver-6's margin, and for the cascade sweep's own
+   findings (`ai/hierarchical_matching.md` has the full writeup).
 
 Mixed horizons *within* a dataset were handled first (2026-08-28, see "Mixed
 horizons" under Implementation notes) — the dataset switcher is a separate,
@@ -232,9 +236,9 @@ of a hardcoded value (see "Mixed horizons" below) — this machinery already
 handled a third distinct `simulationTime` with no changes needed when the
 `_10k` configs were added.
 
-### `IH_mp_2p_01` (7 configs, added 2026-08-31)
+### `IH_mp_2p_01` (13 configs, added 2026-08-31, extended 2026-09-18)
 
-All in `outputs/IH_mp_2p_01_10000_7000ts_sweep/`:
+All in `outputs/IH_mp_2p_01_10000_7000ts_sweep/`. Original 7:
 `IH_mp_2p_01_10000_solver6_level{1..6}.json` (keys `"1"`..`"6"`) and
 `IH_mp_2p_01_10000_solver1.json` (`"s1"`) — 10000 agents, ~7000-timestep
 horizon, generated via `scripts/run_benchmarks.py --map IH_mp_2p_01
@@ -242,6 +246,24 @@ horizon, generated via `scripts/run_benchmarks.py --map IH_mp_2p_01
 longer-horizon rerun of the map/agent-count in
 `ai/auto_benchmarking_IH_mp_2p_01.md` (that sweep used 500 timesteps) — see
 "Findings" below for what changed.
+
+Added 2026-09-18, 6 more: `IH_mp_2p_01_10000_solver6_level{4,6,9}_cascade1[_stride2].json`
+(keys `"4_cascade1"`, `"4_cascade1_stride2"`, `"6_cascade1"`,
+`"6_cascade1_stride2"`, `"9_cascade1"`, `"9_cascade1_stride2"`) — same
+instance/agents/horizon, solver 6 with `--minCascadeLevel 1` and
+`--cascadeLevelStride` 1 or 2 layered on top of `--flowSolveLevel` 4/6/9,
+generated via `scripts/run_cascade_overnight_sweep.sh` (see `ai/run_log.md`'s
+entry for the launch details). None of these six keys match `isLevelKey`
+(they have suffixes), so they each needed a `BASELINE_FALLBACK_VAR` entry
+(`--cat3` through `--cat8`) for the >8-visible fallback color path — with
+all 13 IH_mp_2p_01 configs now defined, viewing all of them at once always
+uses that fallback path; hide some via "Configs shown" to drop to <=8 and
+get the compact/more-distinct categorical coloring instead. See
+`ai/hierarchical_matching.md`'s "Wall-clock sweep" section for what these
+six runs found (headline: scheduler cost is ~0.05% of total time on this
+map/agent-count, so no cascade/stride effect is visible here; also a caveat
+that the `9_cascade1*` configs are not actually true "entirety mode" — see
+that doc and this file's Findings subsection below).
 
 ### Extending an existing dataset vs. adding a new one
 
@@ -433,6 +455,22 @@ subsection further down.
   surplus pools toward zero — worth flagging next to the `ai/todo.md` item
   once someone deliberately tests it (e.g. a short vs. long sweep on the
   same map/config, isolating horizon as the only variable).
+- **Added 2026-09-18 — hierarchical-cascade configs show no detectable
+  effect on this map/agent-count, and the flowSolveLevel-9 configs are
+  mislabeled-by-intent:** scheduler cost (flow solve + local match +
+  guide-path lift combined) is ~0.05% of total scheduler+planner time
+  across all 6 new runs — `PlannerTime` dominates so completely that
+  neither cascading nor level-skipping (stride) moves `tasksFinished` or
+  total wall-clock beyond what's already explained by this environment's
+  known run-to-run jitter. Separately: the two `9_cascade1*` configs were
+  meant to be "pure cascade" (entirety mode, flow forced to contribute
+  exactly 0 matches) but aren't — the cached hierarchy used only has 10
+  levels (built under an old fixed-depth mechanism), while this map's true
+  fixpoint top is level 11 (12 levels, confirmed by a fresh build); flow
+  contributed 5 matches, not 0, in both. Small in practice (&gt;99.9%
+  local) but worth knowing before citing these as an exact-zero-flow
+  reference point. Full writeup: `ai/hierarchical_matching.md`'s "Wall-clock
+  sweep" section.
 
 ## How to edit this in a future session
 

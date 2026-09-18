@@ -1085,6 +1085,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     // explicitly passed. See ai/hierarchical_matching.md.
     const auto assignments = MapReductionTest::ReducedHierarchy::instance().compute_hierarchical_assignment(
         env, flexible_agent_ids, flexible_task_ids, env->min_cascade_level, guide_paths, need_guide_paths,
+        env->cascade_level_stride,
         &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum,
         &local_node_match_count, &flow_match_count, &local_match_time);
 

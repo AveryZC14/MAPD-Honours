@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     std::unordered_map<int,list<int>> guide_paths_clamped;
     int local_cnt_clamped = 0, flow_cnt_clamped = 0;
     const auto assignments_clamped_low = hierarchy.compute_hierarchical_assignment(
-        &env, flexible_agent_ids, flexible_task_ids, -5, guide_paths_clamped, true,
+        &env, flexible_agent_ids, flexible_task_ids, -5, guide_paths_clamped, true, 1,
         nullptr, nullptr, nullptr, nullptr, &local_cnt_clamped, &flow_cnt_clamped);
     check_assignment_validity("min_cascade_level=-5 (clamped to 1)", assignments_clamped_low,
                                flexible_agent_ids, flexible_task_ids);
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
     std::unordered_map<int,list<int>> guide_paths_cascade;
     int local_cnt = 0, flow_cnt = 0;
     const auto assignments_cascade = hierarchy.compute_hierarchical_assignment(
-        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_cascade, true,
+        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_cascade, true, 1,
         nullptr, nullptr, nullptr, nullptr, &local_cnt, &flow_cnt);
     check_assignment_validity("cascade (min_cascade_level=1, flow_solve_level=" + to_string(flow_solve_level_arg) + ")",
                                assignments_cascade, flexible_agent_ids, flexible_task_ids);
@@ -201,7 +201,7 @@ int main(int argc, char** argv)
     std::unordered_map<int,list<int>> guide_paths_entirety;
     int local_cnt_entirety = 0, flow_cnt_entirety = 0;
     const auto assignments_entirety = hierarchy.compute_hierarchical_assignment(
-        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_entirety, true,
+        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_entirety, true, 1,
         nullptr, nullptr, nullptr, nullptr, &local_cnt_entirety, &flow_cnt_entirety);
     check_assignment_validity("entirety mode (flow_solve_level=top=" + to_string(num_levels - 1) + ")",
                                assignments_entirety, flexible_agent_ids, flexible_task_ids);
@@ -213,6 +213,57 @@ int main(int argc, char** argv)
     cout << "  entirety (minCascadeLevel=1 -> flowSolveLevel=top=" << (num_levels - 1) << "): "
          << assignments_entirety.size() << " matched (" << local_cnt_entirety << " local / "
          << flow_cnt_entirety << " flow), total Manhattan distance = " << dist_entirety << "\n";
+
+    // --- Check 4: level-skipping (cascade_level_stride) -----------------
+    // Disabled cascade must still be a no-op regardless of stride -- the
+    // loop range is empty either way, so stride is never even consulted.
+    env.flow_solve_level = flow_solve_level_arg;
+    std::unordered_map<int,list<int>> guide_paths_noop_stride;
+    const auto assignments_noop_stride = hierarchy.compute_hierarchical_assignment(
+        &env, flexible_agent_ids, flexible_task_ids, flow_solve_level_arg, guide_paths_noop_stride, true, 3);
+    check(assignments_direct == assignments_noop_stride,
+          "disabled cascade (min_cascade_level == flow_solve_level) ignores stride and still no-ops");
+
+    // A real cascade with stride=2: same validity contract as stride=1,
+    // just fewer/larger match_local_node_exact() calls internally. Not
+    // expected to equal assignments_cascade (stride changes which items get
+    // grouped together at which level -- see ai/hierarchical_matching.md's
+    // "not lossless" caveat, which applies per-level too), so only the
+    // general validity invariants are checked, same as any other cascade.
+    std::unordered_map<int,list<int>> guide_paths_stride2;
+    int local_cnt_stride2 = 0, flow_cnt_stride2 = 0;
+    const auto assignments_stride2 = hierarchy.compute_hierarchical_assignment(
+        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_stride2, true, 2,
+        nullptr, nullptr, nullptr, nullptr, &local_cnt_stride2, &flow_cnt_stride2);
+    check_assignment_validity("cascade stride=2 (min_cascade_level=1, flow_solve_level=" + to_string(flow_solve_level_arg) + ")",
+                               assignments_stride2, flexible_agent_ids, flexible_task_ids);
+    check(static_cast<int>(assignments_stride2.size()) == local_cnt_stride2 + flow_cnt_stride2,
+          "cascade stride=2: local_match_count + flow_match_count == number of pairs returned");
+
+    // Entirety mode with stride=2: flow must still be a vacuous no-op and
+    // everyone possible still gets matched -- stride only changes how many
+    // match_local_node_exact() calls it takes to get there, not whether the
+    // cascade + hand-off together still cover every remaining pairing.
+    env.flow_solve_level = num_levels - 1;
+    std::unordered_map<int,list<int>> guide_paths_entirety_stride2;
+    int local_cnt_entirety_stride2 = 0, flow_cnt_entirety_stride2 = 0;
+    const auto assignments_entirety_stride2 = hierarchy.compute_hierarchical_assignment(
+        &env, flexible_agent_ids, flexible_task_ids, 1, guide_paths_entirety_stride2, true, 2,
+        nullptr, nullptr, nullptr, nullptr, &local_cnt_entirety_stride2, &flow_cnt_entirety_stride2);
+    check_assignment_validity("entirety mode stride=2 (flow_solve_level=top=" + to_string(num_levels - 1) + ")",
+                               assignments_entirety_stride2, flexible_agent_ids, flexible_task_ids);
+    check(flow_cnt_entirety_stride2 == 0,
+          "entirety mode stride=2: flow_match_count == 0");
+    check(assignments_entirety_stride2.size() == std::min(flexible_agent_ids.size(), flexible_task_ids.size()),
+          "entirety mode stride=2: matched everyone possible (== min(agents,tasks))");
+    const long long dist_stride2 = total_distance(env, assignments_stride2, agent_loc, task_loc);
+    const long long dist_entirety_stride2 = total_distance(env, assignments_entirety_stride2, agent_loc, task_loc);
+    cout << "  cascade stride=2 (minCascadeLevel=1 -> flowSolveLevel=" << flow_solve_level_arg << "): "
+         << assignments_stride2.size() << " matched (" << local_cnt_stride2 << " local / " << flow_cnt_stride2
+         << " flow), total Manhattan distance = " << dist_stride2 << "\n";
+    cout << "  entirety stride=2 (minCascadeLevel=1 -> flowSolveLevel=top=" << (num_levels - 1) << "): "
+         << assignments_entirety_stride2.size() << " matched (" << local_cnt_entirety_stride2 << " local / "
+         << flow_cnt_entirety_stride2 << " flow), total Manhattan distance = " << dist_entirety_stride2 << "\n";
 
     cout << "\n" << g_checks_run << " checks run, " << g_checks_failed << " failed.\n";
     return g_checks_failed == 0 ? 0 : 1;

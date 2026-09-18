@@ -1,0 +1,7 @@
+run,flowSolveLevel,minCascadeLevel,cascadeLevelStride,exit_status,wall_clock_s,makespan,tasksFinished,note
+level4_cascade1,4,1,1,OK,6290,7000,3839,""
+level6_cascade1,6,1,1,OK,6276,7000,3716,""
+level9_cascade1,9,1,1,OK,6254,7001,3748,""
+level4_cascade1_stride2,4,1,2,OK,6296,7001,3816,""
+level6_cascade1_stride2,6,1,2,OK,6369,7001,3735,""
+level9_cascade1_stride2,9,1,2,OK,6374,7001,3768,""

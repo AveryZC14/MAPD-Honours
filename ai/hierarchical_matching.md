@@ -151,6 +151,7 @@ std::unordered_map<int,int> compute_hierarchical_assignment(
     int min_cascade_level,
     std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
     bool need_guide_paths = true,
+    int cascade_level_stride = 1,
     double* solve_time_out = nullptr,
     double* guide_time_out = nullptr,
     double* guide_path_length_sum_out = nullptr,
@@ -168,6 +169,48 @@ already at the exact same fine cell) and `cascade_time_out` (wall-clock
 spent in the cascade loop itself, separate from `solve_time_out`/
 `local_match_time_out`, which continue to describe the hand-off call as
 before).
+
+### Level-skipping (`cascade_level_stride`)
+
+Added 2026-09-17, motivated by a cost analysis of the cascade loop: every
+`match_local_node_exact` call builds a fresh LEMON `ListDigraph` + `ArcMap`s
++ `NetworkSimplex` from scratch (`LocalNodeMatch.cpp`), so each call pays a
+real fixed construction cost on top of its `O(agents x tasks)` variable
+cost. The cascade calls this once per node-with-both-sides *at every level*
+from `min_cascade_level` to the hand-off level -- shallow levels have far
+more distinct nodes than deep ones, so starting at level 1 maximizes exactly
+the thing that's expensive (total call count), independent of how much
+actual matching work there is to do.
+
+`cascade_level_stride` (default 1, matches every level -- unchanged
+behavior) skips the bucket-and-match step on all but every Nth level in the
+climb; items still climb one level at a time every iteration regardless
+(`to_coarser_node_id` only maps one hop), they just carry through skipped
+levels unmatched. Concretely, in the loop (`MapCoarsenV1.cpp`, `compute_hierarchical_assignment`):
+matching only runs when `(level - min_cascade_level) % stride == 0`, the
+climb runs every iteration unconditionally. Trades many small matcher calls
+for fewer, larger ones -- cheaper per the fixed-cost argument above, at the
+cost of losing whatever same-node collisions existed only at a skipped
+level (those pairs simply get carried to the next matched level instead,
+where they may or may not still share a node).
+
+Plumbing: `SharedEnvironment::cascade_level_stride` (`inc/SharedEnv.h`,
+default 1) and `--cascadeLevelStride` (`src/driver.cpp`), same pattern as
+`min_cascade_level`/`--minCascadeLevel` below. `schedule_plan_flow_reduced`
+passes `env->cascade_level_stride` through unconditionally -- default 1
+keeps today's behavior exactly.
+
+Validated in `hierarchical_matching_validator` (below) with a stride=2 pass
+through the same checks as stride=1 (default): assignment validity, disabled
+cascade still no-ops regardless of stride, entirety mode still leaves
+`flow_match_count == 0`. Not required or expected to reproduce stride=1's
+exact assignment or total distance -- same "not lossless" caveat as the
+cascade itself, just applying per-level: `warehouseSmall_200` at
+`flowSolveLevel=6` measured 1151 (stride=1) vs. 1139 (stride=2) total
+Manhattan distance on one frozen batch, i.e. not even consistently worse,
+underscoring that this is a genuine trade (fewer, larger calls) rather than
+a strict quality regression. No wall-clock timing comparison yet -- same
+blocker as the cascade's own "Not yet done" section.
 
 ## Plumbing
 
@@ -268,13 +311,81 @@ simulation loop, no timing dependency, exactly reproducible. Checks:
   ideally at the deep levels (`ai/local_node_matching_runtime.md`'s level
   6-8 regime) where the *time* saved is the actual point, not distance.
 
+### Wall-clock sweep (`IH_mp_2p_01`, 10000 agents, 7000 timesteps)
+
+Done 2026-09-17/18, `outputs/IH_mp_2p_01_10000_7000ts_sweep/` (see
+`ai/run_log.md`'s entry for the launch details/config), via
+`scripts/run_cascade_overnight_sweep.sh`. 6 full-simulation runs, all
+completed cleanly (0 planner/schedule/timeout errors, no `timeout` kills):
+`--flowSolveLevel` {4, 6, 9} x `--cascadeLevelStride` {1, 2}, all at
+`--minCascadeLevel 1`, same instance/cache/flags as this folder's earlier
+7-run solver-1-vs-6 sweep.
+
+| variant | tasksFinished | local matched | flow matched | scheduler time (solve+local+guide) | planner time |
+|---|---|---|---|---|---|
+| level4 (no cascade, baseline) | 3807 | 7699 | 6108 | 20.7s | 6223.9s |
+| level4 cascade1 | 3839 | 7706 | 6133 | 22.3s | 6189.3s |
+| level4 cascade1 stride2 | 3816 | 7716 | 6100 | 19.5s | 6191.3s |
+| level6 (no cascade, baseline) | 3762 | 13151 | 611 | 3.7s | 6223.7s |
+| level6 cascade1 | 3716 | 13093 | 623 | 4.1s | 6164.6s |
+| level6 cascade1 stride2 | 3735 | 13103 | 633 | 3.7s | 6266.6s |
+| level9 cascade1 ("pure cascade" attempt -- see caveat below) | 3748 | 13742 | 5 | 3.2s | 6144.8s |
+| level9 cascade1 stride2 | 3768 | 13763 | 5 | 2.9s | 6267.5s |
+
+**Headline finding: the whole premise of measuring a cascade/stride speedup
+is moot at this scale.** Scheduler cost (flow solve + local match + guide-
+path lift combined) is **~0.05% of total scheduler+planner time** in every
+row above (e.g. level9 cascade1: 3.2s scheduler vs. 6144.8s planner, over a
+~6254s total run). `PlannerTime` (the low-level PIBT/traffic-flow planner,
+`default_planner/planner.cpp`) utterly dominates wall-clock cost on this
+map/agent-count regardless of cascade config. So while the sub-additivity
+argument motivating this feature (`match_local_node_exact`'s fixed
+per-call LEMON-construction overhead, see "Level-skipping" below) is still
+correct as a statement about *scheduler-internal* cost, it was never going
+to be visible in total run wall-clock at this scale -- there simply isn't
+enough scheduler cost in the budget for any scheduler-side optimization to
+move the needle. `tasksFinished` differences across all 8 rows (3716-3839)
+are consistent with the already-documented wall-clock jitter, not a
+detectable cascade/stride effect. **Cascading/striding may still matter for
+`SchedulerLocalMatchTime` in isolation at even deeper levels or larger
+agent counts** (this sweep didn't get deep enough to see the level-8 regime
+`ai/local_node_matching_runtime.md` flagged as the interesting one), but
+demonstrating that would need a much larger scheduler-cost share than
+anything seen here, or a synthetic large-batch timing harness that isolates
+scheduler cost from planner cost entirely.
+
+**Important caveat found while reviewing these results: `level9_cascade1`
+was not actually "entirety mode."** `flow_match_count` came out to 5, not
+0, which contradicts the "flow becomes a vacuous no-op at the fixpoint top"
+claim validated earlier on small instances. Root cause: `flowSolveLevel 9`
+was chosen because `hierarchy_cache/IH_mp_2p_01_level9.hierarchy` has
+exactly 10 levels (0-9) -- but that cache was built 2026-08-20, under the
+*old* fixed-depth `kDefaultCoarsenLevels = 9` mechanism, which predates this
+session's natural-fixpoint change (see "Prerequisite" above). A fresh build
+against the same map (`./build/hierarchical_matching_validator
+instances/custom/IH_mp_2p_01/IH_mp_2p_01_10000.json`, no cache, so it uses
+today's fixpoint-coarsening code) reports **12 levels**, i.e. the map's true
+top is level 11, not 9. Level 9 in the stale cache is a real, structurally
+non-trivial middle level with genuine multi-node coarse structure and real
+inter-node arcs -- so the tiny nonzero flow count is correct behavior for
+what was actually run, not a bug in the vacuous-flow claim itself (which
+was about the *true* fixpoint, never tested against this stale cache's
+level 9). Practically the distinction is tiny here (13742 local / 5 flow =
+99.96% local), but the run should not be cited as confirming "flow is
+exactly zero" -- that would need a cache rebuilt to the true 12-level
+fixpoint and `--flowSolveLevel 11`, not yet done (a fresh build, not a
+cache load, so meaningfully more expensive to obtain -- see
+`ai/hierarchy_cache.md` for build-vs-load timing context).
+
 ### Not yet done
 
-- No wall-clock runtime comparison yet (the actual point of this feature --
-  does cascading measurably cut `SchedulerLocalMatchTime` at deep
-  `--flowSolveLevel`s the way the sub-additivity argument predicts). Blocked
-  on the same simulation-nondeterminism problem above; would need either a
-  dedicated low-jitter benchmarking run (matching this repo's existing
-  sweep methodology, `ai/auto_benchmarking.md`) or a synthetic large-batch
-  timing harness built the same way as this validator.
-- No full-simulation `tasksFinished`/throughput sweep yet -- same blocker.
+- A true entirety-mode confirmation on a full-scale map (`flow_match_count`
+  exactly 0 over a real simulation, not just the frozen-batch validator) --
+  needs a hierarchy rebuilt to the real natural fixpoint first, per the
+  caveat above.
+- The deep-level (6-8+) regime where `ai/local_node_matching_runtime.md`
+  found local matching starting to rival/exceed flow cost in isolation --
+  this sweep's scheduler cost was too small a share of total time to
+  isolate any cascade/stride effect at all, so that comparison still needs
+  either a much larger agent count/map or a synthetic timing harness that
+  excludes planner cost.

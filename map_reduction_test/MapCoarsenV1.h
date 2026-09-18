@@ -298,6 +298,16 @@ public:
     // flow becomes a vacuous no-op automatically (see
     // ai/hierarchical_matching.md), no special-casing needed here.
     //
+    // `env->cascade_level_stride` (>= 1, default 1) skips the match attempt
+    // on all but every Nth level in that climb -- items still climb one
+    // level at a time every iteration (to_coarser_node_id only maps one
+    // hop), but the bucket-and-match step only runs when
+    // (level - min_cascade_level) % stride == 0. Trades many small
+    // match_local_node_exact() calls (one per node per level) for fewer,
+    // larger ones, since each call pays a real fixed LEMON-graph-
+    // construction cost independent of how small its bucket is. stride = 1
+    // matches every level, unchanged from before this existed.
+    //
     // Cascade-level match counts/time are folded into the *same*
     // local_match_count_out/local_match_time_out out-params
     // compute_reduced_assignment() uses, so existing metrics/dashboards
@@ -313,6 +323,7 @@ public:
                                                                  int min_cascade_level,
                                                                  std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
                                                                  bool need_guide_paths = true,
+                                                                 int cascade_level_stride = 1,
                                                                  double* solve_time_out = nullptr,
                                                                  double* guide_time_out = nullptr,
                                                                  double* guide_path_length_sum_out = nullptr,

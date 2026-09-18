@@ -2030,6 +2030,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
                                                                               int min_cascade_level,
                                                                               std::unordered_map<int,std::list<int>>& out_agent_guide_paths,
                                                                               bool need_guide_paths,
+                                                                              int cascade_level_stride,
                                                                               double* solve_time_out,
                                                                               double* guide_time_out,
                                                                               double* guide_path_length_sum_out,
@@ -2064,6 +2065,7 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
     // compute_reduced_assignment() is then just the original flexible set,
     // unchanged, so this is byte-identical to calling it directly.
     const int cascade_start = std::clamp(min_cascade_level, 1, top_level_idx);
+    const int stride = std::max(1, cascade_level_stride);
 
     const auto cascade_start_time = std::chrono::high_resolution_clock::now();
 
@@ -2095,63 +2097,72 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
         const CoarsenedGraph* level_graph = hierarchy_.level(level);
         if (!level_graph) break;
 
-        std::unordered_map<int, std::vector<int>> agent_idxs_by_node, task_idxs_by_node;
-        for (int i = 0; i < static_cast<int>(remaining_agents.size()); ++i)
-            agent_idxs_by_node[remaining_agents[i].node].push_back(i);
-        for (int i = 0; i < static_cast<int>(remaining_tasks.size()); ++i)
-            task_idxs_by_node[remaining_tasks[i].node].push_back(i);
-
         std::vector<char> agent_matched(remaining_agents.size(), false);
         std::vector<char> task_matched(remaining_tasks.size(), false);
 
-        for (const auto& kv : agent_idxs_by_node)
+        // Only attempt a local match every `stride`th level (relative to
+        // cascade_start) -- skipped levels still climb everyone forward
+        // below untouched, matching nothing here (agent_matched/task_matched
+        // stay all-false), which is exactly what a stride > 1 is for: fewer,
+        // larger match_local_node_exact() calls instead of one per node per
+        // level. See the field comment on env->cascade_level_stride.
+        if ((level - cascade_start) % stride == 0)
         {
-            const auto task_it = task_idxs_by_node.find(kv.first);
-            if (task_it == task_idxs_by_node.end() || task_it->second.empty())
-                continue; // no counterpart at this node yet -- carried forward below
+            std::unordered_map<int, std::vector<int>> agent_idxs_by_node, task_idxs_by_node;
+            for (int i = 0; i < static_cast<int>(remaining_agents.size()); ++i)
+                agent_idxs_by_node[remaining_agents[i].node].push_back(i);
+            for (int i = 0; i < static_cast<int>(remaining_tasks.size()); ++i)
+                task_idxs_by_node[remaining_tasks[i].node].push_back(i);
 
-            const std::vector<int>& agent_idxs = kv.second;
-            const std::vector<int>& task_idxs = task_it->second;
-
-            std::vector<int> agent_ids, agent_locs, task_ids, task_locs;
-            agent_ids.reserve(agent_idxs.size());
-            agent_locs.reserve(agent_idxs.size());
-            task_ids.reserve(task_idxs.size());
-            task_locs.reserve(task_idxs.size());
-            for (int idx : agent_idxs)
+            for (const auto& kv : agent_idxs_by_node)
             {
-                agent_ids.push_back(remaining_agents[idx].id);
-                agent_locs.push_back(remaining_agents[idx].loc);
-            }
-            for (int idx : task_idxs)
-            {
-                task_ids.push_back(remaining_tasks[idx].id);
-                task_locs.push_back(remaining_tasks[idx].loc);
-            }
+                const auto task_it = task_idxs_by_node.find(kv.first);
+                if (task_it == task_idxs_by_node.end() || task_it->second.empty())
+                    continue; // no counterpart at this node yet -- carried forward below
 
-            const auto match_start = std::chrono::high_resolution_clock::now();
-            const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
-                ? match_local_node_exact(*env, agent_ids, agent_locs, task_ids, task_locs)
-                : std::vector<LocalMatchPair>();
-            cascade_local_match_time_accum += std::chrono::duration<double>(
-                std::chrono::high_resolution_clock::now() - match_start).count();
-            if (pairs.empty()) continue;
+                const std::vector<int>& agent_idxs = kv.second;
+                const std::vector<int>& task_idxs = task_it->second;
 
-            std::unordered_set<int> matched_agent_ids, matched_task_ids;
-            for (const auto& p : pairs)
-            {
-                assignments[p.agent_id] = p.task_id;
-                matched_agent_ids.insert(p.agent_id);
-                matched_task_ids.insert(p.task_id);
+                std::vector<int> agent_ids, agent_locs, task_ids, task_locs;
+                agent_ids.reserve(agent_idxs.size());
+                agent_locs.reserve(agent_idxs.size());
+                task_ids.reserve(task_idxs.size());
+                task_locs.reserve(task_idxs.size());
+                for (int idx : agent_idxs)
+                {
+                    agent_ids.push_back(remaining_agents[idx].id);
+                    agent_locs.push_back(remaining_agents[idx].loc);
+                }
+                for (int idx : task_idxs)
+                {
+                    task_ids.push_back(remaining_tasks[idx].id);
+                    task_locs.push_back(remaining_tasks[idx].loc);
+                }
+
+                const auto match_start = std::chrono::high_resolution_clock::now();
+                const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
+                    ? match_local_node_exact(*env, agent_ids, agent_locs, task_ids, task_locs)
+                    : std::vector<LocalMatchPair>();
+                cascade_local_match_time_accum += std::chrono::duration<double>(
+                    std::chrono::high_resolution_clock::now() - match_start).count();
+                if (pairs.empty()) continue;
+
+                std::unordered_set<int> matched_agent_ids, matched_task_ids;
+                for (const auto& p : pairs)
+                {
+                    assignments[p.agent_id] = p.task_id;
+                    matched_agent_ids.insert(p.agent_id);
+                    matched_task_ids.insert(p.task_id);
+                }
+                cascade_local_match_count += static_cast<int>(pairs.size());
+
+                for (int idx : agent_idxs)
+                    if (matched_agent_ids.count(remaining_agents[idx].id))
+                        agent_matched[idx] = true;
+                for (int idx : task_idxs)
+                    if (matched_task_ids.count(remaining_tasks[idx].id))
+                        task_matched[idx] = true;
             }
-            cascade_local_match_count += static_cast<int>(pairs.size());
-
-            for (int idx : agent_idxs)
-                if (matched_agent_ids.count(remaining_agents[idx].id))
-                    agent_matched[idx] = true;
-            for (int idx : task_idxs)
-                if (matched_task_ids.count(remaining_tasks[idx].id))
-                    task_matched[idx] = true;
         }
 
         // Carry every still-unmatched item forward, climbing it to its

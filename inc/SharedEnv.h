@@ -41,6 +41,18 @@ public:
     // is strictly opt-in. See ai/hierarchical_matching.md.
     int min_cascade_level = 999;
 
+    // How many hierarchy levels the cascade climbs between local-match
+    // attempts (MapReductionTest::ReducedHierarchy::compute_hierarchical_assignment()).
+    // 1 (default) matches at every level from min_cascade_level up to
+    // flow_solve_level, exactly as before this field existed. A value of N
+    // still climbs one level at a time (to_coarser_node_id only maps one
+    // hop), but only attempts a local match every Nth level, carrying
+    // unmatched items past the skipped levels untouched -- fewer, larger
+    // match_local_node_exact() calls instead of many small ones. Set from
+    // --cascadeLevelStride; values < 1 are clamped up to 1. See
+    // ai/hierarchical_matching.md.
+    int cascade_level_stride = 1;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;

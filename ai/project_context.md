@@ -615,6 +615,13 @@ Headline pitfalls documented there, worth knowing before touching this again:
 - `ai/todo.md` — forward-looking task list (distinct from the other docs,
   which record completed investigations). Check it at the start of a
   session; add to it instead of losing track of asks that aren't done yet.
+- `ai/run_log.md` — running ledger of notable/ad hoc runs, logged *when
+  launched* rather than only discoverable later as a stray output file.
+  Check it for what's currently running or what happened to a background
+  sweep; add an entry whenever launching something long/unattended that
+  doesn't already get tracked by `scripts/run_benchmarks.py`'s own
+  `sweep_summary.csv`, or that a methodology-focused sweep index like
+  `ai/auto_benchmarking.md` wouldn't otherwise cover.
 - `ai/guide_path_metric.md` — rigor pass on solver 6's guide-path
   reconstruction (found + fixed a real wrong-endpoint bug), the new
   `GuidePathLengthSum`/`GuidePathCostSum` `TimeStepMetric` fields, the new

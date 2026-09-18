@@ -1,0 +1,21 @@
+[2026-09-17 13:19:10 UTC] === cascade overnight sweep starting ===
+[2026-09-17 13:19:10 UTC] binary: /home/ubuntu/MAPD-Honours/build/lifelong
+[2026-09-17 13:19:10 UTC] instance: /home/ubuntu/MAPD-Honours/instances/custom/IH_mp_2p_01/IH_mp_2p_01_10000.json
+[2026-09-17 13:19:10 UTC] cache: /home/ubuntu/MAPD-Honours/hierarchy_cache/IH_mp_2p_01_level9.hierarchy
+[2026-09-17 13:19:10 UTC] per-run timeout: 5h
+[2026-09-17 13:19:10 UTC] START level4_cascade1 (flowSolveLevel=4 minCascadeLevel=1 cascadeLevelStride=1)
+[2026-09-17 15:04:00 UTC] DONE level4_cascade1 after 6290s -- makespan=7000 tasksFinished=3839
+[2026-09-17 15:04:00 UTC] START level6_cascade1 (flowSolveLevel=6 minCascadeLevel=1 cascadeLevelStride=1)
+[2026-09-17 16:48:36 UTC] DONE level6_cascade1 after 6276s -- makespan=7000 tasksFinished=3716
+[2026-09-17 16:48:36 UTC] START level9_cascade1 (flowSolveLevel=9 minCascadeLevel=1 cascadeLevelStride=1)
+[2026-09-17 18:32:50 UTC] DONE level9_cascade1 after 6254s -- makespan=7001 tasksFinished=3748
+[2026-09-17 18:32:50 UTC] START level4_cascade1_stride2 (flowSolveLevel=4 minCascadeLevel=1 cascadeLevelStride=2)
+[2026-09-17 20:17:46 UTC] DONE level4_cascade1_stride2 after 6296s -- makespan=7001 tasksFinished=3816
+[2026-09-17 20:17:46 UTC] START level6_cascade1_stride2 (flowSolveLevel=6 minCascadeLevel=1 cascadeLevelStride=2)
+[2026-09-17 22:03:55 UTC] DONE level6_cascade1_stride2 after 6369s -- makespan=7001 tasksFinished=3735
+[2026-09-17 22:03:55 UTC] START level9_cascade1_stride2 (flowSolveLevel=9 minCascadeLevel=1 cascadeLevelStride=2)
+[2026-09-17 23:50:09 UTC] DONE level9_cascade1_stride2 after 6374s -- makespan=7001 tasksFinished=3768
+[2026-09-17 23:50:09 UTC] === cascade overnight sweep finished, regenerating combined metrics.csv over the whole directory ===
+wrote 13 rows to /home/ubuntu/MAPD-Honours/outputs/IH_mp_2p_01_10000_7000ts_sweep/metrics_all_2026-09-17.csv
+wrote 13 rows to /home/ubuntu/MAPD-Honours/outputs/IH_mp_2p_01_10000_7000ts_sweep/metrics_all_2026-09-17.md
+[2026-09-17 23:50:09 UTC] === all done ===
