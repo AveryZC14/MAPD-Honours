@@ -1,5 +1,7 @@
 
 #include "heuristics.h"
+#include "const.h"
+#include "utils.h"
 #include <queue>
 #include <list>
 #include <unordered_map>
@@ -123,6 +125,9 @@ int get_heuristic(HeuristicTable& ht, SharedEnvironment* env, int source, Neighb
 }
 
 int get_h(SharedEnvironment* env, int source, int target){
+	if (USE_MANHATTAN_HEURISTIC)
+		return manhattanDistance(source, target, env);
+
 	if (global_heuristictable.empty()){
 		init_heuristics(env);
 	}

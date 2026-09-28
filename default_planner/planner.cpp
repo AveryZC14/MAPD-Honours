@@ -145,7 +145,9 @@ namespace DefaultPlanner{
         for(int i=0; i<env->num_of_agents; i++)
         {
             //initialise the shortest distance heuristic table for the goal location of the agent
-            if ( ( std::chrono::steady_clock::now() < end_time) ){
+            //skipped entirely under USE_MANHATTAN_HEURISTIC -- nothing reads these tables, so
+            //building them would just waste the timestep's time budget for no benefit.
+            if ( !USE_MANHATTAN_HEURISTIC && ( std::chrono::steady_clock::now() < end_time) ){
                 for(int j=0; j<env->goal_locations[i].size(); j++)
                 {
                     int goal_loc = env->goal_locations[i][j].first;
@@ -229,7 +231,9 @@ namespace DefaultPlanner{
                     trajLNS.trajs[i].clear();
                     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
                     add_traj(trajLNS,i);
-                    update_dist_2_path(trajLNS,i);
+                    // see USE_MANHATTAN_HEURISTIC comment in update_traj() (flow.cpp)
+                    if (!USE_MANHATTAN_HEURISTIC)
+                        update_dist_2_path(trajLNS,i);
                 }
                 else
                 {

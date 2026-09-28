@@ -11,6 +11,7 @@
 #include "heuristics.h"
 #include "TrajLNS.h"
 #include "utils.h"
+#include "const.h"
 
 
 

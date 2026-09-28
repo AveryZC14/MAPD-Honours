@@ -21,7 +21,18 @@ namespace DefaultPlanner
     // The TaskScheduler will deduct this value from the time limit for default scheduler.
     const int SCHEDULER_TIMELIMIT_TOLERANCE = 20;
 
-
+    // When true, every heuristic lookup (get_h/get_gp_h/astar) returns raw
+    // Manhattan distance instead of the exact BFS-from-goal distance table,
+    // and the planner skips building/touching that table entirely (bypasses
+    // global_heuristictable and its LRU cache altogether). Also skips
+    // building each agent's Dist2Path table (update_dist_2_path, in
+    // update_traj() and the scheduler-guide-path-seed branch of
+    // planner.cpp) -- that table is per-agent and full-map-sized with no
+    // eviction, and nothing reads it once get_gp_h() no longer needs it.
+    // Trades heuristic accuracy (Manhattan ignores walls, and frank_wolfe's
+    // replan-priority ordering degrades to last-replan-time instead of
+    // true path deviation) for zero table-build cost on both fronts.
+    const bool USE_MANHATTAN_HEURISTIC = true;
 
 }
 #endif

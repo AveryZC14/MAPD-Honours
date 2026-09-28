@@ -734,6 +734,21 @@ Headline pitfalls documented there, worth knowing before touching this again:
   `scene_mp_4p_03` `_10k` extensions and `IH_mp_2p_01`'s narrow throughput
   band both bearing on the solver-6 backbone-rebuild-cost finding in
   `ai/todo.md`).
+- `ai/manhattan_heuristic_lever.md` — **low-level planner, not the
+  scheduler**: found that on `IH_mp_2p_01`/10000 agents, the guide-path
+  A*/`frank_wolfe` traffic-flow optimization in `default_planner/planner.cpp`
+  never runs at all (every decision times out before reaching it — confirmed
+  1562/1562 in the existing sweep's logs), so those runs are pure greedy
+  `causalPIBT`, not the traffic-flow-optimized planner the pipeline
+  description assumes. Added `USE_MANHATTAN_HEURISTIC` (`const.h`), a lever
+  that swaps the exact BFS-from-goal heuristic for raw Manhattan distance
+  everywhere it's used and skips building the tables that back it. Found and
+  fixed a real, previously-latent OOM bug this exposed: `Dist2Path`
+  (per-agent, ~55MB/agent on this map, no eviction) had never actually been
+  built at this scale before because the code path that builds it was itself
+  always time-starved. Post-fix probe: 3.8x more decisions and +6.4% more
+  tasks finished in the same 500-timestep window vs. the exact-heuristic
+  baseline (single-run, not yet a controlled head-to-head).
 
 (Update this list if more `ai/*.md` files are added later.)
 

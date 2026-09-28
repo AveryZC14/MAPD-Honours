@@ -164,7 +164,14 @@ void update_traj(TrajLNS& lns, int i){
     int goal = lns.tasks[i];
     lns.goal_nodes[i] = astar(lns.env,lns.flow, lns.heuristics[goal],lns.trajs[i],lns.mem,start,goal, &(lns.neighbors));
     add_traj(lns,i);
-    update_dist_2_path(lns,i);
+    // Dist2Path is a per-agent, full-map-sized table (~55MB/agent on a
+    // ~3.44M-cell map) with no eviction -- skip building it under
+    // USE_MANHATTAN_HEURISTIC, since get_gp_h() never reads it in that mode
+    // anyway (it short-circuits to raw Manhattan distance before touching
+    // traj_dists). update_fw_metrics()/get_deviation() degrade gracefully
+    // when traj_dists[i] stays empty (treated as zero deviation, not a crash).
+    if (!USE_MANHATTAN_HEURISTIC)
+        update_dist_2_path(lns,i);
 }
 
 }

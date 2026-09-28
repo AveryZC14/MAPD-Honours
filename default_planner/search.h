@@ -8,6 +8,7 @@
 #include "heap.h"
 #include "search_node.h"
 #include "heuristics.h"
+#include "const.h"
 
 namespace DefaultPlanner{
 //a astar minimized the opposide traffic flow with existing traffic flow

@@ -12,6 +12,9 @@ namespace DefaultPlanner{
 int get_gp_h(TrajLNS& lns, int ai, int target){
     int min_heuristic;
 
+    if (USE_MANHATTAN_HEURISTIC)
+        return manhattanDistance(target,lns.tasks.at(ai),lns.env);
+
     if (!lns.traj_dists.empty() && !lns.traj_dists[ai].empty())
         min_heuristic = get_dist_2_path(lns.traj_dists[ai], lns.env, target, &(lns.neighbors));	
     else if (!lns.heuristics[lns.tasks.at(ai)].empty())
