@@ -2,6 +2,12 @@
 
 > Detail file for one sweep. See `ai/auto_benchmarking.md` for the
 > cross-sweep index, synthesis, and reusable methodology notes.
+>
+> **Cache note (2026-09-29):** the cache used in this sweep,
+> `outputs/scene_mp_4p_03_solver_comparison/scene_mp_4p_03_level6.hierarchy` (since moved to `hierarchy_cache/`), stops early and has been
+> superseded by `hierarchy_cache/scene_mp_4p_03_full.hierarchy`, which is identical on every level
+> they share. The commands below are kept as a record of what was run; use
+> the new cache to rerun them.
 
 Run 2026-08-12, 5000-agent instance only (10000/20000 not yet run — see
 "Follow-up" below). First sweep to use the new `--flowSolveLevel` CLI flag

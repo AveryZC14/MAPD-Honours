@@ -73,9 +73,9 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   `scene_mp_4p_03_full` and `scene_sp_pol_06_full` (all `.hierarchy`). Each
   is structurally identical to a fresh build with the current code. The
   older `orz900d.hierarchy`, `*_level9.hierarchy` and
-  `scene_mp_4p_03_level6.hierarchy` stop early (10 or 7 levels, built before
-  the hierarchy coarsened to its top level). They still load without error
-  but are superseded and are pending deletion (`ai/todo.md`). The table,
+  `scene_mp_4p_03_level6.hierarchy` stopped early (10 or 7 levels, built
+  before the hierarchy coarsened to its top level) and were deleted on
+  2026-09-29. Older notes in `ai/` still name them as what past runs used. The table,
   verification details and build timings are in
   `instances/thesis_benchmarks/README.md`.
   `*.hierarchy` is gitignored (these are large, multi-GB build artifacts, not
@@ -397,6 +397,21 @@ runs regardless of which scheduler solver was used:
 5. Next-state assignments are converted to `Action`s (`getAction`) —
    turning-in-place is modeled as a delay layered on top of the base plan,
    not a separate action cost.
+
+**Current build settings (`default_planner/const.h`), as of 2026-09-29:**
+`USE_MANHATTAN_HEURISTIC = true` (no goal distance tables; step 1 above is
+skipped, and A* uses Manhattan distance as its heuristic) and
+`USE_LOCAL_PATH_BFS = true` (PIBT scores each move with a small BFS from the
+agent to its own guide path: distance to the path plus steps left along it;
+step 2 rotates which agent it starts from; agents more than
+`LOCAL_PATH_BFS_RADIUS` cells from their path get a new one). With
+`USE_LOCAL_PATH_BFS = false` the planner is the pure-Manhattan planner,
+which traps agents behind walls and froze the thesis sweep. `frank_wolfe`
+(step 3) re-plans nothing in either Manhattan mode: it skips agents without
+a `Dist2Path` table, which Manhattan mode never builds. Every decision logs
+a `planner stats:` line (stage timings, paths built, stuck agents, BFS
+fallbacks). Full description, design reasoning and results in
+`ai/planner_local_bfs_plan.md`.
 
 ### Guide paths: which solvers provide them, and are they doing anything
 
@@ -782,7 +797,16 @@ Headline pitfalls documented there, worth knowing before touching this again:
   built at this scale before because the code path that builds it was itself
   always time-starved. Post-fix probe: 3.8x more decisions and +6.4% more
   tasks finished in the same 500-timestep window vs. the exact-heuristic
-  baseline (single-run, not yet a controlled head-to-head).
+  baseline (single-run, not yet a controlled head-to-head). **Later found
+  (2026-09-29): this mode freezes agents behind walls after about 1,000
+  steps**, and `frank_wolfe` does nothing in it — see the next entry.
+- `ai/planner_local_bfs_plan.md` — **fix implemented 2026-09-29 (`USE_LOCAL_PATH_BFS`)**
+  for the Manhattan-mode freeze that stopped the thesis sweep. Explains how
+  the planner works with the flag on and off, then the plan: PIBT scores
+  moves with a small BFS from each agent to its guide path instead of
+  Manhattan distance to the goal, plus stage-2 rotation, scheduler path
+  handoff, and a stuck-agent counter. Lists caveats and the checks to run
+  before restarting the sweep.
 
 (Update this list if more `ai/*.md` files are added later.)
 

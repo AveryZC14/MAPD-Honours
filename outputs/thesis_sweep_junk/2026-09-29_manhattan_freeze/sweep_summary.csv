@@ -1,0 +1,5 @@
+run,map,team,config,solver,level,exit_code,wall_clock_s,peak_rss_gb,ok,note,makespan,decisions,tasksOpened,tasksFinished,finished_at
+orz900d_10000_solver6_level2,orz900d,10000,solver6,6,2,0,6790.8,1.16,True,,8000,8000,10607,640,2026-09-29T09:43:44
+orz900d_10000_solver6_level4,orz900d,10000,solver6,6,4,0,6783.8,1.15,True,,8000,8000,10533,619,2026-09-29T11:36:48
+orz900d_10000_solver6_level6,orz900d,10000,solver6,6,6,0,6785.2,1.18,True,,8000,8000,10524,599,2026-09-29T13:29:53
+orz900d_10000_solver6_level8,orz900d,10000,solver6,6,8,0,6818.5,1.46,True,,8000,7998,10561,618,2026-09-29T15:23:32

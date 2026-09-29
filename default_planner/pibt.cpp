@@ -1,4 +1,5 @@
 
+#include <algorithm>
 
 
 #include "pibt.h"
@@ -25,6 +26,82 @@ int get_gp_h(TrajLNS& lns, int ai, int target){
     return min_heuristic;
 }
 
+// USE_LOCAL_PATH_BFS scoring (see ai/planner_local_bfs_plan.md). BFS from the
+// agent's cell `loc`, up to LOCAL_PATH_BFS_RADIUS, recording for each cell its
+// distance and a bitmask of which of loc's neighbours (in lns.neighbors[loc]
+// order) start a shortest route to it. The grid is 4-connected (bipartite), so
+// for neighbour k and any cell p, d(k,p) is d(loc,p)-1 if bit k is set for p,
+// else d(loc,p)+1. Score = min over path cells p found of d(.,p) + togo(p).
+// Fills nbr_scores (same order as lns.neighbors[loc]) and wait_score. Returns
+// false, leaving the caller to fall back to Manhattan, if the agent has no path
+// to its current goal or no path cell lies within the radius.
+bool local_path_scores(TrajLNS& lns, int ai, int loc, int nbr_scores[4], int& wait_score){
+    const auto& togo = lns.path_togo[ai];
+    if (togo.empty() || lns.trajs[ai].empty() || lns.trajs[ai].back() != lns.tasks[ai]){
+        lns.bfs_no_path++;
+        return false;
+    }
+
+    const std::vector<int>& start_nbrs = lns.neighbors[loc];
+    const uint32_t stamp = ++lns.bfs_cur_stamp;
+    auto& queue = lns.bfs_queue;
+    queue.clear();
+    queue.push_back(loc);
+    lns.bfs_stamp[loc] = stamp;
+    lns.bfs_dist[loc] = 0;
+    lns.bfs_moves[loc] = 0;
+
+    wait_score = MAX_TIMESTEP;
+    for (int k = 0; k < 4; k++)
+        nbr_scores[k] = MAX_TIMESTEP;
+    int found_dist = -1;
+
+    for (size_t head = 0; head < queue.size(); head++){
+        const int x = queue[head];
+        const int dx = lns.bfs_dist[x];
+        if (found_dist >= 0 && dx > found_dist + LOCAL_PATH_BFS_EXTRA_LAYERS)
+            break;
+
+        auto it = togo.find(x);
+        if (it != togo.end()){
+            if (found_dist < 0)
+                found_dist = dx;
+            const int t = it->second;
+            wait_score = std::min(wait_score, dx + t);
+            const uint8_t moves = lns.bfs_moves[x];
+            for (size_t k = 0; k < start_nbrs.size(); k++){
+                const int s = ((moves >> k) & 1) ? dx - 1 + t : dx + 1 + t;
+                nbr_scores[k] = std::min(nbr_scores[k], s);
+            }
+        }
+
+        if (dx >= LOCAL_PATH_BFS_RADIUS)
+            continue;
+        const std::vector<int>& nbrs = lns.neighbors[x];
+        for (size_t k = 0; k < nbrs.size(); k++){
+            const int y = nbrs[k];
+            const uint8_t moves = (x == loc) ? (uint8_t)(1u << k) : lns.bfs_moves[x];
+            if (lns.bfs_stamp[y] != stamp){
+                lns.bfs_stamp[y] = stamp;
+                lns.bfs_dist[y] = dx + 1;
+                lns.bfs_moves[y] = moves;
+                queue.push_back(y);
+            }
+            else if (lns.bfs_dist[y] == dx + 1){
+                lns.bfs_moves[y] |= moves;
+            }
+        }
+    }
+    lns.bfs_cells += queue.size();
+
+    if (found_dist < 0){
+        lns.bfs_too_far++;
+        lns.needs_replan[ai] = true;
+        return false;
+    }
+    return true;
+}
+
 bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	 std::vector<State>& next_states,
       std::vector<int>& prev_decision, std::vector<int>& decision, 
@@ -46,17 +123,26 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	std::vector<int> neighbors;
 	std::vector<PIBT_C> successors;
 	getNeighborLocs(&(lns.neighbors),neighbors,prev_loc);
-	for (auto& neighbor: neighbors)
+
+	// neighbors is a copy of lns.neighbors[prev_loc], so index k lines up
+	// with local_path_scores' nbr_scores[k]
+	int local_nbr_scores[4];
+	int local_wait_score;
+	const bool use_local = USE_MANHATTAN_HEURISTIC && USE_LOCAL_PATH_BFS &&
+		local_path_scores(lns, curr_id, prev_loc, local_nbr_scores, local_wait_score);
+
+	for (size_t k = 0; k < neighbors.size(); k++)
 	{
+		int neighbor = neighbors[k];
 
 		assert(validateMove(prev_loc, neighbor, lns.env));
 
-		int min_heuristic = get_gp_h(lns, curr_id, neighbor);
+		int min_heuristic = use_local ? local_nbr_scores[k] : get_gp_h(lns, curr_id, neighbor);
 
 		successors.emplace_back(neighbor,min_heuristic,-1,rand());
 	}
 
-	int wait_heuristic = get_gp_h(lns, curr_id, prev_loc);
+	int wait_heuristic = use_local ? local_wait_score : get_gp_h(lns, curr_id, prev_loc);
 
 	successors.emplace_back(prev_loc, wait_heuristic,-1,rand());
 

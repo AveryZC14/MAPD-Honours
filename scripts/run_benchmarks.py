@@ -18,7 +18,7 @@ Examples:
       --map scene_sp_pol_06 --agents 10000 20000 60000 \\
       --solvers 6 7 --levels 2 4 6 8 \\
       --sim-time 500 --preprocess-time-limit 1800000 \\
-      --hierarchy-cache hierarchy_cache/{map}.hierarchy \\
+      --hierarchy-cache hierarchy_cache/{map}_full.hierarchy \\
       --out-dir outputs/scene_sp_pol_06_solver_comparison --metrics
 
   # see what would run without running it
@@ -130,7 +130,8 @@ def main():
     p.add_argument("--preprocess-time-limit", type=int, default=None, help="--preprocessTimeLimit (ms)")
     p.add_argument("--hierarchy-cache", default=None,
                     help="--hierarchyCache path template, only passed for solvers 6/7. "
-                         "'{map}' is substituted, e.g. hierarchy_cache/{map}.hierarchy")
+                         "'{map}' is substituted, e.g. hierarchy_cache/{map}_full.hierarchy "
+                         "(IH_mp_2p_01's is IH_mp_2p_01_fixpoint.hierarchy)")
     p.add_argument("--log-detail-level", type=int, default=3, help="--logDetailLevel (default 3: fatal only)")
     p.add_argument("--label", default=None, help="extra filename suffix, e.g. nolocalmatch")
     p.add_argument("--out-dir", required=True, help="directory for output JSON + .log files")

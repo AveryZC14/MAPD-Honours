@@ -31,6 +31,9 @@ void init_dist_table(TrajLNS& lns, int amount);
 //update traj and distance table for agent i
 void update_traj(TrajLNS& lns, int i);
 
+//rebuild path cell -> steps-left-to-goal lookup for agent i (USE_LOCAL_PATH_BFS)
+void update_path_togo(TrajLNS& lns, int i);
+
 
 }
 #endif

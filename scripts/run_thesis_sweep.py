@@ -191,13 +191,23 @@ def mem_total_gb():
 
 def write_meta(out_dir: Path, binary: Path, sim_time: int):
     const_h = (REPO_ROOT / "default_planner" / "const.h").read_text()
-    m = re.search(r"USE_MANHATTAN_HEURISTIC\s*=\s*(\w+)", const_h)
+    def const(pattern):
+        m = re.search(pattern, const_h)
+        return m.group(1) if m else "unknown"
+
     meta = {
         "started": datetime.now().isoformat(timespec="seconds"),
         "git_commit": git_output("rev-parse", "HEAD"),
         "git_dirty_files": git_output("status", "--porcelain", "--untracked-files=no").splitlines(),
         "binary_mtime": datetime.fromtimestamp(binary.stat().st_mtime).isoformat(timespec="seconds"),
-        "USE_MANHATTAN_HEURISTIC": m.group(1) if m else "unknown",
+        "USE_MANHATTAN_HEURISTIC": const(r"USE_MANHATTAN_HEURISTIC\s*=\s*(\w+)"),
+        # Planner fix, see ai/planner_local_bfs_plan.md. This is the const.h
+        # default; a build with -DPLANNER_USE_LOCAL_PATH_BFS=... would differ,
+        # but compile.sh doesn't pass one.
+        "USE_LOCAL_PATH_BFS": const(r"#define PLANNER_USE_LOCAL_PATH_BFS\s+(\w+)"),
+        "LOCAL_PATH_BFS_RADIUS": const(r"LOCAL_PATH_BFS_RADIUS\s*=\s*(\w+)"),
+        "LOCAL_PATH_BFS_EXTRA_LAYERS": const(r"LOCAL_PATH_BFS_EXTRA_LAYERS\s*=\s*(\w+)"),
+        "PASS_SCHEDULER_PATHS_TO_PLANNER": const(r"#define PLANNER_PASS_SCHEDULER_PATHS\s+(\w+)"),
         # Results depend on wall-clock planning time, so record the machine.
         "cpu_model": cpu_model(),
         "cpu_count": os.cpu_count(),

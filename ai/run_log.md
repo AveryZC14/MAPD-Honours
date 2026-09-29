@@ -246,3 +246,102 @@ progresses -- this is not append-only.
   (72,185 = 72,185 = 72,185 across output total, per-row sum and log
   "opens task" lines). Other fields identical to the pre-change smoke run.
 - Details: `instances/thesis_benchmarks/README.md`, "Pre-sweep checks".
+
+### 2026-09-29: thesis sweep stopped; Manhattan heuristic freezes the planner
+
+- **Why**: the final sweep (`outputs/thesis_sweep/`) finished 4 runs
+  (orz900d 10k, solver 6 levels 2/4/6/8, 8,000 steps). Every run stopped
+  making progress at about step 1,000: 0 pickups and 0 deliveries for the
+  remaining 7,000 steps, 0 errors, planner using its full budget each step.
+  Sweep stopped at 16:50.
+- **Mechanism (from the code)**: PIBT ranks each agent's next cell by
+  `get_gp_h` (`default_planner/pibt.cpp`). Under `USE_MANHATTAN_HEURISTIC`
+  that returns raw Manhattan distance to the goal and never reads the A*
+  guide path, which `update_traj` still computes. An agent with a wall
+  between it and its goal scores "wait" best forever. Scheduler guide paths
+  can't help: they only reach the planner with `--useTraffic`, and
+  Manhattan mode ignores them anyway.
+- **Test**: orz900d 10k, thesis 2-location instance, 1,500 steps, solver 6
+  level 4 unless noted, 5 runs in parallel (scratchpad only). Cumulative
+  deliveries:
+
+  | run | step 500 | step 1,000 | step 1,500 | decisions |
+  |---|---|---|---|---|
+  | A: current build (Manhattan) | 623 | 628 | 628 | 1,500 |
+  | B: exact heuristic | 503 | 654 | 736 | 543 |
+  | C: commit 9325d69, before the pickup counter (Manhattan) | 615 | 621 | 621 | 1,500 |
+  | D: old 1-4-location tasks (Manhattan) | 4,195 | 4,197 | 4,197 | 1,498 |
+  | E: solver 5 (Manhattan) | 611 | 617 | 617 | 1,498 |
+
+- **Result**: the Manhattan heuristic is the cause. The pickup counter (C),
+  the task format (D) and the scheduler (E) all freeze the same way; only
+  the exact heuristic (B) keeps delivering. B is starved, though: 543
+  decisions in 1,500 steps (possibly worse than usual, as 5 runs shared the
+  machine). Any Manhattan-mode result past a few hundred steps is affected,
+  including the 2026-09-18 IH probe's conclusions if extended.
+
+### 2026-09-29: local-path-BFS planner fix, first tests
+
+- **What**: `USE_LOCAL_PATH_BFS` (`default_planner/const.h`) implemented per
+  `ai/planner_local_bfs_plan.md`. Testing it against pure Manhattan.
+- **Runs** (scratchpad only, not in `outputs/`): orz900d 10k thesis
+  instance, 1,500 steps, 3 in parallel: new planner solver 6 level 4; pure
+  Manhattan build (`-DPLANNER_USE_LOCAL_PATH_BFS=false`) solver 6 level 4;
+  new planner solver 5.
+- **Result**: the freeze is gone. Deliveries (pickups) at step 1,500:
+  new s6 L4 5,495 (15,453); pure s6 L4 617 (10,532); new s5 5,530
+  (15,508). Pure Manhattan made no deliveries after step 750, and its stuck
+  count (agents with a goal that haven't moved for 20+ decisions) rose to
+  10,000 of 10,000 by step 750. The new planner delivered about 4 per step all the way
+  to 1,500 with no plateau, and its stuck count stayed at 0-8 after step 250.
+  All runs made 1,499-1,500 decisions in 1,500 steps, 0 errors. For
+  reference, the exact heuristic managed 736 deliveries at 1,500 (2026-09-29
+  test B above).
+- **Timing** (new planner): PIBT mean 37 ms, p99 52 ms, max 77 ms against a
+  100 ms reserve (pure Manhattan: 5 ms). Guide-path A* is the slow part:
+  about 12 ms per search on orz900d, so the initial 10k backlog took until
+  about step 250 to clear (agents without a path fall back to Manhattan
+  meanwhile; 3,679 still without one at step 100). After that, 10-25 new paths per
+  step, taking 100-250 ms. 7-21 agents per step were too far from their
+  path and got re-planned.
+- Not yet tested: `PASS_SCHEDULER_PATHS_TO_PLANNER`, 20k agents, other maps.
+
+### 2026-09-29: local-path-BFS planner on IH, and scheduler path handoff
+
+- **Runs** (scratchpad only), 1,500 steps, solver 6 level 4, 4 in parallel:
+  IH_mp_2p_01 10k with the new planner, pure Manhattan, and new planner +
+  `PASS_SCHEDULER_PATHS_TO_PLANNER` (build with
+  `-DPLANNER_PASS_SCHEDULER_PATHS=true`); orz900d 10k new planner +
+  scheduler paths (compare with the 5,495 above). The `planner stats:` line
+  now also has `paths_from_scheduler`.
+- **Result: IH fails; the sweep was not restarted.** Deliveries at step
+  1,500 (decisions in 1,500 steps):
+
+  | Run | Deliveries 500 / 1,000 / 1,500 | Decisions | Stuck at decision 1,000 | Agents without a path at 1,000 |
+  |---|---|---|---|---|
+  | IH new planner | 541 / 1,355 / 2,364 | 1,021 | 4,661 | 6,740 |
+  | IH pure Manhattan | 509 / 937 / 1,178 | 1,053 | 8,776 | – |
+  | IH new + scheduler paths | 526 / 1,340 / 2,360 | 1,024 | 4,584 | 6,753 |
+  | orz900d new + scheduler paths | 2,050 / 3,978 / 5,646 | 1,500 | 2 | 0 |
+  | (earlier) orz900d new | 2,037 / 3,894 / 5,495 | 1,500 | 6 | 0 |
+
+  0 errors in all runs.
+- **Why IH fails:** guide-path A* is far too slow on IH. Only 3-14 paths
+  per step, with stage 2 using 450-1,050 ms, so roughly 70-300 ms per
+  search (orz900d: about 12 ms). About 6,700 of 10,000 agents never get a
+  path in 1,000 decisions, so they keep using Manhattan distance and get
+  trapped; the stuck count climbs to 4,661. A single long A* search can't be
+  interrupted, so it runs past the deadline: only about 1,020 decisions in
+  1,500 steps (pure Manhattan overruns the same way, so this is A*, not the
+  BFS). The BFS itself is fine: PIBT max 35 ms on IH. The new planner still
+  doubles deliveries over pure Manhattan (2,364 vs. 1,178) and they keep
+  rising, but it isn't good enough for the thesis sweep.
+- **Scheduler paths (`PASS_SCHEDULER_PATHS_TO_PLANNER`):** almost no
+  effect. Solver 6 at level 4 matches nearly every agent locally, and only
+  flow-matched agents get a path: the planner received 3,489 (IH) and 796
+  (orz900d) scheduler paths in total, nearly all at step 0. IH: 2,360 vs.
+  2,364 deliveries. orz900d: 5,646 vs. 5,495 (+2.7%, within what
+  run-to-run differences with 3-4 runs sharing the machine could explain).
+  Leave it off.
+- orz900d with scheduler paths peaked at 85 ms PIBT (4 runs in parallel),
+  closer to the 100 ms reserve than before.

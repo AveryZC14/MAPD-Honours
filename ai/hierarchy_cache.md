@@ -4,12 +4,13 @@
 > `hierarchy_cache/`: `orz900d_full`, `warehouseXL_full`,
 > `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and `scene_sp_pol_06_full`
 > (all `.hierarchy`). Each is verified structurally identical to a fresh
-> build with the current code. The older `orz900d.hierarchy`/`.hier`,
-> `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` stop early. They
-> still load, because validity only checks format, dimensions and map hash,
-> not depth, but they are superseded. See
+> build with the current code. The older `orz900d.hierarchy`,
+> `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` stopped early and
+> were deleted on 2026-09-29. The tracked `orz900d.hier` is a copy of the
+> deleted `orz900d.hierarchy`: it still loads, because validity only checks
+> format, dimensions and map hash, not depth, but don't use it. See
 > `instances/thesis_benchmarks/README.md` for the table, verification and
-> timings, and `ai/todo.md` for the pending deletion.
+> timings.
 
 Added 2026-08-12. Lets a solver-6 map-coarsening hierarchy
 (`MapReductionTest::ReducedHierarchy`, see `ai/project_context.md`'s "Solver

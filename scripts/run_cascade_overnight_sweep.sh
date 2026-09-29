@@ -5,7 +5,7 @@
 # --minCascadeLevel/--cascadeLevelStride on top. See ai/hierarchical_matching.md.
 #
 # Six runs, sequential, safer/cheaper first: level 4, level 6, then "pure
-# cascade" (flowSolveLevel = the hierarchy's own top level, 9, so the coarse
+# cascade" (flowSolveLevel = the hierarchy's own top level, 11, so the coarse
 # flow solve becomes a vacuous no-op -- see "entirety mode" in the doc) --
 # each at cascade_level_stride=1 (matches every level, the "cascade1" runs),
 # then the same three configs again at stride=2 ("every second level").
@@ -16,6 +16,14 @@
 # appended to cascade_sweep_summary.csv after EVERY run (not deferred to the
 # end), so a hang on a later run never loses bookkeeping for earlier
 # completed ones.
+#
+# Historical note (2026-09-29): the original 2026-09-17 runs used
+# hierarchy_cache/IH_mp_2p_01_level9.hierarchy, an early-stopping cache
+# (top level 9) that has since been superseded. This script now uses the
+# full-depth IH_mp_2p_01_fixpoint.hierarchy, whose top level is 11, so the
+# pure-cascade runs are level 11 (and really are entirety mode; the
+# original level-9 runs were not -- see ai/run_log.md). Rerunning overwrites
+# cascade_sweep_summary.csv in OUT_DIR, so point OUT_DIR elsewhere first.
 set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -23,7 +31,7 @@ cd "$REPO_ROOT"
 
 BINARY="$REPO_ROOT/build/lifelong"
 INSTANCE="$REPO_ROOT/instances/custom/IH_mp_2p_01/IH_mp_2p_01_10000.json"
-CACHE="$REPO_ROOT/hierarchy_cache/IH_mp_2p_01_level9.hierarchy"
+CACHE="$REPO_ROOT/hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy"
 OUT_DIR="$REPO_ROOT/outputs/IH_mp_2p_01_10000_7000ts_sweep"
 SIM_TIME=7000
 PREPROCESS_LIMIT=600000
@@ -105,15 +113,15 @@ log "cache: $CACHE"
 log "per-run timeout: $PER_RUN_TIMEOUT"
 
 # stride=1 ("cascade1"): safer/cheaper first, riskiest (pure cascade, top
-# level 9) last, so a hang there doesn't cost the cheaper configs anything.
+# level 11) last, so a hang there doesn't cost the cheaper configs anything.
 run_one "level4_cascade1"          4 1
 run_one "level6_cascade1"          6 1
-run_one "level9_cascade1"          9 1
+run_one "level11_cascade1"         11 1
 
 # stride=2 ("every second level"): same order/logic.
 run_one "level4_cascade1_stride2"  4 2
 run_one "level6_cascade1_stride2"  6 2
-run_one "level9_cascade1_stride2"  9 2
+run_one "level11_cascade1_stride2" 11 2
 
 log "=== cascade overnight sweep finished, regenerating combined metrics.csv over the whole directory ==="
 python3 "$REPO_ROOT/visualisation/compute_throughput_metrics.py" "$OUT_DIR" -o "$OUT_DIR/metrics_all_2026-09-17.csv" >> "$RUNNER_LOG" 2>&1

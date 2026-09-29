@@ -220,14 +220,15 @@ one step after its pickup, so it was left as generated.
   that survives the final coarsening step, not a single node, which is
   expected.
 
-  **Don't use the older caches.** `orz900d.hierarchy`, `orz900d.hier`, every
-  `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built before
-  the hierarchy started coarsening all the way to its top level, so they stop
-  early. They still load without error, because the cache check covers only
-  the format, dimensions and map hash. Runs that stay at or below the old
-  cache's last level (9 for the `*_level9` caches, 6 for
-  `scene_mp_4p_03_level6.hierarchy`) would be unaffected, but any run that
-  cascades higher would stop short.
+  **The older caches were deleted on 2026-09-29.** `orz900d.hierarchy`,
+  every `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built
+  before the hierarchy started coarsening all the way to its top level, so
+  they stopped early (at level 9, or 6). Older notes in `ai/` still name them
+  as the caches past runs used. The one left is `orz900d.hier`, which is
+  tracked in git and byte-identical to the deleted `orz900d.hierarchy`: don't
+  use it. It still loads without error, because the cache check covers only
+  the format, dimensions and map hash, but any run that cascades above level
+  9 would stop short.
 
   `*.hierarchy` files are gitignored, and the five full-depth caches take
   about 5.1 GB in total. On a new machine, copy them over, or let the first run
@@ -303,7 +304,11 @@ scene_mp_4p_03 and scene_sp_pol_06 at 10k, 20k, 40k and 80k.
 
 **Common flags for every run:** `-s 8000`, default `--planTimeLimit` (1000 ms),
 default `--assignNew` (false), no `--useTraffic`, and a build with
-`USE_MANHATTAN_HEURISTIC = true` (`default_planner/const.h`). Solvers 6 and 7
+`USE_MANHATTAN_HEURISTIC = true` and `USE_LOCAL_PATH_BFS = true`
+(`default_planner/const.h`; the second is the planner fix for the freeze
+described under "Sweep status", see `ai/planner_local_bfs_plan.md`). Keep
+`PASS_SCHEDULER_PATHS_TO_PLANNER = false` so every solver's planner builds
+its own guide paths the same way. Solvers 6 and 7
 also get `--hierarchyCache` with the map's full-depth cache from the table
 under "Settled".
 
@@ -341,9 +346,28 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
 `scripts/run_thesis_sweep.py` holds this exact run list and runs it one run
 at a time into `outputs/thesis_sweep/`:
 
-**Current sweep:** started 2026-09-29 07:50 (full 120-run list, detached).
-Expected to finish around 2026-10-10 with warehouseXL, or around
-2026-10-08 without it.
+**Sweep status: stopped 2026-09-29 16:50, after 4 of 120 runs.** The 4
+finished runs (orz900d 10k, solver 6 at levels 2/4/6/8) are not usable:
+every run stopped making progress at about step 1,000 and made 0 pickups
+and 0 deliveries for the remaining 7,000 steps, with no errors logged. The
+cause, confirmed by a controlled test, is `USE_MANHATTAN_HEURISTIC = true`:
+the planner ranks moves by Manhattan distance to the goal, which ignores
+walls, so agents behind a wall wait forever. See `ai/run_log.md`
+(2026-09-29) and `ai/todo.md`. `outputs/thesis_sweep/STOP`
+is in place, so the watchdog won't restart it.
+
+**Fix implemented 2026-09-29, not yet used for the sweep, and not
+sufficient on IH yet** (guide-path A* too slow there; see
+`ai/planner_local_bfs_plan.md`, "IH result"):
+`USE_LOCAL_PATH_BFS = true` has PIBT score moves by a small BFS from each
+agent to its own guide path instead of Manhattan distance to the goal
+(`ai/planner_local_bfs_plan.md`). orz900d 10k, 1,500 steps: 5,495
+deliveries with solver 6 level 4 and no freeze, against 617 for pure
+Manhattan. Before restarting: check 20k agents and a larger map (see
+`ai/todo.md`), then delete `STOP`. The 4 frozen runs and the sweep's
+bookkeeping files were moved to
+`outputs/thesis_sweep_junk/2026-09-29_manhattan_freeze/` on 2026-09-29, so
+`outputs/thesis_sweep/` holds only `STOP` and every run will be redone.
 
 All commands below are run from the repo root (`cd ~/MAPD-Honours`).
 
@@ -402,8 +426,23 @@ crontab -e    # remove that line once the sweep has finished
   group, so `lifelong` itself dies too) and recorded as `timeout`.
 - **Records:** `sweep_summary.csv` gets one row per finished run (errors,
   wall-clock, peak memory, decisions, pickups, tasks finished).
+- **Timing records:**
+  - `runner.log`: each run's start time (to the minute) and, when it
+    ends, its duration in hours.
+  - `sweep_summary.csv`: `wall_clock_s` (whole run, including loading)
+    and `finished_at` (to the second). There is no start column: start =
+    `finished_at` − `wall_clock_s`.
+  - `<run>.time`: GNU `time -v` output, with elapsed wall-clock, CPU time
+    and peak memory.
+  - `<run>.json`: per decision, `PlannerTime` (the whole `plan()` call,
+    scheduler included) and `SchedulerSolveTime` in `timeStepMetrics`.
+    Don't sum `plannerTimes` instead: it has a second entry for every
+    decision that ran over its time limit, so it double-counts those.
+  - Loading and preprocessing time is not recorded on its own (see "Why not
+    to use `schedulerHierarchyBuildTime`" above). Roughly, it is
+    `wall_clock_s` minus the sum of `timeStepMetrics[].PlannerTime`.
   `sweep_meta.json` records the git commit, modified files,
-  `USE_MANHATTAN_HEURISTIC`, CPU model, core count, total RAM and compiler
+  `USE_MANHATTAN_HEURISTIC`, the `USE_LOCAL_PATH_BFS` settings, CPU model, core count, total RAM and compiler
   version each time the sweep is started. Quote the machine in the thesis,
   since results depend on wall-clock planning time.
 - **Logs** use `--logDetailLevel 3` (fatal errors only). At the default level,

@@ -172,6 +172,22 @@ void update_traj(TrajLNS& lns, int i){
     // when traj_dists[i] stays empty (treated as zero deviation, not a crash).
     if (!USE_MANHATTAN_HEURISTIC)
         update_dist_2_path(lns,i);
+    else if (USE_LOCAL_PATH_BFS)
+        update_path_togo(lns,i);
+}
+
+//rebuild path cell -> steps-left-to-goal lookup for agent i's current traj
+void update_path_togo(TrajLNS& lns, int i){
+    auto& togo = lns.path_togo[i];
+    togo.clear();
+    togo.reserve(lns.trajs[i].size());
+    // walk back from the goal so a cell visited twice keeps its smaller togo
+    int steps_left = 0;
+    for (int j = (int)lns.trajs[i].size() - 1; j >= 0; j--){
+        togo.emplace(lns.trajs[i][j], steps_left);
+        steps_left++;
+    }
+    lns.needs_replan[i] = false;
 }
 
 }

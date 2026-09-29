@@ -15,45 +15,45 @@ the date and what changed) rather than deleting them outright.
   passed, and the `TasksOpenedThisStep` pickups counter was added and
   verified. The sweep script is `scripts/run_thesis_sweep.py` (tested at 30
   steps). warehouseXL runs last (the user may drop it; the sweep without
-  it is 94 runs, about 9 days). Sweep started 2026-09-29 07:50, detached, into
-  `outputs/thesis_sweep/` (commands to check, stop and resume it are in the
-  README under "Running the sweep"; the cron watchdog is not installed).
-  Still needed: an analysis script for the
+  it is 94 runs, about 9 days).
+
+  **Sweep stopped 2026-09-29 16:50 after 4 runs; results unusable.** All 4
+  (orz900d 10k, solver 6 levels 2/4/6/8) froze at about step 1,000: e.g.
+  level 4 had 10,533 pickups and 619 deliveries by step 1,000, then +0 of
+  each for 7,000 steps, with 0 errors and the planner using its full time
+  budget every step. The scheduler level made no difference (599-640
+  finished), so the cause is below the scheduler. **Confirmed 2026-09-29:
+  the Manhattan heuristic** (PIBT ranks moves by raw Manhattan distance and
+  ignores the A* guide path, so agents behind walls wait forever). The
+  pickup counter, the task format and the scheduler were ruled out; see
+  `ai/run_log.md` 2026-09-29. **Next:** fix the planner before rerunning.
+  The exact heuristic doesn't freeze but is starved (543 decisions in 1,500
+  steps). Plan (2026-09-29, replaces the earlier waypoint idea): keep
+  Manhattan distance inside A*, but have PIBT score moves with a small BFS
+  from each agent to its guide path (distance to path + steps remaining).
+  Full plan, caveats and checks in `ai/planner_local_bfs_plan.md`.
+  **Implemented 2026-09-29** (`USE_LOCAL_PATH_BFS`); orz900d 10k 1,500-step
+  check passed (5,495 deliveries vs. 617, no freeze). **IH 10k check
+  failed (2026-09-29, `ai/run_log.md`):** guide-path A* takes about
+  70-300 ms per search there, so about 6,700 agents never get a path, stay on
+  Manhattan distance and get trapped (4,661 stuck), and A* overruns the
+  step (1,021 decisions in 1,500 steps). Sweep NOT restarted. Next: make
+  guide paths cheap enough on big maps (see the plan doc's "IH result"
+  section). Before restarting:
+  consider a 20k / larger-map check (PIBT used up to 77 of its 100 ms),
+  then delete `outputs/thesis_sweep/STOP`. (The 4 stale runs were moved to
+  `outputs/thesis_sweep_junk/2026-09-29_manhattan_freeze/` on 2026-09-29.)
+  Also still needed: an analysis script for the
   per-decision solver-1 comparison.
 
-- [ ] **Delete the superseded August hierarchy caches (about 7.2 GB) once
-  you're comfortable.** Added 2026-09-29. Nothing is deleted yet; the user
-  wanted to hold off. Disk is at 91% (2.7 GB free), so this is the main way to
-  free space.
-  - **Candidates**, all in `hierarchy_cache/`: `orz900d.hierarchy`,
-    `warehouseXL_level9.hierarchy`, `IH_mp_2p_01_level9.hierarchy`,
-    `scene_mp_4p_03_level6.hierarchy`, `scene_mp_4p_03_level9.hierarchy`,
-    `scene_sp_pol_06_level9.hierarchy`. Keep `orz900d.hier`: it's tracked in
-    git on purpose and only 47 MB.
-  - **Replaced by** `orz900d_full`, `warehouseXL_full`,
-    `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and
-    `scene_sp_pol_06_full` (all `.hierarchy`).
-  - **Evidence it's safe (2026-09-29):**
-    - every full-depth cache is structurally identical to a fresh build at
-      every level (0 failures);
-    - each old cache is identical to its replacement on every shared level,
-      except the old top level's empty "next level up" pointer, so earlier
-      results used the same hierarchy;
-    - 10/10 real solver 6 runs on the new instances were clean, including
-      entirety mode.
-
-    Details are in `ai/run_log.md` (2026-09-28 entry) and
-    `instances/thesis_benchmarks/README.md`.
-  - **Extra reassurance before deleting, if wanted:**
-    - rerun one earlier config with its `_full` cache and check the result is
-      within normal run-to-run jitter, for example the first 500 steps of
-      `IH_mp_2p_01_10000_solver6_level4` (3,276 tasks, Manhattan off);
-    - or copy the old caches off the machine, for example into a disk
-      snapshot, before deleting, so it can be undone.
-  - The structural comparison tool was built in the session scratchpad and is
-    not in the repo. It is about 40 lines on top of
-    `utils/validation/validate_hierarchy_cache.cpp`'s `compare_levels`, if a
-    re-check is ever needed.
+- [ ] **Decide whether to `git rm hierarchy_cache/orz900d.hier`.** Added
+  2026-09-29. It is tracked in git (47 MB) and byte-identical to the deleted
+  early-stopping `orz900d.hierarchy`, so it stops at level 9; use
+  `orz900d_full.hierarchy` instead. It was kept only because it was tracked
+  on purpose. orz900d builds in 0.6 s, so no tracked cache is needed. The
+  other six superseded caches (about 7.2 GB) were deleted on 2026-09-29, after
+  every script and copy-paste command was switched to the full-depth
+  replacements.
 
 - [ ] **[HIGH] Solver 6's per-timestep coarse-flow solve re-solves the entire
   backbone graph every call, regardless of how few agents/tasks actually need

@@ -1,0 +1,10 @@
+120 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+[1/120] orz900d_10000_solver6_level2: starting at 2026-09-29 07:50
+[1/120] orz900d_10000_solver6_level2: ok (1.89 h, 640 tasks finished)
+[2/120] orz900d_10000_solver6_level4: starting at 2026-09-29 09:43
+[2/120] orz900d_10000_solver6_level4: ok (1.88 h, 619 tasks finished)
+[3/120] orz900d_10000_solver6_level6: starting at 2026-09-29 11:36
+[3/120] orz900d_10000_solver6_level6: ok (1.88 h, 599 tasks finished)
+[4/120] orz900d_10000_solver6_level8: starting at 2026-09-29 13:29
+[4/120] orz900d_10000_solver6_level8: ok (1.89 h, 618 tasks finished)
+[5/120] orz900d_10000_solver6_level11_hieronly: starting at 2026-09-29 15:23

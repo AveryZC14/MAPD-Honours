@@ -9,6 +9,8 @@
 #include <iostream>
 
 #include <set>
+#include <unordered_map>
+#include <cstdint>
 
 namespace DefaultPlanner{
 // enum ADAPTIVE {RANDOM, CONGESTION, COUNT};
@@ -68,6 +70,23 @@ class TrajLNS{
     std::vector<FW_Metric> fw_metrics;
     Neighbors& neighbors;
 
+    // USE_LOCAL_PATH_BFS state (see ai/planner_local_bfs_plan.md).
+    // path_togo[i]: guide-path cell -> steps left to the goal along trajs[i].
+    std::vector<std::unordered_map<int,int>> path_togo;
+    // needs_replan[i]: agent was found too far from its path last step.
+    std::vector<bool> needs_replan;
+    // Scratch for the per-agent local BFS, shared by all agents. A cell's
+    // bfs_dist/bfs_moves are only valid when bfs_stamp[cell] == bfs_cur_stamp.
+    std::vector<uint32_t> bfs_stamp;
+    std::vector<int> bfs_dist;
+    std::vector<uint8_t> bfs_moves;
+    std::vector<int> bfs_queue;
+    uint32_t bfs_cur_stamp = 0;
+    // Per-step counters for the planner log line.
+    int bfs_no_path = 0;   // agent had no usable path, used Manhattan
+    int bfs_too_far = 0;   // no path cell within the radius, used Manhattan
+    long long bfs_cells = 0;
+
 
     int traj_inited = 0;
     int dist2path_inited = 0;
@@ -85,7 +104,10 @@ class TrajLNS{
         tasks(env->num_of_agents),
         flow(env->map.size(),Int4({0,0,0,0})), heuristics(heuristics),
         traj_dists(env->num_of_agents),goal_nodes(env->num_of_agents),
-        fw_metrics(env->num_of_agents),neighbors(neighbors){
+        fw_metrics(env->num_of_agents),neighbors(neighbors),
+        path_togo(env->num_of_agents), needs_replan(env->num_of_agents, false),
+        bfs_stamp(env->map.size(), 0), bfs_dist(env->map.size(), 0),
+        bfs_moves(env->map.size(), 0){
         };
 
 

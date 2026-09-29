@@ -2,6 +2,12 @@
 
 > Detail file for one sweep. See `ai/auto_benchmarking.md` for the
 > cross-sweep index, synthesis, and reusable methodology notes.
+>
+> **Cache note (2026-09-29):** the cache used in this sweep,
+> `outputs/scene_sp_pol_06_solver_comparison/scene_sp_pol_06_level9.hierarchy` (since moved to `hierarchy_cache/`), stops early and has been
+> superseded by `hierarchy_cache/scene_sp_pol_06_full.hierarchy`, which is identical on every level
+> they share. The commands below are kept as a record of what was run; use
+> the new cache to rerun them.
 
 Run 2026-08-13/14 (overnight, unattended). First sweep on `scene_sp_pol_06`
 (user-imported map, referred to as "pol_06" for short — the file is named

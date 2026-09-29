@@ -135,9 +135,12 @@ above suggests it would parallelize well when that becomes necessary.
 ```shell
 ./build/lifelong --inputFile instances/custom/scene_mp_4p_03/scene_mp_4p_03_20000.json \
   -o out.json --scheduleModel 6 --flowSolveLevel <2|4|6|8> -s 200 \
-  --hierarchyCache outputs/scene_mp_4p_03_solver_comparison/scene_mp_4p_03_level9.hierarchy \
+  --hierarchyCache hierarchy_cache/scene_mp_4p_03_full.hierarchy \
   --preprocessTimeLimit 150000
 ```
+
+The original runs used the depth-9 cache named above, since superseded by
+`hierarchy_cache/scene_mp_4p_03_full.hierarchy` (identical on levels 0-9).
 
 Then read `timeStepMetrics[i].SchedulerLocalMatchTime` /
 `.SchedulerSolveTime` from the output JSON, de-duplicating consecutive rows

@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include "const.h"
 // #include "gurobi_c++.h"
 #include <boost/heap/pairing_heap.hpp>
 #include "../map_reduction_test/mapReductionV0.h"
@@ -1076,7 +1077,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     // per-timestep lifting cost that was previously skipped entirely outside
     // the seed window -- see ai/guide_path_metric.md for the perf check done
     // on orz900d before this was made unconditional.
-    const bool need_guide_paths_for_seed = use_traffic && env->curr_timestep >= 100;
+    const bool need_guide_paths_for_seed = PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100);
     const bool need_guide_paths = true;
     // compute_hierarchical_assignment() subsumes compute_reduced_assignment():
     // env->min_cascade_level >= env->flow_solve_level (the default) makes the
@@ -1192,7 +1193,7 @@ void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed
     // unconditionally so GuidePathLengthSum/GuidePathCostSum are populated
     // every timestep regardless of --useTraffic, keeping solver 7 comparable
     // to solvers 1/6 on this metric.
-    const bool need_guide_paths_for_seed = use_traffic && env->curr_timestep >= 100;
+    const bool need_guide_paths_for_seed = PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100);
     const bool need_guide_paths = true;
     const auto assignments = MapReductionTest::EdgeAugmentedHierarchy::instance().compute_reduced_assignment_edge_augmented(
         env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths,

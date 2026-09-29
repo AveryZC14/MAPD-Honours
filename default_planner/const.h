@@ -34,5 +34,41 @@ namespace DefaultPlanner
     // true path deviation) for zero table-build cost on both fronts.
     const bool USE_MANHATTAN_HEURISTIC = true;
 
+    // Only has an effect when USE_MANHATTAN_HEURISTIC is true. When true,
+    // PIBT stops scoring moves by raw Manhattan distance to the goal (which
+    // traps agents behind walls) and instead runs a small BFS from each agent
+    // to its own guide path, scoring each move by distance to the path plus
+    // steps left along it. Also rotates where the guide-path loop starts each
+    // step, and re-plans agents pushed too far off their path. When false,
+    // the planner is exactly the pure-Manhattan planner. See
+    // ai/planner_local_bfs_plan.md. Can also be set at build time with
+    // -DPLANNER_USE_LOCAL_PATH_BFS=false, to keep a second pure-Manhattan
+    // build around without editing this file.
+#ifndef PLANNER_USE_LOCAL_PATH_BFS
+#define PLANNER_USE_LOCAL_PATH_BFS true
+#endif
+    const bool USE_LOCAL_PATH_BFS = PLANNER_USE_LOCAL_PATH_BFS;
+
+    // Local BFS radius cap. An agent with no guide-path cell within this many
+    // steps falls back to Manhattan distance for the step and gets a new path.
+    const int LOCAL_PATH_BFS_RADIUS = 5;
+
+    // Layers the local BFS keeps searching after the first path cell is
+    // found, so it can pick a better path cell nearby.
+    const int LOCAL_PATH_BFS_EXTRA_LAYERS = 2;
+
+    // When true, solvers 6 and 7 hand their guide paths to the planner
+    // every step, not only with --useTraffic past timestep 100. Off by
+    // default: it changes what solver comparisons measure (see the plan doc).
+    // Can also be set at build time with -DPLANNER_PASS_SCHEDULER_PATHS=true.
+#ifndef PLANNER_PASS_SCHEDULER_PATHS
+#define PLANNER_PASS_SCHEDULER_PATHS false
+#endif
+    const bool PASS_SCHEDULER_PATHS_TO_PLANNER = PLANNER_PASS_SCHEDULER_PATHS;
+
+    // An agent with a goal that hasn't moved for this many consecutive
+    // planner decisions counts as stuck in the per-step planner log line.
+    const int STUCK_AGENT_THRESHOLD = 20;
+
 }
 #endif

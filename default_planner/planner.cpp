@@ -24,6 +24,13 @@ namespace DefaultPlanner{
     std::mt19937 mt1;
     TrajLNS trajLNS;
 
+    // USE_LOCAL_PATH_BFS: agent the guide-path loop starts from next step
+    int guide_path_start = 0;
+    // stuck-agent counter: location last decision, and decisions in a row
+    // spent there while having a goal
+    std::vector<int> last_loc;
+    std::vector<int> still_steps;
+
 
     // std::vector<Int4> get_flow() 
     // {
@@ -80,6 +87,8 @@ namespace DefaultPlanner{
             checked.resize(env->num_of_agents,false);
             ids.resize(env->num_of_agents);
             require_guide_path.resize(env->num_of_agents,false);
+            last_loc.assign(env->num_of_agents, -1);
+            still_steps.assign(env->num_of_agents, 0);
             for (int i = 0; i < ids.size();i++){
                 ids[i] = i;
             }
@@ -139,6 +148,12 @@ namespace DefaultPlanner{
         // data sturcture for record the previous decision of each agent
         prev_decision.clear();
         prev_decision.resize(env->map.size(), -1);
+
+        const bool local_bfs = USE_MANHATTAN_HEURISTIC && USE_LOCAL_PATH_BFS;
+        int stuck_agents = 0;
+        trajLNS.bfs_no_path = 0;
+        trajLNS.bfs_too_far = 0;
+        trajLNS.bfs_cells = 0;
 
         // update the status of each agent and prepare for planning
         int count = 0;
@@ -212,28 +227,58 @@ namespace DefaultPlanner{
                 p[i] = p[i] + 10;
             }
 
-        }
+            // agent was pushed too far off its path last step: give it a new
+            // one from where it is now. Set after the priority reset above on
+            // purpose -- this isn't a new goal, so it keeps its priority.
+            if (local_bfs && trajLNS.needs_replan[i])
+                require_guide_path[i] = true;
 
-        // compute the congestion minimised guide path for the agents that need guide path update
-        for (int i = 0; i < env->num_of_agents;i++)
+            // stuck-agent counter, logged below
+            const int loc_now = env->curr_states[i].location;
+            if (!env->goal_locations[i].empty() && loc_now == last_loc[i])
+                still_steps[i]++;
+            else
+                still_steps[i] = 0;
+            last_loc[i] = loc_now;
+            if (still_steps[i] >= STUCK_AGENT_THRESHOLD)
+                stuck_agents++;
+        }
+        TimePoint setup_done = std::chrono::steady_clock::now();
+
+        // compute the congestion minimised guide path for the agents that need guide path update.
+        // Under USE_LOCAL_PATH_BFS the loop starts where it stopped last step,
+        // so the agents at the end of the list aren't always the ones left
+        // without a path when time runs out.
+        const int n_agents = env->num_of_agents;
+        const int start_agent = local_bfs ? guide_path_start % n_agents : 0;
+        int paths_built = 0;
+        int paths_from_scheduler = 0;
+        for (int k = 0; k < n_agents; k++)
         {
+            const int i = (start_agent + k) % n_agents;
             if (std::chrono::steady_clock::now() >end_time)
             {
                 cout<<"compute initial stop until "<<i<<endl;
+                if (local_bfs)
+                    guide_path_start = i;
                 break;
             }
             if (require_guide_path[i])
             {
+                paths_built++;
                 if (!trajLNS.trajs[i].empty())
                     remove_traj(trajLNS, i);
                 if (agent_guide_path.find(i) != agent_guide_path.end())
                 {
+                    paths_from_scheduler++;
                     trajLNS.trajs[i].clear();
                     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
                     add_traj(trajLNS,i);
                     // see USE_MANHATTAN_HEURISTIC comment in update_traj() (flow.cpp)
                     if (!USE_MANHATTAN_HEURISTIC)
                         update_dist_2_path(trajLNS,i);
+                    else if (USE_LOCAL_PATH_BFS)
+                        update_path_togo(trajLNS,i);
                 }
                 else
                 {
@@ -241,10 +286,12 @@ namespace DefaultPlanner{
                 }
             }
         }
+        TimePoint guide_done = std::chrono::steady_clock::now();
 
         // iterate and recompute the guide path to optimise traffic flow
         std::unordered_set<int> updated;
         frank_wolfe(trajLNS, updated,end_time);
+        TimePoint fw_done = std::chrono::steady_clock::now();
 
         // sort agents based on the current priority
         std::sort(ids.begin(), ids.end(), [&](int a, int b) {
@@ -267,7 +314,23 @@ namespace DefaultPlanner{
                     occupied, trajLNS);
             }
         }
-        
+        TimePoint pibt_done = std::chrono::steady_clock::now();
+
+        auto ms = [](TimePoint a, TimePoint b){
+            return std::chrono::duration<double, std::milli>(b - a).count();
+        };
+        cout << "planner stats: setup_ms " << ms(start_time, setup_done)
+             << " guide_ms " << ms(setup_done, guide_done)
+             << " paths_built " << paths_built
+             << " paths_from_scheduler " << paths_from_scheduler
+             << " fw_ms " << ms(guide_done, fw_done)
+             << " pibt_ms " << ms(fw_done, pibt_done)
+             << " pibt_reserve_ms " << pibt_time
+             << " stuck_agents " << stuck_agents
+             << " bfs_no_path " << trajLNS.bfs_no_path
+             << " bfs_too_far " << trajLNS.bfs_too_far
+             << " bfs_cells " << trajLNS.bfs_cells << endl;
+
         // post processing the targeted next location to turning or moving actions
         actions.resize(env->num_of_agents);
         for (int id : ids)

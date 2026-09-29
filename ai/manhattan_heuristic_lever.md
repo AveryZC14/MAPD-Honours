@@ -160,6 +160,15 @@ regime), so the improvement isn't purely "cheaper heuristic, same
 behavior" -- it's "the traffic-flow planner is functioning again, just
 against a less accurate distance estimate than before."
 
+> **Correction (2026-09-29):** the paragraph above is wrong about
+> `frank_wolfe`. In Manhattan mode no agent has a `traj_dists` table, and
+> `frank_wolfe` skips any agent without one (`flow.cpp:123`), so it runs
+> zero re-plans and just spins until the deadline. Only stage 2's first
+> A* per new goal ran. PIBT also never reads the guide paths in this mode,
+> so the +6.4% came from greedy Manhattan PIBT deciding more often. The
+> 500-step window also ended before the freeze that appears around step
+> 1,000 (agents trapped behind walls). See `ai/planner_local_bfs_plan.md`.
+
 **Not yet done**:
 - A real head-to-head: fresh `-s 500` baseline run rather than a slice, and
   ideally more than one run per side given the jitter caveat.
