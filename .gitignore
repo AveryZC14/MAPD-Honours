@@ -12,3 +12,5 @@ Benchmark-Archive
 outputs/coarsening_viz/**/*.csv
 *.hierarchy
 *_runs.log
+thesis/*
+__pycache__/

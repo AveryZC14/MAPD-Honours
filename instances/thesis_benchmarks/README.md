@@ -11,7 +11,8 @@ The earlier instances under `instances/custom/<map>/` were generated with the
 official LoRR 2024 generator's default errand range (`--minEPT 1 --maxEPT 4`),
 so each task had 1–4 locations. That does not match the pickup→delivery task
 model in the reference paper (Zhang et al., *Flow-Based Task Assignment for
-Large-Scale Online MAPD*, AAMAS 2026, `thesis/AAMAS_2026_Yue_Camera_ready.pdf`),
+Large-Scale Online MAPD*, AAMAS 2026; a local copy is kept at
+`thesis/AAMAS_2026_Yue_Camera_ready.pdf`, which is gitignored),
 where every task is exactly one pickup plus one delivery.
 
 It matters for results. A 1-location task finishes the moment its assigned
@@ -37,8 +38,15 @@ Every instance uses:
   paper's LoRR setup.
 - **A task file of at least 1.5× the largest team size**, so the starting task
   pool never repeats a task. The simulator cycles through the file
-  (`task_id % tasks.size()`, `src/TaskManager.cpp:192`), so a smaller file
+  (`task_id % tasks.size()`, `src/TaskManager.cpp:198`), so a smaller file
   makes the first revealed tasks duplicates of each other.
+
+  This only covers the starting pool. At the top team size the file is
+  exactly the pool size (120,000 at 80k, and 30,000 for orz900d at 20k), so
+  from the first newly revealed task on, each new task repeats one that may
+  still be waiting in the pool. Every run cycles through the file several
+  times over 8,000 steps. The simulator allows this and nothing breaks, but
+  state it in the thesis.
 - **One shared task file per map**, with one `.agents` file per team size,
   all generated in a single call.
 
@@ -76,8 +84,11 @@ Density is team size divided by the main region's cell count.
 ### How the team sizes were chosen
 
 - **10k and 20k on every map.** These are the paper's ultra-large-map team
-  sizes (Table 3: orz900d and IH at 10k and 20k), so they compare directly
-  with it and give one common baseline across all maps.
+  sizes (Table 3: orz900d and IH at 10k and 20k), and they give one common
+  baseline across all maps. Using the same team sizes does not make the
+  throughput numbers directly comparable with the paper's: solver 1 re-solves
+  on a different schedule here (see "Not included" below), and the paper's IH
+  map may not be this one (see the last section).
 - **40k and 80k on the four big maps**, for scaling. 60k was dropped as too
   fine a step. 80k replaces the older 90k as a rounder top end.
 - **orz900d stays at 10k and 20k.** It is already at 10–21% density, the
@@ -97,8 +108,8 @@ Density is team size divided by the main region's cell count.
 - **At 60k, shallow flow levels starve the planner.** Level 2 made only 78 real
   planning decisions out of 500 steps (`ai/todo.md`), so agents mostly waited.
   Levels 4 and deeper were fine.
-- **80k and 90k have never been run.** Treat 80k as untested. Smoke-test it
-  (for example `-s 20`) on each map before queueing long runs.
+- **80k has only been smoke-tested**, at 20 steps (see "Pre-sweep checks"
+  below). No long run has been done at 80k.
 - **The known memory limit is about map size, not agent count.**
   scene_sp_endmaps (24.5M cells) runs out of memory on a 31 GB machine just
   loading the map and building the hierarchy
@@ -195,24 +206,28 @@ one step after its pickup, so it was left as generated.
     mappings, internal arc metrics, every arc's endpoints, cost and capacity,
     and both bridge caches.
   - **Real runs.** Each cache ran solver 6 for 50 steps on the 10k instance,
-    once at flow level 4 and once in entirety mode (flow at the top level,
-    `--minCascadeLevel 1`). All 10 runs had 0 planner, schedule and timeout
-    errors. Entirety mode matched every agent locally, with 0 flow matches.
+    once at flow level 4 and once in hierarchical-only mode
+    (`--flowSolveLevel <top level> --minCascadeLevel 1`, described under
+    "Final run plan"). All 10 runs had 0 planner, schedule and timeout
+    errors. Hierarchical-only mode matched every agent locally, with 0 flow matches.
 
   The old caches are identical to the full-depth ones on every level they
   share, except the top level's pointer to the next level up, which the old
   caches never filled in because they stopped there. Results from earlier runs
-  with the old caches therefore used the same hierarchy. On maps with disconnected regions, the top level has one node per
-  region that survives the final coarsening step, not a single node, which is
+  with the old caches therefore used the same hierarchy.
+
+  On maps with disconnected regions, the top level has one node per region
+  that survives the final coarsening step, not a single node, which is
   expected.
 
   **Don't use the older caches.** `orz900d.hierarchy`, `orz900d.hier`, every
   `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built before
   the hierarchy started coarsening all the way to its top level, so they stop
   early. They still load without error, because the cache check covers only
-  the format, dimensions and map hash. Runs with `--flowSolveLevel` 9 or below
-  would be unaffected, but any run that cascades to the top level would stop
-  short.
+  the format, dimensions and map hash. Runs that stay at or below the old
+  cache's last level (9 for the `*_level9` caches, 6 for
+  `scene_mp_4p_03_level6.hierarchy`) would be unaffected, but any run that
+  cascades higher would stop short.
 
   `*.hierarchy` files are gitignored, and the five full-depth caches take
   about 5.1 GB in total. On a new machine, copy them over, or let the first run
@@ -238,8 +253,8 @@ nothing else running. Full data, including per-level node counts, is in
 - **Pure build** is from a run with no `--hierarchyCache`, so there is no load
   attempt and no save.
 - **Cache load** is from a separate run that loaded the full-depth cache.
-  Loading saves only about a third of the build time on the big maps, and is
-  slower than building on orz900d.
+  Loading saves only about a third of the build time on IH and the scene
+  maps (about half on warehouseXL), and is slower than building on orz900d.
 - **Peak memory** is for the whole `lifelong` process with 10,000 agents
   (`/usr/bin/time -v`), not just the hierarchy. Saving a cache adds more: the
   run that built and saved `scene_sp_pol_06_full.hierarchy` peaked at 25.7 GB
@@ -321,6 +336,88 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
 ./build/lifelong -i $I -o <out>_solver7_level4.json   --scheduleModel 7 --flowSolveLevel 4 --hierarchyCache $C $COMMON
 ```
 
+#### Running the sweep
+
+`scripts/run_thesis_sweep.py` holds this exact run list and runs it one run
+at a time into `outputs/thesis_sweep/`:
+
+**Current sweep:** started 2026-09-29 07:50 (full 120-run list, detached).
+Expected to finish around 2026-10-10 with warehouseXL, or around
+2026-10-08 without it.
+
+All commands below are run from the repo root (`cd ~/MAPD-Honours`).
+
+```shell
+# --- Start or resume -------------------------------------------------------
+python3 scripts/run_thesis_sweep.py --dry-run   # list all 120 commands, run nothing
+scripts/sweep_watchdog.sh                       # start (or resume) detached; does nothing if already running
+rm -f outputs/thesis_sweep/STOP                 # needed first if you stopped it with STOP (see below)
+
+# --- Check on it -----------------------------------------------------------
+tail -n 5 outputs/thesis_sweep/runner.log       # one line per run started/finished; last line = current run
+grep -c ': ok' outputs/thesis_sweep/runner.log  # runs finished cleanly so far (out of 120)
+grep PROBLEM outputs/thesis_sweep/runner.log    # runs that crashed, timed out or reported errors
+column -s, -t < outputs/thesis_sweep/sweep_summary.csv | less -S   # per-run table
+pgrep -af 'run_thesis_sweep|build/lifelong'     # is it running? expect the script + one lifelong
+ls -t outputs/thesis_sweep/*_solver*.log | head -1 | xargs tail -n 3   # current run's timestep
+cat outputs/thesis_sweep/watchdog.log           # when the watchdog (re)started it
+df -h / ; free -g                               # disk (stops below 1 GB free) and memory
+
+# --- Stop on purpose -------------------------------------------------------
+touch outputs/thesis_sweep/STOP                 # first, so the watchdog won't restart it
+pkill -f run_thesis_sweep.py; pkill -x lifelong # the current run is lost and redone on resume
+
+# --- Drop warehouseXL ------------------------------------------------------
+# Its 26 runs are last. Once runner.log shows the first warehouseXL run
+# starting (run 95/120), stop the sweep as above. Or never start them:
+setsid nohup python3 -B scripts/run_thesis_sweep.py --maps orz900d IH_mp_2p_01 scene_mp_4p_03 \
+  scene_sp_pol_06 >> outputs/thesis_sweep/runner.log 2>&1 < /dev/null &
+
+# --- Auto-restart after a crash or reboot (optional) ------------------------
+crontab -e    # add the line:  */10 * * * * /home/ubuntu/MAPD-Honours/scripts/sweep_watchdog.sh
+crontab -l    # check it is installed
+crontab -e    # remove that line once the sweep has finished
+```
+
+- **Order:** all 10k runs first (every map and config), then 20k, 40k, 80k,
+  so a sweep stopped early still has complete team sizes. warehouseXL is the
+  exception: its 26 runs (about 2.5 days) all come last, after every team
+  size of the other maps, so it can be dropped by stopping the sweep once
+  the first warehouseXL run starts. `LAST_MAPS` in the script controls this.
+- **Resumable:** rerun the same command after an interruption. Runs with a
+  finished output JSON are skipped. lifelong writes its JSON only at the end,
+  so a run that was cut off is redone from the start.
+- **Stopping:** stop both the script and the current run, e.g.
+  `pkill -f run_thesis_sweep.py; pkill -x lifelong`. Killing only the script
+  leaves the current `lifelong` run going.
+- **Watchdog:** `scripts/sweep_watchdog.sh` starts the sweep, detached, if
+  it isn't running, no `lifelong` is running and `runner.log` doesn't end
+  with the final summary line. Run it from cron to restart the sweep after a
+  crash or reboot:
+  `*/10 * * * * /home/ubuntu/MAPD-Honours/scripts/sweep_watchdog.sh`.
+  Before stopping the sweep on purpose, `touch outputs/thesis_sweep/STOP`,
+  or the watchdog will start it again. Restarts are logged to
+  `outputs/thesis_sweep/watchdog.log`.
+- **Timeout:** a run still going after 6 h is killed (the whole process
+  group, so `lifelong` itself dies too) and recorded as `timeout`.
+- **Records:** `sweep_summary.csv` gets one row per finished run (errors,
+  wall-clock, peak memory, decisions, pickups, tasks finished).
+  `sweep_meta.json` records the git commit, modified files,
+  `USE_MANHATTAN_HEURISTIC`, CPU model, core count, total RAM and compiler
+  version each time the sweep is started. Quote the machine in the thesis,
+  since results depend on wall-clock planning time.
+- **Logs** use `--logDetailLevel 3` (fatal errors only). At the default level,
+  per-task log lines reach 17 MB in 20 steps at 80k agents, which would fill
+  the disk over 120 runs. The script also stops if free disk drops below
+  1 GB.
+- **Subsets:** `--maps`, `--teams` and `--configs` (`solver6`,
+  `solver6_hieronly`, `solver5`, `solver1`, `solver7`) run part of the list.
+  `--sim-time` overrides the 8,000 steps for quick tests; point `--out-dir`
+  somewhere else when using it.
+
+Tested 2026-09-29 at `--sim-time 30` on orz900d 10k (all 7 configs) and IH
+20k solver 7: 8/8 clean, and a rerun skipped all finished runs.
+
 #### Why these choices
 
 - **Solver 6 at several levels on every instance**, not one fixed level: the
@@ -337,12 +434,18 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
   finish, on real decisions. Solver 1 makes few decisions on the big maps
   (roughly 1 s per solve on orz900d, 10 s on warehouseXL, 36 s on IH, 150 s on
   scene_mp_4p_03), so its N decisions are compared with the first N
-  decisions of the other runs. Take the running total of
-  `TasksFinishedThisStep` over `timeStepMetrics` rows (one row per decision).
+  decisions of the other runs. Take the running totals of
+  `TasksOpenedThisStep` (pickups reached) and `TasksFinishedThisStep` over
+  `timeStepMetrics` rows (one row per decision). Pickups reached is the main
+  measure: it is the part of each task the scheduler controls, and it stays
+  meaningful even on maps where solver 1 makes too few decisions for any
+  deliveries to finish.
   Call the result a percentage of solver 1, not of optimal: solver 1 gives
   the best assignment for each batch, not the best throughput over a run.
-- **Solver 1 only at 10k and 20k.** These are the paper's team sizes. Solve
-  time depends on map size, not team size, so 40k and 80k would add little.
+- **Solver 1 only at 10k and 20k.** These are the paper's team sizes. Its
+  solves already take 10–150 s on the big maps, so 40k and 80k runs would
+  make even fewer decisions. How solve time grows with team size has not
+  been measured.
 - **Solver 7 only as a 2-run appendix check.** It has been worse than solver 6
   everywhere so far. Report only its throughput: its `SchedulerSolveTime` and
   `SchedulerBackboneBuildTime` fields are known to be wrong (`ai/todo.md`).
@@ -372,33 +475,44 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
   steps, solver 1 makes only about 50 decisions on scene_mp_4p_03 and even
   fewer on scene_sp_pol_06, so each agent moves at most that many cells and
   almost no deliveries can complete. Tasks finished is a usable per-decision
-  measure on orz900d and warehouseXL, marginal on IH, and meaningless on the
-  scene maps. Counting pickups reached would fix this (see below).
+  measure on orz900d only. It is marginal on warehouseXL (about 800
+  decisions against a mean pickup→delivery distance of 1,242) and IH, and
+  meaningless on the scene maps. Use pickups reached (`TasksOpenedThisStep`)
+  on those maps instead.
 
 #### Runtime
 
 About 1 s of wall-clock per simulated step, so about 2.3 h per run including
 loading. That's about **276 h (11.5 days)** run one at a time.
 
-- Runs on orz900d, warehouseXL and IH need 5 GB or less each (about 67 of the
-  runs). Running these two at a time saves about 3 days, but paired runs
-  affect each other's timing, so record which runs overlapped.
-- scene_mp_4p_03 (about 18 GB) and scene_sp_pol_06 (about 25 GB) runs must
-  run alone on the 31 GB machine.
+- The sweep runs one at a time. Don't run two at once to save time: results
+  depend on wall-clock planning time, so paired runs would affect each
+  other, and two copies of the script would share `sweep_summary.csv`.
+- scene_mp_4p_03 (about 18 GB) and scene_sp_pol_06 (about 25 GB) runs could
+  not be paired anyway on the 31 GB machine.
+- Without warehouseXL, the sweep is 94 runs, about 216 h (9 days).
 - Output files are 1–2 MB each, so disk space (2.7 GB free) is not a problem.
 
-#### Before starting the sweep
+#### Pre-sweep checks (done 2026-09-29)
 
-- **Smoke-test 80k agents** (`-s 20`) on each map with solvers 5 and 6. 80k
-  has never been run. Solver 5 checks every free agent against every open
-  task on its first decision, which at 80k is about 9.6 billion distance
-  checks.
-- **Decide on a pickups-reached counter.** The output does not record
-  pickups: the per-errand `events` line in `src/TaskManager.cpp` is commented
-  out, and pickups appear only in the text log ("opens task"). A
-  `TasksOpenedThisStep` field next to `TasksFinishedThisStep` would make the
-  per-decision solver-1 comparison work on every map. It must be added
-  before the sweep, or none of the runs will have it.
+- **80k smoke test.** On all four big maps at 80k agents, `-s 20`, with solver
+  5, solver 6 at level 2, and solver 6 hierarchical-only: all 12 runs exited
+  cleanly, with 0 planner, schedule and timeout errors and no crashes. Peak
+  memory: about 3–5 GB on warehouseXL and IH, 12.7–17.8 GB on
+  scene_mp_4p_03, and 16.6–24.0 GB on scene_sp_pol_06.
+- **Greedy has a slow first decision at large team sizes.** On its first
+  decision every agent is free, and solver 5 compares each one with every
+  open task. On IH this took 31 s at 40k agents and 218 s at 80k. Later
+  decisions took at most 1.5 s (40k) and 0.4 s (80k), with no further
+  timeouts. At 80k, agents therefore wait about 218 steps at the start
+  (2.7% of an 8,000-step run). Note this when reporting Greedy's throughput
+  at 40k and 80k. It does not affect per-decision comparisons.
+- **Pickups-reached counter added.** `TasksOpenedThisStep` in each
+  `timeStepMetrics` row and `numTaskOpened` in the run totals. Verified on
+  `instances/custom/tiny/tiny.json` and on IH at 80k agents: the run total,
+  the per-row sum and the number of "opens task" log lines all match (4 and
+  72,185), pickups never fall behind deliveries, and every other output
+  field matches the run made before the change.
 
 ## Known issue in the reference paper
 

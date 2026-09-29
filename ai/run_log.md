@@ -228,3 +228,21 @@ progresses -- this is not append-only.
   - Reporting quirk: `schedulerHierarchyNumLevels` and related fields come
     from the last scheduler call only, and are 0 if that call had nothing to
     reassign.
+
+### 2026-09-29: 80k smoke tests and pickups-reached counter
+
+- **Smoke tests**: warehouseXL, IH_mp_2p_01, scene_mp_4p_03 and
+  scene_sp_pol_06 at 80k agents, `-s 20`, solver 5, solver 6 level 2 and
+  solver 6 hierarchical-only (12 runs, one at a time). All clean: exit 0,
+  0 planner/schedule/timeout errors. Peak memory up to 24.0 GB
+  (scene_sp_pol_06, solver 6). Outputs were kept in the session scratchpad
+  only.
+- **Greedy first decision**: solver 5 never finished its first decision
+  within 20 steps at 80k. Measured on IH with `-s 400`: 31 s at 40k and 218 s
+  at 80k for the first decision, then at most 1.5 s and 0.4 s, 0 errors.
+  It's a one-time cost of comparing every free agent with every open task.
+- **Counter**: added `TasksOpenedThisStep` / `numTaskOpened` (pickups
+  reached). Verified on tiny (4 = 4 = 4) and IH 80k solver 6 level 2
+  (72,185 = 72,185 = 72,185 across output total, per-row sum and log
+  "opens task" lines). Other fields identical to the pre-change smoke run.
+- Details: `instances/thesis_benchmarks/README.md`, "Pre-sweep checks".

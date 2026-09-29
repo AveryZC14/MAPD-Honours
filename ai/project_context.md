@@ -122,7 +122,10 @@ because single-location tasks finish on arrival. Don't compare their
 throughput with the paper's. The agreed final sweep over this set (120 runs
 at 8,000 timesteps: solver 6 at levels 2/4/6/8 plus hierarchical-only, solver
 5 as the paper's Greedy baseline, solver 1 at 10k/20k for a per-decision
-comparison, and 2 solver 7 runs) is in that README under "Final run plan".
+comparison, and 2 solver 7 runs) is in that README under "Final run plan",
+and `scripts/run_thesis_sweep.py` runs exactly that list (resumable, one run
+at a time, into `outputs/thesis_sweep/`). warehouseXL's 26 runs go last
+because the user may drop that map.
 
 ## End-to-end runtime flow (what happens each timestep)
 
@@ -186,6 +189,14 @@ These are computed from different variables and can diverge:
   (`tp/steps` and `tp/makespan`) — prefer `tp/makespan` for throughput,
   `tp/steps` if what you want is cost-per-genuine-decision. Full worked
   example with real numbers in `ai/auto_benchmarking.md`.
+- Each `timeStepMetrics` row also has `Timestep` (real simulated timestep),
+  `TasksFinishedThisStep` (deliveries) and, since 2026-09-29,
+  `TasksOpenedThisStep` (pickups reached: a task's first location reached,
+  `idx_next_loc` 0 -> 1, counted in `TaskManager::check_finished_tasks`).
+  Run totals are `numTaskFinished` and `numTaskOpened`. Catch-up ticks move
+  no agents, so pickups and deliveries only happen on real decisions, which
+  is what makes per-decision comparisons between solvers valid (see
+  `instances/thesis_benchmarks/README.md`, "Final run plan").
 - Separately, `makespan` can overshoot the requested `-s N` by 1: `plan()`'s
   internal loop condition (`timestep + timeout_timesteps < simulation_time`)
   stops advancing `timeout_timesteps` once the cap is hit, but `simulate()`

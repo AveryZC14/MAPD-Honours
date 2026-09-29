@@ -294,6 +294,7 @@ void BaseSystem::simulate(int simulation_time)
         metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
         metric.Timestep = simulator.get_curr_timestep();
         metric.TasksFinishedThisStep = tasks_finished_this_step;
+        metric.TasksOpenedThisStep = task_manager.num_opened_last_check;
         time_step_metrics.push_back(metric);
         /* End storing per-timestep scheduler and planner metrics. */
     }
@@ -358,6 +359,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     js["teamSize"] = num_of_agents;
 
     js["numTaskFinished"] = task_manager.num_of_task_finish;
+    js["numTaskOpened"] = task_manager.num_of_task_opened;
     int makespan = 0;
     if (num_of_agents > 0)
     {
@@ -407,6 +409,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["SchedulerBackboneBuildTime"] = metric.SchedulerBackboneBuildTime;
             step["Timestep"] = metric.Timestep;
             step["TasksFinishedThisStep"] = metric.TasksFinishedThisStep;
+            step["TasksOpenedThisStep"] = metric.TasksOpenedThisStep;
             time_step_metrics_json.push_back(step);
         }
         js["timeStepMetrics"] = time_step_metrics_json;

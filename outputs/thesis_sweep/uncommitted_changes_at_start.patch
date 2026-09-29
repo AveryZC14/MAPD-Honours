@@ -1,0 +1,754 @@
+diff --git a/.gitignore b/.gitignore
+index d692e3b..8808b94 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -11,4 +11,6 @@ output.json
+ Benchmark-Archive
+ outputs/coarsening_viz/**/*.csv
+ *.hierarchy
+-*_runs.log
+\ No newline at end of file
++*_runs.log
++thesis/*
++__pycache__/
+diff --git a/ai/project_context.md b/ai/project_context.md
+index dd11bf0..13c5ea8 100644
+--- a/ai/project_context.md
++++ b/ai/project_context.md
+@@ -122,7 +122,10 @@ because single-location tasks finish on arrival. Don't compare their
+ throughput with the paper's. The agreed final sweep over this set (120 runs
+ at 8,000 timesteps: solver 6 at levels 2/4/6/8 plus hierarchical-only, solver
+ 5 as the paper's Greedy baseline, solver 1 at 10k/20k for a per-decision
+-comparison, and 2 solver 7 runs) is in that README under "Final run plan".
++comparison, and 2 solver 7 runs) is in that README under "Final run plan",
++and `scripts/run_thesis_sweep.py` runs exactly that list (resumable, one run
++at a time, into `outputs/thesis_sweep/`). warehouseXL's 26 runs go last
++because the user may drop that map.
+ 
+ ## End-to-end runtime flow (what happens each timestep)
+ 
+@@ -186,6 +189,14 @@ These are computed from different variables and can diverge:
+   (`tp/steps` and `tp/makespan`) — prefer `tp/makespan` for throughput,
+   `tp/steps` if what you want is cost-per-genuine-decision. Full worked
+   example with real numbers in `ai/auto_benchmarking.md`.
++- Each `timeStepMetrics` row also has `Timestep` (real simulated timestep),
++  `TasksFinishedThisStep` (deliveries) and, since 2026-09-29,
++  `TasksOpenedThisStep` (pickups reached: a task's first location reached,
++  `idx_next_loc` 0 -> 1, counted in `TaskManager::check_finished_tasks`).
++  Run totals are `numTaskFinished` and `numTaskOpened`. Catch-up ticks move
++  no agents, so pickups and deliveries only happen on real decisions, which
++  is what makes per-decision comparisons between solvers valid (see
++  `instances/thesis_benchmarks/README.md`, "Final run plan").
+ - Separately, `makespan` can overshoot the requested `-s N` by 1: `plan()`'s
+   internal loop condition (`timestep + timeout_timesteps < simulation_time`)
+   stops advancing `timeout_timesteps` once the cap is hit, but `simulate()`
+diff --git a/ai/run_log.md b/ai/run_log.md
+index 2021393..6bf6a03 100644
+--- a/ai/run_log.md
++++ b/ai/run_log.md
+@@ -228,3 +228,21 @@ progresses -- this is not append-only.
+   - Reporting quirk: `schedulerHierarchyNumLevels` and related fields come
+     from the last scheduler call only, and are 0 if that call had nothing to
+     reassign.
++
++### 2026-09-29: 80k smoke tests and pickups-reached counter
++
++- **Smoke tests**: warehouseXL, IH_mp_2p_01, scene_mp_4p_03 and
++  scene_sp_pol_06 at 80k agents, `-s 20`, solver 5, solver 6 level 2 and
++  solver 6 hierarchical-only (12 runs, one at a time). All clean: exit 0,
++  0 planner/schedule/timeout errors. Peak memory up to 24.0 GB
++  (scene_sp_pol_06, solver 6). Outputs were kept in the session scratchpad
++  only.
++- **Greedy first decision**: solver 5 never finished its first decision
++  within 20 steps at 80k. Measured on IH with `-s 400`: 31 s at 40k and 218 s
++  at 80k for the first decision, then at most 1.5 s and 0.4 s, 0 errors.
++  It's a one-time cost of comparing every free agent with every open task.
++- **Counter**: added `TasksOpenedThisStep` / `numTaskOpened` (pickups
++  reached). Verified on tiny (4 = 4 = 4) and IH 80k solver 6 level 2
++  (72,185 = 72,185 = 72,185 across output total, per-row sum and log
++  "opens task" lines). Other fields identical to the pre-change smoke run.
++- Details: `instances/thesis_benchmarks/README.md`, "Pre-sweep checks".
+diff --git a/ai/todo.md b/ai/todo.md
+index d943586..9a2bfae 100644
+--- a/ai/todo.md
++++ b/ai/todo.md
+@@ -11,11 +11,12 @@ the date and what changed) rather than deleting them outright.
+ - [ ] **Run the final thesis sweep (120 runs, 8,000 timesteps each).** Added
+   2026-09-29. The full plan (run list, flags, rationale, caveats, runtime of
+   about 11.5 days) is in `instances/thesis_benchmarks/README.md` under "Final
+-  run plan". Before starting:
+-  - smoke-test 80k agents (`-s 20`) on each map with solvers 5 and 6;
+-  - decide whether to add a `TasksOpenedThisStep` (pickups reached) counter
+-    for the per-decision solver-1 comparison. It has to go in before the
+-    sweep.
++  run plan". Pre-sweep checks are done (2026-09-29): the 80k smoke tests
++  passed, and the `TasksOpenedThisStep` pickups counter was added and
++  verified. The sweep script is `scripts/run_thesis_sweep.py` (tested at 30
++  steps). warehouseXL runs last (the user may drop it; the sweep without
++  it is 94 runs, about 9 days). Still needed: start the sweep, and an analysis script for the
++  per-decision solver-1 comparison.
+ 
+ - [ ] **Delete the superseded August hierarchy caches (about 7.2 GB) once
+   you're comfortable.** Added 2026-09-29. Nothing is deleted yet; the user
+diff --git a/inc/CompetitionSystem.h b/inc/CompetitionSystem.h
+index c5f5a23..d2bd027 100644
+--- a/inc/CompetitionSystem.h
++++ b/inc/CompetitionSystem.h
+@@ -54,6 +54,10 @@ struct TimeStepMetric
+     // than the entry's array index when computing a per-timestep rate.
+     int Timestep = 0;
+     int TasksFinishedThisStep = 0;
++    // How many tasks had their first location (the pickup) reached during
++    // that same call -- the part of each task the scheduler controls. Same
++    // Timestep caveat as TasksFinishedThisStep.
++    int TasksOpenedThisStep = 0;
+ };
+ /* End per-timestep metrics model. */
+ 
+diff --git a/inc/TaskManager.h b/inc/TaskManager.h
+index 0dfe964..f9c7342 100644
+--- a/inc/TaskManager.h
++++ b/inc/TaskManager.h
+@@ -55,6 +55,11 @@ public:
+ 
+ 
+     int num_of_task_finish = 0;
++    // Pickups reached: tasks whose first location was reached (idx_next_loc
++    // went 0 -> 1), counted in the last check_finished_tasks() call and over
++    // the whole run. A 1-location task counts here as well as finishing.
++    int num_opened_last_check = 0;
++    int num_of_task_opened = 0;
+ 
+     ~ TaskManager()
+     {
+diff --git a/instances/thesis_benchmarks/README.md b/instances/thesis_benchmarks/README.md
+index ce30e99..ecc8640 100644
+--- a/instances/thesis_benchmarks/README.md
++++ b/instances/thesis_benchmarks/README.md
+@@ -11,7 +11,8 @@ The earlier instances under `instances/custom/<map>/` were generated with the
+ official LoRR 2024 generator's default errand range (`--minEPT 1 --maxEPT 4`),
+ so each task had 1–4 locations. That does not match the pickup→delivery task
+ model in the reference paper (Zhang et al., *Flow-Based Task Assignment for
+-Large-Scale Online MAPD*, AAMAS 2026, `thesis/AAMAS_2026_Yue_Camera_ready.pdf`),
++Large-Scale Online MAPD*, AAMAS 2026; a local copy is kept at
++`thesis/AAMAS_2026_Yue_Camera_ready.pdf`, which is gitignored),
+ where every task is exactly one pickup plus one delivery.
+ 
+ It matters for results. A 1-location task finishes the moment its assigned
+@@ -37,8 +38,15 @@ Every instance uses:
+   paper's LoRR setup.
+ - **A task file of at least 1.5× the largest team size**, so the starting task
+   pool never repeats a task. The simulator cycles through the file
+-  (`task_id % tasks.size()`, `src/TaskManager.cpp:192`), so a smaller file
++  (`task_id % tasks.size()`, `src/TaskManager.cpp:198`), so a smaller file
+   makes the first revealed tasks duplicates of each other.
++
++  This only covers the starting pool. At the top team size the file is
++  exactly the pool size (120,000 at 80k, and 30,000 for orz900d at 20k), so
++  from the first newly revealed task on, each new task repeats one that may
++  still be waiting in the pool. Every run cycles through the file several
++  times over 8,000 steps. The simulator allows this and nothing breaks, but
++  state it in the thesis.
+ - **One shared task file per map**, with one `.agents` file per team size,
+   all generated in a single call.
+ 
+@@ -76,8 +84,11 @@ Density is team size divided by the main region's cell count.
+ ### How the team sizes were chosen
+ 
+ - **10k and 20k on every map.** These are the paper's ultra-large-map team
+-  sizes (Table 3: orz900d and IH at 10k and 20k), so they compare directly
+-  with it and give one common baseline across all maps.
++  sizes (Table 3: orz900d and IH at 10k and 20k), and they give one common
++  baseline across all maps. Using the same team sizes does not make the
++  throughput numbers directly comparable with the paper's: solver 1 re-solves
++  on a different schedule here (see "Not included" below), and the paper's IH
++  map may not be this one (see the last section).
+ - **40k and 80k on the four big maps**, for scaling. 60k was dropped as too
+   fine a step. 80k replaces the older 90k as a rounder top end.
+ - **orz900d stays at 10k and 20k.** It is already at 10–21% density, the
+@@ -97,8 +108,8 @@ Density is team size divided by the main region's cell count.
+ - **At 60k, shallow flow levels starve the planner.** Level 2 made only 78 real
+   planning decisions out of 500 steps (`ai/todo.md`), so agents mostly waited.
+   Levels 4 and deeper were fine.
+-- **80k and 90k have never been run.** Treat 80k as untested. Smoke-test it
+-  (for example `-s 20`) on each map before queueing long runs.
++- **80k has only been smoke-tested**, at 20 steps (see "Pre-sweep checks"
++  below). No long run has been done at 80k.
+ - **The known memory limit is about map size, not agent count.**
+   scene_sp_endmaps (24.5M cells) runs out of memory on a 31 GB machine just
+   loading the map and building the hierarchy
+@@ -195,24 +206,28 @@ one step after its pickup, so it was left as generated.
+     mappings, internal arc metrics, every arc's endpoints, cost and capacity,
+     and both bridge caches.
+   - **Real runs.** Each cache ran solver 6 for 50 steps on the 10k instance,
+-    once at flow level 4 and once in entirety mode (flow at the top level,
+-    `--minCascadeLevel 1`). All 10 runs had 0 planner, schedule and timeout
+-    errors. Entirety mode matched every agent locally, with 0 flow matches.
++    once at flow level 4 and once in hierarchical-only mode
++    (`--flowSolveLevel <top level> --minCascadeLevel 1`, described under
++    "Final run plan"). All 10 runs had 0 planner, schedule and timeout
++    errors. Hierarchical-only mode matched every agent locally, with 0 flow matches.
+ 
+   The old caches are identical to the full-depth ones on every level they
+   share, except the top level's pointer to the next level up, which the old
+   caches never filled in because they stopped there. Results from earlier runs
+-  with the old caches therefore used the same hierarchy. On maps with disconnected regions, the top level has one node per
+-  region that survives the final coarsening step, not a single node, which is
++  with the old caches therefore used the same hierarchy.
++
++  On maps with disconnected regions, the top level has one node per region
++  that survives the final coarsening step, not a single node, which is
+   expected.
+ 
+   **Don't use the older caches.** `orz900d.hierarchy`, `orz900d.hier`, every
+   `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built before
+   the hierarchy started coarsening all the way to its top level, so they stop
+   early. They still load without error, because the cache check covers only
+-  the format, dimensions and map hash. Runs with `--flowSolveLevel` 9 or below
+-  would be unaffected, but any run that cascades to the top level would stop
+-  short.
++  the format, dimensions and map hash. Runs that stay at or below the old
++  cache's last level (9 for the `*_level9` caches, 6 for
++  `scene_mp_4p_03_level6.hierarchy`) would be unaffected, but any run that
++  cascades higher would stop short.
+ 
+   `*.hierarchy` files are gitignored, and the five full-depth caches take
+   about 5.1 GB in total. On a new machine, copy them over, or let the first run
+@@ -238,8 +253,8 @@ nothing else running. Full data, including per-level node counts, is in
+ - **Pure build** is from a run with no `--hierarchyCache`, so there is no load
+   attempt and no save.
+ - **Cache load** is from a separate run that loaded the full-depth cache.
+-  Loading saves only about a third of the build time on the big maps, and is
+-  slower than building on orz900d.
++  Loading saves only about a third of the build time on IH and the scene
++  maps (about half on warehouseXL), and is slower than building on orz900d.
+ - **Peak memory** is for the whole `lifelong` process with 10,000 agents
+   (`/usr/bin/time -v`), not just the hierarchy. Saving a cache adds more: the
+   run that built and saved `scene_sp_pol_06_full.hierarchy` peaked at 25.7 GB
+@@ -321,6 +336,47 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
+ ./build/lifelong -i $I -o <out>_solver7_level4.json   --scheduleModel 7 --flowSolveLevel 4 --hierarchyCache $C $COMMON
+ ```
+ 
++#### Running the sweep
++
++`scripts/run_thesis_sweep.py` holds this exact run list and runs it one run
++at a time into `outputs/thesis_sweep/`:
++
++```shell
++python3 scripts/run_thesis_sweep.py --dry-run          # list all 120 commands
++nohup python3 scripts/run_thesis_sweep.py > outputs/thesis_sweep/runner.log 2>&1 &
++```
++
++- **Order:** all 10k runs first (every map and config), then 20k, 40k, 80k,
++  so a sweep stopped early still has complete team sizes. warehouseXL is the
++  exception: its 26 runs (about 2.5 days) all come last, after every team
++  size of the other maps, so it can be dropped by stopping the sweep once
++  the first warehouseXL run starts. `LAST_MAPS` in the script controls this.
++- **Resumable:** rerun the same command after an interruption. Runs with a
++  finished output JSON are skipped. lifelong writes its JSON only at the end,
++  so a run that was cut off is redone from the start.
++- **Stopping:** stop both the script and the current run, e.g.
++  `pkill -f run_thesis_sweep.py; pkill -x lifelong`. Killing only the script
++  leaves the current `lifelong` run going.
++- **Timeout:** a run still going after 6 h is killed (the whole process
++  group, so `lifelong` itself dies too) and recorded as `timeout`.
++- **Records:** `sweep_summary.csv` gets one row per finished run (errors,
++  wall-clock, peak memory, decisions, pickups, tasks finished).
++  `sweep_meta.json` records the git commit, modified files,
++  `USE_MANHATTAN_HEURISTIC`, CPU model, core count, total RAM and compiler
++  version each time the sweep is started. Quote the machine in the thesis,
++  since results depend on wall-clock planning time.
++- **Logs** use `--logDetailLevel 3` (fatal errors only). At the default level,
++  per-task log lines reach 17 MB in 20 steps at 80k agents, which would fill
++  the disk over 120 runs. The script also stops if free disk drops below
++  1 GB.
++- **Subsets:** `--maps`, `--teams` and `--configs` (`solver6`,
++  `solver6_hieronly`, `solver5`, `solver1`, `solver7`) run part of the list.
++  `--sim-time` overrides the 8,000 steps for quick tests; point `--out-dir`
++  somewhere else when using it.
++
++Tested 2026-09-29 at `--sim-time 30` on orz900d 10k (all 7 configs) and IH
++20k solver 7: 8/8 clean, and a rerun skipped all finished runs.
++
+ #### Why these choices
+ 
+ - **Solver 6 at several levels on every instance**, not one fixed level: the
+@@ -337,12 +393,18 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
+   finish, on real decisions. Solver 1 makes few decisions on the big maps
+   (roughly 1 s per solve on orz900d, 10 s on warehouseXL, 36 s on IH, 150 s on
+   scene_mp_4p_03), so its N decisions are compared with the first N
+-  decisions of the other runs. Take the running total of
+-  `TasksFinishedThisStep` over `timeStepMetrics` rows (one row per decision).
++  decisions of the other runs. Take the running totals of
++  `TasksOpenedThisStep` (pickups reached) and `TasksFinishedThisStep` over
++  `timeStepMetrics` rows (one row per decision). Pickups reached is the main
++  measure: it is the part of each task the scheduler controls, and it stays
++  meaningful even on maps where solver 1 makes too few decisions for any
++  deliveries to finish.
+   Call the result a percentage of solver 1, not of optimal: solver 1 gives
+   the best assignment for each batch, not the best throughput over a run.
+-- **Solver 1 only at 10k and 20k.** These are the paper's team sizes. Solve
+-  time depends on map size, not team size, so 40k and 80k would add little.
++- **Solver 1 only at 10k and 20k.** These are the paper's team sizes. Its
++  solves already take 10–150 s on the big maps, so 40k and 80k runs would
++  make even fewer decisions. How solve time grows with team size has not
++  been measured.
+ - **Solver 7 only as a 2-run appendix check.** It has been worse than solver 6
+   everywhere so far. Report only its throughput: its `SchedulerSolveTime` and
+   `SchedulerBackboneBuildTime` fields are known to be wrong (`ai/todo.md`).
+@@ -372,33 +434,44 @@ COMMON="-s 8000 --preprocessTimeLimit 600000"
+   steps, solver 1 makes only about 50 decisions on scene_mp_4p_03 and even
+   fewer on scene_sp_pol_06, so each agent moves at most that many cells and
+   almost no deliveries can complete. Tasks finished is a usable per-decision
+-  measure on orz900d and warehouseXL, marginal on IH, and meaningless on the
+-  scene maps. Counting pickups reached would fix this (see below).
++  measure on orz900d only. It is marginal on warehouseXL (about 800
++  decisions against a mean pickup→delivery distance of 1,242) and IH, and
++  meaningless on the scene maps. Use pickups reached (`TasksOpenedThisStep`)
++  on those maps instead.
+ 
+ #### Runtime
+ 
+ About 1 s of wall-clock per simulated step, so about 2.3 h per run including
+ loading. That's about **276 h (11.5 days)** run one at a time.
+ 
+-- Runs on orz900d, warehouseXL and IH need 5 GB or less each (about 67 of the
+-  runs). Running these two at a time saves about 3 days, but paired runs
+-  affect each other's timing, so record which runs overlapped.
+-- scene_mp_4p_03 (about 18 GB) and scene_sp_pol_06 (about 25 GB) runs must
+-  run alone on the 31 GB machine.
++- The sweep runs one at a time. Don't run two at once to save time: results
++  depend on wall-clock planning time, so paired runs would affect each
++  other, and two copies of the script would share `sweep_summary.csv`.
++- scene_mp_4p_03 (about 18 GB) and scene_sp_pol_06 (about 25 GB) runs could
++  not be paired anyway on the 31 GB machine.
++- Without warehouseXL, the sweep is 94 runs, about 216 h (9 days).
+ - Output files are 1–2 MB each, so disk space (2.7 GB free) is not a problem.
+ 
+-#### Before starting the sweep
+-
+-- **Smoke-test 80k agents** (`-s 20`) on each map with solvers 5 and 6. 80k
+-  has never been run. Solver 5 checks every free agent against every open
+-  task on its first decision, which at 80k is about 9.6 billion distance
+-  checks.
+-- **Decide on a pickups-reached counter.** The output does not record
+-  pickups: the per-errand `events` line in `src/TaskManager.cpp` is commented
+-  out, and pickups appear only in the text log ("opens task"). A
+-  `TasksOpenedThisStep` field next to `TasksFinishedThisStep` would make the
+-  per-decision solver-1 comparison work on every map. It must be added
+-  before the sweep, or none of the runs will have it.
++#### Pre-sweep checks (done 2026-09-29)
++
++- **80k smoke test.** On all four big maps at 80k agents, `-s 20`, with solver
++  5, solver 6 at level 2, and solver 6 hierarchical-only: all 12 runs exited
++  cleanly, with 0 planner, schedule and timeout errors and no crashes. Peak
++  memory: about 3–5 GB on warehouseXL and IH, 12.7–17.8 GB on
++  scene_mp_4p_03, and 16.6–24.0 GB on scene_sp_pol_06.
++- **Greedy has a slow first decision at large team sizes.** On its first
++  decision every agent is free, and solver 5 compares each one with every
++  open task. On IH this took 31 s at 40k agents and 218 s at 80k. Later
++  decisions took at most 1.5 s (40k) and 0.4 s (80k), with no further
++  timeouts. At 80k, agents therefore wait about 218 steps at the start
++  (2.7% of an 8,000-step run). Note this when reporting Greedy's throughput
++  at 40k and 80k. It does not affect per-decision comparisons.
++- **Pickups-reached counter added.** `TasksOpenedThisStep` in each
++  `timeStepMetrics` row and `numTaskOpened` in the run totals. Verified on
++  `instances/custom/tiny/tiny.json` and on IH at 80k agents: the run total,
++  the per-row sum and the number of "opens task" log lines all match (4 and
++  72,185), pickups never fall behind deliveries, and every other output
++  field matches the run made before the change.
+ 
+ ## Known issue in the reference paper
+ 
+diff --git a/scripts/run_thesis_sweep.py b/scripts/run_thesis_sweep.py
+new file mode 100644
+index 0000000..c56f8eb
+--- /dev/null
++++ b/scripts/run_thesis_sweep.py
+@@ -0,0 +1,335 @@
++#!/usr/bin/env python3
++"""
++Run the final thesis benchmark sweep: the fixed 120-run list in
++instances/thesis_benchmarks/README.md ("Final run plan").
++
++Runs are strictly one at a time. Results depend on wall-clock planning time,
++so parallel runs would affect each other, and the scene maps need up to
++~25 GB of the machine's 31 GB.
++
++Order: all 10k runs first (every map and config), then 20k, 40k, 80k. If the
++sweep is stopped early, the finished team sizes are complete and comparable.
++warehouseXL (LAST_MAPS) is the exception: all of its runs come after every
++other map's, so it can be dropped by stopping the sweep before it starts.
++
++Resumable: a run is skipped if its output JSON already exists and parses.
++lifelong writes the JSON only when it finishes, so an interrupted run leaves
++no JSON and is redone.
++
++Each finished run appends one row to <out-dir>/sweep_summary.csv, so
++progress survives an interrupted sweep. <out-dir>/sweep_meta.json records
++the git commit and build settings the sweep was started with.
++
++Examples:
++
++  # show the full run list without running anything
++  python3 scripts/run_thesis_sweep.py --dry-run
++
++  # run everything (about 11.5 days), in the background
++  nohup python3 scripts/run_thesis_sweep.py > outputs/thesis_sweep/runner.log 2>&1 &
++
++  # run only part of the list
++  python3 scripts/run_thesis_sweep.py --maps orz900d IH_mp_2p_01 --teams 10000
++  python3 scripts/run_thesis_sweep.py --configs solver1 solver5
++"""
++import argparse
++import csv
++import json
++import os
++import re
++import signal
++import shutil
++import subprocess
++import sys
++import time
++from datetime import datetime
++from pathlib import Path
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++INSTANCE_ROOT = REPO_ROOT / "instances" / "thesis_benchmarks"
++
++SIM_TIME = 8000
++LOG_DETAIL_LEVEL = 3          # fatal errors only; per-task log lines would fill the disk
++RUN_TIMEOUT_S = 6 * 3600      # a run should take ~2.3 h; anything past 6 h is hung
++MIN_FREE_DISK_GB = 1.0
++
++# map -> (team sizes, hierarchy cache, --preprocessTimeLimit, top hierarchy level)
++MAPS = {
++    "orz900d":         ([10000, 20000],               "orz900d_full",          600000,  11),
++    "warehouseXL":     ([10000, 20000, 40000, 80000], "warehouseXL_full",      900000,  11),
++    "IH_mp_2p_01":     ([10000, 20000, 40000, 80000], "IH_mp_2p_01_fixpoint",  600000,  11),
++    "scene_mp_4p_03":  ([10000, 20000, 40000, 80000], "scene_mp_4p_03_full",   1800000, 12),
++    "scene_sp_pol_06": ([10000, 20000, 40000, 80000], "scene_sp_pol_06_full",  1800000, 13),
++}
++# Maps whose runs all go at the very end, after every team size of the others.
++LAST_MAPS = ["warehouseXL"]
++SOLVER6_LEVELS = [2, 4, 6, 8]
++SOLVER1_TEAMS = {10000, 20000}
++SOLVER7_RUNS = {("IH_mp_2p_01", 20000), ("scene_sp_pol_06", 20000)}
++SOLVER7_LEVEL = 4
++
++CONFIG_NAMES = ["solver6", "solver6_hieronly", "solver5", "solver1", "solver7"]
++
++
++def plan_runs():
++    """Return every run as a dict, in execution order."""
++    runs = []
++    main_maps = [m for m in MAPS if m not in LAST_MAPS]
++    for group in (main_maps, LAST_MAPS):
++        all_teams = sorted({t for m in group for t in MAPS[m][0]})
++        for team in all_teams:
++            for map_name in group:
++                runs += map_team_runs(map_name, team)
++    return runs
++
++
++def map_team_runs(map_name: str, team: int) -> list[dict]:
++    """Every config for one map at one team size, in execution order."""
++    teams, cache, preprocess, top = MAPS[map_name]
++    if team not in teams:
++        return []
++    base = {"map": map_name, "team": team, "cache": cache, "preprocess": preprocess}
++    runs = []
++    for level in SOLVER6_LEVELS:
++        runs.append({**base, "config": "solver6", "solver": 6, "level": level,
++                     "stem": f"{map_name}_{team}_solver6_level{level}"})
++    runs.append({**base, "config": "solver6_hieronly", "solver": 6, "level": top,
++                 "min_cascade": 1,
++                 "stem": f"{map_name}_{team}_solver6_level{top}_hieronly"})
++    runs.append({**base, "config": "solver5", "solver": 5, "level": None,
++                 "stem": f"{map_name}_{team}_solver5"})
++    if team in SOLVER1_TEAMS:
++        runs.append({**base, "config": "solver1", "solver": 1, "level": None,
++                     "stem": f"{map_name}_{team}_solver1"})
++    if (map_name, team) in SOLVER7_RUNS:
++        runs.append({**base, "config": "solver7", "solver": 7, "level": SOLVER7_LEVEL,
++                     "stem": f"{map_name}_{team}_solver7_level{SOLVER7_LEVEL}"})
++    return runs
++
++
++def build_command(binary: Path, run: dict, out_json: Path, sim_time: int) -> list[str]:
++    instance = INSTANCE_ROOT / run["map"] / f"{run['map']}_{run['team']}.json"
++    cmd = [str(binary), "--inputFile", str(instance), "-o", str(out_json),
++           "--scheduleModel", str(run["solver"]),
++           "-s", str(sim_time),
++           "--preprocessTimeLimit", str(run["preprocess"]),
++           "--logDetailLevel", str(LOG_DETAIL_LEVEL)]
++    if run["solver"] in (6, 7):
++        cmd += ["--flowSolveLevel", str(run["level"]),
++                "--hierarchyCache", str(REPO_ROOT / "hierarchy_cache" / f"{run['cache']}.hierarchy")]
++    if run.get("min_cascade") is not None:
++        cmd += ["--minCascadeLevel", str(run["min_cascade"])]
++    return cmd
++
++
++def output_is_complete(out_json: Path) -> bool:
++    try:
++        json.loads(out_json.read_text())
++        return True
++    except (OSError, json.JSONDecodeError):
++        return False
++
++
++def read_result(out_json: Path) -> dict:
++    try:
++        data = json.loads(out_json.read_text())
++    except (OSError, json.JSONDecodeError) as e:
++        return {"ok": False, "note": f"could not parse output JSON: {e}"}
++    errors = {k: data.get(k, 0) for k in ("numPlannerErrors", "numScheduleErrors", "numEntryTimeouts")}
++    ok = all(v == 0 for v in errors.values())
++    return {
++        "ok": ok,
++        "note": "" if ok else f"nonzero error counts: {errors}",
++        "makespan": data.get("makespan"),
++        "decisions": len(data.get("timeStepMetrics", [])),
++        "tasksOpened": data.get("numTaskOpened"),
++        "tasksFinished": data.get("numTaskFinished"),
++    }
++
++
++def peak_rss_gb(time_file: Path):
++    try:
++        m = re.search(r"Maximum resident set size \(kbytes\): (\d+)", time_file.read_text())
++        return round(int(m.group(1)) / 1048576, 2) if m else None
++    except OSError:
++        return None
++
++
++def free_disk_gb(path: Path) -> float:
++    return shutil.disk_usage(path).free / 1e9
++
++
++def git_output(*args) -> str:
++    try:
++        return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True).stdout.strip()
++    except OSError:
++        return ""
++
++
++def command_output(*args) -> str:
++    try:
++        return subprocess.run(list(args), capture_output=True, text=True).stdout.strip()
++    except OSError:
++        return ""
++
++
++def cpu_model() -> str:
++    try:
++        m = re.search(r"^model name\s*:\s*(.+)$", Path("/proc/cpuinfo").read_text(), re.M)
++        return m.group(1) if m else "unknown"
++    except OSError:
++        return "unknown"
++
++
++def mem_total_gb():
++    try:
++        m = re.search(r"^MemTotal:\s*(\d+) kB", Path("/proc/meminfo").read_text(), re.M)
++        return round(int(m.group(1)) / 1048576, 1) if m else None
++    except OSError:
++        return None
++
++
++def write_meta(out_dir: Path, binary: Path, sim_time: int):
++    const_h = (REPO_ROOT / "default_planner" / "const.h").read_text()
++    m = re.search(r"USE_MANHATTAN_HEURISTIC\s*=\s*(\w+)", const_h)
++    meta = {
++        "started": datetime.now().isoformat(timespec="seconds"),
++        "git_commit": git_output("rev-parse", "HEAD"),
++        "git_dirty_files": git_output("status", "--porcelain", "--untracked-files=no").splitlines(),
++        "binary_mtime": datetime.fromtimestamp(binary.stat().st_mtime).isoformat(timespec="seconds"),
++        "USE_MANHATTAN_HEURISTIC": m.group(1) if m else "unknown",
++        # Results depend on wall-clock planning time, so record the machine.
++        "cpu_model": cpu_model(),
++        "cpu_count": os.cpu_count(),
++        "mem_total_gb": mem_total_gb(),
++        "compiler": command_output("c++", "--version").splitlines()[:1],
++        "sim_time": sim_time,
++        "log_detail_level": LOG_DETAIL_LEVEL,
++    }
++    meta_path = out_dir / "sweep_meta.json"
++    # Keep one entry per sweep start, so a resumed sweep records its build too.
++    history = []
++    if meta_path.exists():
++        try:
++            history = json.loads(meta_path.read_text())
++        except json.JSONDecodeError:
++            pass
++    history.append(meta)
++    meta_path.write_text(json.dumps(history, indent=2) + "\n")
++
++
++SUMMARY_FIELDS = ["run", "map", "team", "config", "solver", "level", "exit_code", "wall_clock_s",
++                  "peak_rss_gb", "ok", "note", "makespan", "decisions", "tasksOpened", "tasksFinished",
++                  "finished_at"]
++
++
++def append_summary(summary_path: Path, row: dict):
++    new_file = not summary_path.exists()
++    with summary_path.open("a", newline="") as f:
++        w = csv.DictWriter(f, fieldnames=SUMMARY_FIELDS, extrasaction="ignore")
++        if new_file:
++            w.writeheader()
++        w.writerow(row)
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
++    p.add_argument("--out-dir", default="outputs/thesis_sweep", help="output directory (default: outputs/thesis_sweep)")
++    p.add_argument("--maps", nargs="+", choices=list(MAPS), help="only run these maps")
++    p.add_argument("--teams", nargs="+", type=int, help="only run these team sizes")
++    p.add_argument("--configs", nargs="+", choices=CONFIG_NAMES, help="only run these configs")
++    p.add_argument("--binary", default="build/lifelong", help="path to the lifelong binary")
++    p.add_argument("--sim-time", type=int, default=SIM_TIME,
++                   help=f"-s for every run (default {SIM_TIME}; override only for quick tests, into a separate --out-dir)")
++    p.add_argument("--dry-run", action="store_true", help="print the planned commands and exit")
++    args = p.parse_args()
++
++    runs = plan_runs()
++    if args.maps:
++        runs = [r for r in runs if r["map"] in args.maps]
++    if args.teams:
++        runs = [r for r in runs if r["team"] in args.teams]
++    if args.configs:
++        runs = [r for r in runs if r["config"] in args.configs]
++
++    binary = (REPO_ROOT / args.binary).resolve()
++    out_dir = (REPO_ROOT / args.out_dir).resolve()
++
++    if args.dry_run:
++        for i, run in enumerate(runs, 1):
++            cmd = build_command(binary, run, out_dir / f"{run['stem']}.json", args.sim_time)
++            print(f"[{i}/{len(runs)}] {run['stem']}\n    {' '.join(cmd)}")
++        print(f"\n{len(runs)} run(s), about {len(runs) * 2.3:.0f} h one at a time")
++        return
++
++    if not binary.exists():
++        sys.exit(f"error: binary not found at {binary} (build it with ./compile.sh)")
++    for run in runs:
++        cache = REPO_ROOT / "hierarchy_cache" / f"{run['cache']}.hierarchy"
++        if run["solver"] in (6, 7) and not cache.exists():
++            sys.exit(f"error: hierarchy cache missing: {cache}")
++    time_bin = Path("/usr/bin/time")  # GNU time, for peak memory; skipped if absent
++    out_dir.mkdir(parents=True, exist_ok=True)
++    write_meta(out_dir, binary, args.sim_time)
++    summary_path = out_dir / "sweep_summary.csv"
++
++    print(f"{len(runs)} run(s) planned -> {out_dir}", flush=True)
++    done = failed = skipped = 0
++    for i, run in enumerate(runs, 1):
++        stem = run["stem"]
++        out_json = out_dir / f"{stem}.json"
++        out_log = out_dir / f"{stem}.log"
++        time_file = out_dir / f"{stem}.time"
++        tag = f"[{i}/{len(runs)}] {stem}"
++
++        if output_is_complete(out_json):
++            print(f"{tag}: skipping, output already exists", flush=True)
++            skipped += 1
++            continue
++
++        free = free_disk_gb(out_dir)
++        if free < MIN_FREE_DISK_GB:
++            print(f"{tag}: stopping, only {free:.1f} GB disk free (need {MIN_FREE_DISK_GB} GB)", flush=True)
++            break
++
++        cmd = build_command(binary, run, out_json, args.sim_time)
++        if time_bin.exists():
++            cmd = [str(time_bin), "-v", "-o", str(time_file)] + cmd
++        print(f"{tag}: starting at {datetime.now():%Y-%m-%d %H:%M}", flush=True)
++
++        start = time.monotonic()
++        with out_log.open("w") as log_f:
++            # Own process group, so a timeout kills lifelong itself and not just the
++            # /usr/bin/time wrapper (a leftover lifelong would hold its memory and
++            # could make the next scene-map run run out of memory).
++            proc = subprocess.Popen(cmd, stdout=log_f, stderr=subprocess.STDOUT, start_new_session=True)
++            try:
++                exit_code = proc.wait(timeout=RUN_TIMEOUT_S)
++            except subprocess.TimeoutExpired:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++                exit_code = "timeout"
++        elapsed = time.monotonic() - start
++
++        row = {"run": stem, "map": run["map"], "team": run["team"], "config": run["config"],
++               "solver": run["solver"], "level": run["level"], "exit_code": exit_code,
++               "wall_clock_s": round(elapsed, 1), "peak_rss_gb": peak_rss_gb(time_file),
++               "finished_at": datetime.now().isoformat(timespec="seconds")}
++        if exit_code != 0:
++            row.update(ok=False, note=f"process exit {exit_code}")
++        else:
++            row.update(read_result(out_json))
++        append_summary(summary_path, row)
++
++        if row["ok"]:
++            done += 1
++            print(f"{tag}: ok ({elapsed / 3600:.2f} h, {row.get('tasksFinished')} tasks finished)", flush=True)
++        else:
++            failed += 1
++            print(f"{tag}: PROBLEM ({elapsed / 3600:.2f} h) -- {row['note']}; see {out_log}", flush=True)
++
++    print(f"\n{done} ok, {failed} with problems, {skipped} skipped. Summary: {summary_path}", flush=True)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/src/CompetitionSystem.cpp b/src/CompetitionSystem.cpp
+index 2caacfc..ce30f17 100644
+--- a/src/CompetitionSystem.cpp
++++ b/src/CompetitionSystem.cpp
+@@ -294,6 +294,7 @@ void BaseSystem::simulate(int simulation_time)
+         metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
+         metric.Timestep = simulator.get_curr_timestep();
+         metric.TasksFinishedThisStep = tasks_finished_this_step;
++        metric.TasksOpenedThisStep = task_manager.num_opened_last_check;
+         time_step_metrics.push_back(metric);
+         /* End storing per-timestep scheduler and planner metrics. */
+     }
+@@ -358,6 +359,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
+     js["teamSize"] = num_of_agents;
+ 
+     js["numTaskFinished"] = task_manager.num_of_task_finish;
++    js["numTaskOpened"] = task_manager.num_of_task_opened;
+     int makespan = 0;
+     if (num_of_agents > 0)
+     {
+@@ -407,6 +409,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
+             step["SchedulerBackboneBuildTime"] = metric.SchedulerBackboneBuildTime;
+             step["Timestep"] = metric.Timestep;
+             step["TasksFinishedThisStep"] = metric.TasksFinishedThisStep;
++            step["TasksOpenedThisStep"] = metric.TasksOpenedThisStep;
+             time_step_metrics_json.push_back(step);
+         }
+         js["timeStepMetrics"] = time_step_metrics_json;
+diff --git a/src/TaskManager.cpp b/src/TaskManager.cpp
+index 4ec1191..df3ba0a 100644
+--- a/src/TaskManager.cpp
++++ b/src/TaskManager.cpp
+@@ -129,12 +129,18 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
+ { 
+     list<int> finished_tasks_this_timestep; // <agent_id, task_id, timestep>
+     new_freeagents.clear(); //prepare to push all new free agents to the shared environment
++    num_opened_last_check = 0;
+     for (int k = 0; k < num_of_agents; k++)
+     {
+         if (current_assignment[k] != -1 && states[k].location == ongoing_tasks[current_assignment[k]]->get_next_loc())
+         {
+             Task * task = ongoing_tasks[current_assignment[k]];
+             task->idx_next_loc += 1;
++            if (task->idx_next_loc == 1)
++            {
++                num_opened_last_check++;
++                num_of_task_opened++;
++            }
+ 
+             if (task->is_finished())
+             {

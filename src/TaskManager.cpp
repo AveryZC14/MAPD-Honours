@@ -129,12 +129,18 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
 { 
     list<int> finished_tasks_this_timestep; // <agent_id, task_id, timestep>
     new_freeagents.clear(); //prepare to push all new free agents to the shared environment
+    num_opened_last_check = 0;
     for (int k = 0; k < num_of_agents; k++)
     {
         if (current_assignment[k] != -1 && states[k].location == ongoing_tasks[current_assignment[k]]->get_next_loc())
         {
             Task * task = ongoing_tasks[current_assignment[k]];
             task->idx_next_loc += 1;
+            if (task->idx_next_loc == 1)
+            {
+                num_opened_last_check++;
+                num_of_task_opened++;
+            }
 
             if (task->is_finished())
             {

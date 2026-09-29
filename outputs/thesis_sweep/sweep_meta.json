@@ -1,0 +1,28 @@
+[
+  {
+    "started": "2026-09-29T07:50:33",
+    "git_commit": "9325d69b0b1a375857c786383dafb2a4b56e12d1",
+    "git_dirty_files": [
+      "MM .gitignore",
+      "MM ai/project_context.md",
+      "M  ai/run_log.md",
+      "MM ai/todo.md",
+      "M  inc/CompetitionSystem.h",
+      "M  inc/TaskManager.h",
+      "MM instances/thesis_benchmarks/README.md",
+      "AM scripts/run_thesis_sweep.py",
+      "M  src/CompetitionSystem.cpp",
+      "M  src/TaskManager.cpp"
+    ],
+    "binary_mtime": "2026-09-29T06:39:06",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time": 8000,
+    "log_detail_level": 3
+  }
+]

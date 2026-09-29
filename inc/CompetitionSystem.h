@@ -54,6 +54,10 @@ struct TimeStepMetric
     // than the entry's array index when computing a per-timestep rate.
     int Timestep = 0;
     int TasksFinishedThisStep = 0;
+    // How many tasks had their first location (the pickup) reached during
+    // that same call -- the part of each task the scheduler controls. Same
+    // Timestep caveat as TasksFinishedThisStep.
+    int TasksOpenedThisStep = 0;
 };
 /* End per-timestep metrics model. */
 

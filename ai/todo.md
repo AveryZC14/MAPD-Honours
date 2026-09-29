@@ -11,11 +11,15 @@ the date and what changed) rather than deleting them outright.
 - [ ] **Run the final thesis sweep (120 runs, 8,000 timesteps each).** Added
   2026-09-29. The full plan (run list, flags, rationale, caveats, runtime of
   about 11.5 days) is in `instances/thesis_benchmarks/README.md` under "Final
-  run plan". Before starting:
-  - smoke-test 80k agents (`-s 20`) on each map with solvers 5 and 6;
-  - decide whether to add a `TasksOpenedThisStep` (pickups reached) counter
-    for the per-decision solver-1 comparison. It has to go in before the
-    sweep.
+  run plan". Pre-sweep checks are done (2026-09-29): the 80k smoke tests
+  passed, and the `TasksOpenedThisStep` pickups counter was added and
+  verified. The sweep script is `scripts/run_thesis_sweep.py` (tested at 30
+  steps). warehouseXL runs last (the user may drop it; the sweep without
+  it is 94 runs, about 9 days). Sweep started 2026-09-29 07:50, detached, into
+  `outputs/thesis_sweep/` (commands to check, stop and resume it are in the
+  README under "Running the sweep"; the cron watchdog is not installed).
+  Still needed: an analysis script for the
+  per-decision solver-1 comparison.
 
 - [ ] **Delete the superseded August hierarchy caches (about 7.2 GB) once
   you're comfortable.** Added 2026-09-29. Nothing is deleted yet; the user

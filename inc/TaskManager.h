@@ -55,6 +55,11 @@ public:
 
 
     int num_of_task_finish = 0;
+    // Pickups reached: tasks whose first location was reached (idx_next_loc
+    // went 0 -> 1), counted in the last check_finished_tasks() call and over
+    // the whole run. A 1-location task counts here as well as finishing.
+    int num_opened_last_check = 0;
+    int num_of_task_opened = 0;
 
     ~ TaskManager()
     {
