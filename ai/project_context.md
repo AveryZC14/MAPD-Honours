@@ -67,12 +67,23 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   identically. **All built `.hierarchy` cache files now live in one place,
   `hierarchy_cache/`** (repo root; consolidated 2026-08-20 from several
   scattered `outputs/<map>_*/*.hierarchy` copies) — point `--hierarchyCache`
-  there for any map, e.g. `hierarchy_cache/scene_mp_4p_03_level9.hierarchy`.
+  there for any map.
+  **Use the full-depth caches** (built and verified 2026-09-28/29):
+  `orz900d_full`, `warehouseXL_full`, `IH_mp_2p_01_fixpoint`,
+  `scene_mp_4p_03_full` and `scene_sp_pol_06_full` (all `.hierarchy`). Each
+  is structurally identical to a fresh build with the current code. The
+  older `orz900d.hierarchy`, `*_level9.hierarchy` and
+  `scene_mp_4p_03_level6.hierarchy` stop early (10 or 7 levels, built before
+  the hierarchy coarsened to its top level). They still load without error
+  but are superseded and are pending deletion (`ai/todo.md`). The table,
+  verification details and build timings are in
+  `instances/thesis_benchmarks/README.md`.
   `*.hierarchy` is gitignored (these are large, multi-GB build artifacts, not
   checked in); the one exception is `hierarchy_cache/orz900d.hier` (`.hier`,
   not `.hierarchy` — deliberately a different extension so it's *not*
   gitignore-matched), a small early-dev reference copy that predates this
-  convention and is tracked in git on purpose.
+  convention and is tracked in git on purpose. It is also one of the
+  early-stopping caches, so use `orz900d_full.hierarchy` for runs.
 - `--flowSolveLevel` (default 2): solver 6 only — which already-built hierarchy
   level (0 = fine map) to solve the per-timestep flow assignment on, at
   runtime; out-of-range values fall back to the compile-time
@@ -100,6 +111,18 @@ structured-warehouse map (pickup stations + storage racks, ~99.4% of
 generator, see `ai/auto_benchmarking_warehouseXL.md`, `custom/tiny` — tiny
 hand-built maps for unit testing). Each instance is a JSON pointing at a
 `.map` file + agent/task files; see `Input_Output_Format.md` for the schema.
+
+**The final thesis benchmark set is `instances/thesis_benchmarks/`** (created
+2026-09-28; its `README.md` is the full spec). It covers orz900d at 10k/20k
+agents, and warehouseXL, IH_mp_2p_01, scene_mp_4p_03 and scene_sp_pol_06 at
+10k/20k/40k/80k. Every task is a 2-location pickup→delivery, matching the
+reference paper. The older `instances/custom/<map>/` task files have 1–4
+locations per task (the LoRR generator default), which inflates throughput,
+because single-location tasks finish on arrival. Don't compare their
+throughput with the paper's. The agreed final sweep over this set (120 runs
+at 8,000 timesteps: solver 6 at levels 2/4/6/8 plus hierarchical-only, solver
+5 as the paper's Greedy baseline, solver 1 at 10k/20k for a per-decision
+comparison, and 2 solver 7 runs) is in that README under "Final run plan".
 
 ## End-to-end runtime flow (what happens each timestep)
 

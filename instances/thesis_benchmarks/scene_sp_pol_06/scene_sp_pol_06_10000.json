@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/scene_sp_pol_06.map",
+    "agentFile": "agents/scene_sp_pol_06_10000.agents",
+    "teamSize": 10000,
+    "taskFile": "tasks/scene_sp_pol_06.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

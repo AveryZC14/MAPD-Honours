@@ -1,0 +1,6 @@
+map,grid_cells,main_region_cells,levels,top_level_nodes,pure_build_s,build_peak_rss_gb,cache_load_s,cache_file,level_node_counts
+orz900d,978096,96603,12,1,0.56,1.11,0.85,hierarchy_cache/orz900d_full.hierarchy,978096 26384 7661 2414 866 342 144 71 33 15 5 1
+warehouseXL,3420000,1729940,12,1,15.41,4.81,8.22,hierarchy_cache/warehouseXL_full.hierarchy,3420000 713888 213746 53550 13447 3420 870 225 64 16 4 1
+IH_mp_2p_01,3441600,2109360,12,33,13.2,4.88,9.23,hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy,3441600 561933 143752 37640 10201 2919 890 318 136 64 40 33
+scene_mp_4p_03,13897984,6185043,13,238,42.88,18.08,29.52,hierarchy_cache/scene_mp_4p_03_full.hierarchy,13897984 1599811 412302 109865 30627 9317 3110 1262 590 370 290 254 238
+scene_sp_pol_06,18142976,9925937,14,176,64.55,24.52,44.16,hierarchy_cache/scene_sp_pol_06_full.hierarchy,18142976 2517697 645370 169801 46380 13405 4196 1490 631 334 228 189 176 176

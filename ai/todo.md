@@ -8,6 +8,49 @@ the date and what changed) rather than deleting them outright.
 
 ## Open
 
+- [ ] **Run the final thesis sweep (120 runs, 8,000 timesteps each).** Added
+  2026-09-29. The full plan (run list, flags, rationale, caveats, runtime of
+  about 11.5 days) is in `instances/thesis_benchmarks/README.md` under "Final
+  run plan". Before starting:
+  - smoke-test 80k agents (`-s 20`) on each map with solvers 5 and 6;
+  - decide whether to add a `TasksOpenedThisStep` (pickups reached) counter
+    for the per-decision solver-1 comparison. It has to go in before the
+    sweep.
+
+- [ ] **Delete the superseded August hierarchy caches (about 7.2 GB) once
+  you're comfortable.** Added 2026-09-29. Nothing is deleted yet; the user
+  wanted to hold off. Disk is at 91% (2.7 GB free), so this is the main way to
+  free space.
+  - **Candidates**, all in `hierarchy_cache/`: `orz900d.hierarchy`,
+    `warehouseXL_level9.hierarchy`, `IH_mp_2p_01_level9.hierarchy`,
+    `scene_mp_4p_03_level6.hierarchy`, `scene_mp_4p_03_level9.hierarchy`,
+    `scene_sp_pol_06_level9.hierarchy`. Keep `orz900d.hier`: it's tracked in
+    git on purpose and only 47 MB.
+  - **Replaced by** `orz900d_full`, `warehouseXL_full`,
+    `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and
+    `scene_sp_pol_06_full` (all `.hierarchy`).
+  - **Evidence it's safe (2026-09-29):**
+    - every full-depth cache is structurally identical to a fresh build at
+      every level (0 failures);
+    - each old cache is identical to its replacement on every shared level,
+      except the old top level's empty "next level up" pointer, so earlier
+      results used the same hierarchy;
+    - 10/10 real solver 6 runs on the new instances were clean, including
+      entirety mode.
+
+    Details are in `ai/run_log.md` (2026-09-28 entry) and
+    `instances/thesis_benchmarks/README.md`.
+  - **Extra reassurance before deleting, if wanted:**
+    - rerun one earlier config with its `_full` cache and check the result is
+      within normal run-to-run jitter, for example the first 500 steps of
+      `IH_mp_2p_01_10000_solver6_level4` (3,276 tasks, Manhattan off);
+    - or copy the old caches off the machine, for example into a disk
+      snapshot, before deleting, so it can be undone.
+  - The structural comparison tool was built in the session scratchpad and is
+    not in the repo. It is about 40 lines on top of
+    `utils/validation/validate_hierarchy_cache.cpp`'s `compare_levels`, if a
+    re-check is ever needed.
+
 - [ ] **[HIGH] Solver 6's per-timestep coarse-flow solve re-solves the entire
   backbone graph every call, regardless of how few agents/tasks actually need
   matching — dominant cost of long runs, not a memory leak.** Found

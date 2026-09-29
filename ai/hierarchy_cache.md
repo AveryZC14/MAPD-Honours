@@ -1,5 +1,16 @@
 # Solver 6 hierarchy disk cache
 
+> **Which cache files to use (updated 2026-09-29):** the full-depth caches in
+> `hierarchy_cache/`: `orz900d_full`, `warehouseXL_full`,
+> `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and `scene_sp_pol_06_full`
+> (all `.hierarchy`). Each is verified structurally identical to a fresh
+> build with the current code. The older `orz900d.hierarchy`/`.hier`,
+> `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` stop early. They
+> still load, because validity only checks format, dimensions and map hash,
+> not depth, but they are superseded. See
+> `instances/thesis_benchmarks/README.md` for the table, verification and
+> timings, and `ai/todo.md` for the pending deletion.
+
 Added 2026-08-12. Lets a solver-6 map-coarsening hierarchy
 (`MapReductionTest::ReducedHierarchy`, see `ai/project_context.md`'s "Solver
 6" section) be built once and reused by later runs against the same map,

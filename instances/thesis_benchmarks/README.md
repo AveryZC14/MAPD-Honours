@@ -136,15 +136,15 @@ done
 ```
 
 Generation time is dominated by the generator's pure-Python `find_lcc`, which
-reruns for every team size. IH took about 5 minutes for 3 team sizes, and the
-earlier scene_sp_pol_06 generation took about 85 minutes for 5 team sizes.
-Expect the full set to take a couple of hours.
+reruns for every team size. The set here was generated on 2026-09-28: the four
+big maps ran in parallel and took 68 minutes in total.
 
 ### Resulting layout
 
 ```text
 instances/thesis_benchmarks/
   README.md                   # this file
+  hierarchy_build_times.csv   # measured build/load times and memory per map
   <map>/
     <map>_<teamSize>.json     # the instance to pass to --inputFile
     agents/<map>_<teamSize>.agents
@@ -160,50 +160,245 @@ For every map, confirm:
   on the same cell;
 - every task location and agent start is inside the main region;
 - agent starts are unique;
-- each JSON has `numTasksReveal: 1.5` and the right `teamSize`.
+- each JSON has `numTasksReveal: 1.5` and the right `teamSize`;
+- the copied map is byte-identical to `instances/custom/maps/<map>.map`.
+
+**Result for the set in this folder (2026-09-28):** every check passes on
+every map, with one exception. In orz900d, task index 9421 (line 9424 of
+`orz900d/tasks/orz900d.tasks`) has the same cell for pickup and delivery
+(`905893,905893`). The official generator samples the two locations
+independently and does not prevent this. It is 1 of 30,000 tasks and completes
+one step after its pickup, so it was left as generated.
 
 ## Running the benchmarks
 
 ### Settled
 
-- **Hierarchy caches.** The copied maps are byte-identical, and the cache is
-  keyed on a hash of the map contents, so the existing caches in
-  `hierarchy_cache/` work for these instances:
+- **Hierarchy caches: use the full-depth ones.** The copied maps are
+  byte-identical, and the cache is keyed on a hash of the map contents, so the
+  caches in `hierarchy_cache/` work for these instances. The hierarchy is built
+  from the map alone, so changing agents or tasks never requires a rebuild.
 
-  | Map | Cache |
-  |---|---|
-  | orz900d | `hierarchy_cache/orz900d.hierarchy` |
-  | warehouseXL | `hierarchy_cache/warehouseXL_level9.hierarchy` |
-  | IH_mp_2p_01 | `hierarchy_cache/IH_mp_2p_01_level9.hierarchy` (10 levels; the true fixpoint is 12 levels, in `IH_mp_2p_01_fixpoint.hierarchy`) |
-  | scene_mp_4p_03 | `hierarchy_cache/scene_mp_4p_03_level9.hierarchy` |
-  | scene_sp_pol_06 | `hierarchy_cache/scene_sp_pol_06_level9.hierarchy` |
+  | Map | Cache | Levels | Top level (nodes) |
+  |---|---|---|---|
+  | orz900d | `hierarchy_cache/orz900d_full.hierarchy` | 12 | 1 |
+  | warehouseXL | `hierarchy_cache/warehouseXL_full.hierarchy` | 12 | 1 |
+  | IH_mp_2p_01 | `hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy` | 12 | 33 |
+  | scene_mp_4p_03 | `hierarchy_cache/scene_mp_4p_03_full.hierarchy` | 13 | 238 |
+  | scene_sp_pol_06 | `hierarchy_cache/scene_sp_pol_06_full.hierarchy` | 14 | 176 |
 
-  `*.hierarchy` files are gitignored and several GB in total. On a new
-  machine, copy them over or let the first run build them (IH takes about
-  5 minutes, and the scene maps take longer).
+  Every one of these was verified on 2026-09-29 in two ways.
+
+  - **Structure.** Each cache is identical to a fresh no-cache build with the
+    current code at every level. The comparison used the checks from
+    `utils/validation/validate_hierarchy_cache.cpp`: node coordinates, level
+    mappings, internal arc metrics, every arc's endpoints, cost and capacity,
+    and both bridge caches.
+  - **Real runs.** Each cache ran solver 6 for 50 steps on the 10k instance,
+    once at flow level 4 and once in entirety mode (flow at the top level,
+    `--minCascadeLevel 1`). All 10 runs had 0 planner, schedule and timeout
+    errors. Entirety mode matched every agent locally, with 0 flow matches.
+
+  The old caches are identical to the full-depth ones on every level they
+  share, except the top level's pointer to the next level up, which the old
+  caches never filled in because they stopped there. Results from earlier runs
+  with the old caches therefore used the same hierarchy. On maps with disconnected regions, the top level has one node per
+  region that survives the final coarsening step, not a single node, which is
+  expected.
+
+  **Don't use the older caches.** `orz900d.hierarchy`, `orz900d.hier`, every
+  `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built before
+  the hierarchy started coarsening all the way to its top level, so they stop
+  early. They still load without error, because the cache check covers only
+  the format, dimensions and map hash. Runs with `--flowSolveLevel` 9 or below
+  would be unaffected, but any run that cascades to the top level would stop
+  short.
+
+  `*.hierarchy` files are gitignored, and the five full-depth caches take
+  about 5.1 GB in total. On a new machine, copy them over, or let the first run
+  build them. Building takes about a minute per map, but see the memory
+  figures below.
 - **`--preprocessTimeLimit`**: previous sweeps used 600000 (IH), 900000
   (warehouseXL) and 1800000 (scene_mp_4p_03, scene_sp_pol_06).
 
-### To decide before running
+### Hierarchy build times and memory
 
-- **Which solvers.** At minimum solver 1 (full-map flow, the paper's method)
-  and solver 6 (hierarchy). Possibly solver 7 and the cascade and stride
-  variants.
-- **Which flow levels for solver 6.** At 60k, level 2 starved the planner, so
-  prefer level 4 or deeper at 40k and 80k.
-- **Simulation length.** The paper used 2,000 steps for orz900d and 5,000 for
-  IH. With 2-location tasks, 500 steps is short: solver 6 finished only 478
-  tasks on IH at 10k agents.
-- **Heuristic build flag.** `USE_MANHATTAN_HEURISTIC` in
-  `default_planner/const.h` is a compile-time switch, currently `true`. The
-  paper used a Manhattan heuristic with plain PIBT on its ultra-large maps.
-  Record which build each run used.
-- **The paper-matched baseline.** On IH the paper ran the flow assignment only
-  every 30 steps (every 10 on orz900d). Solver 1 here re-solves at every
-  decision. On the 2-location IH instance at 10k agents, that took about 38 s
-  per solve, made only 14 decisions in 500 steps and finished 0 tasks. For a
-  like-for-like comparison with the paper's Table 3, solver 1 needs a run with
-  that 30-step interval.
+Measured on 2026-09-28 on this machine (31 GB RAM), one run per map, with
+nothing else running. Full data, including per-level node counts, is in
+`hierarchy_build_times.csv` next to this file.
+
+| Map | Pure build (s) | Cache load (s) | Peak memory (GB) |
+|---|---|---|---|
+| orz900d | 0.56 | 0.85 | 1.1 |
+| warehouseXL | 15.4 | 8.2 | 4.8 |
+| IH_mp_2p_01 | 13.2 | 9.2 | 4.9 |
+| scene_mp_4p_03 | 42.9 | 29.5 | 18.1 |
+| scene_sp_pol_06 | 64.5 | 44.2 | 24.5 |
+
+- **Pure build** is from a run with no `--hierarchyCache`, so there is no load
+  attempt and no save.
+- **Cache load** is from a separate run that loaded the full-depth cache.
+  Loading saves only about a third of the build time on the big maps, and is
+  slower than building on orz900d.
+- **Peak memory** is for the whole `lifelong` process with 10,000 agents
+  (`/usr/bin/time -v`), not just the hierarchy. Saving a cache adds more: the
+  run that built and saved `scene_sp_pol_06_full.hierarchy` peaked at 25.7 GB
+  and took 95.9 s, against 64.5 s for the build alone. scene_sp_pol_06 needs a
+  machine with well over 26 GB of RAM.
+- **These are single runs**, so run-to-run variance is unknown. Repeat them
+  before quoting exact figures.
+
+**Why not to use `schedulerHierarchyBuildTime` from ordinary runs.** The field
+in the output JSON is not a consistent build-time measure:
+
+- The timer in `ReducedHierarchy::ensure()`
+  (`map_reduction_test/MapCoarsenV1.cpp`) covers the cache-load attempt, the
+  build, and the save to disk together. With a cache path but no cache file,
+  it reports build time plus a multi-GB disk write.
+- On a cache hit it reports load time, and the JSON has no field saying
+  whether the hierarchy was loaded or built.
+- Solver 1 always reports 0, because only solvers 6 and 7 fill the field in
+  (`default_planner/scheduler.cpp`), even though every solver builds the
+  hierarchy during setup.
+- It comes from the last scheduler call only, and a call with nothing to
+  reassign resets it to 0 (`set_last_timing` in
+  `default_planner/scheduler.cpp`). The same applies to
+  `schedulerHierarchyNumLevels` and `schedulerHierarchyLevelNodeCounts`, so a
+  run can report 0 levels even though it used a 12-level hierarchy
+  throughout.
+
+For build times in the thesis, use the table above, or repeat the same method:
+a solver 6 run with no `--hierarchyCache`.
+
+### Final run plan
+
+Agreed 2026-09-29. 120 runs, 8,000 timesteps each.
+
+| Group | Instances | Runs |
+|---|---|---|
+| Solver 6 at `--flowSolveLevel` 2, 4, 6 and 8 | all 18 | 72 |
+| Solver 6, hierarchical matching only (no flow) | all 18 | 18 |
+| Solver 5 (Greedy) | all 18 | 18 |
+| Solver 1 (full-map flow) | 10k and 20k on all 5 maps | 10 |
+| Solver 7 at `--flowSolveLevel 4` | IH_mp_2p_01 20k, scene_sp_pol_06 20k | 2 |
+| **Total** | | **120** |
+
+The 18 instances are orz900d at 10k and 20k, plus warehouseXL, IH_mp_2p_01,
+scene_mp_4p_03 and scene_sp_pol_06 at 10k, 20k, 40k and 80k.
+
+**Common flags for every run:** `-s 8000`, default `--planTimeLimit` (1000 ms),
+default `--assignNew` (false), no `--useTraffic`, and a build with
+`USE_MANHATTAN_HEURISTIC = true` (`default_planner/const.h`). Solvers 6 and 7
+also get `--hierarchyCache` with the map's full-depth cache from the table
+under "Settled".
+
+**Per-map flags:**
+
+| Map | `--preprocessTimeLimit` | Top level (hierarchical-only) |
+|---|---|---|
+| orz900d | 600000 | 11 |
+| warehouseXL | 900000 | 11 |
+| IH_mp_2p_01 | 600000 | 11 |
+| scene_mp_4p_03 | 1800000 | 12 |
+| scene_sp_pol_06 | 1800000 | 13 |
+
+**Hierarchical matching only** means `--flowSolveLevel <top level>
+--minCascadeLevel 1`. Matching then cascades up the whole hierarchy and the
+flow step has nothing left to do (0 flow matches, confirmed on every map in
+the 50-step checks above).
+
+**Example commands** (IH_mp_2p_01, 20k agents):
+
+```shell
+I=instances/thesis_benchmarks/IH_mp_2p_01/IH_mp_2p_01_20000.json
+C=hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy
+COMMON="-s 8000 --preprocessTimeLimit 600000"
+
+./build/lifelong -i $I -o <out>_solver6_level4.json   --scheduleModel 6 --flowSolveLevel 4 --hierarchyCache $C $COMMON
+./build/lifelong -i $I -o <out>_solver6_hieronly.json --scheduleModel 6 --flowSolveLevel 11 --minCascadeLevel 1 --hierarchyCache $C $COMMON
+./build/lifelong -i $I -o <out>_solver5.json          --scheduleModel 5 $COMMON
+./build/lifelong -i $I -o <out>_solver1.json          --scheduleModel 1 $COMMON
+./build/lifelong -i $I -o <out>_solver7_level4.json   --scheduleModel 7 --flowSolveLevel 4 --hierarchyCache $C $COMMON
+```
+
+#### Why these choices
+
+- **Solver 6 at several levels on every instance**, not one fixed level: the
+  best level is expected to differ by map and team size. Earlier sweeps (on
+  the old 1–4-location tasks) showed deeper levels helping steadily on
+  scene_mp_4p_03, a flat result across levels 2–8 on scene_sp_pol_06, and
+  level 2 starving the planner at 60k agents.
+- **Solver 5 is the paper's Greedy baseline.** It assigns only newly free
+  agents to their nearest task and never swaps, matching the paper's
+  description. With the Manhattan heuristic it matches the paper's
+  ultra-large-map setup.
+- **Solver 1 is compared per decision, not per timestep.** When a solve runs
+  over its time limit, all agents wait, so agents only move, and tasks only
+  finish, on real decisions. Solver 1 makes few decisions on the big maps
+  (roughly 1 s per solve on orz900d, 10 s on warehouseXL, 36 s on IH, 150 s on
+  scene_mp_4p_03), so its N decisions are compared with the first N
+  decisions of the other runs. Take the running total of
+  `TasksFinishedThisStep` over `timeStepMetrics` rows (one row per decision).
+  Call the result a percentage of solver 1, not of optimal: solver 1 gives
+  the best assignment for each batch, not the best throughput over a run.
+- **Solver 1 only at 10k and 20k.** These are the paper's team sizes. Solve
+  time depends on map size, not team size, so 40k and 80k would add little.
+- **Solver 7 only as a 2-run appendix check.** It has been worse than solver 6
+  everywhere so far. Report only its throughput: its `SchedulerSolveTime` and
+  `SchedulerBackboneBuildTime` fields are known to be wrong (`ai/todo.md`).
+- **8,000 timesteps.** With 2-location tasks, the mean pickup→delivery
+  Manhattan distance is 467 cells on orz900d, about 1,000–1,250 on IH and
+  warehouseXL, and about 2,250–2,450 on the two scene maps. A long horizon is
+  needed to reach steady throughput, and to show the slow decline of shallow
+  levels over time.
+- **No repeats, and no cascade or stride variants.** On the IH 7,000-step
+  sweep the scheduler was about 0.05% of runtime, and cascade or stride made
+  no measurable throughput difference.
+- **Not included:** the paper's solver-1 setup, which re-solves only every 10
+  steps (orz900d) or 30 steps (IH). Solver 1 here re-solves at every
+  decision, so its per-timestep throughput is not comparable with the
+  paper's Table 3.
+
+#### Caveats for the write-up
+
+- **Run-to-run variation.** Identical commands give different results by a
+  few percent, because the planner is limited by wall-clock time. There are
+  no repeats, so treat level-to-level differences of a few percent as ties.
+- **Solver 1's planning per decision is probably worse.** A long solve
+  likely uses up the planner's time budget for that decision, which would
+  favour the other solvers in the per-decision comparison. Not yet checked
+  in the code.
+- **Few tasks finish within solver 1's decisions on the big maps.** In 8,000
+  steps, solver 1 makes only about 50 decisions on scene_mp_4p_03 and even
+  fewer on scene_sp_pol_06, so each agent moves at most that many cells and
+  almost no deliveries can complete. Tasks finished is a usable per-decision
+  measure on orz900d and warehouseXL, marginal on IH, and meaningless on the
+  scene maps. Counting pickups reached would fix this (see below).
+
+#### Runtime
+
+About 1 s of wall-clock per simulated step, so about 2.3 h per run including
+loading. That's about **276 h (11.5 days)** run one at a time.
+
+- Runs on orz900d, warehouseXL and IH need 5 GB or less each (about 67 of the
+  runs). Running these two at a time saves about 3 days, but paired runs
+  affect each other's timing, so record which runs overlapped.
+- scene_mp_4p_03 (about 18 GB) and scene_sp_pol_06 (about 25 GB) runs must
+  run alone on the 31 GB machine.
+- Output files are 1–2 MB each, so disk space (2.7 GB free) is not a problem.
+
+#### Before starting the sweep
+
+- **Smoke-test 80k agents** (`-s 20`) on each map with solvers 5 and 6. 80k
+  has never been run. Solver 5 checks every free agent against every open
+  task on its first decision, which at 80k is about 9.6 billion distance
+  checks.
+- **Decide on a pickups-reached counter.** The output does not record
+  pickups: the per-errand `events` line in `src/TaskManager.cpp` is commented
+  out, and pickups appear only in the text log ("opens task"). A
+  `TasksOpenedThisStep` field next to `TasksFinishedThisStep` would make the
+  per-decision solver-1 comparison work on every map. It must be added
+  before the sweep, or none of the runs will have it.
 
 ## Known issue in the reference paper
 

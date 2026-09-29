@@ -175,3 +175,56 @@ progresses -- this is not append-only.
   solver-6-side questions).
 - **Status**: complete. Full writeup (starvation mechanics, the lever, the
   `Dist2Path` bug and fix, code diffs) in `ai/manhattan_heuristic_lever.md`.
+
+### 2026-09-28: 2-location task finding, thesis benchmark set, full-depth hierarchy caches
+
+- **Why**: comparing against the reference paper
+  (`thesis/AAMAS_2026_Yue_Camera_ready.pdf`) showed every existing
+  `instances/custom/<map>/` task file was generated with the LoRR generator's
+  default `--minEPT 1 --maxEPT 4`, so tasks had 1-4 locations, not the paper's
+  pickup->delivery pairs. Single-location tasks finish on arrival and dominate
+  throughput.
+- **Probes** (scratchpad only, not kept in the repo):
+  - `orz900d_5000`, 200 steps, original vs. 2-location tasks: solver 1
+    1,998 -> 115 tasks finished; solver 6 1,840 -> 219. 95-99% of tasks
+    finished on the original instance had 1 location.
+  - `IH_mp_2p_01_10000`, 500 steps, `USE_MANHATTAN_HEURISTIC = true`, flags as
+    in the 2026-09-18 entry: solver 6 at level 4 finished 3,485 tasks on the
+    original instance and 478 on a 2-location instance. Solver 1 finished 0
+    on the 2-location instance: about 38 s per full-map flow solve and only
+    14 decisions in 500 steps.
+  - A hand-rolled 2-location task file put 354 dropoffs in IH's disconnected
+    regions. `astar` threw `no path found` and aborted the run, so unreachable
+    task locations crash a run rather than being skipped. The official
+    generator avoids this by sampling only from the largest connected region.
+- **Output**: `instances/thesis_benchmarks/`, fully specified in its
+  `README.md`. It covers orz900d at 10k/20k agents and warehouseXL,
+  IH_mp_2p_01, scene_mp_4p_03 and scene_sp_pol_06 at 10k/20k/40k/80k. Every
+  task has 2 locations, `numTasksReveal` is 1.5, and task files hold 1.5x the
+  largest team. All validity checks pass except one orz900d task whose pickup
+  and delivery are the same cell (documented in the README).
+- **Hierarchy caches**: rebuilt to full depth as
+  `hierarchy_cache/{orz900d,warehouseXL,scene_mp_4p_03,scene_sp_pol_06}_full.hierarchy`.
+  IH already had `IH_mp_2p_01_fixpoint.hierarchy`. All five match a fresh
+  no-cache build level for level (12/12/12/13/14 levels). The older August
+  caches stop early and were left in place, unused.
+- **Build timings**: clean no-cache timings are in
+  `instances/thesis_benchmarks/hierarchy_build_times.csv`, and the README
+  explains why `schedulerHierarchyBuildTime` from ordinary runs is not a
+  consistent build-time measure. scene_sp_pol_06 peaks at about 25 GB RSS.
+- **Status**: complete. Nothing committed. `instances/custom/IH_mp_2p_01_2ept/`
+  (an earlier 10k-agent test set) is superseded by the new set and can be
+  deleted.
+- **Verification (2026-09-29)**:
+  - A scratchpad tool reusing `validate_hierarchy_cache.cpp`'s `compare_levels`
+    found every full-depth cache identical to a fresh fixpoint build at every
+    level (206-240 checks each, 0 failures).
+  - Old vs. new caches: identical on every shared level, except the old top
+    level's `to_coarser_node_id`, which is expected because the old builds
+    stopped there. Past results used the same hierarchy.
+  - Real runs, solver 6, 50 steps on each 10k thesis instance, at flow level 4
+    and in entirety mode: 10/10 clean. Entirety mode had 0 flow matches on
+    every map.
+  - Reporting quirk: `schedulerHierarchyNumLevels` and related fields come
+    from the last scheduler call only, and are 0 if that call had nothing to
+    reassign.
