@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 """Summarise the planner stats lines of the quick scene runs (corridor vs lift)."""
-import json, re, sys
+import gzip, json, re, sys
 from pathlib import Path
 
 D = Path(__file__).resolve().parent
+
+
+def read(path):
+    """Text of path, or of path.gz (the outputs are kept compressed)."""
+    if path.exists():
+        return path.read_text()
+    gz = path.with_name(path.name + ".gz")
+    return gzip.open(gz, "rt").read() if gz.exists() else None
 KEYS = ["guide_ms", "paths_built", "hier_paths", "hier_fallbacks", "hier_coarse_ms", "hier_build_ms",
         "hier_cells", "corridor_expanded", "pibt_ms", "stuck_agents", "bfs_no_path", "bfs_too_far"]
 
 for src in ["corridor", "lift"]:
-    log = D / f"scene_{src}_L4.log"
-    if not log.exists():
+    log = read(D / f"scene_{src}_L4.log")
+    if log is None:
         continue
     rows = []
-    for line in log.read_text().splitlines():
+    for line in log.splitlines():
         if line.startswith("planner stats:"):
             vals = dict(re.findall(r"(\w+) (-?[\d.]+)", line))
             rows.append({k: float(vals.get(k, 0)) for k in KEYS})
@@ -31,9 +39,9 @@ for src in ["corridor", "lift"]:
             r = rows[i]
             print(f"  {i + 1:>8} {r['hier_paths']:>6.0f} {r['guide_ms']:>9.0f} {r['pibt_ms']:>8.0f} "
                   f"{r['bfs_no_path']:>8.0f} {r['bfs_too_far']:>8.0f} {r['stuck_agents']:>6.0f}")
-    js = D / f"scene_{src}_L4.json"
-    if js.exists():
-        d = json.loads(js.read_text())
+    js = read(D / f"scene_{src}_L4.json")
+    if js is not None:
+        d = json.loads(js)
         print(f"  finished {d.get('numTaskFinished')}, opened {d.get('numTaskOpened')}, "
               f"planner errors {d.get('numPlannerErrors')}, makespan {d.get('makespan')}")
     t = D / f"scene_{src}_L4.time"
