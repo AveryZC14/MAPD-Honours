@@ -1,0 +1,25 @@
+map scene_mp_4p_03.map 3728x3728, agents 10000, tasks 120000
+max path cells 5000
+hierarchy ready in 25.5 s, 13 levels; nodes per level: 13897984 1599811 412302 109865 30627 9317 3110 1262 590 370 290 254 238
+pairs 200, shortest distance mean 2804, max 5915; fine BFS mean 108.0 ms
+
+level 3 (109865 nodes): lift ok 190/200, fallback ok 0, no path 10, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.026, p50 1.022, p90 1.040, max 1.131
+  coarse path nodes mean 352.63; coarse search ms mean 22.66 p90 41.36; lift ms (ok) mean 3.35 p90 5.59 max 10.07
+  fallback ms mean 121.42 max 147.04; reasons: length_cap=10; failed at level: 1=10
+level 4 (30627 nodes): lift ok 185/200, fallback ok 0, no path 15, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.050, p50 1.045, p90 1.076, max 1.248
+  coarse path nodes mean 177.30; coarse search ms mean 5.15 p90 9.16; lift ms (ok) mean 2.58 p90 4.32 max 9.19
+  fallback ms mean 120.66 max 143.95; reasons: length_cap=15; failed at level: 1=15
+level 5 (9317 nodes): lift ok 179/200, fallback ok 0, no path 21, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.114, p50 1.103, p90 1.174, max 1.715
+  coarse path nodes mean 89.52; coarse search ms mean 1.34 p90 2.34; lift ms (ok) mean 2.39 p90 3.81 max 5.38
+  fallback ms mean 119.42 max 141.33; reasons: length_cap=21; failed at level: 1=21
+level 6 (3110 nodes): lift ok 169/200, fallback ok 0, no path 31, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.235, p50 1.211, p90 1.376, max 2.182
+  coarse path nodes mean 45.20; coarse search ms mean 0.40 p90 0.71; lift ms (ok) mean 2.46 p90 3.85 max 5.74
+  fallback ms mean 120.27 max 141.85; reasons: length_cap=31; failed at level: 1=31
+level 8 (590 nodes): lift ok 110/200, fallback ok 1, no path 89, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.862, p50 1.695, p90 2.688, max 3.757
+  coarse path nodes mean 11.84; coarse search ms mean 0.07 p90 0.11; lift ms (ok) mean 3.04 p90 4.55 max 6.18
+  fallback ms mean 120.86 max 148.40; reasons: length_cap=90; failed at level: 1=90

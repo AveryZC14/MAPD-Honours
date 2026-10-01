@@ -463,3 +463,64 @@ progresses -- this is not append-only.
 - **Action**: `GUIDE_PATH_THREADS` default set back to 1 (sequential).
   Sweep NOT restarted: no guide-path setting works on all maps; needs the
   user's decision.
+
+### 2026-10-01: benchmark of solver 6's coarse-to-fine lift
+
+- **What**: new tool `./build/bench_hierarchy_lift` lifts shortest coarse
+  paths at level L for random (agent start, task) pairs and checks them
+  against fine BFS. For `ai/hierarchical_guide_paths_plan.md` (guide paths
+  from the hierarchy instead of fine A*). Diagnostics, `anchor_every_level`
+  and `max_path_cells` added to `lift_coarse_paths_to_fine`, all off by
+  default at first; `guide_path_validator` still passed on `tiny`/`tinyComplex`.
+- **Runs**: orz900d, IH_mp_2p_01, scene_mp_4p_03 10k instances, 200-300
+  pairs, levels 1-10. Output in `outputs/hierarchy_lift_bench/`.
+- **Result**: as solver 6 runs it, the lift only works from level 1. From
+  level 2 up almost every path has the wrong endpoints (intermediate levels
+  aren't anchored to the real start and goal), so the full-map fallback
+  runs, and that fails for about 42% of pairs on IH and 78% on
+  scene_mp_4p_03. With every level anchored and the 5,000-cell cap raised,
+  every pair got a valid path at every level on all three maps: at level 4,
+  1.09× shortest in about 2.5 ms on IH and 1.05× in about 7.5 ms on scene
+  (fine A* there: 70-300 ms). Tables in the plan doc.
+- **Then (same day): anchoring made permanent** at the user's request (it
+  was the original design intent); the option was removed. Solver 6's
+  guide paths and `GuidePathLengthSum` change: values from before
+  2026-10-01 aren't comparable. Checks: `guide_path_validator` on `tiny`,
+  `tinyComplex`, `warehouseSmall_100`, `random_2000`, with and without
+  `--useTraffic`, 0 failed; bench with default settings matches the anchored
+  results (only the 5,000-cell cap still fails, e.g. 15 of 200 pairs on
+  scene_mp_4p_03 level 4); `lifelong` solver 6 200 steps: `tiny` 14
+  finished, `tinyComplex` 15, 0 errors. Not yet run on a big map.
+- **Runtime, real runs (same day):** solver 6 level 4, 300 steps, old lift
+  vs new, IH 10k and orz900d 10k
+  (`outputs/hierarchy_lift_bench/solver6_old_vs_new/`). Scheduler solve time
+  5-12% lower in total, first step 2-2.5x faster; throughput unchanged
+  (planner-bound). Flow-matched paths are short (tens of cells), so the old
+  fallback was cheap there. `GuidePathLengthSum` per flow-matched agent
+  roughly doubled (IH 24 -> 49, orz900d 17 -> 41): lifted paths stretch much
+  more on short pairs (orz900d level 4: 2.1x under 100 cells vs 1.25x over
+  800). Details in `ai/hierarchical_guide_paths_plan.md`.
+
+### 2026-10-01: `--computeGuidePaths` flag and guide-path timing fixes
+
+- **What**: new CLI flag `--computeGuidePaths` (default true) gating all
+  scheduler guide-path work (solver 6/7 lift, solver 1 path recording,
+  solver 2 storage); recorded in the output JSON. Timing scopes corrected:
+  the lift moved from `SchedulerSolveTime` into `SchedulerGuidePathTime` for
+  solvers 6/7; solver 1's flow walk moved from guide time into solve time.
+  Solvers 6/7 no longer report 0 solve time when `NetworkSimplex` fails.
+- **Checks**: `guide_path_validator` 4 instances x 2, 0 failed; `tiny`
+  solvers 1/6/7 flag on/off, 0 errors, same finished; IH 10k solver 6 level
+  4 (100 steps) and orz900d 10k solver 1 (20 steps), flag on/off: solve time
+  unchanged by the flag, guide time 0 when off. Output in
+  `outputs/hierarchy_lift_bench/guide_path_flag/`. Details and the field
+  definitions: `ai/hierarchical_guide_paths_plan.md`.
+- **Consequence**: `SchedulerSolveTime` / `SchedulerGuidePathTime` from
+  earlier runs are not comparable with later ones.
+- **Then (same day): solve time lined up for solvers 6 and 7.** Both timers
+  now start right after local matching and stop before the lift, so
+  `SchedulerLocalMatchTime`, `SchedulerSolveTime` and
+  `SchedulerGuidePathTime` are disjoint, and solver 6's solve time includes
+  the coarse graph build (about 26 ms on the first IH 10k decision). Checks:
+  validators 0 failed; orz900d 10k solvers 6/7 and IH 10k solver 6, level 4,
+  50 steps, 0 errors (`outputs/hierarchy_lift_bench/solve_time_aligned/`).

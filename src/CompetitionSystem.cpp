@@ -387,6 +387,8 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     // doesn't have to be read off an array length.
     js["schedulerHierarchyNumLevels"] = last_scheduler_timing.hierarchy_level_node_counts.size();
     js["schedulerMatchThreads"] = last_scheduler_timing.match_threads;
+    // --computeGuidePaths: whether the guide-path metrics above/below could be nonzero.
+    js["computeGuidePaths"] = env->compute_guide_paths;
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;
     js["totalFlowMatchCount"] = total_flow_match_count;

@@ -68,6 +68,13 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   `hierarchy_cache/`** (repo root; consolidated 2026-08-20 from several
   scattered `outputs/<map>_*/*.hierarchy` copies) — point `--hierarchyCache`
   there for any map.
+- `--computeGuidePaths` (default `true`, added 2026-10-01): whether
+  schedulers build guide paths at all. `false` skips solver 6/7's lift and
+  solver 1's path recording; guide-path metrics and `SchedulerGuidePathTime`
+  are then 0 and no scheduler path reaches the planner (a warning is printed
+  if `--useTraffic` or `PASS_SCHEDULER_PATHS_TO_PLANNER` would have wanted
+  one). Recorded as `computeGuidePaths` in the output JSON. See
+  `ai/hierarchical_guide_paths_plan.md`.
   **Use the full-depth caches** (built and verified 2026-09-28/29):
   `orz900d_full`, `warehouseXL_full`, `IH_mp_2p_01_fixpoint`,
   `scene_mp_4p_03_full` and `scene_sp_pol_06_full` (all `.hierarchy`). Each
@@ -326,6 +333,14 @@ solver 1's own full-map flow solve can still be slow, see "Solver 1" above).
    map, splicing in the cached `bridge_path_cache` segments between
    neighboring coarse components at each level, down to a concrete
    start→task fine-node path per agent (`current_paths[i]`).
+   **Every level is anchored to the real start and goal** (the nodes
+   containing them at the level below) and one-node paths are joined with a
+   search inside the node. Until 2026-10-01 only the last expansion was
+   anchored, so lifts from level 2 or higher nearly always had wrong
+   endpoints and fell back to a full-map A* (which often failed on big
+   maps); solver 6 `GuidePathLengthSum` values from before then aren't
+   comparable. Paths over 5,000 cells still fail the lift (`max_path_cells`).
+   See `ai/hierarchical_guide_paths_plan.md`.
 5. **Step 4** — hand `current_paths[i]` to the caller as the agent's guide
    path (a `std::list<int>` view), no further processing.
 
@@ -454,6 +469,8 @@ executed. "Solver 6's guide-path code is barely ever active" was correct as
 stated for those runs — it was *never* active, by construction, not just
 rare.
 
+**Since 2026-10-01 the lift is gated by `--computeGuidePaths` (default
+true)**, see Build & run; the rest of this paragraph describes the default.
 **This changed with `ai/guide_path_metric.md`**: solver 6's Step 3-4 lifting
 now runs unconditionally every timestep (decoupled from the
 `use_traffic && curr_timestep >= 100` gate) so a new `GuidePathLengthSum`/
@@ -833,6 +850,14 @@ Headline pitfalls documented there, worth knowing before touching this again:
   cascade loop) on several threads, with output identical to the serial
   version. Starts with measuring local-match time at 80k agents, since
   scheduler time now eats into guide-path time.
+
+- `ai/hierarchical_guide_paths_plan.md` — plan (2026-10-01, not
+  implemented) to build planner guide paths from the coarsening hierarchy
+  (coarse search, then solver 6's lift) instead of fine-map A*. Also
+  records the lift benchmark (`./build/bench_hierarchy_lift`): solver 6's
+  lift only works from level 1, because higher levels aren't anchored to the
+  real start and goal. Fixed permanently 2026-10-01: with every level
+  anchored it works at every level on orz900d, IH and scene_mp_4p_03.
 
 (Update this list if more `ai/*.md` files are added later.)
 

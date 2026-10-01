@@ -244,8 +244,11 @@ public:
     const MultiLevelCoarsenedGraph& hierarchy() const { return hierarchy_; }
 
     // Compute reduced assignment: returns mapping agent_id -> task_id and fills guide paths (fine node ids).
-    // Optionally, `solve_time_out` receives the NetworkSimplex solve time in seconds and
-    // `guide_time_out` receives the flow-decomposition + path-lifting time in seconds.
+    // Optionally, `solve_time_out` receives the time in seconds from the end of Step 1's
+    // local matching to the end of Step 2 (building the coarse flow graph, NetworkSimplex,
+    // walking the flow to recover the assignment), and `guide_time_out` the time of
+    // Steps 3-4 (the lift: expand, endpoint check, fallback searches, packaging) -- 0 when
+    // need_guide_paths is false.
     // `need_guide_paths` controls whether the (expensive, whole-fine-map) path lifting in
     // steps 3/4 runs at all -- callers that only need the agent->task assignment (e.g. when
     // traffic-aware guide paths aren't going to be consumed this timestep) should pass false
@@ -260,7 +263,7 @@ public:
     // calls to match_local_node_exact() across every same-node agent/task group this call --
     // i.e. just the local-matcher compute, not the bucketing/bookkeeping around it. Distinct
     // from `solve_time_out`, which starts only after Step 1 is entirely done (coarse graph
-    // build + NetworkSimplex + Step 2 recovery + Step 3 lift).
+    // build + NetworkSimplex + Step 2 recovery).
     std::unordered_map<int,int> compute_reduced_assignment(SharedEnvironment* env,
                                                            const std::vector<int>& flexible_agent_ids,
                                                            const std::vector<int>& flexible_task_ids,
@@ -333,6 +336,38 @@ public:
                                                                  double* local_match_time_out = nullptr,
                                                                  double* cascade_time_out = nullptr);
 
+    // Why one path's level-by-level lift failed (LiftOutcome::fail_reason).
+    enum LiftFailReason
+    {
+        LIFT_OK = 0,
+        LIFT_NO_START,              // no valid finer node to start the level from
+        LIFT_NO_TARGET,             // no valid finer node for the next coarse node
+        LIFT_MISSING_BRIDGE,        // no cached bridge segment for a coarse pair
+        LIFT_LEAD_IN_WRONG_PARENT,  // current node isn't inside the coarse node it should be
+        LIFT_LEAD_IN_FAILED,        // lead-in search inside one component found nothing
+        LIFT_LEAD_OUT_WRONG_PARENT, // target isn't inside the coarse node it should be
+        LIFT_LEAD_OUT_FAILED,       // lead-out search inside one component found nothing
+        LIFT_LENGTH_CAP,            // path passed max_path_cells (default 5,000)
+    };
+
+    // Per-path diagnostics from lift_coarse_paths_to_fine, only filled when a
+    // caller asks for them (ai/hierarchical_guide_paths_plan.md). Collecting
+    // them doesn't change any path.
+    struct LiftOutcome
+    {
+        int fail_level = -1;             // level being expanded when the lift failed; -1 = didn't fail
+        int fail_reason = LIFT_OK;
+        bool endpoints_wrong = false;    // lift finished but didn't run start -> goal
+        bool used_fallback = false;      // replaced by the full-map search
+        bool fallback_ok = false;
+        double fallback_ms = 0.0;
+        std::size_t lifted_cells = 0;    // cells in the lifted path before any fallback
+    };
+
+    // Every level's expansion is anchored to the nodes containing the real
+    // start and goal at the level below (ai/hierarchical_guide_paths_plan.md).
+    // `max_path_cells`: a lifted path longer than this fails (LIFT_LENGTH_CAP).
+    //
     // Lift an already-decided batch of (agent, task, region-node-only coarse
     // path) triples down to concrete fine-graph guide paths -- exactly what
     // compute_reduced_assignment's own Steps 3/4 do internally for its own
@@ -347,11 +382,8 @@ public:
     // `expand_time_out` receives the level-by-level expand + endpoint
     // verification/fallback time (what this file calls "Step 3");
     // `guide_time_out` receives the final packaging-into-out_agent_guide_paths
-    // time ("Step 4") -- kept separate, rather than one combined duration, so
-    // compute_reduced_assignment can still report its historical
-    // solve_time_out/guide_time_out split (Step 3 counted in solve_time,
-    // Step 4 in guide_time) unchanged after switching to call this method
-    // internally.
+    // time ("Step 4"). Both callers (solvers 6 and 7) report their sum as
+    // guide time; they're kept separate here for finer-grained analysis.
     void lift_coarse_paths_to_fine(SharedEnvironment* env,
                                    int top_level_idx,
                                    const std::vector<int>& agent_ids,
@@ -361,7 +393,9 @@ public:
                                    double* expand_time_out = nullptr,
                                    double* guide_time_out = nullptr,
                                    double* guide_path_length_sum_out = nullptr,
-                                   double* guide_path_cost_sum_out = nullptr);
+                                   double* guide_path_cost_sum_out = nullptr,
+                                   std::vector<LiftOutcome>* outcomes_out = nullptr,
+                                   std::size_t max_path_cells = 5000);
 
 private:
     ReducedHierarchy();

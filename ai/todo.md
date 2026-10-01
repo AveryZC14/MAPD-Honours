@@ -44,6 +44,10 @@ the date and what changed) rather than deleting them outright.
   setting works on every map (orz900d best sequential; IH needs parallel +
   congestion ignored; scene_mp_4p_03 fails either way, needs a better A*
   heuristic). **Decision needed**; options in that doc's "Conclusions".
+  **2026-10-01: new option, guide paths from the coarsening hierarchy**
+  (`ai/hierarchical_guide_paths_plan.md`). Benchmarked, not yet in the
+  planner. With every level anchored, the lift gives valid paths on all
+  three maps in a few ms each.
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:
@@ -208,6 +212,13 @@ the date and what changed) rather than deleting them outright.
 
   2. **`SchedulerSolveTime` has a wider, undocumented scope than solver 6's
      equivalent field, and silently overlaps `SchedulerLocalMatchTime`.**
+     **Fixed 2026-10-01:** both solvers' solve timers now start right after
+     local matching and stop before the lift (which is now guide time), so
+     solve time includes coarse graph construction (backbone copy for solver
+     7) and the three fields are disjoint. See
+     `ai/hierarchical_guide_paths_plan.md`, "Guide-path flag and timing
+     fields". Item 1 (`SchedulerBackboneBuildTime`) is still open. Original
+     description below; line numbers are from before the change.
      Solver 6's `solve_start` timer (`MapCoarsenV1.cpp:1828`) starts
      immediately before `ns.run()` — *after* its own Step 1 local matching
      (starting at line 1627) has already finished, so `SchedulerSolveTime`
@@ -305,8 +316,9 @@ the date and what changed) rather than deleting them outright.
     (`src/Entry.cpp:32,38`), not directly in `planner_wrapper()` — timing
     would need to move into `Entry::compute()` itself, or `Entry` would need
     to expose per-call timings the way the scheduler already does).
-  - Keep `SchedulerSolveTime` / `SchedulerGuidePathTime` as-is (already
-    correct, just underused).
+  - Keep `SchedulerSolveTime` / `SchedulerGuidePathTime` (their scopes were
+    corrected 2026-10-01: the lift is now guide time, solver 1's flow walk
+    is solve time; see `ai/hierarchical_guide_paths_plan.md`).
   - Update `visualisation/compute_throughput_metrics.py` and the two
     `ai/auto_benchmarking_*.md` docs' methodology notes once the new field
     exists, so future sweeps read `PathPlannerTime` instead of misreading

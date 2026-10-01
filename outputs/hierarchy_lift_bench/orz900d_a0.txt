@@ -1,0 +1,32 @@
+map orz900d.map 656x1491, agents 10000, tasks 30000
+anchor every level: off, max path cells 5000
+hierarchy ready in 0.6 s, 12 levels; nodes per level: 978096 26384 7661 2414 866 342 144 71 33 15 5 1
+pairs 300, shortest distance mean 1166, max 3169; fine BFS mean 0.8 ms
+
+level 1 (26384 nodes): lift ok 300/300, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.015, p50 1.012, p90 1.019, max 1.138
+  coarse path nodes mean 585.00; coarse search ms mean 3.91 p90 6.87; lift ms (ok) mean 0.28 p90 0.51 max 1.03
+level 2 (7661 nodes): lift ok 20/300, fallback ok 280, no path 0, invalid 0, endpoints wrong 280
+  length / shortest (lift ok): mean 1.043, p50 1.043, p90 1.067, max 1.082
+  coarse path nodes mean 295.48; coarse search ms mean 1.17 p90 2.04; lift ms (ok) mean 0.63 p90 0.88 max 1.30
+  fallback ms mean 15.40 max 47.02; reasons: endpoints_wrong=280; failed at level: -1=280
+level 3 (2414 nodes): lift ok 0/300, fallback ok 300, no path 0, invalid 0, endpoints wrong 300
+  length / shortest (lift ok): mean 0.000, p50 0.000, p90 0.000, max 0.000
+  coarse path nodes mean 147.63; coarse search ms mean 0.34 p90 0.55; lift ms (ok) mean 0.00 p90 0.00 max 0.00
+  fallback ms mean 15.52 max 52.07; reasons: endpoints_wrong=300; failed at level: -1=300
+level 4 (866 nodes): lift ok 0/300, fallback ok 300, no path 0, invalid 0, endpoints wrong 300
+  length / shortest (lift ok): mean 0.000, p50 0.000, p90 0.000, max 0.000
+  coarse path nodes mean 74.08; coarse search ms mean 0.13 p90 0.21; lift ms (ok) mean 0.00 p90 0.00 max 0.00
+  fallback ms mean 15.38 max 44.89; reasons: endpoints_wrong=300; failed at level: -1=300
+level 6 (144 nodes): lift ok 0/300, fallback ok 300, no path 0, invalid 0, endpoints wrong 300
+  length / shortest (lift ok): mean 0.000, p50 0.000, p90 0.000, max 0.000
+  coarse path nodes mean 19.47; coarse search ms mean 0.02 p90 0.04; lift ms (ok) mean 0.00 p90 0.00 max 0.00
+  fallback ms mean 15.29 max 40.72; reasons: endpoints_wrong=300; failed at level: -1=300
+level 8 (33 nodes): lift ok 0/300, fallback ok 300, no path 0, invalid 0, endpoints wrong 265
+  length / shortest (lift ok): mean 0.000, p50 0.000, p90 0.000, max 0.000
+  coarse path nodes mean 5.16; coarse search ms mean 0.01 p90 0.01; lift ms (ok) mean 0.00 p90 0.00 max 0.00
+  fallback ms mean 15.72 max 41.92; reasons: endpoints_wrong=265 length_cap=35; failed at level: -1=265 1=35
+level 10 (5 nodes): lift ok 0/300, fallback ok 300, no path 0, invalid 0, endpoints wrong 179
+  length / shortest (lift ok): mean 0.000, p50 0.000, p90 0.000, max 0.000
+  coarse path nodes mean 1.99; coarse search ms mean 0.00 p90 0.00; lift ms (ok) mean 0.00 p90 0.00 max 0.00
+  fallback ms mean 15.41 max 40.22; reasons: endpoints_wrong=179 length_cap=121; failed at level: -1=179 1=121

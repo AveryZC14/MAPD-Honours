@@ -1,0 +1,16 @@
+IH_mp_2p_01  old: decisions 231, finished 286, opened 10229, errors 0/0, timeouts 0
+   flow-matched total 3675, local total 6610; GuidePathLengthSum total 89662 (24 per flow-matched agent)
+   SchedulerSolveTime ms: total 8558, mean 37.0, max 350; first step 350; steps with flow matches: mean 68.2; per flow-matched agent 2.3
+   SchedulerLocalMatchTime ms total 27; PlannerTime ms mean 983
+IH_mp_2p_01  new: decisions 225, finished 278, opened 10213, errors 0/0, timeouts 0
+   flow-matched total 3660, local total 6608; GuidePathLengthSum total 180681 (49 per flow-matched agent)
+   SchedulerSolveTime ms: total 8112, mean 36.1, max 180; first step 140; steps with flow matches: mean 65.8; per flow-matched agent 2.2
+   SchedulerLocalMatchTime ms total 27; PlannerTime ms mean 997
+orz900d      old: decisions 300, finished 1265, opened 11234, errors 0/0, timeouts 0
+   flow-matched total 411, local total 10849; GuidePathLengthSum total 6902 (17 per flow-matched agent)
+   SchedulerSolveTime ms: total 299, mean 1.0, max 12; first step 12; steps with flow matches: mean 1.1; per flow-matched agent 0.7
+   SchedulerLocalMatchTime ms total 29; PlannerTime ms mean 856
+orz900d      new: decisions 300, finished 1277, opened 11245, errors 0/0, timeouts 0
+   flow-matched total 410, local total 10864; GuidePathLengthSum total 16867 (41 per flow-matched agent)
+   SchedulerSolveTime ms: total 264, mean 0.9, max 6; first step 6; steps with flow matches: mean 1.0; per flow-matched agent 0.6
+   SchedulerLocalMatchTime ms total 27; PlannerTime ms mean 855

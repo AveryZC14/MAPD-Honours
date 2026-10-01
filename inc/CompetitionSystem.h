@@ -14,15 +14,24 @@
 /* Begin per-timestep metrics model. */
 struct TimeStepMetric
 {
+    // Scheduler timing for this decision (seconds). SchedulerSolveTime: solver
+    // 1 from the start of the scheduler call through the flow walk that
+    // recovers the assignment; solvers 6/7 from the end of local matching
+    // (SchedulerLocalMatchTime, separate) through building the coarse flow
+    // graph, NetworkSimplex and recovering the assignment.
+    // SchedulerGuidePathTime: building guide paths on top of that (solvers
+    // 6/7: the coarse-to-fine lift; solver 1: storing the walked paths); 0
+    // with --computeGuidePaths false. Scopes as of 2026-10-01, see
+    // ai/hierarchical_guide_paths_plan.md.
     double SchedulerSolveTime = 0.0;
     double SchedulerGuidePathTime = 0.0;
     double PlannerTime = 0.0;
     // Sum, over every guide path the scheduler built this timestep, of path
     // length (edges) and path cost (sum of traversed arc costs -- equals
     // length unless --useTraffic is on, and even then only for solver 1; see
-    // ai/guide_path_metric.md). Both solvers populate these unconditionally
-    // now, independent of whether traffic-seeding is active, so they're
-    // comparable across every run.
+    // ai/guide_path_metric.md). Solvers 1/6/7 populate these whenever
+    // --computeGuidePaths is on (the default), independent of whether
+    // traffic-seeding is active; 0 when it's off.
     double GuidePathLengthSum = 0.0;
     double GuidePathCostSum = 0.0;
     // How many agents this timestep were assigned via solver 6's within-
@@ -35,9 +44,9 @@ struct TimeStepMetric
     long long LocalNodeMatchCountCumulative = 0;
     long long FlowMatchCountCumulative = 0;
     // Wall-clock time (seconds) spent this timestep inside solver 6's Step 1
-    // local-matcher calls (match_local_node_exact) -- always 0 for other
-    // solvers. Distinct from SchedulerSolveTime, which only starts once
-    // Step 1 is done. See ai/local_node_matching.md.
+    // local-matcher calls (match_local_node_exact), and solver 7's -- always
+    // 0 for other solvers. Disjoint from SchedulerSolveTime, which only
+    // starts once Step 1 is done. See ai/local_node_matching.md.
     double SchedulerLocalMatchTime = 0.0;
     // Summed per-group local-matching time (seconds) this timestep, i.e. the
     // one-thread cost; SchedulerLocalMatchTime is wall-clock. Solver 6 only.

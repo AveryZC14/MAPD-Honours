@@ -443,7 +443,10 @@ crontab -e    # remove that line once the sweep has finished
   - `<run>.time`: GNU `time -v` output, with elapsed wall-clock, CPU time
     and peak memory.
   - `<run>.json`: per decision, `PlannerTime` (the whole `plan()` call,
-    scheduler included) and `SchedulerSolveTime` in `timeStepMetrics`.
+    scheduler included), `SchedulerSolveTime` and `SchedulerGuidePathTime`
+    in `timeStepMetrics` (scopes as corrected 2026-10-01, see
+    `ai/hierarchical_guide_paths_plan.md`; guide paths are built unless
+    `--computeGuidePaths false`, which the sweep doesn't pass).
     Don't sum `plannerTimes` instead: it has a second entry for every
     decision that ran over its time limit, so it double-counts those.
   - Loading and preprocessing time is not recorded on its own (see "Why not
@@ -494,8 +497,10 @@ Tested 2026-09-29 at `--sim-time 30` on orz900d 10k (all 7 configs) and IH
   make even fewer decisions. How solve time grows with team size has not
   been measured.
 - **Solver 7 only as a 2-run appendix check.** It has been worse than solver 6
-  everywhere so far. Report only its throughput: its `SchedulerSolveTime` and
-  `SchedulerBackboneBuildTime` fields are known to be wrong (`ai/todo.md`).
+  everywhere so far. Report only its throughput: its
+  `SchedulerBackboneBuildTime` field is known to be wrong (`ai/todo.md`).
+  Its `SchedulerSolveTime` was fixed on 2026-10-01 and now has the same
+  scope as solver 6's.
 - **8,000 timesteps.** With 2-location tasks, the mean pickup→delivery
   Manhattan distance is 467 cells on orz900d, about 1,000–1,250 on IH and
   warehouseXL, and about 2,250–2,450 on the two scene maps. A long horizon is

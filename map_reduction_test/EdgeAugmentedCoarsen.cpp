@@ -359,8 +359,6 @@ std::unordered_map<int,int> EdgeAugmentedHierarchy::compute_reduced_assignment_e
     if (!ready())
         return assignments;
 
-    const auto solve_start = std::chrono::high_resolution_clock::now();
-
     const int top_level_idx = backbone_->top_level_idx;
     ReducedHierarchy& base = ReducedHierarchy::instance();
     const MultiLevelCoarsenedGraph& hierarchy = base.hierarchy();
@@ -463,6 +461,13 @@ std::unordered_map<int,int> EdgeAugmentedHierarchy::compute_reduced_assignment_e
             top_task_ids[kv.first].push_back(task_id);
     }
     if (local_match_time_out) *local_match_time_out = local_match_time_accum;
+
+    // SchedulerSolveTime starts here, after Step 1's local matching (timed
+    // separately as SchedulerLocalMatchTime), and covers copying the
+    // backbone into this call's flow graph, adding the proxy arcs,
+    // NetworkSimplex and Step 2 (path recovery). Steps 3-4 (the lift) are
+    // guide time. Same scope as solver 6 (MapCoarsenV1.cpp) and solver 1.
+    const auto solve_start = std::chrono::high_resolution_clock::now();
 
     // Step 1b: copy the persistent region+edge backbone into a fresh
     // per-timestep graph (see ai/edge_node_representation.md, "Per-timestep
@@ -582,7 +587,12 @@ std::unordered_map<int,int> EdgeAugmentedHierarchy::compute_reduced_assignment_e
     ns.supplyMap(supply);
     const int ns_status = ns.run();
     if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
+    {
+        if (solve_time_out)
+            *solve_time_out = std::chrono::duration<double>(
+                std::chrono::high_resolution_clock::now() - solve_start).count();
         return assignments;
+    }
     // flowMap() must be called after run(), not before -- its own
     // documentation says so ("pre: run() must be called before using this
     // function"), unlike costMap()/upperMap()/supplyMap(), which are pre-run
@@ -712,22 +722,20 @@ std::unordered_map<int,int> EdgeAugmentedHierarchy::compute_reduced_assignment_e
         assigned_task_ids.push_back(task_id);
     }
 
+    // solve_time_out ends here, before the lift; guide_time_out is the whole
+    // lift (Steps 3-4: expand, endpoint check, fallback searches, packaging).
+    if (solve_time_out)
+        *solve_time_out = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - solve_start).count();
+
     if (!need_guide_paths)
-    {
-        if (solve_time_out)
-            *solve_time_out = std::chrono::duration<double>(
-                std::chrono::high_resolution_clock::now() - solve_start).count();
         return assignments;
-    }
 
     // Steps 3-4: lift the batch of region-node-only coarse paths down to
     // concrete fine-graph guide paths via ReducedHierarchy's shared lifting
     // method (see ai/edge_node_representation.md) -- reuses solver 6's own
     // (previously bug-fixed) lifting logic unmodified rather than a second
     // copy of it.
-    const double pre_lift_elapsed = std::chrono::duration<double>(
-        std::chrono::high_resolution_clock::now() - solve_start).count();
-
     double expand_time = 0.0;
     double guide_time = 0.0;
     double guide_path_length_sum = 0.0;
@@ -737,10 +745,8 @@ std::unordered_map<int,int> EdgeAugmentedHierarchy::compute_reduced_assignment_e
                                    &expand_time, &guide_time,
                                    &guide_path_length_sum, &guide_path_cost_sum);
 
-    if (solve_time_out)
-        *solve_time_out = pre_lift_elapsed + expand_time;
     if (guide_time_out)
-        *guide_time_out = guide_time;
+        *guide_time_out = expand_time + guide_time;
     if (guide_path_length_sum_out)
         *guide_path_length_sum_out = guide_path_length_sum;
     if (guide_path_cost_sum_out)

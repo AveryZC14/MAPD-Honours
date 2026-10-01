@@ -30,6 +30,25 @@ unordered_map<int,list<int>> get_all_guide_paths()
 }
 /* End unconditional guide-path capture for offline dumping. */
 
+/* Begin --computeGuidePaths consistency warning. */
+// Scheduler paths only reach the planner when --useTraffic (from timestep
+// 100) or PASS_SCHEDULER_PATHS_TO_PLANNER asks for them. If either is on but
+// --computeGuidePaths is false, nothing is handed over; say so once.
+static void warn_if_seed_needs_guide_paths(const SharedEnvironment* env, bool use_traffic)
+{
+    static bool warned = false;
+    if (warned || env->compute_guide_paths)
+        return;
+    if (use_traffic || PASS_SCHEDULER_PATHS_TO_PLANNER)
+    {
+        std::cerr << "warning: --computeGuidePaths is false, so no scheduler guide paths are "
+                     "handed to the planner despite --useTraffic / PASS_SCHEDULER_PATHS_TO_PLANNER"
+                  << std::endl;
+        warned = true;
+    }
+}
+/* End --computeGuidePaths consistency warning. */
+
 /* Begin scheduler timing state. */
 ScheduleTiming last_timing;
 
@@ -877,21 +896,19 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
-        auto solve_end_time = std::chrono::high_resolution_clock::now();
-        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
-
-        /* Begin guide-path reconstruction timing. */
-        auto guide_start_time = std::chrono::high_resolution_clock::now();
         int cnt = 0;
 
-        // Sum, over every agent successfully matched this call, of the guide
-        // path's length (edges) and cost (sum of the traversed arcs' `cost`,
-        // which is traffic-weighted iff use_traffic). Computed unconditionally
-        // -- the walk that builds `path` happens regardless of the
-        // use_traffic/timestep gate below, so this is free and always
-        // populated, unlike agent_guide_path itself.
-        double guide_path_length_sum = 0.0;
-        double guide_path_cost_sum = 0.0;
+        // Walking the flow from each agent to its task is how the assignment
+        // is recovered, so it always runs and is counted as solve time. With
+        // --computeGuidePaths the walk also records the cells it passes and
+        // the arc costs (cheap appends); turning those into guide paths and
+        // the GuidePathLengthSum/GuidePathCostSum metrics happens after the
+        // walk and is what SchedulerGuidePathTime measures.
+        const bool record_paths = env->compute_guide_paths;
+        struct WalkedPath { int agent_id; list<int> path; double cost; };
+        std::vector<WalkedPath> walked_paths;
+        if (record_paths)
+            walked_paths.reserve(num_workers);
 
         // cout << "Optimal assignment with minimum cost:" << endl;
         // Iterate over all worker nodes
@@ -908,7 +925,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 if (current == sink) break; // Reached sink, no task node found
 
                 int loc = node_to_maploc[lemon::ListDigraphBase::id(current)];
-                path.push_back(loc);
+                if (record_paths)
+                    path.push_back(loc);
 
                 // Follow the flow to the next node
                 // Find the next node in the path
@@ -923,7 +941,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                         }
                         if (edge_flows[lemon::ListDigraphBase::id(arc)] <= 0)
                             continue;
-                        path_cost += cost[arc];
+                        if (record_paths)
+                            path_cost += cost[arc];
                         current = g.target(arc);
                         edge_flows[lemon::ListDigraphBase::id(arc)]--;
                         found = true;
@@ -938,18 +957,13 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
                 // node_to_task_id[current].pop_front();
-                path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
-                if (!path.empty())
+                if (record_paths)
                 {
-                    guide_path_length_sum += static_cast<double>(path.size() - 1);
-                    guide_path_cost_sum += path_cost;
+                    path.push_back(task_loc);
+                    walked_paths.push_back({flexible_agent_ids[i], std::move(path), path_cost});
                 }
-                if (use_traffic && env->curr_timestep >= 100)
-                    agent_guide_path[flexible_agent_ids[i]] = path;
-                if (dump_all_guide_paths)
-                    agent_guide_path_all[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())
                 {
@@ -963,10 +977,32 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
             }
         }
 
+        // Solve time: graph construction, NetworkSimplex and the flow walk
+        // that recovers the assignment.
+        auto solve_end_time = std::chrono::high_resolution_clock::now();
+        double solve_elapsed_time = std::chrono::duration<double>(solve_end_time - solve_start_time).count();
+
+        /* Begin guide-path timing: turn the recorded walks into guide paths and metrics. */
+        auto guide_start_time = solve_end_time;
+        // Sum, over every agent matched this call, of the guide path's length
+        // (edges) and cost (sum of the traversed arcs' `cost`, which is
+        // traffic-weighted iff use_traffic).
+        double guide_path_length_sum = 0.0;
+        double guide_path_cost_sum = 0.0;
+        for (auto& wp : walked_paths)
+        {
+            guide_path_length_sum += static_cast<double>(wp.path.size() - 1);
+            guide_path_cost_sum += wp.cost;
+            if (use_traffic && env->curr_timestep >= 100)
+                agent_guide_path[wp.agent_id] = wp.path;
+            if (dump_all_guide_paths)
+                agent_guide_path_all[wp.agent_id] = std::move(wp.path);
+        }
         auto guide_end_time = std::chrono::high_resolution_clock::now();
-        double guide_elapsed_time = std::chrono::duration<double>(guide_end_time - guide_start_time).count();
+        double guide_elapsed_time = record_paths
+            ? std::chrono::duration<double>(guide_end_time - guide_start_time).count() : 0.0;
         set_last_timing(solve_elapsed_time, guide_elapsed_time, guide_path_length_sum, guide_path_cost_sum);
-        /* End guide-path reconstruction timing. */
+        /* End guide-path timing. */
 
         /* Begin timing report for the solved assignment and guide-path pass. */
         cout << "Solving time: " << solve_elapsed_time << " seconds" << endl;
@@ -1073,17 +1109,16 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
     double guide_path_length_sum = 0.0, guide_path_cost_sum = 0.0;
     int local_node_match_count = 0, flow_match_count = 0;
     double local_match_time = 0.0;
-    // The planner only ever consumes agent_guide_path (below) under this gate
-    // -- unchanged from before. But the fine-grained lift (Steps 3/4 inside
-    // compute_reduced_assignment) is now requested unconditionally so
-    // GuidePathLengthSum/GuidePathCostSum are populated on every timestep,
-    // including runs without --useTraffic, making solver 1 and solver 6
-    // comparable on this metric regardless of run settings. This reintroduces
-    // per-timestep lifting cost that was previously skipped entirely outside
-    // the seed window -- see ai/guide_path_metric.md for the perf check done
-    // on orz900d before this was made unconditional.
-    const bool need_guide_paths_for_seed = PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100);
-    const bool need_guide_paths = true;
+    // The planner only ever consumes agent_guide_path (below) under the seed
+    // gate. The fine-grained lift (Steps 3/4 inside
+    // compute_reduced_assignment) runs whenever --computeGuidePaths is on
+    // (the default), so GuidePathLengthSum/GuidePathCostSum are populated on
+    // every timestep, including runs without --useTraffic. With
+    // --computeGuidePaths false nothing is lifted and the seed gets nothing.
+    const bool need_guide_paths = env->compute_guide_paths;
+    const bool need_guide_paths_for_seed = need_guide_paths &&
+        (PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100));
+    warn_if_seed_needs_guide_paths(env, use_traffic);
     // compute_hierarchical_assignment() subsumes compute_reduced_assignment():
     // env->min_cascade_level >= env->flow_solve_level (the default) makes the
     // cascade a no-op, so this is byte-identical to calling
@@ -1194,12 +1229,13 @@ void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed
     int local_node_match_count = 0, flow_match_count = 0;
     double local_match_time = 0.0;
     double backbone_build_time = 0.0;
-    // Matches schedule_plan_flow_reduced: fine-grained lifting is requested
-    // unconditionally so GuidePathLengthSum/GuidePathCostSum are populated
-    // every timestep regardless of --useTraffic, keeping solver 7 comparable
-    // to solvers 1/6 on this metric.
-    const bool need_guide_paths_for_seed = PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100);
-    const bool need_guide_paths = true;
+    // Matches schedule_plan_flow_reduced: lifting runs whenever
+    // --computeGuidePaths is on, keeping solver 7 comparable to solvers 1/6
+    // on GuidePathLengthSum regardless of --useTraffic.
+    const bool need_guide_paths = env->compute_guide_paths;
+    const bool need_guide_paths_for_seed = need_guide_paths &&
+        (PASS_SCHEDULER_PATHS_TO_PLANNER || (use_traffic && env->curr_timestep >= 100));
+    warn_if_seed_needs_guide_paths(env, use_traffic);
     const auto assignments = MapReductionTest::EdgeAugmentedHierarchy::instance().compute_reduced_assignment_edge_augmented(
         env, flexible_agent_ids, flexible_task_ids, guide_paths, need_guide_paths,
         &solve_time, &guide_time, &guide_path_length_sum, &guide_path_cost_sum,
@@ -1430,7 +1466,7 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
                 path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
-                if (env->curr_timestep >= 100)
+                if (env->compute_guide_paths && env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())

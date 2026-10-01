@@ -53,6 +53,16 @@ public:
     // ai/hierarchical_matching.md.
     int cascade_level_stride = 1;
 
+    // Whether schedulers build guide paths at all. Set from
+    // --computeGuidePaths (default true). When false, solvers 6/7 skip the
+    // coarse-to-fine lift entirely, solver 1 skips recording the path it
+    // walks (the walk itself is still needed to recover the assignment), and
+    // no scheduler path reaches the planner (agent_guide_path stays empty,
+    // even with --useTraffic or PASS_SCHEDULER_PATHS_TO_PLANNER), so
+    // GuidePathLengthSum/GuidePathCostSum/SchedulerGuidePathTime are 0. See
+    // ai/hierarchical_guide_paths_plan.md.
+    bool compute_guide_paths = true;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;

@@ -10,6 +10,37 @@ proxy for assignment/path quality ("optimality of solutions").
 
 ## TL;DR
 
+> **Correction (2026-10-01):** the root cause given below (a coarse node
+> spanning disconnected fine regions) is wrong; the coarsening splits each
+> 2×2 block into connected components. The real cause is that only the last
+> expansion (level 1 to fine) is anchored to the real start and goal, so a
+> lift from level 2 or higher almost always starts or ends in the wrong
+> place and falls back to the full-map search. The endpoint check added here
+> is still what catches it. See `ai/hierarchical_guide_paths_plan.md`,
+> "How the bug happens", for the explanation, the benchmark and the fix
+> (every level anchored, permanent since 2026-10-01).
+>
+> **Also 2026-10-01:** the "unconditionally" below is now "when
+> `--computeGuidePaths` is true (the default)", and the timing split
+> changed: `SchedulerGuidePathTime` now covers the whole lift for solvers
+> 6/7 (it used to be only Step 4, with the lift counted in
+> `SchedulerSolveTime`), and for solver 1 only storing the walked paths
+> (the walk itself, which recovers the assignment, moved into
+> `SchedulerSolveTime`). Details: `ai/hierarchical_guide_paths_plan.md`,
+> "Guide-path flag and timing fields".
+>
+> What this meant for solver 6's `GuidePathLengthSum` **before 2026-10-01**
+> (values from then aren't comparable with later ones): it summed path length
+> (cells − 1) over flow-matched agents only (local and cascade matches get
+> no path), to the pickup only, after the endpoint check. At
+> `--flowSolveLevel` 2 or higher most of those paths were the fallback's
+> full-map A* path (unit costs, Manhattan heuristic), not the lift, and
+> agents whose fallback also failed (its 200,000-expansion cap; 42% of
+> benchmark pairs on IH, 78% on scene_mp_4p_03) were left out of the sum.
+> Since the fix it sums the lifted paths; it still covers only flow-matched
+> agents and the leg to the pickup, and lifts longer than 5,000 cells still
+> fall back.
+
 - Solver 6's guide-path reconstruction **had a real bug**: on a map where a
   single coarse component (parent node) at an intermediate hierarchy level
   actually spans multiple disconnected fine-map sub-components (very

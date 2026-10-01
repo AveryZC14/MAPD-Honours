@@ -195,6 +195,15 @@ target_link_libraries(edge_augmented_validator ${Boost_LIBRARIES} ${LEMON_LIBRAR
 target_compile_definitions(edge_augmented_validator PRIVATE PYTHON=${PYTHON_FLAG})
 #-----------
 
+#-----------
+# Standalone benchmark: success rate, path quality and timing of solver 6's
+# coarse-to-fine lift on shortest coarse paths, see
+# ai/hierarchical_guide_paths_plan.md.
+add_executable(bench_hierarchy_lift utils/validation/bench_hierarchy_lift.cpp ${PROJECT_SOURCES})
+target_link_libraries(bench_hierarchy_lift ${Boost_LIBRARIES} ${LEMON_LIBRARIES})
+target_compile_definitions(bench_hierarchy_lift PRIVATE PYTHON=${PYTHON_FLAG})
+#-----------
+
 
 add_custom_target(clean_all
     COMMAND ${CMAKE_BUILD_TOOL} clean

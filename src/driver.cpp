@@ -59,7 +59,8 @@ int main(int argc, char **argv)
         ("hierarchyCache", po::value<std::string>()->default_value(""), "path to cache the solver-6 map-coarsening hierarchy on disk; loaded instead of rebuilt on later runs against the same map, and written after a fresh build. Empty (default) disables caching")
         ("flowSolveLevel", po::value<int>()->default_value(2), "solver-6: hierarchy level (0 = fine map) to solve the per-timestep flow assignment on; out-of-range values fall back to the default")
         ("minCascadeLevel", po::value<int>()->default_value(999), "solver-6: first hierarchy level the hierarchical/cascaded local matcher attempts before handing leftovers to flowSolveLevel's usual local-match-then-flow handling; a value >= flowSolveLevel disables cascading (default: disabled)")
-        ("cascadeLevelStride", po::value<int>()->default_value(1), "solver-6: attempt a cascade local match only every Nth hierarchy level between minCascadeLevel and flowSolveLevel, still climbing one level at a time in between; default 1 matches every level");
+        ("cascadeLevelStride", po::value<int>()->default_value(1), "solver-6: attempt a cascade local match only every Nth hierarchy level between minCascadeLevel and flowSolveLevel, still climbing one level at a time in between; default 1 matches every level")
+        ("computeGuidePaths", po::value<bool>()->default_value(true), "schedulers build guide paths (solvers 6/7: lift the coarse paths to the fine map; solver 1: record the flow path it walks). When false no guide path is built or handed to the planner, and the guide-path metrics and SchedulerGuidePathTime are 0");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -146,6 +147,7 @@ int main(int argc, char **argv)
     planner->env->flow_solve_level = vm["flowSolveLevel"].as<int>();
     planner->env->min_cascade_level = vm["minCascadeLevel"].as<int>();
     planner->env->cascade_level_stride = vm["cascadeLevelStride"].as<int>();
+    planner->env->compute_guide_paths = vm["computeGuidePaths"].as<bool>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

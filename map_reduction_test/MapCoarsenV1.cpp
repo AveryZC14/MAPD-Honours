@@ -1306,10 +1306,13 @@ static double path_cost_on_fine_graph_local(const CoarsenedGraph& graph, const s
 }
 
 // Expand an entire batch of coarse-level paths one level down.
-// Every coarse node uses its preselected finer representative, and each
-// coarse edge is expanded through the cached fine path recorded at coarsen
-// time. The runtime work is intentionally limited to map lookups and vector
-// splicing.
+// Each path starts at preferred_starts[i] and ends at preferred_goals[i] (the
+// nodes containing the real start and goal at the lower level); interior
+// coarse nodes use their preselected finer representative, and each coarse
+// edge is expanded through the cached fine path recorded at coarsen time,
+// joined to the anchors by short lead-in/lead-out searches. The runtime
+// work is intentionally limited to map lookups, vector splicing and those
+// small searches inside one coarse node.
 // `upper_paths` is taken by value (not const&) so the caller can move its
 // paths in and this function can move them back out level by level, instead
 // of copying the whole batch at every level of the lift.
@@ -1317,13 +1320,23 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
                                                                       const CoarsenedGraph& lower,
                                                                       const CoarsenedGraph& upper,
                                                                       const std::vector<int>& preferred_starts,
-                                                                      const std::vector<int>& preferred_goals){
+                                                                      const std::vector<int>& preferred_goals,
+                                                                      std::vector<int>* fail_reasons = nullptr,
+                                                                      std::size_t max_path_cells = 5000){
     std::vector<std::vector<int>> lower_paths;
     lower_paths.reserve(upper_paths.size());
 
     // Reuse a single buffer variable to minimize heap allocations inside the loop
     std::vector<int> path_buffer;
     path_buffer.reserve(128); // Reasonable starting capacity for local segments
+
+    // Optional diagnostics: why each path failed at this level (0 = didn't).
+    if (fail_reasons)
+        fail_reasons->assign(upper_paths.size(), ReducedHierarchy::LIFT_OK);
+    const auto note_failure = [&](std::size_t idx, int reason) {
+        if (fail_reasons)
+            (*fail_reasons)[idx] = reason;
+    };
 
     for (std::size_t path_index = 0; path_index < upper_paths.size(); ++path_index)
     {
@@ -1352,12 +1365,35 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
 
         if (current < 0)
         {
+            note_failure(path_index, ReducedHierarchy::LIFT_NO_START);
             lower_paths.emplace_back();
             continue;
         }
 
         path_buffer.push_back(current);
         bool failed = false;
+
+        // A one-node path (start and goal in the same coarse node) has no
+        // pair to expand, so it would stay at `current`. Join it to the
+        // preferred goal with a search inside that coarse node.
+        if (upper_path.size() == 1 &&
+            path_index < preferred_goals.size())
+        {
+            const int goal = preferred_goals[path_index];
+            if (goal != current && is_valid_graph_node_id_local(lower, goal) &&
+                goal < static_cast<int>(lower.to_coarser_node_id.size()) &&
+                lower.to_coarser_node_id[goal] == first_parent)
+            {
+                const std::vector<int> hop = shortest_path_in_graph_local(lower, current, goal, first_parent, true);
+                if (hop.empty())
+                {
+                    note_failure(path_index, ReducedHierarchy::LIFT_LEAD_OUT_FAILED);
+                    lower_paths.emplace_back();
+                    continue;
+                }
+                path_buffer.insert(path_buffer.end(), hop.begin() + 1, hop.end());
+            }
+        }
 
         for (int step = 0; step + 1 < static_cast<int>(upper_path.size()); ++step)
         {
@@ -1380,6 +1416,7 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
 
             if (target < 0)
             {
+                note_failure(path_index, ReducedHierarchy::LIFT_NO_TARGET);
                 failed = true;
                 break;
             }
@@ -1389,6 +1426,7 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
                 const auto cached_path_it = upper.bridge_path_cache.find({parent_a, parent_b});
                 if (cached_path_it == upper.bridge_path_cache.end() || cached_path_it->second.path.empty())
                 {
+                    note_failure(path_index, ReducedHierarchy::LIFT_MISSING_BRIDGE);
                     failed = true;
                     break;
                 }
@@ -1408,12 +1446,14 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
                     if (current < 0 || current >= static_cast<int>(lower.to_coarser_node_id.size()) ||
                         lower.to_coarser_node_id[current] != parent_a)
                     {
+                        note_failure(path_index, ReducedHierarchy::LIFT_LEAD_IN_WRONG_PARENT);
                         failed = true;
                         break;
                     }
                     lead_in = shortest_path_in_graph_local(lower, current, segment.front(), parent_a, true);
                     if (lead_in.empty())
                     {
+                        note_failure(path_index, ReducedHierarchy::LIFT_LEAD_IN_FAILED);
                         failed = true;
                         break;
                     }
@@ -1425,20 +1465,23 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
                     if (target < 0 || target >= static_cast<int>(lower.to_coarser_node_id.size()) ||
                         lower.to_coarser_node_id[target] != parent_b)
                     {
+                        note_failure(path_index, ReducedHierarchy::LIFT_LEAD_OUT_WRONG_PARENT);
                         failed = true;
                         break;
                     }
                     lead_out = shortest_path_in_graph_local(lower, segment.back(), target, parent_b, true);
                     if (lead_out.empty())
                     {
+                        note_failure(path_index, ReducedHierarchy::LIFT_LEAD_OUT_FAILED);
                         failed = true;
                         break;
                     }
                 }
 
                 // Protect against an infinitely looping or massive segment in cache
-                if (path_buffer.size() + lead_in.size() + segment.size() + lead_out.size() > 5000)
+                if (path_buffer.size() + lead_in.size() + segment.size() + lead_out.size() > max_path_cells)
                 {
+                    note_failure(path_index, ReducedHierarchy::LIFT_LENGTH_CAP);
                     failed = true;
                     break;
                 }
@@ -1476,8 +1519,11 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
                                                  double* expand_time_out,
                                                  double* guide_time_out,
                                                  double* guide_path_length_sum_out,
-                                                 double* guide_path_cost_sum_out)
+                                                 double* guide_path_cost_sum_out,
+                                                 std::vector<LiftOutcome>* outcomes_out,
+                                                 std::size_t max_path_cells)
 {
+    if (outcomes_out) outcomes_out->clear();
     if (expand_time_out) *expand_time_out = 0.0;
     if (guide_time_out) *guide_time_out = 0.0;
     if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
@@ -1493,9 +1539,16 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
     const auto expand_start = std::chrono::high_resolution_clock::now();
 
     // Step 3: expand the whole batch of coarse paths level-by-level until the
-    // paths live on the fine graph. The last expansion uses the real agent
-    // start locations and task locations as endpoint anchors.
+    // paths live on the fine graph. Every level is anchored to the nodes
+    // containing the real start and goal at the level below, so each level's
+    // path starts and ends in the right node and the final one runs exactly
+    // from the agent's cell to the task's cell. (Anchoring only the last
+    // level, as this used to, made lifts from level 2 or higher almost always
+    // start in the wrong place -- see ai/hierarchical_guide_paths_plan.md.)
     std::vector<std::vector<int>> current_paths = std::move(coarse_region_paths);
+    if (outcomes_out)
+        outcomes_out->assign(current_paths.size(), LiftOutcome{});
+    std::vector<int> level_fail_reasons;
     for (int level = top_level_idx; level >= 1; --level)
     {
         const CoarsenedGraph* upper = hierarchy_.level(level);
@@ -1508,22 +1561,35 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
 
         std::vector<int> preferred_starts;
         std::vector<int> preferred_goals;
-        if (level == 1)
+        preferred_starts.reserve(current_paths.size());
+        preferred_goals.reserve(current_paths.size());
+        for (std::size_t i = 0; i < current_paths.size(); ++i)
         {
-            preferred_starts.reserve(current_paths.size());
-            preferred_goals.reserve(current_paths.size());
-            for (std::size_t i = 0; i < current_paths.size(); ++i)
-            {
-                preferred_starts.push_back(env->curr_states[agent_ids[i]].location);
-                preferred_goals.push_back(env->task_pool[task_ids[i]].locations[0]);
-            }
+            preferred_starts.push_back(map_fine_node_to_level_node_local(
+                hierarchy_, env->curr_states[agent_ids[i]].location, level - 1));
+            preferred_goals.push_back(map_fine_node_to_level_node_local(
+                hierarchy_, env->task_pool[task_ids[i]].locations[0], level - 1));
         }
 
         current_paths = expand_path_batch_one_level_local(std::move(current_paths),
                                                           *lower,
                                                           *upper,
                                                           preferred_starts,
-                                                          preferred_goals);
+                                                          preferred_goals,
+                                                          outcomes_out ? &level_fail_reasons : nullptr,
+                                                          max_path_cells);
+        if (outcomes_out)
+        {
+            for (std::size_t i = 0; i < level_fail_reasons.size() && i < outcomes_out->size(); ++i)
+            {
+                LiftOutcome& o = (*outcomes_out)[i];
+                if (o.fail_level < 0 && level_fail_reasons[i] != LIFT_OK)
+                {
+                    o.fail_level = level;
+                    o.fail_reason = level_fail_reasons[i];
+                }
+            }
+        }
     }
 
     // The level-by-level lift can fail for individual agents (e.g. a bridge
@@ -1531,12 +1597,10 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
     // each agent's path is checked -- and, if needed, recovered with a direct
     // fine-map search -- independently rather than failing the whole batch.
     //
-    // The lift can also come back *non-empty but wrong*: a single coarse
-    // parent can contain multiple disconnected sub-components at an
-    // intermediate level, and the intermediate expansion has no real-location
-    // anchor to correct against. Verified endpoints here, not just
-    // non-emptiness, so a bad lift is always caught and replaced with a
-    // correct-by-construction direct search.
+    // Endpoints are verified too, not just non-emptiness, so a lift that
+    // somehow comes back non-empty but wrong is still caught and replaced
+    // with a correct-by-construction direct search. With every level
+    // anchored this shouldn't happen; it's kept as a safety net.
     for (std::size_t i = 0; i < current_paths.size(); ++i)
     {
         const int agent_id = agent_ids[i];
@@ -1547,9 +1611,24 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
         const bool endpoints_wrong = !current_paths[i].empty() &&
             (current_paths[i].front() != start_loc || current_paths[i].back() != task_loc);
 
+        if (outcomes_out && i < outcomes_out->size())
+        {
+            (*outcomes_out)[i].lifted_cells = current_paths[i].size();
+            (*outcomes_out)[i].endpoints_wrong = endpoints_wrong;
+        }
+
         if (current_paths[i].empty() || endpoints_wrong)
         {
+            const auto fallback_start = std::chrono::high_resolution_clock::now();
             current_paths[i] = shortest_path_in_graph_local(*fine, start_loc, task_loc, -1, false, /*use_heuristic=*/true);
+            if (outcomes_out && i < outcomes_out->size())
+            {
+                LiftOutcome& o = (*outcomes_out)[i];
+                o.used_fallback = true;
+                o.fallback_ok = !current_paths[i].empty();
+                o.fallback_ms = std::chrono::duration<double, std::milli>(
+                    std::chrono::high_resolution_clock::now() - fallback_start).count();
+            }
         }
     }
 
@@ -1625,6 +1704,8 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                                                                         double* local_match_time_out){
     std::unordered_map<int,int> assignments;
     out_agent_guide_paths.clear();
+    if (solve_time_out) *solve_time_out = 0.0;
+    if (guide_time_out) *guide_time_out = 0.0;
     if (guide_path_length_sum_out) *guide_path_length_sum_out = 0.0;
     if (guide_path_cost_sum_out) *guide_path_cost_sum_out = 0.0;
     if (local_match_count_out) *local_match_count_out = 0;
@@ -1781,6 +1862,13 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
               << " cpu_ms " << match_stats.cpu_s * 1000.0
               << " threads " << match_stats.threads << std::endl;
 
+    // SchedulerSolveTime starts here, after Step 1's local matching (timed
+    // separately as SchedulerLocalMatchTime), and covers building this
+    // call's coarse flow graph, NetworkSimplex and Step 2 (walking the flow
+    // to recover the assignment). Steps 3-4 (the lift) are guide time. Same
+    // scope as solver 7 (EdgeAugmentedCoarsen.cpp) and solver 1.
+    const auto solve_start = std::chrono::high_resolution_clock::now();
+
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);
     ListDigraph::ArcMap<double> cost(g);
@@ -1871,13 +1959,14 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     ns.supplyMap(supply);
     ns.flowMap(flow);
 
-    const auto solve_start = std::chrono::high_resolution_clock::now();
     const int ns_status = ns.run();
-    // const auto solve_end = std::chrono::high_resolution_clock::now();
-    // if (solve_time_out)
-    //     *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
     if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
+    {
+        if (solve_time_out)
+            *solve_time_out = std::chrono::duration<double>(
+                std::chrono::high_resolution_clock::now() - solve_start).count();
         return assignments;
+    }
 
     // Step 2: recover one coarse path per agent from the top-level residual
     // flow, exactly as the old code did, but without lifting anything yet.
@@ -1981,20 +2070,18 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         assigned_task_ids.push_back(task_id);
     }
 
+    const auto solve_end = std::chrono::high_resolution_clock::now();
+    if (solve_time_out)
+        *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
+    if (guide_time_out)
+        *guide_time_out = 0.0;
+
     if (!need_guide_paths)
     {
-        // The caller isn't going to consume guide paths this call (e.g. traffic-aware
-        // guiding is disabled, or not active yet this early in the run), so skip the
-        // whole-fine-map path lifting in steps 3/4 below entirely: it's the only part
-        // of this function whose cost scales with the fine map size and per-agent path
-        // length rather than the (tiny) coarse top-level graph, and running it for
-        // guide paths nobody reads was both wasted work and, on large/maze-like maps,
-        // the actual source of the runaway per-timestep memory growth.
-        const auto solve_end = std::chrono::high_resolution_clock::now();
-        if (solve_time_out)
-            *solve_time_out = std::chrono::duration<double>(solve_end - solve_start).count();
-        if (guide_time_out)
-            *guide_time_out = 0.0;
+        // --computeGuidePaths is off, so skip the whole-fine-map path lifting in
+        // steps 3/4 below entirely: it's the only part of this function whose
+        // cost scales with the fine map size and per-agent path length rather
+        // than the (tiny) coarse top-level graph.
         return assignments;
     }
 
@@ -2003,15 +2090,9 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     // lift_coarse_paths_to_fine() (see MapCoarsenV1.h) so a second caller
     // with its own Step 1/2 -- solver 7's edge-node-augmented coarse flow,
     // see ai/edge_node_representation.md -- can reuse the exact same lifting
-    // logic without a second copy of it. This call site's own timing split
-    // (solve_time_out includes Step 3's expand+fallback, guide_time_out
-    // covers only Step 4) is preserved exactly as before the extraction: we
-    // capture elapsed time up to the call, add the method's own reported
-    // Step-3 duration to reconstruct solve_time_out, and pass guide_time_out
-    // straight through.
-    const auto pre_lift_now = std::chrono::high_resolution_clock::now();
-    const double pre_lift_elapsed = std::chrono::duration<double>(pre_lift_now - solve_start).count();
-
+    // logic without a second copy of it. guide_time_out is the whole lift:
+    // Step 3 (expand, endpoint check, fallback searches) plus Step 4
+    // (packaging and the length/cost sums).
     double expand_time = 0.0;
     double guide_time = 0.0;
     double guide_path_length_sum = 0.0;
@@ -2021,13 +2102,8 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
                               &expand_time, &guide_time,
                               &guide_path_length_sum, &guide_path_cost_sum);
 
-    if (solve_time_out)
-        *solve_time_out = pre_lift_elapsed + expand_time;
-    if (ns_status != NetworkSimplex<ListDigraph>::OPTIMAL)
-        return assignments;
-
     if (guide_time_out)
-        *guide_time_out = guide_time;
+        *guide_time_out = expand_time + guide_time;
     if (guide_path_length_sum_out)
         *guide_path_length_sum_out = guide_path_length_sum;
     if (guide_path_cost_sum_out)
