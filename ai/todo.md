@@ -52,7 +52,11 @@ the date and what changed) rather than deleting them outright.
   parameter for the thesis; parallel mode stays off. **Implemented
   2026-10-01** (branch `hierarchy-guide-paths`); bench: corridor A* near-
   shortest at every level, IH level 4 about 4 ms per path, scene about
-  16 ms. Next: big-map planner runs with fresh `astar` baselines.
+  16 ms. Quick scene planner run (300 steps): corridor 12.1 ms vs lift
+  6.2 ms per long path, most of it the coarse Dijkstra. Next (plan doc,
+  "Next"): faster coarse search, then big-map planner runs with fresh
+  `astar` baselines, then PIBT time at 80k (its 1 ms / 100 agents reserve
+  leaves about 100 ms for guide paths at 80k).
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:

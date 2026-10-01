@@ -861,10 +861,93 @@ legs are short (local matching), so they cost almost nothing with either.
 300 steps is too short to compare deliveries: delivery legs average about
 2,800 cells.
 
-### Next (step 5)
+### How the bench measures path length
 
-Planner runs on the evidence maps, one at a time, with fresh `astar`
-baselines from the same build (the IH and scene baselines in this doc
-predate the harness fix): IH 10k 1,500 steps, scene_mp_4p_03 10k 500
-steps, orz900d 10k 1,500 steps; first corridor level 4 margin 0, then lift
-level 4, then the level sweep for the better source.
+- **Pairs:** start = a random agent's start cell, goal = a random task's
+  first location (its pickup), from the 10k thesis instance; seed 1, with
+  replacement; unreachable pairs redrawn. Every builder and level gets the
+  same pairs, so comparisons are paired.
+- **Shortest distance:** BFS on the fine map (4-connected, unit cost,
+  walls only): the exact minimum for this movement model, ignoring other
+  agents, congestion and turning.
+- **Ratio:** `(cells in path - 1) / max(1, shortest)` per pair; tables give
+  mean / p50 / p90 / max over pairs with a valid path (every pair, here).
+  Validity: right endpoints, open cells, 4-adjacent steps.
+- **Limits:** geometric detour only (no effect on throughput); a mean of
+  per-pair ratios, not total length / total shortest; the pairs are longer
+  than typical real requests (pickup legs are short after local matching)
+  and are taken from initial positions, not mid-run; one seed, no
+  confidence intervals. The lift stretches short pairs much more (orz900d
+  level 4: 2.1× under 100 cells); the corridor results haven't been binned
+  by distance yet. All of these can be computed from the existing CSVs.
+- **The bench's lift time is too high for the planner:** it calls solver
+  6's wrapper, which also sums path costs and packages the paths. The
+  planner's `lift_path` skips that (see the next section).
+
+### Where the time goes in the planner (scene run above)
+
+Per long (delivery-leg) path, decisions 3-50, level 4:
+
+| | Coarse search | Fine path (lift or corridor A*) | Total | Cells |
+|---|---|---|---|---|
+| Lift | 5.06 ms | 1.16 ms | 6.2 ms | 2,866 |
+| Corridor | 5.63 ms | 6.50 ms | 12.1 ms | 2,765 |
+
+The coarse Dijkstra (`coarse_path`) is most of the lift's time and about
+half the corridor's. It has no heuristic and uses `std::unordered_map` for
+its distance and parent tables. Pickup legs averaged 36-66 cells, delivery
+legs 2,700-2,840.
+
+A coarser level shrinks the coarse search (bench, scene: 6.9 ms at level
+4, 2.0 at 5, 0.6 at 6) but not the lift's fine-path part (about 1.2 ms,
+proportional to path length), and lengthens lifted paths (scene 1.05× →
+1.24× at level 6; IH 1.09× → 1.37×). Estimated lift at level 6 on scene:
+about 1.7 ms per path. For the corridor a coarser level is slower (wider
+corridor: 9.2 → 26.8 ms from level 4 to 6 on scene).
+
+**What the coarse search is:** single-source, single-target Dijkstra on
+level `L`'s graph (`ReducedHierarchy::coarse_path`), run per path, stopping
+when the goal node is popped; lazy-deletion priority queue, hash-map
+tables, no expansion cap. Nodes are level-`L` nodes (connected pieces of a
+`2^L × 2^L` block); arcs join nodes adjacent in the level's grid where
+some finer arc crosses. Arc cost (built once, `Coarsen`): the average of
+the crossing finer arcs' costs, plus half of each endpoint's average
+internal arc cost in that direction. Fine arcs cost 1, so a level-1 arc
+costs about 2 and a level-`L` hop about `2^L` fine steps; these are
+averages, not exact walking distances, so the coarse route can differ
+from the true shortest route.
+
+### Can it keep up? Estimate (2026-10-01)
+
+Stage 2's budget per step is 1,000 ms minus scheduler time, minus 20
+(`PLANNER_TIMELIMIT_TOLERANCE`), 60 (`TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE`)
+and the PIBT reserve, **1 ms per 100 agents** (`PIBT_RUNTIME_PER_100_AGENTS`):
+about 810 ms at 10k, 610 at 20k, 410 at 40k, about 100 at 80k (before
+scheduler time). Steady demand for long paths is about agents / cycle
+length (scene: delivery legs about 2,800 cells, so N / 2,800 per step;
+IH, assumed about N / 1,250). Pickup paths are nearly free.
+
+| Scene, corridor level 4 (12.1 ms) | 10k | 20k | 40k | 80k |
+|---|---|---|---|---|
+| Paths per step | about 67 | 50 | 34 | 8 |
+| Steady demand | about 4 | 7 | 14 | 29 |
+| Start-up backlog clears in | about 150 steps (run: 163) | 400 | 1,200 | never |
+
+IH (corridor about 4 ms, bench) looks similar: fine at 10k-20k, about 400
+steps of start-up at 40k, short at 80k (about 24 per step vs 64). At 80k
+the limit is the budget, not the builder. PIBT used 24-54 ms of its 100 ms
+reserve on scene 10k; if it scales linearly, 80k needs about 400 ms, not
+800. Estimates only: per-path costs from one 300-step run and the bench;
+scheduler time at 20k-80k not measured.
+
+### Next
+
+1. Faster coarse search: A* (heuristic from the nodes' coarse-grid
+   positions, scaled to the arc costs) and flat arrays instead of hash
+   maps, in `coarse_path`. Helps both builders without lengthening paths.
+   Then rerun the bench and the 300-step scene comparison.
+2. Planner runs on the evidence maps, one at a time, with fresh `astar`
+   baselines from the same build (the IH and scene baselines in this doc
+   predate the harness fix): scene 1,500 steps corridor vs lift, IH 10k
+   1,500 steps, orz900d 10k 1,500 steps; then the level sweep.
+3. Measure PIBT time at 80k and size `PIBT_RUNTIME_PER_100_AGENTS` to it.
