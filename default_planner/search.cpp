@@ -20,9 +20,11 @@ static inline int manhattan_h(int loc, int goal, SharedEnvironment* env){
 
 s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
     HeuristicTable& ht, Traj& traj,
-    MemoryPool& mem, int start, int goal, Neighbors* ns, const TimePoint* deadline)
+    MemoryPool& mem, int start, int goal, Neighbors* ns, const TimePoint* deadline,
+    const SearchCorridor* corridor, int* expanded_out)
 {
     mem.reset();
+    if (expanded_out) *expanded_out = 0;
 
     int expanded=0;
     int generated=0;
@@ -81,6 +83,9 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
         for (int i=0; i<4; i++){
             int next = neighbors[i];
             if (next == -1){
+                continue;
+            }
+            if (corridor != nullptr && !corridor->allows(next)){
                 continue;
             }
 
@@ -178,6 +183,15 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
           
     }
 
+
+    if (expanded_out) *expanded_out = expanded;
+
+    if (goal_node == nullptr && corridor != nullptr){
+        traj.clear();
+        s_node not_found;
+        not_found.id = -1;
+        return not_found;
+    }
 
     if (goal_node == nullptr){
         std::cout << "error in astar: no path found "<< start<<","<<goal << std::endl;

@@ -60,7 +60,11 @@ int main(int argc, char **argv)
         ("flowSolveLevel", po::value<int>()->default_value(2), "solver-6: hierarchy level (0 = fine map) to solve the per-timestep flow assignment on; out-of-range values fall back to the default")
         ("minCascadeLevel", po::value<int>()->default_value(999), "solver-6: first hierarchy level the hierarchical/cascaded local matcher attempts before handing leftovers to flowSolveLevel's usual local-match-then-flow handling; a value >= flowSolveLevel disables cascading (default: disabled)")
         ("cascadeLevelStride", po::value<int>()->default_value(1), "solver-6: attempt a cascade local match only every Nth hierarchy level between minCascadeLevel and flowSolveLevel, still climbing one level at a time in between; default 1 matches every level")
-        ("computeGuidePaths", po::value<bool>()->default_value(true), "schedulers build guide paths (solvers 6/7: lift the coarse paths to the fine map; solver 1: record the flow path it walks). When false no guide path is built or handed to the planner, and the guide-path metrics and SchedulerGuidePathTime are 0");
+        ("computeGuidePaths", po::value<bool>()->default_value(true), "schedulers build guide paths (solvers 6/7: lift the coarse paths to the fine map; solver 1: record the flow path it walks). When false no guide path is built or handed to the planner, and the guide-path metrics and SchedulerGuidePathTime are 0")
+        ("guidePathSource", po::value<std::string>()->default_value("astar"), "how the planner builds its guide paths: astar (full-map A*, default), lift (coarse path at --guidePathLevel lifted with solver 6's lift) or corridor (coarse path, then fine A* limited to its nodes). The hierarchy sources need the hierarchy (use --hierarchyCache) and fall back to full-map A* when they fail")
+        ("guidePathLevel", po::value<int>()->default_value(4), "hierarchy level for --guidePathSource lift/corridor; independent of --flowSolveLevel")
+        ("guidePathCorridorMargin", po::value<int>()->default_value(0), "corridor source: rings of neighbouring coarse nodes added around the coarse path")
+        ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor source: A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -148,6 +152,23 @@ int main(int argc, char **argv)
     planner->env->min_cascade_level = vm["minCascadeLevel"].as<int>();
     planner->env->cascade_level_stride = vm["cascadeLevelStride"].as<int>();
     planner->env->compute_guide_paths = vm["computeGuidePaths"].as<bool>();
+    {
+        const std::string source = vm["guidePathSource"].as<std::string>();
+        if (source == "astar")
+            planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_ASTAR;
+        else if (source == "lift")
+            planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_LIFT;
+        else if (source == "corridor")
+            planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_CORRIDOR;
+        else
+        {
+            std::cerr << "--guidePathSource must be astar, lift or corridor, not " << source << std::endl;
+            return 1;
+        }
+    }
+    planner->env->guide_path_level = vm["guidePathLevel"].as<int>();
+    planner->env->guide_path_corridor_margin = std::max(0, vm["guidePathCorridorMargin"].as<int>());
+    planner->env->guide_path_corridor_congestion = vm["guidePathCorridorCongestion"].as<bool>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

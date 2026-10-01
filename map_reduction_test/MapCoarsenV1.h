@@ -397,7 +397,47 @@ public:
                                    std::vector<LiftOutcome>* outcomes_out = nullptr,
                                    std::size_t max_path_cells = 5000);
 
+    // --- Planner guide paths from the hierarchy ---
+    // (ai/hierarchical_guide_paths_plan.md, "Implementation plan"). All take
+    // fine cells and work on one path at a time. Only valid once ready().
+
+    // The level-`level` node containing fine cell `cell`; -1 if none.
+    int cell_to_level_node(int cell, int level) const;
+
+    // Size of level `level`'s node-id space (ids run 0 .. this - 1).
+    int level_node_id_count(int level) const;
+
+    // For every fine cell, its level-`level` node (-1 for obstacles).
+    std::vector<int> level_ancestors(int level) const;
+
+    // Cheapest path on level `level`'s graph (Dijkstra, the coarse flow's arc
+    // costs) between the nodes containing the two cells. One node if both
+    // are in the same node; empty if there's no path or level < 1.
+    std::vector<int> coarse_path(int start_cell, int goal_cell, int level, int* expanded_out = nullptr) const;
+
+    // Lift `coarse` (a path at `level` from the node containing start_cell
+    // to the node containing goal_cell) to the fine map, every level
+    // anchored, as lift_coarse_paths_to_fine does. No full-map fallback:
+    // returns empty if the lift fails or comes back with wrong endpoints.
+    std::vector<int> lift_path(int start_cell, int goal_cell, int level, std::vector<int> coarse,
+                               std::size_t max_path_cells, LiftOutcome* outcome_out = nullptr) const;
+
+    // The nodes of `coarse` plus every level-`level` node within `margin`
+    // arcs of one of them, each once.
+    std::vector<int> corridor_nodes(int level, const std::vector<int>& coarse, int margin) const;
+
 private:
+    // Level-by-level expansion shared by lift_coarse_paths_to_fine and
+    // lift_path: path i runs from start_cells[i] to goal_cells[i]. Returns
+    // one fine path per input (empty where the lift failed); fills
+    // fail_level / fail_reason in `outcomes_out` if given (same size).
+    std::vector<std::vector<int>> lift_cells(int top_level_idx,
+                                             std::vector<std::vector<int>> coarse_paths,
+                                             const std::vector<int>& start_cells,
+                                             const std::vector<int>& goal_cells,
+                                             std::vector<LiftOutcome>* outcomes_out,
+                                             std::size_t max_path_cells) const;
+
     ReducedHierarchy();
     ~ReducedHierarchy();
 

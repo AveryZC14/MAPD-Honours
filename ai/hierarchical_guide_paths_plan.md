@@ -1,10 +1,14 @@
 # Plan: guide paths from the coarsening hierarchy
 
-Status: **implementation planned, not started (2026-10-01); see
-"Implementation plan" at the end.** Two path builders, both behind a flag
-that is off by default: the spliced lift, and A* on the fine map limited
-to the coarse path's nodes (corridor A*). The level is a run parameter to
-sweep and report in the thesis, not a rule. The existing
+Status: **implemented 2026-10-01 on branch `hierarchy-guide-paths`
+(steps 1-4 of "Implementation plan"); planner runs on big maps (step 5)
+not yet done.** `--guidePathSource astar|lift|corridor` (default `astar`,
+the planner as before), `--guidePathLevel`, `--guidePathCorridorMargin`,
+`--guidePathCorridorCongestion`. Bench: corridor A* gives near-shortest
+paths (1.000-1.02× mean) at every level; on IH level 4 about 4 ms per path
+and on scene_mp_4p_03 level 4 about 16 ms, against 28 / 308 ms for
+full-map A* (no congestion). See "Implementation and results" at the end.
+The existing
 lift has been benchmarked (see "Results"): as solver 6 ran it, it only
 worked from level 1. **Fixed 2026-10-01 (permanent, no switch):** every
 level is now anchored to the real start and goal, which was the original
@@ -512,7 +516,7 @@ Superseded by "Implementation plan" below (2026-10-01): the cap is
 raised for the planner only, the level is a run parameter, and the corridor
 refinement is one of the two path builders.
 
-## Implementation plan (2026-10-01, not started)
+## Implementation plan (2026-10-01)
 
 ### Goal
 
@@ -697,3 +701,149 @@ sweep for whichever source looks better. One run at a time; results in
   held fixed.
 - Default margin (0 or 1), from the step 4 bench.
 - Corridor congestion on or off, from one test run.
+
+## Implementation and results (2026-10-01)
+
+Branch `hierarchy-guide-paths`. Steps 1-4 of the plan are done; step 5
+(planner runs on big maps) is next. Parallel guide paths stay off.
+
+### What was built
+
+- **`ReducedHierarchy`** (`map_reduction_test/MapCoarsenV1.{h,cpp}`):
+  - `lift_cells()` (private): the lift's level loop, taking start and goal
+    cells. `lift_coarse_paths_to_fine` is now a wrapper around it, with
+    solver 6's cap and fallback unchanged.
+  - `coarse_path(start, goal, L)`: Dijkstra on level `L` (moved from the
+    bench, which now calls it).
+  - `lift_path(start, goal, L, coarse, cap)`: one lifted path, no fallback.
+  - `level_ancestors(L)`, `level_node_id_count(L)`, `cell_to_level_node()`,
+    `corridor_nodes(L, coarse, margin)`.
+- **`astar()`** (`default_planner/search.{h,cpp}`): optional
+  `SearchCorridor` (cells outside it are skipped; no path inside returns an
+  empty traj and node id -1 instead of exiting) and optional
+  `expanded_out`. Without them it is unchanged.
+- **Planner** (`default_planner/planner.cpp`): `hierarchy_guide_path()`.
+  In stage 2's sequential loop, an agent needing a path (new goal or
+  `needs_replan`) gets, in order: the scheduler's path (only with
+  `PASS_SCHEDULER_PATHS_TO_PLANNER`), the hierarchy path, then
+  `update_traj` (full-map A*) if that failed. `initialize()` loads the
+  hierarchy (`ensure()`, a no-op after solvers 6/7's scheduler) and exits
+  with a message if `--guidePathLevel` isn't a level of it. With a
+  hierarchy source, `GUIDE_PATH_THREADS > 1` is ignored with a warning.
+  The lift's length cap is `env->map.size()` here. `planner stats:` gained
+  `hier_paths hier_fallbacks hier_coarse_ms hier_build_ms hier_cells
+  corridor_expanded`. Nothing reads `TrajLNS::goal_nodes`, so the lift's
+  `s_node()` is safe.
+- **Settings**: `SharedEnvironment::guide_path_*`, CLI flags in
+  `src/driver.cpp`, recorded in the output JSON (`guidePathSource`,
+  `guidePathLevel`, `guidePathCorridorMargin`,
+  `guidePathCorridorCongestion`).
+- **Sweep script** (`scripts/run_thesis_sweep.py`): `--guide-path-source
+  / --guide-path-level / --guide-path-corridor-margin /
+  --guide-path-corridor-congestion`. With a hierarchy source every solver
+  gets `--hierarchyCache`, run names get a suffix (`_gp-corridor-L4`),
+  `sweep_meta.json` records the setting and the summary CSV has a
+  `guide_path` column. Default commands are unchanged.
+- **Bench** (`bench_hierarchy_lift`): also runs corridor A* (margin 0 and
+  1) and, once per pair, full-map A* (the planner's A*, no congestion).
+- **Trap instance** kept at `instances/custom/trap/` (15×15, agent in a cup
+  opening north, pickup south of its wall).
+
+### Checks
+
+- **Solver 6 unchanged:** `guide_path_validator` on `tiny`, `tinyComplex`,
+  `warehouseSmall_100`, `random_2000`, with and without `--useTraffic`:
+  57 / 95 / 4,268 / 15,159 checks, 0 failed (same counts as before).
+  `lifelong` solver 6, 200 steps: `GuidePathLengthSum` 204 (`tiny`) and 192
+  (`tinyComplex`), as before. Bench output identical to
+  `orz900d_permanent.txt` (levels 2, 4, 8).
+- **Planner, debug checks on** (`-DPLANNER_GUIDE_PATH_DEBUG_CHECKS=true`:
+  path check on every new path, congestion-map check every 100 decisions):
+  `tiny` and `tinyComplex` (solver 6, 200 steps) with `astar`, `lift` and
+  `corridor` (margin 0, margin 1, congestion on) at levels 1 and 2; trap
+  (solver 5, 60 steps) with `astar`, `lift` and `corridor` at levels 1-3.
+  25 runs: 0 errors, 0 check failures, 0 hierarchy fallbacks, every guide
+  path from the hierarchy; trap agent escaped and delivered in all.
+  Finished tasks 14-15 on tiny maps as with `astar`. The trap lifts at
+  levels 2-3 finished 1 task instead of 2 in 60 steps (longer lifted
+  paths). Summary: `outputs/hierarchy_lift_bench/corridor/small_checks.txt`.
+- **Solver 1** with `--guidePathSource corridor` (`tinyComplex`, 20 steps):
+  loads the hierarchy itself, hierarchy paths built, settings in the JSON.
+  Bad level or source: exits with a message.
+
+### Bench: lift vs corridor A* vs full-map A*
+
+`outputs/hierarchy_lift_bench/corridor/` (`run.sh`, per-pair CSVs), run
+one at a time on an idle machine. Same random (agent start, task) pairs
+as before: 300 on orz900d and IH, 200 on scene_mp_4p_03; mean shortest
+distance 1,166 / 1,189 / 2,804 cells. No length cap. Every lift and
+corridor search succeeded with a valid path, at every level, on every map.
+
+Time is per path, coarse search included, means; length is path / shortest.
+Corridor is margin 0.
+
+**orz900d** (full-map A*: 8.0 ms, p90 15.9)
+
+| Level | Lift ms | Lift length | Corridor ms | Corridor length |
+|---|---|---|---|---|
+| 1 | 5.2 | 1.015 | 5.4 | 1.000 |
+| 2 | 1.6 | 1.054 | 1.9 | 1.001 |
+| 3 | 1.0 | 1.132 | 1.7 | 1.002 |
+| 4 | 1.0 | 1.299 | 2.2 | 1.002 |
+| 6 | 1.2 | 1.790 | 4.5 | 1.000 |
+
+**IH_mp_2p_01** (full-map A*: 27.9 ms, p90 70.8, max 623; 70-300 ms in
+real runs with congestion)
+
+| Level | Lift ms | Lift length | Corridor ms | Corridor length |
+|---|---|---|---|---|
+| 1 | 249 | 1.004 | 249 | 1.000 |
+| 2 | 39.5 | 1.013 | 39.8 | 1.001 |
+| 3 | 9.2 | 1.034 | 9.7 | 1.002 |
+| 4 | 3.2 | 1.094 | 4.2 | 1.002 |
+| 6 | 2.0 | 1.365 | 7.7 | 1.020 |
+
+**scene_mp_4p_03** (full-map A*: 308 ms, p90 819, max 1,837)
+
+| Level | Lift ms | Lift length | Corridor ms | Corridor length |
+|---|---|---|---|---|
+| 2 | 155 | 1.010 | 151 | 1.001 |
+| 3 | 32.6 | 1.027 | 33.5 | 1.003 |
+| 4 | 11.5 | 1.051 | 16.1 | 1.005 |
+| 5 | 6.7 | 1.114 | 16.7 | 1.008 |
+| 6 | 5.7 | 1.236 | 27.4 | 1.010 |
+
+**Reading the numbers:**
+
+- **Corridor paths are near-shortest at every level** (1.000-1.020 mean).
+  The lift's stretch grows with the level (IH 1.004 → 1.365, orz900d
+  1.015 → 1.79). So for the corridor the level only trades time, not path
+  quality.
+- **Corridor time is U-shaped in the level.** Low levels: the coarse
+  Dijkstra dominates (IH level 1: 247 of 249 ms). High levels: the corridor
+  gets wide (IH level 6: 61k cells, 23k expanded). Fastest: level 4 on IH
+  (4.2 ms) and orz900d (1.7-2.2 ms at 2-4), levels 4-5 on scene (16 ms).
+- **Corridor size matches the estimate.** IH level 4: 15.7k cells
+  (estimate about 18k). A* expands about a third of it.
+- **Margin 1 isn't worth it.** Path length improves by at most 0.01 (IH
+  level 6: 1.020 → 1.008), for 1.2-2.4× the corridor time.
+- **Against full-map A*:** IH level 4 corridor is about 7× faster than
+  full-map A* on its mean (17× on p90), scene level 4 about 19×. Real IH
+  runs had congestion in the A*, which made it 70-300 ms; the corridor
+  default ignores congestion.
+- **Rough paths per step** (about 850 ms, all spent on paths, long pairs
+  like these): IH corridor level 4 about 200; scene corridor level 4 about
+  50, lift level 5 about 125. The startup backlog (about 10k agents) would
+  take about 50 steps on IH and 100-200 on scene. Real requests may be
+  shorter than these random pairs.
+- **The coarse search is the floor at low levels.** An A* heuristic on the
+  coarse graph (plan, step 1.3) would cut levels 1-3; not done, since
+  levels 3-5 are already where both builders are fastest.
+
+### Next (step 5)
+
+Planner runs on the evidence maps, one at a time, with fresh `astar`
+baselines from the same build (the IH and scene baselines in this doc
+predate the harness fix): IH 10k 1,500 steps, scene_mp_4p_03 10k 500
+steps, orz900d 10k 1,500 steps; first corridor level 4 margin 0, then lift
+level 4, then the level sweep for the better source.

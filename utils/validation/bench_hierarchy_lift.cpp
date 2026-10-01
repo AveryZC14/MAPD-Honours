@@ -16,6 +16,12 @@
 //            [--levels 2,4,6,8] [--pairs 200] [--seed 1] [--csv out.csv]
 //            [--maxPathCells 5000]
 //
+// Also runs the planner's corridor A* (ai/hierarchical_guide_paths_plan.md,
+// "Corridor A*"): the planner's A* (no congestion) limited to the coarse
+// path's nodes, with margin 0 and 1, and once per pair the same A* on the
+// whole map as a reference. Corridor time excludes the coarse search, like
+// the lift's.
+//
 // Results from before every level was anchored (2026-10-01, when this was
 // still an option) are in outputs/hierarchy_lift_bench/*_a0.*.
 
@@ -38,6 +44,8 @@
 #include "SharedEnv.h"
 #include "MapCoarsenV1.h"
 #include "instance_loader.h"
+#include "search.h"
+#include "TrajLNS.h"
 
 using namespace std;
 using MapReductionTest::CoarsenedGraph;
@@ -84,61 +92,8 @@ int fine_bfs_distance(const SharedEnvironment& env, int start, int goal,
     return -1;
 }
 
-int to_level(const ReducedHierarchy& h, int fine_loc, int level)
-{
-    int id = fine_loc;
-    for (int l = 0; l < level; ++l)
-    {
-        const CoarsenedGraph* g = h.hierarchy().level(l);
-        if (!g || id < 0 || id >= static_cast<int>(g->to_coarser_node_id.size())) return -1;
-        id = g->to_coarser_node_id[id];
-    }
-    return id;
-}
-
-// Cheapest path between two graph ids on one coarse level, by arc cost.
-vector<int> coarse_dijkstra(const CoarsenedGraph& g, int from, int to, int* expanded_out)
-{
-    *expanded_out = 0;
-    if (from == to) return {from};
-    std::unordered_map<int, double> best;
-    std::unordered_map<int, int> prev;
-    using Item = pair<double, int>;
-    priority_queue<Item, vector<Item>, greater<Item>> open;
-    best[from] = 0.0;
-    open.push({0.0, from});
-    while (!open.empty())
-    {
-        const auto [d, u] = open.top();
-        open.pop();
-        if (d > best[u]) continue;
-        ++*expanded_out;
-        if (u == to) break;
-        const auto u_node = g.map_nodes[u];
-        for (lemon::ListDigraph::OutArcIt a(g.g, u_node); a != lemon::INVALID; ++a)
-        {
-            const int v_lid = g.g.id(g.g.target(a));
-            if (v_lid < 0 || v_lid >= static_cast<int>(g.node_to_maploc.size())) continue;
-            const int v = g.node_to_maploc[v_lid];
-            if (v < 0) continue;
-            const double nd = d + g.cost[a];
-            auto it = best.find(v);
-            if (it == best.end() || nd < it->second)
-            {
-                best[v] = nd;
-                prev[v] = u;
-                open.push({nd, v});
-            }
-        }
-    }
-    if (!prev.count(to)) return {};
-    vector<int> path{to};
-    while (path.back() != from) path.push_back(prev[path.back()]);
-    reverse(path.begin(), path.end());
-    return path;
-}
-
-bool path_is_valid(const SharedEnvironment& env, const list<int>& path, int start, int goal)
+template <class Path>
+bool path_is_valid(const SharedEnvironment& env, const Path& path, int start, int goal)
 {
     if (path.empty() || path.front() != start || path.back() != goal) return false;
     int prev = -1;
@@ -265,13 +220,44 @@ int main(int argc, char** argv)
          << ", max " << *max_element(true_dist.begin(), true_dist.end())
          << "; fine BFS mean " << setprecision(1) << bfs_ms_total / pairs.size() << " ms\n\n";
 
+    // The planner's A* pieces: neighbour table, one search pool, and an
+    // all-zero congestion map (plain shortest paths, Manhattan heuristic).
+    DefaultPlanner::init_heuristics(&env);
+    DefaultPlanner::MemoryPool pool(env.map.size());
+    vector<DefaultPlanner::Int4> no_flow(env.map.size(), DefaultPlanner::Int4({0, 0, 0, 0}));
+    DefaultPlanner::HeuristicTable no_table;
+
+    // Reference: the planner's A* on the whole map, once per pair.
+    vector<double> fine_ms(pairs.size()), fine_expanded(pairs.size()), fine_len(pairs.size());
+    for (size_t i = 0; i < pairs.size(); ++i)
+    {
+        DefaultPlanner::Traj traj;
+        int expanded = 0;
+        const auto t = Clock::now();
+        DefaultPlanner::astar(&env, no_flow, no_table, traj, pool, pairs[i].first, pairs[i].second,
+                              &DefaultPlanner::global_neighbors, nullptr, nullptr, &expanded);
+        fine_ms[i] = ms_since(t);
+        fine_expanded[i] = expanded;
+        fine_len[i] = static_cast<double>(traj.size()) - 1;
+    }
+    {
+        vector<double> ratio;
+        for (size_t i = 0; i < pairs.size(); ++i) ratio.push_back(fine_len[i] / max(1, true_dist[i]));
+        cout << setprecision(2) << "full-map A* (no congestion): ms mean " << mean(fine_ms)
+             << " p90 " << percentile(fine_ms, 0.9) << " max " << percentile(fine_ms, 1.0)
+             << "; expanded mean " << setprecision(0) << mean(fine_expanded)
+             << "; length / shortest mean " << setprecision(3) << mean(ratio) << "\n\n";
+    }
+
     ofstream csv;
     if (!csv_path.empty())
     {
         csv.open(csv_path);
         csv << "level,pair,start,goal,true_dist,coarse_len,coarse_expanded,coarse_ms,lift_ms,"
                "lifted_cells,fail_level,fail_reason,endpoints_wrong,used_fallback,fallback_ok,"
-               "fallback_ms,final_len,valid\n";
+               "fallback_ms,final_len,valid,"
+               "c0_ok,c0_ms,c0_len,c0_expanded,c0_cells,c1_ok,c1_ms,c1_len,c1_expanded,c1_cells,"
+               "fine_ms,fine_expanded,fine_len\n";
     }
 
     // One agent slot and one task slot, rewritten per pair.
@@ -291,16 +277,25 @@ int main(int argc, char** argv)
         map<int, int> fail_levels;
         vector<double> ratio_lift, ratio_final, coarse_ms, lift_ms, fallback_ms, coarse_len;
 
+        // corridor A*: fine cell -> level node, fine cells per node, marks
+        const vector<int> cell_node = h.level_ancestors(level);
+        vector<int> node_cells(h.level_node_id_count(level), 0);
+        for (int n : cell_node) if (n >= 0) ++node_cells[n];
+        vector<uint32_t> node_stamp(node_cells.size(), 0);
+        uint32_t stamp = 0;
+        const int margins[2] = {0, 1};
+        int corr_ok[2] = {0, 0}, corr_invalid[2] = {0, 0};
+        vector<double> corr_ratio[2], corr_ms[2], corr_expanded[2], corr_cells[2];
+
         for (size_t i = 0; i < pairs.size(); ++i)
         {
             const auto [s, goal] = pairs[i];
             env.curr_states[agent_id].location = s;
             env.task_pool[task_id] = Task(task_id, list<int>{goal}, 0);
 
-            const int cs = to_level(h, s, level), cg = to_level(h, goal, level);
             int expanded = 0;
             const auto t0 = Clock::now();
-            vector<int> coarse = (cs >= 0 && cg >= 0) ? coarse_dijkstra(*g, cs, cg, &expanded) : vector<int>{};
+            vector<int> coarse = h.coarse_path(s, goal, level, &expanded);
             const double c_ms = ms_since(t0);
             coarse_ms.push_back(c_ms);
             coarse_len.push_back(coarse.size());
@@ -337,12 +332,48 @@ int main(int argc, char** argv)
             }
             if (valid) ratio_final.push_back(final_len / td);
 
+            struct CorridorResult { bool ok = false; double ms = 0, len = -1, expanded = 0, cells = 0; };
+            CorridorResult cr[2];
+            for (int m = 0; m < 2 && !coarse.empty(); ++m)
+            {
+                const auto tc = Clock::now();
+                const vector<int> nodes = h.corridor_nodes(level, coarse, margins[m]);
+                ++stamp;
+                for (int n : nodes) { node_stamp[n] = stamp; cr[m].cells += node_cells[n]; }
+                DefaultPlanner::SearchCorridor corridor;
+                corridor.cell_node = &cell_node;
+                corridor.node_stamp = &node_stamp;
+                corridor.stamp = stamp;
+                DefaultPlanner::Traj traj;
+                int expanded = 0;
+                const DefaultPlanner::s_node found = DefaultPlanner::astar(
+                    &env, no_flow, no_table, traj, pool, s, goal, &DefaultPlanner::global_neighbors,
+                    nullptr, &corridor, &expanded);
+                cr[m].ms = ms_since(tc);
+                cr[m].expanded = expanded;
+                const bool cvalid = found.id != -1 && path_is_valid(env, traj, s, goal);
+                if (found.id != -1 && !cvalid) ++corr_invalid[m];
+                if (cvalid)
+                {
+                    cr[m].ok = true;
+                    cr[m].len = static_cast<double>(traj.size()) - 1;
+                    ++corr_ok[m];
+                    corr_ratio[m].push_back(cr[m].len / td);
+                    corr_ms[m].push_back(cr[m].ms);
+                    corr_expanded[m].push_back(expanded);
+                    corr_cells[m].push_back(cr[m].cells);
+                }
+            }
+
             if (csv.is_open())
                 csv << level << "," << i << "," << s << "," << goal << "," << true_dist[i] << ","
                     << coarse.size() << "," << expanded << "," << c_ms << "," << l_ms << ","
                     << o.lifted_cells << "," << o.fail_level << "," << reason_name(o.fail_reason) << ","
                     << o.endpoints_wrong << "," << o.used_fallback << "," << o.fallback_ok << ","
-                    << o.fallback_ms << "," << final_len << "," << valid << "\n";
+                    << o.fallback_ms << "," << final_len << "," << valid << ","
+                    << cr[0].ok << "," << cr[0].ms << "," << cr[0].len << "," << cr[0].expanded << "," << cr[0].cells << ","
+                    << cr[1].ok << "," << cr[1].ms << "," << cr[1].len << "," << cr[1].expanded << "," << cr[1].cells << ","
+                    << fine_ms[i] << "," << fine_expanded[i] << "," << fine_len[i] << "\n";
         }
 
         const int n = static_cast<int>(pairs.size());
@@ -367,6 +398,17 @@ int main(int argc, char** argv)
             cout << "; failed at level:";
             for (const auto& kv : fail_levels) cout << " " << kv.first << "=" << kv.second;
             cout << "\n";
+        }
+        for (int m = 0; m < 2; ++m)
+        {
+            cout << setprecision(3) << "  corridor margin " << margins[m] << ": ok " << corr_ok[m] << "/" << n
+                 << ", invalid " << corr_invalid[m]
+                 << "; length / shortest mean " << mean(corr_ratio[m]) << " p90 " << percentile(corr_ratio[m], 0.9)
+                 << " max " << percentile(corr_ratio[m], 1.0) << "\n" << setprecision(2)
+                 << "    ms mean " << mean(corr_ms[m]) << " p90 " << percentile(corr_ms[m], 0.9)
+                 << " max " << percentile(corr_ms[m], 1.0) << setprecision(0)
+                 << "; expanded mean " << mean(corr_expanded[m])
+                 << "; corridor cells mean " << mean(corr_cells[m]) << " max " << percentile(corr_cells[m], 1.0) << "\n";
         }
     }
     return 0;

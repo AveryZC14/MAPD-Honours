@@ -31,6 +31,13 @@ Examples:
   # run only part of the list
   python3 scripts/run_thesis_sweep.py --maps orz900d IH_mp_2p_01 --teams 10000
   python3 scripts/run_thesis_sweep.py --configs solver1 solver5
+
+  # planner guide paths from the hierarchy (ai/hierarchical_guide_paths_plan.md)
+  python3 scripts/run_thesis_sweep.py --guide-path-source corridor --guide-path-level 4
+
+With --guide-path-source lift/corridor every run (all solvers) gets
+--hierarchyCache, and run names get a suffix such as _gp-corridor-L4, so
+results from different guide-path settings can share an output directory.
 """
 import argparse
 import csv
@@ -107,16 +114,36 @@ def map_team_runs(map_name: str, team: int) -> list[dict]:
     return runs
 
 
-def build_command(binary: Path, run: dict, out_json: Path, sim_time: int) -> list[str]:
+def guide_suffix(guide: dict) -> str:
+    """Run-name suffix for a non-default planner guide-path setting ('' for astar)."""
+    if guide["source"] == "astar":
+        return ""
+    suffix = f"_gp-{guide['source']}-L{guide['level']}"
+    if guide["source"] == "corridor":
+        if guide["margin"]:
+            suffix += f"-m{guide['margin']}"
+        if guide["congestion"]:
+            suffix += "-cong"
+    return suffix
+
+
+def build_command(binary: Path, run: dict, out_json: Path, sim_time: int, guide: dict) -> list[str]:
     instance = INSTANCE_ROOT / run["map"] / f"{run['map']}_{run['team']}.json"
     cmd = [str(binary), "--inputFile", str(instance), "-o", str(out_json),
            "--scheduleModel", str(run["solver"]),
            "-s", str(sim_time),
            "--preprocessTimeLimit", str(run["preprocess"]),
            "--logDetailLevel", str(LOG_DETAIL_LEVEL)]
+    cache = str(REPO_ROOT / "hierarchy_cache" / f"{run['cache']}.hierarchy")
     if run["solver"] in (6, 7):
-        cmd += ["--flowSolveLevel", str(run["level"]),
-                "--hierarchyCache", str(REPO_ROOT / "hierarchy_cache" / f"{run['cache']}.hierarchy")]
+        cmd += ["--flowSolveLevel", str(run["level"]), "--hierarchyCache", cache]
+    if guide["source"] != "astar":
+        # the planner needs the hierarchy whatever the solver
+        if run["solver"] not in (6, 7):
+            cmd += ["--hierarchyCache", cache]
+        cmd += ["--guidePathSource", guide["source"], "--guidePathLevel", str(guide["level"]),
+                "--guidePathCorridorMargin", str(guide["margin"]),
+                "--guidePathCorridorCongestion", "true" if guide["congestion"] else "false"]
     if run.get("min_cascade") is not None:
         cmd += ["--minCascadeLevel", str(run["min_cascade"])]
     return cmd
@@ -189,7 +216,7 @@ def mem_total_gb():
         return None
 
 
-def write_meta(out_dir: Path, binary: Path, sim_time: int):
+def write_meta(out_dir: Path, binary: Path, sim_time: int, guide: dict):
     const_h = (REPO_ROOT / "default_planner" / "const.h").read_text()
     def const(pattern):
         m = re.search(pattern, const_h)
@@ -210,6 +237,8 @@ def write_meta(out_dir: Path, binary: Path, sim_time: int):
         "PASS_SCHEDULER_PATHS_TO_PLANNER": const(r"#define PLANNER_PASS_SCHEDULER_PATHS\s+(\w+)"),
         "GUIDE_PATH_THREADS": const(r"#define PLANNER_GUIDE_PATH_THREADS\s+(\w+)"),
         "GUIDE_PATH_DEBUG_CHECKS": const(r"#define PLANNER_GUIDE_PATH_DEBUG_CHECKS\s+(\w+)"),
+        # planner guide-path source, see ai/hierarchical_guide_paths_plan.md
+        "guide_path": guide,
         # Results depend on wall-clock planning time, so record the machine.
         "cpu_model": cpu_model(),
         "cpu_count": os.cpu_count(),
@@ -230,7 +259,7 @@ def write_meta(out_dir: Path, binary: Path, sim_time: int):
     meta_path.write_text(json.dumps(history, indent=2) + "\n")
 
 
-SUMMARY_FIELDS = ["run", "map", "team", "config", "solver", "level", "exit_code", "wall_clock_s",
+SUMMARY_FIELDS = ["run", "map", "team", "config", "solver", "level", "guide_path", "exit_code", "wall_clock_s",
                   "peak_rss_gb", "ok", "note", "makespan", "decisions", "tasksOpened", "tasksFinished",
                   "finished_at"]
 
@@ -253,8 +282,17 @@ def main():
     p.add_argument("--binary", default="build/lifelong", help="path to the lifelong binary")
     p.add_argument("--sim-time", type=int, default=SIM_TIME,
                    help=f"-s for every run (default {SIM_TIME}; override only for quick tests, into a separate --out-dir)")
+    p.add_argument("--guide-path-source", choices=["astar", "lift", "corridor"], default="astar",
+                   help="planner guide paths: astar (default), or from the hierarchy (lift / corridor)")
+    p.add_argument("--guide-path-level", type=int, default=4, help="hierarchy level for lift / corridor (default 4)")
+    p.add_argument("--guide-path-corridor-margin", type=int, default=0,
+                   help="corridor: rings of neighbouring coarse nodes around the coarse path (default 0)")
+    p.add_argument("--guide-path-corridor-congestion", action="store_true",
+                   help="corridor: A* avoids congestion inside the corridor")
     p.add_argument("--dry-run", action="store_true", help="print the planned commands and exit")
     args = p.parse_args()
+    guide = {"source": args.guide_path_source, "level": args.guide_path_level,
+             "margin": args.guide_path_corridor_margin, "congestion": args.guide_path_corridor_congestion}
 
     runs = plan_runs()
     if args.maps:
@@ -263,13 +301,16 @@ def main():
         runs = [r for r in runs if r["team"] in args.teams]
     if args.configs:
         runs = [r for r in runs if r["config"] in args.configs]
+    for r in runs:
+        r["stem"] += guide_suffix(guide)
+        r["guide_path"] = guide_suffix(guide).lstrip("_") or "astar"
 
     binary = (REPO_ROOT / args.binary).resolve()
     out_dir = (REPO_ROOT / args.out_dir).resolve()
 
     if args.dry_run:
         for i, run in enumerate(runs, 1):
-            cmd = build_command(binary, run, out_dir / f"{run['stem']}.json", args.sim_time)
+            cmd = build_command(binary, run, out_dir / f"{run['stem']}.json", args.sim_time, guide)
             print(f"[{i}/{len(runs)}] {run['stem']}\n    {' '.join(cmd)}")
         print(f"\n{len(runs)} run(s), about {len(runs) * 2.3:.0f} h one at a time")
         return
@@ -278,11 +319,11 @@ def main():
         sys.exit(f"error: binary not found at {binary} (build it with ./compile.sh)")
     for run in runs:
         cache = REPO_ROOT / "hierarchy_cache" / f"{run['cache']}.hierarchy"
-        if run["solver"] in (6, 7) and not cache.exists():
+        if (run["solver"] in (6, 7) or guide["source"] != "astar") and not cache.exists():
             sys.exit(f"error: hierarchy cache missing: {cache}")
     time_bin = Path("/usr/bin/time")  # GNU time, for peak memory; skipped if absent
     out_dir.mkdir(parents=True, exist_ok=True)
-    write_meta(out_dir, binary, args.sim_time)
+    write_meta(out_dir, binary, args.sim_time, guide)
     summary_path = out_dir / "sweep_summary.csv"
 
     print(f"{len(runs)} run(s) planned -> {out_dir}", flush=True)
@@ -304,7 +345,7 @@ def main():
             print(f"{tag}: stopping, only {free:.1f} GB disk free (need {MIN_FREE_DISK_GB} GB)", flush=True)
             break
 
-        cmd = build_command(binary, run, out_json, args.sim_time)
+        cmd = build_command(binary, run, out_json, args.sim_time, guide)
         if time_bin.exists():
             cmd = [str(time_bin), "-v", "-o", str(time_file)] + cmd
         print(f"{tag}: starting at {datetime.now():%Y-%m-%d %H:%M}", flush=True)
@@ -324,7 +365,8 @@ def main():
         elapsed = time.monotonic() - start
 
         row = {"run": stem, "map": run["map"], "team": run["team"], "config": run["config"],
-               "solver": run["solver"], "level": run["level"], "exit_code": exit_code,
+               "solver": run["solver"], "level": run["level"], "guide_path": run["guide_path"],
+               "exit_code": exit_code,
                "wall_clock_s": round(elapsed, 1), "peak_rss_gb": peak_rss_gb(time_file),
                "finished_at": datetime.now().isoformat(timespec="seconds")}
         if exit_code != 0:

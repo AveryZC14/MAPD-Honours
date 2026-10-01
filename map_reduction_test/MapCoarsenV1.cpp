@@ -1510,6 +1510,206 @@ static std::vector<std::vector<int>> expand_path_batch_one_level_local(std::vect
     return lower_paths;
 }
 
+std::vector<std::vector<int>> ReducedHierarchy::lift_cells(int top_level_idx,
+                                                           std::vector<std::vector<int>> coarse_paths,
+                                                           const std::vector<int>& start_cells,
+                                                           const std::vector<int>& goal_cells,
+                                                           std::vector<LiftOutcome>* outcomes_out,
+                                                           std::size_t max_path_cells) const
+{
+    // Every level is anchored to the nodes containing the real start and goal
+    // at the level below, so each level's path starts and ends in the right
+    // node and the final one runs exactly from start cell to goal cell.
+    // (Anchoring only the last level, as this used to, made lifts from level
+    // 2 or higher almost always start in the wrong place -- see
+    // ai/hierarchical_guide_paths_plan.md.)
+    std::vector<std::vector<int>> current_paths = std::move(coarse_paths);
+    if (outcomes_out)
+        outcomes_out->assign(current_paths.size(), LiftOutcome{});
+    std::vector<int> level_fail_reasons;
+    for (int level = top_level_idx; level >= 1; --level)
+    {
+        const CoarsenedGraph* upper = hierarchy_.level(level);
+        const CoarsenedGraph* lower = hierarchy_.level(level - 1);
+        if (!upper || !lower)
+        {
+            current_paths.clear();
+            break;
+        }
+
+        std::vector<int> preferred_starts;
+        std::vector<int> preferred_goals;
+        preferred_starts.reserve(current_paths.size());
+        preferred_goals.reserve(current_paths.size());
+        for (std::size_t i = 0; i < current_paths.size(); ++i)
+        {
+            preferred_starts.push_back(map_fine_node_to_level_node_local(hierarchy_, start_cells[i], level - 1));
+            preferred_goals.push_back(map_fine_node_to_level_node_local(hierarchy_, goal_cells[i], level - 1));
+        }
+
+        current_paths = expand_path_batch_one_level_local(std::move(current_paths),
+                                                          *lower,
+                                                          *upper,
+                                                          preferred_starts,
+                                                          preferred_goals,
+                                                          outcomes_out ? &level_fail_reasons : nullptr,
+                                                          max_path_cells);
+        if (outcomes_out)
+        {
+            for (std::size_t i = 0; i < level_fail_reasons.size() && i < outcomes_out->size(); ++i)
+            {
+                LiftOutcome& o = (*outcomes_out)[i];
+                if (o.fail_level < 0 && level_fail_reasons[i] != LIFT_OK)
+                {
+                    o.fail_level = level;
+                    o.fail_reason = level_fail_reasons[i];
+                }
+            }
+        }
+    }
+    return current_paths;
+}
+
+int ReducedHierarchy::cell_to_level_node(int cell, int level) const
+{
+    return map_fine_node_to_level_node_local(hierarchy_, cell, level);
+}
+
+int ReducedHierarchy::level_node_id_count(int level) const
+{
+    const CoarsenedGraph* g = hierarchy_.level(level);
+    return g ? static_cast<int>(g->map_nodes.size()) : 0;
+}
+
+std::vector<int> ReducedHierarchy::level_ancestors(int level) const
+{
+    const CoarsenedGraph* fine = hierarchy_.fine_graph();
+    if (!fine || level < 0 || level >= hierarchy_.num_levels())
+        return {};
+    // One level at a time over the whole array, rather than walking each
+    // cell up separately.
+    std::vector<int> ancestors(fine->to_coarser_node_id.size());
+    for (std::size_t c = 0; c < ancestors.size(); ++c)
+        ancestors[c] = is_valid_graph_node_id_local(*fine, static_cast<int>(c)) ? static_cast<int>(c) : -1;
+    for (int l = 0; l < level; ++l)
+    {
+        const CoarsenedGraph* g = hierarchy_.level(l);
+        for (int& a : ancestors)
+        {
+            if (a < 0) continue;
+            a = (a < static_cast<int>(g->to_coarser_node_id.size())) ? g->to_coarser_node_id[a] : -1;
+        }
+    }
+    return ancestors;
+}
+
+std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, int level, int* expanded_out) const
+{
+    if (expanded_out) *expanded_out = 0;
+    if (level < 1 || level >= hierarchy_.num_levels())
+        return {};
+    const CoarsenedGraph& g = *hierarchy_.level(level);
+    const int from = cell_to_level_node(start_cell, level);
+    const int to = cell_to_level_node(goal_cell, level);
+    if (!is_valid_graph_node_id_local(g, from) || !is_valid_graph_node_id_local(g, to))
+        return {};
+    if (from == to)
+        return {from};
+
+    std::unordered_map<int, double> best;
+    std::unordered_map<int, int> prev;
+    using Item = std::pair<double, int>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<Item>> open;
+    best[from] = 0.0;
+    open.push({0.0, from});
+    int expanded = 0;
+    while (!open.empty())
+    {
+        const auto [d, u] = open.top();
+        open.pop();
+        if (d > best[u]) continue;
+        ++expanded;
+        if (u == to) break;
+        for (lemon::ListDigraph::OutArcIt a(g.g, g.map_nodes[u]); a != lemon::INVALID; ++a)
+        {
+            const int v_lid = g.g.id(g.g.target(a));
+            if (v_lid < 0 || v_lid >= static_cast<int>(g.node_to_maploc.size())) continue;
+            const int v = g.node_to_maploc[v_lid];
+            if (!is_valid_graph_node_id_local(g, v)) continue;
+            const double nd = d + g.cost[a];
+            auto it = best.find(v);
+            if (it == best.end() || nd < it->second)
+            {
+                best[v] = nd;
+                prev[v] = u;
+                open.push({nd, v});
+            }
+        }
+    }
+    if (expanded_out) *expanded_out = expanded;
+    if (prev.find(to) == prev.end())
+        return {};
+    std::vector<int> path{to};
+    while (path.back() != from)
+        path.push_back(prev[path.back()]);
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+std::vector<int> ReducedHierarchy::lift_path(int start_cell, int goal_cell, int level, std::vector<int> coarse,
+                                             std::size_t max_path_cells, LiftOutcome* outcome_out) const
+{
+    if (outcome_out) *outcome_out = LiftOutcome{};
+    if (coarse.empty() || level < 1 || level >= hierarchy_.num_levels())
+        return {};
+    std::vector<LiftOutcome> outcomes;
+    std::vector<std::vector<int>> lifted = lift_cells(level, {std::move(coarse)}, {start_cell}, {goal_cell},
+                                                      outcome_out ? &outcomes : nullptr, max_path_cells);
+    std::vector<int> path = lifted.empty() ? std::vector<int>{} : std::move(lifted[0]);
+    const bool endpoints_wrong = !path.empty() && (path.front() != start_cell || path.back() != goal_cell);
+    if (outcome_out)
+    {
+        if (!outcomes.empty()) *outcome_out = outcomes[0];
+        outcome_out->lifted_cells = path.size();
+        outcome_out->endpoints_wrong = endpoints_wrong;
+    }
+    if (endpoints_wrong)
+        path.clear();
+    return path;
+}
+
+std::vector<int> ReducedHierarchy::corridor_nodes(int level, const std::vector<int>& coarse, int margin) const
+{
+    const CoarsenedGraph* g = hierarchy_.level(level);
+    if (!g)
+        return {};
+    std::unordered_set<int> seen;
+    std::vector<int> nodes;
+    for (int n : coarse)
+        if (seen.insert(n).second)
+            nodes.push_back(n);
+    // breadth-first, one ring of neighbouring nodes per margin step
+    std::size_t ring_start = 0;
+    for (int ring = 0; ring < margin; ++ring)
+    {
+        const std::size_t ring_end = nodes.size();
+        for (std::size_t k = ring_start; k < ring_end; ++k)
+        {
+            if (!is_valid_graph_node_id_local(*g, nodes[k])) continue;
+            for (lemon::ListDigraph::OutArcIt a(g->g, g->map_nodes[nodes[k]]); a != lemon::INVALID; ++a)
+            {
+                const int v_lid = g->g.id(g->g.target(a));
+                if (v_lid < 0 || v_lid >= static_cast<int>(g->node_to_maploc.size())) continue;
+                const int v = g->node_to_maploc[v_lid];
+                if (is_valid_graph_node_id_local(*g, v) && seen.insert(v).second)
+                    nodes.push_back(v);
+            }
+        }
+        ring_start = ring_end;
+    }
+    return nodes;
+}
+
 void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
                                                  int top_level_idx,
                                                  const std::vector<int>& agent_ids,
@@ -1539,58 +1739,20 @@ void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,
     const auto expand_start = std::chrono::high_resolution_clock::now();
 
     // Step 3: expand the whole batch of coarse paths level-by-level until the
-    // paths live on the fine graph. Every level is anchored to the nodes
-    // containing the real start and goal at the level below, so each level's
-    // path starts and ends in the right node and the final one runs exactly
-    // from the agent's cell to the task's cell. (Anchoring only the last
-    // level, as this used to, made lifts from level 2 or higher almost always
-    // start in the wrong place -- see ai/hierarchical_guide_paths_plan.md.)
-    std::vector<std::vector<int>> current_paths = std::move(coarse_region_paths);
-    if (outcomes_out)
-        outcomes_out->assign(current_paths.size(), LiftOutcome{});
-    std::vector<int> level_fail_reasons;
-    for (int level = top_level_idx; level >= 1; --level)
+    // paths live on the fine graph (lift_cells: every level anchored to the
+    // nodes containing the real start and goal at the level below).
+    std::vector<int> start_cells;
+    std::vector<int> goal_cells;
+    start_cells.reserve(agent_ids.size());
+    goal_cells.reserve(agent_ids.size());
+    for (std::size_t i = 0; i < agent_ids.size(); ++i)
     {
-        const CoarsenedGraph* upper = hierarchy_.level(level);
-        const CoarsenedGraph* lower = hierarchy_.level(level - 1);
-        if (!upper || !lower)
-        {
-            current_paths.clear();
-            break;
-        }
-
-        std::vector<int> preferred_starts;
-        std::vector<int> preferred_goals;
-        preferred_starts.reserve(current_paths.size());
-        preferred_goals.reserve(current_paths.size());
-        for (std::size_t i = 0; i < current_paths.size(); ++i)
-        {
-            preferred_starts.push_back(map_fine_node_to_level_node_local(
-                hierarchy_, env->curr_states[agent_ids[i]].location, level - 1));
-            preferred_goals.push_back(map_fine_node_to_level_node_local(
-                hierarchy_, env->task_pool[task_ids[i]].locations[0], level - 1));
-        }
-
-        current_paths = expand_path_batch_one_level_local(std::move(current_paths),
-                                                          *lower,
-                                                          *upper,
-                                                          preferred_starts,
-                                                          preferred_goals,
-                                                          outcomes_out ? &level_fail_reasons : nullptr,
-                                                          max_path_cells);
-        if (outcomes_out)
-        {
-            for (std::size_t i = 0; i < level_fail_reasons.size() && i < outcomes_out->size(); ++i)
-            {
-                LiftOutcome& o = (*outcomes_out)[i];
-                if (o.fail_level < 0 && level_fail_reasons[i] != LIFT_OK)
-                {
-                    o.fail_level = level;
-                    o.fail_reason = level_fail_reasons[i];
-                }
-            }
-        }
+        start_cells.push_back(env->curr_states[agent_ids[i]].location);
+        goal_cells.push_back(env->task_pool[task_ids[i]].locations[0]);
     }
+    std::vector<std::vector<int>> current_paths = lift_cells(top_level_idx, std::move(coarse_region_paths),
+                                                             start_cells, goal_cells, outcomes_out,
+                                                             max_path_cells);
 
     // The level-by-level lift can fail for individual agents (e.g. a bridge
     // segment wasn't cached) while succeeding for the rest of the batch, so

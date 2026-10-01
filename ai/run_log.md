@@ -524,3 +524,24 @@ progresses -- this is not append-only.
   the coarse graph build (about 26 ms on the first IH 10k decision). Checks:
   validators 0 failed; orz900d 10k solvers 6/7 and IH 10k solver 6, level 4,
   50 steps, 0 errors (`outputs/hierarchy_lift_bench/solve_time_aligned/`).
+
+### 2026-10-01: planner guide paths from the hierarchy (lift / corridor A*)
+
+- **What**: branch `hierarchy-guide-paths`. New `--guidePathSource
+  astar|lift|corridor` (default `astar`), `--guidePathLevel`,
+  `--guidePathCorridorMargin`, `--guidePathCorridorCongestion`; the planner
+  builds guide paths (new goals and `needs_replan`) from a coarse path at
+  the chosen level, falling back to full-map A*. Details in
+  `ai/hierarchical_guide_paths_plan.md`, "Implementation and results".
+- **Checks**: solver 6 unchanged (validators 0 failed with the same check
+  counts; `GuidePathLengthSum` 204 / 192 on tiny / tinyComplex; bench
+  identical). 25 small-map planner runs with debug checks on (tiny,
+  tinyComplex, trap; every source, levels 1-3): 0 errors, 0 check failures,
+  0 fallbacks, trap escaped
+  (`outputs/hierarchy_lift_bench/corridor/small_checks.txt`).
+- **Bench** (`outputs/hierarchy_lift_bench/corridor/`): every lift and
+  corridor search valid on orz900d, IH, scene_mp_4p_03. Corridor margin 0
+  is 1.000-1.020× shortest at every level; IH level 4: 4.2 ms (full-map A*
+  27.9 ms), scene level 4: 16 ms (308 ms). Lift is faster at high levels
+  but stretches (IH level 6: 1.37×).
+- **Status**: big-map planner runs (plan step 5) not started.

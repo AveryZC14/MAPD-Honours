@@ -4,6 +4,8 @@
 #include "pibt.h"
 #include "flow.h"
 #include "const.h"
+#include "search.h"
+#include "MapCoarsenV1.h"
 #include <thread>
 #include <atomic>
 
@@ -70,6 +72,90 @@ namespace DefaultPlanner{
                     exit(1);
                 }
         cout << "flow check ok" << endl;
+    }
+
+    // Guide paths from the hierarchy (--guidePathSource lift / corridor, see
+    // ai/hierarchical_guide_paths_plan.md). Set up in initialize().
+    bool hier_paths_on = false;
+    int hier_level = 0;
+    std::vector<int> hier_cell_node;       // corridor: fine cell -> level node
+    std::vector<uint32_t> hier_node_stamp; // corridor: marks, one per level node
+    uint32_t hier_stamp = 0;
+    // per-decision counters, logged on the planner stats line
+    int hier_paths = 0;
+    int hier_fallbacks = 0;
+    double hier_coarse_ms = 0.0;
+    double hier_build_ms = 0.0;
+    long long hier_cells = 0;
+    long long hier_corridor_expanded = 0;
+
+    // Build agent i's guide path from the hierarchy: coarse path at
+    // hier_level, then the lift or corridor A*. On success commits it and
+    // returns true; on failure returns false and the caller falls back to
+    // update_traj. The agent's old path must already be out of trajLNS.flow
+    // (remove_traj), as in the sequential guide-path loop.
+    bool hierarchy_guide_path(SharedEnvironment* env, int i)
+    {
+        const auto& h = MapReductionTest::ReducedHierarchy::instance();
+        const int start = env->curr_states[i].location;
+        const int goal = trajLNS.tasks[i];
+        const TimePoint t0 = std::chrono::steady_clock::now();
+        std::vector<int> coarse = h.coarse_path(start, goal, hier_level);
+        const TimePoint t1 = std::chrono::steady_clock::now();
+        hier_coarse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
+        if (coarse.empty())
+        {
+            hier_fallbacks++;
+            return false;
+        }
+
+        Traj path;
+        s_node goal_node;
+        if (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_LIFT)
+        {
+            std::vector<int> lifted = h.lift_path(start, goal, hier_level, std::move(coarse), env->map.size());
+            path.assign(lifted.begin(), lifted.end());
+        }
+        else
+        {
+            if (++hier_stamp == 0)
+            {
+                std::fill(hier_node_stamp.begin(), hier_node_stamp.end(), 0);
+                hier_stamp = 1;
+            }
+            for (int n : h.corridor_nodes(hier_level, coarse, env->guide_path_corridor_margin))
+                hier_node_stamp[n] = hier_stamp;
+            SearchCorridor corridor;
+            corridor.cell_node = &hier_cell_node;
+            corridor.node_stamp = &hier_node_stamp;
+            corridor.stamp = hier_stamp;
+            static std::vector<Int4> no_congestion;
+            if (no_congestion.size() != env->map.size())
+                no_congestion.assign(env->map.size(), Int4({0,0,0,0}));
+            int expanded = 0;
+            goal_node = astar(env, env->guide_path_corridor_congestion ? trajLNS.flow : no_congestion,
+                              trajLNS.heuristics[goal], path, trajLNS.mem, start, goal, &(trajLNS.neighbors),
+                              nullptr, &corridor, &expanded);
+            hier_corridor_expanded += expanded;
+            if (goal_node.id == -1)
+                path.clear();
+        }
+        hier_build_ms += std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t1).count();
+        if (path.empty())
+        {
+            hier_fallbacks++;
+            return false;
+        }
+
+        if (GUIDE_PATH_DEBUG_CHECKS)
+            check_path_or_die(env, i, path, goal);
+        // the old path is already out of the flow: clear it so commit_traj
+        // doesn't remove it a second time
+        trajLNS.trajs[i].clear();
+        commit_traj(trajLNS, i, path, goal_node);
+        hier_paths++;
+        hier_cells += (long long)trajLNS.trajs[i].size() - 1;
+        return true;
     }
 
     // Guide-path threads actually used: GUIDE_PATH_THREADS, reduced so the
@@ -255,6 +341,45 @@ namespace DefaultPlanner{
                 p[ids[i]] = ((double)(ids.size() - i))/((double)(ids.size()+1));
             }
             p_copy = p;
+
+            // Guide paths from the hierarchy: load it (a no-op for solvers
+            // 6/7, whose scheduler already did) and check the level.
+            hier_paths_on = env->guide_path_source != SharedEnvironment::GUIDE_SOURCE_ASTAR;
+            if (hier_paths_on)
+            {
+                auto& h = MapReductionTest::ReducedHierarchy::instance();
+                const auto t0 = std::chrono::steady_clock::now();
+                h.ensure(env);
+                if (!h.ready())
+                {
+                    cout << "error: --guidePathSource needs the hierarchy, which could not be built" << endl;
+                    exit(1);
+                }
+                const int num_levels = h.hierarchy().num_levels();
+                hier_level = env->guide_path_level;
+                if (hier_level < 1 || hier_level >= num_levels)
+                {
+                    cout << "error: --guidePathLevel " << hier_level << " is not in the hierarchy (levels 1-"
+                         << num_levels - 1 << ")" << endl;
+                    exit(1);
+                }
+                if (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_CORRIDOR)
+                {
+                    hier_cell_node = h.level_ancestors(hier_level);
+                    hier_node_stamp.assign(h.level_node_id_count(hier_level), 0);
+                    hier_stamp = 0;
+                }
+                cout << "guide paths from hierarchy: source "
+                     << (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_LIFT ? "lift" : "corridor")
+                     << " level " << hier_level << " (" << h.hierarchy_level_node_counts()[hier_level] << " nodes)"
+                     << " margin " << env->guide_path_corridor_margin
+                     << " congestion " << env->guide_path_corridor_congestion
+                     << ", ready in " << std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count()
+                     << " s" << endl;
+                if (GUIDE_PATH_THREADS > 1)
+                    cout << "warning: guide paths from the hierarchy are built sequentially; GUIDE_PATH_THREADS "
+                         << GUIDE_PATH_THREADS << " is ignored" << endl;
+            }
             // std::cout <<"planner initted\n";
             return;
     };
@@ -398,7 +523,13 @@ namespace DefaultPlanner{
         // so the agents at the end of the list aren't always the ones left
         // without a path when time runs out.
         const int n_agents = env->num_of_agents;
-        const bool parallel_paths = USE_MANHATTAN_HEURISTIC && GUIDE_PATH_THREADS > 1;
+        const bool parallel_paths = USE_MANHATTAN_HEURISTIC && GUIDE_PATH_THREADS > 1 && !hier_paths_on;
+        hier_paths = 0;
+        hier_fallbacks = 0;
+        hier_coarse_ms = 0.0;
+        hier_build_ms = 0.0;
+        hier_cells = 0;
+        hier_corridor_expanded = 0;
         const int start_agent = (local_bfs || parallel_paths) ? guide_path_start % n_agents : 0;
         int paths_built = 0;
         int paths_from_scheduler = 0;
@@ -434,7 +565,7 @@ namespace DefaultPlanner{
                     else if (USE_LOCAL_PATH_BFS)
                         update_path_togo(trajLNS,i);
                 }
-                else
+                else if (!hier_paths_on || !hierarchy_guide_path(env, i))
                 {
                     update_traj(trajLNS, i);
                 }
@@ -540,7 +671,13 @@ namespace DefaultPlanner{
              << " stuck_agents " << stuck_agents
              << " bfs_no_path " << trajLNS.bfs_no_path
              << " bfs_too_far " << trajLNS.bfs_too_far
-             << " bfs_cells " << trajLNS.bfs_cells << endl;
+             << " bfs_cells " << trajLNS.bfs_cells
+             << " hier_paths " << hier_paths
+             << " hier_fallbacks " << hier_fallbacks
+             << " hier_coarse_ms " << hier_coarse_ms
+             << " hier_build_ms " << hier_build_ms
+             << " hier_cells " << hier_cells
+             << " corridor_expanded " << hier_corridor_expanded << endl;
 
         // post processing the targeted next location to turning or moving actions
         actions.resize(env->num_of_agents);

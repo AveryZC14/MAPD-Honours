@@ -1,0 +1,42 @@
+map scene_mp_4p_03.map 3728x3728, agents 10000, tasks 120000
+max path cells 100000000
+hierarchy ready in 28.9 s, 13 levels; nodes per level: 13897984 1599811 412302 109865 30627 9317 3110 1262 590 370 290 254 238
+pairs 200, shortest distance mean 2804, max 5915; fine BFS mean 118.3 ms
+
+full-map A* (no congestion): ms mean 307.85 p90 818.91 max 1836.85; expanded mean 724219; length / shortest mean 1.000
+
+level 2 (412302 nodes): lift ok 200/200, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.010, p50 1.009, p90 1.017, max 1.107
+  coarse path nodes mean 703.38; coarse search ms mean 147.36 p90 307.92; lift ms (ok) mean 7.81 p90 13.72 max 42.18
+  corridor margin 0: ok 200/200, invalid 0; length / shortest mean 1.001 p90 1.000 max 1.101
+    ms mean 4.16 p90 7.67 max 11.07; expanded mean 6793; corridor cells mean 9268 max 19319
+  corridor margin 1: ok 200/200, invalid 0; length / shortest mean 1.001 p90 1.000 max 1.101
+    ms mean 5.04 p90 10.34 max 16.91; expanded mean 16079; corridor cells mean 24633 max 51356
+level 3 (109865 nodes): lift ok 200/200, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.027, p50 1.022, p90 1.042, max 1.131
+  coarse path nodes mean 352.63; coarse search ms mean 27.92 p90 50.40; lift ms (ok) mean 4.69 p90 7.77 max 10.65
+  corridor margin 0: ok 200/200, invalid 0; length / shortest mean 1.003 p90 1.008 max 1.101
+    ms mean 5.60 p90 10.99 max 17.18; expanded mean 11953; corridor cells mean 17401 max 38269
+  corridor margin 1: ok 200/200, invalid 0; length / shortest mean 1.003 p90 1.008 max 1.101
+    ms mean 8.99 p90 19.63 max 40.00; expanded mean 29488; corridor cells mean 46732 max 99265
+level 4 (30627 nodes): lift ok 200/200, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.051, p50 1.046, p90 1.076, max 1.248
+  coarse path nodes mean 177.30; coarse search ms mean 6.88 p90 12.39; lift ms (ok) mean 4.57 p90 7.69 max 10.49
+  corridor margin 0: ok 200/200, invalid 0; length / shortest mean 1.005 p90 1.011 max 1.101
+    ms mean 9.19 p90 18.94 max 29.91; expanded mean 22643; corridor cells mean 33745 max 73515
+  corridor margin 1: ok 200/200, invalid 0; length / shortest mean 1.005 p90 1.010 max 1.101
+    ms mean 18.08 p90 41.78 max 68.74; expanded mean 55947; corridor cells mean 90045 max 190080
+level 5 (9317 nodes): lift ok 200/200, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.114, p50 1.104, p90 1.180, max 1.715
+  coarse path nodes mean 89.52; coarse search ms mean 1.98 p90 3.41; lift ms (ok) mean 4.75 p90 7.79 max 10.53
+  corridor margin 0: ok 200/200, invalid 0; length / shortest mean 1.008 p90 1.019 max 1.101
+    ms mean 14.69 p90 30.78 max 48.38; expanded mean 42474; corridor cells mean 65261 max 135477
+  corridor margin 1: ok 200/200, invalid 0; length / shortest mean 1.007 p90 1.018 max 1.101
+    ms mean 35.20 p90 78.65 max 132.82; expanded mean 104715; corridor cells mean 171038 max 364605
+level 6 (3110 nodes): lift ok 200/200, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.236, p50 1.218, p90 1.355, max 2.182
+  coarse path nodes mean 45.20; coarse search ms mean 0.63 p90 1.05; lift ms (ok) mean 5.04 p90 8.03 max 11.55
+  corridor margin 0: ok 200/200, invalid 0; length / shortest mean 1.010 p90 1.029 max 1.206
+    ms mean 26.79 p90 58.37 max 110.76; expanded mean 78071; corridor cells mean 125485 max 274829
+  corridor margin 1: ok 200/200, invalid 0; length / shortest mean 1.005 p90 1.007 max 1.160
+    ms mean 63.98 p90 142.90 max 232.55; expanded mean 173015; corridor cells mean 315743 max 673714

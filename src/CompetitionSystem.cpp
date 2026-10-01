@@ -389,6 +389,15 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     js["schedulerMatchThreads"] = last_scheduler_timing.match_threads;
     // --computeGuidePaths: whether the guide-path metrics above/below could be nonzero.
     js["computeGuidePaths"] = env->compute_guide_paths;
+    // The planner's own guide-path source (--guidePathSource and friends).
+    {
+        static const char* source_names[] = {"astar", "lift", "corridor"};
+        const int s = env->guide_path_source;
+        js["guidePathSource"] = (s >= 0 && s <= 2) ? source_names[s] : "unknown";
+        js["guidePathLevel"] = env->guide_path_level;
+        js["guidePathCorridorMargin"] = env->guide_path_corridor_margin;
+        js["guidePathCorridorCongestion"] = env->guide_path_corridor_congestion;
+    }
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;
     js["totalFlowMatchCount"] = total_flow_match_count;

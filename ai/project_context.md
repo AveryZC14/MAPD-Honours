@@ -428,6 +428,15 @@ a `planner stats:` line (stage timings, paths built, stuck agents, BFS
 fallbacks). Full description, design reasoning and results in
 `ai/planner_local_bfs_plan.md`.
 
+**Since 2026-10-01** (branch `hierarchy-guide-paths`, details in
+`ai/hierarchical_guide_paths_plan.md`, "Implementation and results"):
+`--guidePathSource lift|corridor` makes stage 2 build guide paths (new
+goals and `needs_replan`) from a coarse path at `--guidePathLevel`
+(separate from `--flowSolveLevel`): solver 6's lift, or corridor A*
+(`astar()` limited to the coarse path's nodes via `SearchCorridor`).
+Full-map A* is the fallback; the default `astar` is the planner as before.
+The hierarchy is then loaded for every solver (`--hierarchyCache`).
+
 **Also as of 2026-09-30** (details in `ai/parallel_guide_paths_plan.md`
 and `ai/parallel_local_matching_plan.md`):
 
@@ -859,8 +868,9 @@ Headline pitfalls documented there, worth knowing before touching this again:
   lift only works from level 1, because higher levels aren't anchored to the
   real start and goal. Fixed permanently 2026-10-01: with every level
   anchored it works at every level on orz900d, IH and scene_mp_4p_03.
-  Its "Implementation plan" section (2026-10-01, not started) is the plan
-  for the planner: `--guidePathSource astar|lift|corridor` (corridor = fine
+  Its "Implementation plan" section (implemented 2026-10-01, big-map
+  planner runs pending; results in "Implementation and results") is the
+  planner change: `--guidePathSource astar|lift|corridor` (corridor = fine
   A* limited to the coarse path's nodes), `--guidePathLevel` as a swept
   parameter separate from `--flowSolveLevel`, used for new goals and
   `needs_replan` agents, full-map A* as fallback. Parallel mode stays off.

@@ -1,0 +1,28 @@
+# Small-map planner checks, 2026-10-01: lifelong built with -DPLANNER_GUIDE_PATH_DEBUG_CHECKS=true.
+# trap instance: instances/custom/trap/trap.json. tiny / tinyComplex: solver 6, 200 steps. trap (15x15, agent in a cup opening north, pickup south of its wall): solver 5, 60 steps.
+# corr = corridor, corrM1 = margin 1, corrC = congestion inside the corridor. Totals over all decisions.
+tinyComplex_astar      rc=0 src=astar finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=0 hier_fallbacks=0 hier_cells=0 corridor_expanded=0
+tinyComplex_corrC_L1   rc=0 src=corridor finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=33 hier_paths=33 hier_fallbacks=0 hier_cells=419 corridor_expanded=515
+tinyComplex_corrC_L2   rc=0 src=corridor finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=405 corridor_expanded=603
+tinyComplex_corrM1_L1  rc=0 src=corridor finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=574
+tinyComplex_corrM1_L2  rc=0 src=corridor finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=625
+tinyComplex_corr_L1    rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=456
+tinyComplex_corr_L2    rc=0 src=corridor finished=15 errors=0 checkFails=0 flowChecksOk=2 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=575
+tinyComplex_lift_L1    rc=0 src=lift finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=382 corridor_expanded=0
+tinyComplex_lift_L2    rc=0 src=lift finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=382 corridor_expanded=0
+tiny_astar             rc=0 src=astar finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=0 hier_fallbacks=0 hier_cells=0 corridor_expanded=0
+tiny_corrC_L1          rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=420
+tiny_corrC_L2          rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=426
+tiny_corrM1_L1         rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_corrM1_L2         rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=30 hier_paths=30 hier_fallbacks=0 hier_cells=398 corridor_expanded=398
+tiny_corr_L1           rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_corr_L2           rc=0 src=corridor finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_lift_L1           rc=0 src=lift finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=414 corridor_expanded=0
+tiny_lift_L2           rc=0 src=lift finished=14 errors=0 checkFails=0 flowChecksOk=2 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=414 corridor_expanded=0
+trap_astar             rc=0 src=astar finished=2 errors=0 checkFails=0 flowChecksOk=0 paths_built=5 hier_paths=0 hier_fallbacks=0 hier_cells=0 corridor_expanded=0
+trap_corr_L1           rc=0 src=corridor finished=2 errors=0 checkFails=0 flowChecksOk=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=90
+trap_corr_L2           rc=0 src=corridor finished=2 errors=0 checkFails=0 flowChecksOk=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=107
+trap_corr_L3           rc=0 src=corridor finished=2 errors=0 checkFails=0 flowChecksOk=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=148
+trap_lift_L1           rc=0 src=lift finished=2 errors=0 checkFails=0 flowChecksOk=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=89 corridor_expanded=0
+trap_lift_L2           rc=0 src=lift finished=1 errors=0 checkFails=0 flowChecksOk=0 paths_built=4 hier_paths=4 hier_fallbacks=0 hier_cells=79 corridor_expanded=0
+trap_lift_L3           rc=0 src=lift finished=1 errors=0 checkFails=0 flowChecksOk=0 paths_built=4 hier_paths=4 hier_fallbacks=0 hier_cells=91 corridor_expanded=0

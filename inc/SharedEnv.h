@@ -63,6 +63,24 @@ public:
     // ai/hierarchical_guide_paths_plan.md.
     bool compute_guide_paths = true;
 
+    // Where the planner's own guide paths come from (stage 2 of
+    // DefaultPlanner::plan). Set from --guidePathSource / --guidePathLevel /
+    // --guidePathCorridorMargin / --guidePathCorridorCongestion. See
+    // ai/hierarchical_guide_paths_plan.md, "Implementation plan".
+    //   GUIDE_SOURCE_ASTAR (default): full-map A*, the planner as before.
+    //   GUIDE_SOURCE_LIFT: coarse path at guide_path_level, lifted to the
+    //     fine map with solver 6's lift.
+    //   GUIDE_SOURCE_CORRIDOR: coarse path at guide_path_level, then A* on
+    //     the fine map limited to cells in the coarse path's nodes (plus
+    //     guide_path_corridor_margin rings of neighbouring nodes).
+    // Both hierarchy sources fall back to full-map A* if they fail.
+    // Independent of flow_solve_level.
+    enum GuidePathSource { GUIDE_SOURCE_ASTAR = 0, GUIDE_SOURCE_LIFT = 1, GUIDE_SOURCE_CORRIDOR = 2 };
+    int guide_path_source = GUIDE_SOURCE_ASTAR;
+    int guide_path_level = 4;
+    int guide_path_corridor_margin = 0;
+    bool guide_path_corridor_congestion = false;
+
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
     vector< vector<pair<int, int> > > goal_locations;
