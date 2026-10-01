@@ -14,7 +14,11 @@
 //
 // Usage: ./bench_hierarchy_lift <instance.json> --hierarchyCache <path>
 //            [--levels 2,4,6,8] [--pairs 200] [--seed 1] [--csv out.csv]
-//            [--maxPathCells 5000]
+//            [--maxPathCells 5000] [--coarseHeuristicFactor 0]
+//
+// --coarseHeuristicFactor f: coarse A*'s heuristic unit is f x 2^L (a
+// level-L hop typically costs about 2^L); 0 (default) uses the level's
+// cheapest arc cost, which keeps routes as cheap as Dijkstra's.
 //
 // Also runs the planner's corridor A* (ai/hierarchical_guide_paths_plan.md,
 // "Corridor A*"): the planner's A* (no congestion) limited to the coarse
@@ -92,6 +96,70 @@ int fine_bfs_distance(const SharedEnvironment& env, int start, int goal,
     return -1;
 }
 
+// Reference: the plain Dijkstra coarse_path used before 2026-10-01's A*
+// (hash-map tables, no heuristic), to check A* finds equally cheap routes.
+vector<int> reference_dijkstra(const CoarsenedGraph& g, int from, int to, int* expanded_out)
+{
+    *expanded_out = 0;
+    if (from < 0 || to < 0) return {};
+    if (from == to) return {from};
+    std::unordered_map<int, double> best;
+    std::unordered_map<int, int> prev;
+    using Item = pair<double, int>;
+    priority_queue<Item, vector<Item>, greater<Item>> open;
+    best[from] = 0.0;
+    open.push({0.0, from});
+    while (!open.empty())
+    {
+        const auto [d, u] = open.top();
+        open.pop();
+        if (d > best[u]) continue;
+        ++*expanded_out;
+        if (u == to) break;
+        for (lemon::ListDigraph::OutArcIt a(g.g, g.map_nodes[u]); a != lemon::INVALID; ++a)
+        {
+            const int v_lid = g.g.id(g.g.target(a));
+            if (v_lid < 0 || v_lid >= static_cast<int>(g.node_to_maploc.size())) continue;
+            const int v = g.node_to_maploc[v_lid];
+            if (v < 0) continue;
+            const double nd = d + g.cost[a];
+            auto it = best.find(v);
+            if (it == best.end() || nd < it->second)
+            {
+                best[v] = nd;
+                prev[v] = u;
+                open.push({nd, v});
+            }
+        }
+    }
+    if (!prev.count(to)) return {};
+    vector<int> path{to};
+    while (path.back() != from) path.push_back(prev[path.back()]);
+    reverse(path.begin(), path.end());
+    return path;
+}
+
+// Sum of arc costs along a coarse path (-1 if two consecutive nodes aren't joined).
+double coarse_path_cost(const CoarsenedGraph& g, const vector<int>& path)
+{
+    double total = 0.0;
+    for (size_t k = 1; k < path.size(); ++k)
+    {
+        double arc_cost = -1.0;
+        for (lemon::ListDigraph::OutArcIt a(g.g, g.map_nodes[path[k - 1]]); a != lemon::INVALID; ++a)
+        {
+            const int v_lid = g.g.id(g.g.target(a));
+            if (v_lid >= 0 && v_lid < static_cast<int>(g.node_to_maploc.size()) && g.node_to_maploc[v_lid] == path[k])
+            {
+                if (arc_cost < 0.0 || g.cost[a] < arc_cost) arc_cost = g.cost[a];
+            }
+        }
+        if (arc_cost < 0.0) return -1.0;
+        total += arc_cost;
+    }
+    return total;
+}
+
 template <class Path>
 bool path_is_valid(const SharedEnvironment& env, const Path& path, int start, int goal)
 {
@@ -159,6 +227,7 @@ int main(int argc, char** argv)
     int num_pairs = 200;
     unsigned seed = 1;
     size_t max_cells = 5000;
+    double coarse_factor = 0.0;
     for (int i = 2; i + 1 < argc; i += 2)
     {
         const string flag = argv[i], val = argv[i + 1];
@@ -167,6 +236,7 @@ int main(int argc, char** argv)
         else if (flag == "--seed") seed = static_cast<unsigned>(stoul(val));
         else if (flag == "--csv") csv_path = val;
         else if (flag == "--maxPathCells") max_cells = stoul(val);
+        else if (flag == "--coarseHeuristicFactor") coarse_factor = stod(val);
         else if (flag == "--levels")
         {
             levels.clear();
@@ -188,7 +258,8 @@ int main(int argc, char** argv)
     h.ensure(&env);
     if (!h.ready()) { cerr << "hierarchy not ready\n"; return 1; }
     const int num_levels = h.hierarchy().num_levels();
-    cout << "max path cells " << max_cells << "\n";
+    cout << "max path cells " << max_cells << ", coarse heuristic factor " << coarse_factor
+         << (coarse_factor > 0.0 ? " (x 2^L)" : " (cheapest arc cost: exact)") << "\n";
     cout << "hierarchy ready in " << fixed << setprecision(1) << ms_since(build_start) / 1000.0
          << " s, " << num_levels << " levels; nodes per level:";
     for (int c : h.hierarchy_level_node_counts()) cout << " " << c;
@@ -272,6 +343,7 @@ int main(int argc, char** argv)
             continue;
         }
         const CoarsenedGraph* g = h.hierarchy().level(level);
+        const double prep_s = h.prepare_coarse_search(level);
         int lift_ok = 0, fallback_ok = 0, failed = 0, invalid = 0, endpoints_wrong = 0;
         map<string, int> reasons;
         map<int, int> fail_levels;
@@ -286,6 +358,10 @@ int main(int argc, char** argv)
         const int margins[2] = {0, 1};
         int corr_ok[2] = {0, 0}, corr_invalid[2] = {0, 0};
         vector<double> corr_ratio[2], corr_ms[2], corr_expanded[2], corr_cells[2];
+        // coarse A* vs the old Dijkstra
+        int coarse_same_cost = 0, coarse_compared = 0;
+        vector<double> coarse_cost_ratio;
+        vector<double> dijkstra_ms, dijkstra_expanded, astar_expanded;
 
         for (size_t i = 0; i < pairs.size(); ++i)
         {
@@ -295,8 +371,25 @@ int main(int argc, char** argv)
 
             int expanded = 0;
             const auto t0 = Clock::now();
-            vector<int> coarse = h.coarse_path(s, goal, level, &expanded);
+            const double unit = coarse_factor > 0.0 ? coarse_factor * (1 << level) : -1.0;
+            vector<int> coarse = h.coarse_path(s, goal, level, &expanded, unit);
             const double c_ms = ms_since(t0);
+            {
+                int d_expanded = 0;
+                const auto td = Clock::now();
+                const vector<int> ref = reference_dijkstra(*g, h.cell_to_level_node(s, level),
+                                                           h.cell_to_level_node(goal, level), &d_expanded);
+                dijkstra_ms.push_back(ms_since(td));
+                dijkstra_expanded.push_back(d_expanded);
+                astar_expanded.push_back(expanded);
+                if (!ref.empty() || !coarse.empty())
+                {
+                    ++coarse_compared;
+                    const double ca = coarse_path_cost(*g, coarse), cd = coarse_path_cost(*g, ref);
+                    if (ca >= 0.0 && cd >= 0.0 && abs(ca - cd) <= 1e-6 * max(1.0, cd)) ++coarse_same_cost;
+                    if (ca >= 0.0 && cd > 0.0) coarse_cost_ratio.push_back(ca / cd);
+                }
+            }
             coarse_ms.push_back(c_ms);
             coarse_len.push_back(coarse.size());
 
@@ -377,6 +470,20 @@ int main(int argc, char** argv)
         }
 
         const int n = static_cast<int>(pairs.size());
+        vector<double> arc_costs;
+        for (lemon::ListDigraph::ArcIt a(g->g); a != lemon::INVALID; ++a)
+        {
+            const int u = g->g.id(g->g.source(a)), v = g->g.id(g->g.target(a));
+            if (u < 0 || v < 0 || u >= static_cast<int>(g->node_to_maploc.size()) ||
+                v >= static_cast<int>(g->node_to_maploc.size()) ||
+                g->node_to_maploc[u] < 0 || g->node_to_maploc[v] < 0)
+                continue;
+            arc_costs.push_back(g->cost[a]);
+        }
+        cout << setprecision(2) << "level " << level << " arc costs: min " << percentile(arc_costs, 0.0)
+             << " p1 " << percentile(arc_costs, 0.01) << " p10 " << percentile(arc_costs, 0.1)
+             << " median " << percentile(arc_costs, 0.5) << " mean " << mean(arc_costs)
+             << " max " << percentile(arc_costs, 1.0) << " (2^L = " << (1 << level) << ")\n";
         cout << "level " << level << " (" << g->num_coarse_nodes << " nodes): "
              << "lift ok " << lift_ok << "/" << n
              << ", fallback ok " << fallback_ok << ", no path " << failed
@@ -385,6 +492,13 @@ int main(int argc, char** argv)
              << "  length / shortest (lift ok): mean " << mean(ratio_lift)
              << ", p50 " << percentile(ratio_lift, 0.5) << ", p90 " << percentile(ratio_lift, 0.9)
              << ", max " << percentile(ratio_lift, 1.0) << "\n";
+        cout << setprecision(2) << "  coarse A* (min arc cost " << h.min_arc_cost(level) << ", landmarks built in "
+             << prep_s * 1000.0 << " ms): same cost as Dijkstra "
+             << coarse_same_cost << "/" << coarse_compared << " (route cost / Dijkstra's: mean "
+             << setprecision(4) << mean(coarse_cost_ratio) << " max " << percentile(coarse_cost_ratio, 1.0)
+             << setprecision(2) << "); ms mean " << mean(coarse_ms)
+             << " vs Dijkstra " << mean(dijkstra_ms) << "; expanded mean " << setprecision(0) << mean(astar_expanded)
+             << " vs " << mean(dijkstra_expanded) << "\n";
         cout << setprecision(2)
              << "  coarse path nodes mean " << mean(coarse_len)
              << "; coarse search ms mean " << mean(coarse_ms) << " p90 " << percentile(coarse_ms, 0.9)

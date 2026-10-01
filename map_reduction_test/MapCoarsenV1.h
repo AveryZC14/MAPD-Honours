@@ -410,10 +410,27 @@ public:
     // For every fine cell, its level-`level` node (-1 for obstacles).
     std::vector<int> level_ancestors(int level) const;
 
-    // Cheapest path on level `level`'s graph (Dijkstra, the coarse flow's arc
-    // costs) between the nodes containing the two cells. One node if both
-    // are in the same node; empty if there's no path or level < 1.
-    std::vector<int> coarse_path(int start_cell, int goal_cell, int level, int* expanded_out = nullptr) const;
+    // Cheapest path on level `level`'s graph (the coarse flow's arc costs)
+    // between the nodes containing the two cells. One node if both are in
+    // the same node; empty if there's no path or level < 1. A* search.
+    // Default heuristic (heuristic_unit < 0): the larger of (grid distance to
+    // the goal node) x (the level's cheapest arc cost) and the landmark
+    // (ALT) bound; both never overestimate, so the route found is as cheap
+    // as Dijkstra's. heuristic_unit >= 0 instead uses (grid distance) x
+    // heuristic_unit alone, for experiments (a level-L hop typically costs
+    // about 2^L; a large unit may return a costlier route). Uses per-level
+    // scratch arrays and landmark tables: one search at a time (not
+    // thread-safe).
+    std::vector<int> coarse_path(int start_cell, int goal_cell, int level, int* expanded_out = nullptr,
+                                 double heuristic_unit = -1.0) const;
+
+    // The cheapest arc cost on level `level` (0 if it has no arcs).
+    double min_arc_cost(int level) const;
+
+    // Build coarse_path's landmark tables and scratch arrays for `level` now
+    // (otherwise the first search on that level does it). Returns the
+    // build time in seconds.
+    double prepare_coarse_search(int level) const;
 
     // Lift `coarse` (a path at `level` from the node containing start_cell
     // to the node containing goal_cell) to the fine map, every level
@@ -455,6 +472,32 @@ private:
     int resolve_flow_solve_level(const SharedEnvironment* env) const;
 
     MultiLevelCoarsenedGraph hierarchy_;
+
+    // coarse_path's per-level search state, reused across searches: a
+    // node's g and parent are valid only if its stamp equals `current`.
+    struct CoarseSearchScratch
+    {
+        std::vector<double> g;
+        std::vector<int> parent;
+        std::vector<uint32_t> stamp;
+        uint32_t current = 0;
+    };
+    mutable std::vector<CoarseSearchScratch> coarse_scratch_;
+
+    // ALT landmarks for coarse_path, per level: to[k * n + v] = cost from
+    // landmark k to node v, from[k * n + v] = cost from v to landmark k
+    // (infinity if unreachable); n = the level's node-id count.
+    struct LandmarkTable
+    {
+        bool built = false;
+        int count = 0;
+        std::vector<double> to;
+        std::vector<double> from;
+    };
+    mutable std::vector<LandmarkTable> landmarks_;
+    const LandmarkTable& landmark_table(int level) const;
+    mutable std::vector<double> level_min_arc_cost_; // -1 = not computed yet
+
     bool ready_ = false;
     std::size_t signature_ = 0;
     double last_hierarchy_build_time_ = 0.0;

@@ -363,6 +363,8 @@ namespace DefaultPlanner{
                          << num_levels - 1 << ")" << endl;
                     exit(1);
                 }
+                // coarse search tables (landmarks), so the first decision doesn't pay for them
+                h.prepare_coarse_search(hier_level);
                 if (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_CORRIDOR)
                 {
                     hier_cell_node = h.level_ancestors(hier_level);

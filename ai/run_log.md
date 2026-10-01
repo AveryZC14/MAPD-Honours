@@ -562,3 +562,18 @@ progresses -- this is not append-only.
 - **Reading**: in the planner the corridor is about 2x slower per long path
   than the lift (bench: 1.4x), which delays the delivery-leg backlog by
   about 85 steps. After that, every agent has a path with either source.
+
+### 2026-10-01: coarse search as A* with landmarks; bench and scene rerun
+
+- **What**: `ReducedHierarchy::coarse_path` changed from hash-map Dijkstra
+  to A* on flat arrays with a grid + landmark (ALT) heuristic; exact (same
+  route cost as Dijkstra on every bench pair). Details:
+  `ai/hierarchical_guide_paths_plan.md`, "Faster coarse search".
+- **Runs** (`outputs/hierarchy_lift_bench/coarse_astar/`, one at a time):
+  bench on orz900d / IH / scene (coarse search 4-13× faster: IH level 4
+  1.66 → 0.23 ms, scene level 4 5.46 → 0.72 ms); scene 10k 300 steps
+  corridor and lift at level 4: long paths 12.1 → 6.9 ms (corridor), 6.2 →
+  1.6 ms (lift); corridor backlog cleared at decision 93 (was 163), lift
+  from decision 2 (was 79); finished 98 / 79 (was 93 / 73). 0 errors.
+- **Checks**: validators unchanged, small-map debug runs identical.
+

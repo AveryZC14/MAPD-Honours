@@ -1,0 +1,32 @@
+== corridor level 4: 284 decisions
+  hierarchy paths 20088, fallbacks 0, ms per path 3.48 (coarse 0.32, build 3.16), mean path length 1383 cells
+  decision  paths  guide_ms  pibt_ms  no_path  too_far  stuck
+         1   1124       170       20     8876        0      0
+         2   8879       818       41       11        0      0
+         3     98       809       42       77        0      0
+         5    104       810       42      364        0      0
+        10    114       808       38     1428        0      0
+        25    123       818       31     3972        0      0
+        50    123       815       33     4102        0     44
+       100      2        33       52        0        0      0
+       150      0         5       48        0        0      0
+       200      1        16       48        0        0      0
+       250      0         0       48        3        0      0
+  finished 98, opened 10073, planner errors 0, makespan 300
+  peak RSS 18.0 GB
+== lift level 4: 289 decisions
+  hierarchy paths 20068, fallbacks 0, ms per path 0.85 (coarse 0.28, build 0.57), mean path length 1453 cells
+  decision  paths  guide_ms  pibt_ms  no_path  too_far  stuck
+         1   4871       184       32     5129        0      0
+         2   5172       394       53        0        0      0
+         3    164       297       48        0        0      0
+         5    191       378       54        0        0      0
+        10    187       362       47        0        0      0
+        25    173       344       48        0        0      0
+        50    126       245       50        0        0      0
+       100      6        17       51        0        0      0
+       150      0         5       50        0        0      0
+       200      4         8       48        0        0      0
+       250      0         5       51        0        0      0
+  finished 79, opened 10042, planner errors 0, makespan 301
+  peak RSS 17.8 GB

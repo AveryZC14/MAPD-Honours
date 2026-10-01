@@ -53,8 +53,9 @@ the date and what changed) rather than deleting them outright.
   2026-10-01** (branch `hierarchy-guide-paths`); bench: corridor A* near-
   shortest at every level, IH level 4 about 4 ms per path, scene about
   16 ms. Quick scene planner run (300 steps): corridor 12.1 ms vs lift
-  6.2 ms per long path, most of it the coarse Dijkstra. Next (plan doc,
-  "Next"): faster coarse search, then big-map planner runs with fresh
+  6.2 ms per long path, most of it the coarse Dijkstra. Coarse search now
+  A* with landmarks (exact): scene long paths corridor 6.9 ms, lift 1.6 ms.
+  Next (plan doc, "Next"): big-map planner runs with fresh
   `astar` baselines, then PIBT time at 80k (its 1 ms / 100 agents reserve
   leaves about 100 ms for guide paths at 80k).
   Also fixed a harness bug that cost up to about 650 ms of planner time per

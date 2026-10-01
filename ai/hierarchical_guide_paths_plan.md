@@ -1,6 +1,8 @@
 # Plan: guide paths from the coarsening hierarchy
 
-Status: **implemented 2026-10-01 on branch `hierarchy-guide-paths`
+Status: **implemented 2026-10-01 on branch `hierarchy-guide-paths`; coarse
+search made about 7-10× faster the same day (A* with landmarks, see
+"Faster coarse search")
 (steps 1-4 of "Implementation plan"); planner runs on big maps (step 5)
 not yet done.** `--guidePathSource astar|lift|corridor` (default `astar`,
 the planner as before), `--guidePathLevel`, `--guidePathCorridorMargin`,
@@ -940,12 +942,82 @@ reserve on scene 10k; if it scales linearly, 80k needs about 400 ms, not
 800. Estimates only: per-path costs from one 300-step run and the bench;
 scheduler time at 20k-80k not measured.
 
+### Faster coarse search: A* with landmarks (2026-10-01)
+
+`coarse_path` is now A* on flat per-level arrays (reused between searches
+with a stamp), with the larger of two lower bounds as its heuristic, so its
+routes are exactly as cheap as Dijkstra's:
+
+- **Grid bound:** (grid distance to the goal node, `coarse_location`) ×
+  (the level's cheapest arc cost). Every coarse arc joins grid neighbours.
+- **Landmark (ALT) bound:** 8 landmarks per level, chosen farthest-point
+  inside the main connected region; costs to and from every node
+  precomputed (`landmark_table`, built by `prepare_coarse_search`, called
+  from the planner's `initialize()`). For landmark k: cost(v, goal) ≥
+  to_k[goal] − to_k[v] and ≥ from_k[v] − from_k[goal].
+
+How it got there:
+
+- The grid bound alone barely helped: arc costs are almost exactly 2^L
+  (scene level 4: median 16, max 16) but the cheapest is 1.0 (tiny
+  fragment nodes; under 1% of arcs cost less than about half 2^L), so the
+  safe bound is far too low. IH level 4: 5,291 nodes expanded vs 5,566.
+- Scaling the grid bound to 0.5 × 2^L per hop was about 2× faster and gave
+  Dijkstra's cost on all 480 bench pairs tried, but isn't guaranteed; 1.0 ×
+  2^L gave 1-3% costlier routes and on scene expanded *more* (re-opened
+  nodes). `coarse_path`'s `heuristic_unit` argument and the bench's
+  `--coarseHeuristicFactor` keep this for experiments; the planner uses
+  the exact default.
+- The first landmark version did nothing: selection started at node 0,
+  which can sit in a small isolated region. Fixed by seeding in the region
+  reachable from the most nodes.
+
+**Bench** (`outputs/hierarchy_lift_bench/coarse_astar/`, same pairs as
+before; the bench also runs the old Dijkstra as a reference): every route
+(2,300 pairs × levels) costs exactly what Dijkstra's does.
+
+| Coarse search, mean ms (nodes expanded) | Dijkstra | A* with landmarks | Landmark build (once) |
+|---|---|---|---|
+| orz900d level 2 | 1.03 (3,934) | 0.27 (1,016) | 12 ms |
+| IH level 1 | 221 (292,755) | 16.7 (32,892) | 3.1 s |
+| IH level 3 | 7.15 (19,506) | 0.77 (2,116) | 84 ms |
+| IH level 4 | 1.66 (5,230) | 0.23 (571) | 20 ms |
+| scene level 2 | 115 (203,537) | 9.3 (21,322) | 2.0 s |
+| scene level 3 | 23.0 (53,929) | 2.63 (6,065) | 345 ms |
+| scene level 4 | 5.46 (14,854) | 0.72 (1,523) | 67 ms |
+| scene level 6 | 0.43 (1,365) | 0.11 (159) | 5 ms |
+
+Corridor (margin 0) total per path, coarse included: IH level 4 2.1 ms
+(was 4.2), scene level 3 7.2 ms, level 4 7.9 ms (was 16.1). Fine-path
+parts and path lengths are unchanged. Landmark memory: 16 doubles per
+node (scene level 4: 3.9 MB; level 2: 53 MB).
+
+**Planner, scene_mp_4p_03 10k, solver 6 level 4, 300 steps, guide-path
+level 4** (same setup as "Quick planner check"):
+
+| | Corridor before | Corridor now | Lift before | Lift now |
+|---|---|---|---|---|
+| Long path: coarse + build | 5.63 + 6.50 = 12.1 ms | 0.63 + 6.30 = 6.9 ms | 5.06 + 1.16 = 6.2 ms | 0.54 + 1.10 = 1.6 ms |
+| Paths per decision, decisions 3-50 | 65 | 111 | 125 | 159 (all requested; stage 2 used about 350 of 810 ms) |
+| Agents without a path | 0 from decision 163 | 0 from decision 93 (peak about 4,100) | 0 from decision 79 | 0 from decision 2 |
+| Max stuck agents | 342 | 71 | 1 | 0 |
+| Finished in 300 steps | 93 | 98 | 73 | 79 |
+
+0 errors and 0 fallbacks in all; 18 GB peak. The lift now keeps up with
+every request as it arrives. The corridor is still budget-limited during
+the delivery-leg wave (its corridor A* is now most of its time). Revised
+capacity, scene (see "Can it keep up?"): corridor about 117 / 88 / 59 / 14
+paths per step at 10k / 20k / 40k / 80k against demand of about 4 / 7 / 14
+/ 29; the lift (1.6 ms) about 60 per step at 80k, enough for the demand
+there even with the current PIBT reserve.
+
+Checks after the change: `guide_path_validator` 57 / 95 / 4,268 / 15,159,
+0 failed; small-map planner runs with debug checks (tiny, tinyComplex,
+trap; lift and corridor) identical to before, 0 failures.
+
 ### Next
 
-1. Faster coarse search: A* (heuristic from the nodes' coarse-grid
-   positions, scaled to the arc costs) and flat arrays instead of hash
-   maps, in `coarse_path`. Helps both builders without lengthening paths.
-   Then rerun the bench and the 300-step scene comparison.
+1. ~~Faster coarse search~~ (done, above).
 2. Planner runs on the evidence maps, one at a time, with fresh `astar`
    baselines from the same build (the IH and scene baselines in this doc
    predate the harness fix): scene 1,500 steps corridor vs lift, IH 10k

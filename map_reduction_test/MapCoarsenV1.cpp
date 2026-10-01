@@ -11,6 +11,9 @@
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+#include <tuple>
+#include <limits>
+#include <cmath>
 #include <cstdint>
 #include <lemon/network_simplex.h>
 
@@ -1062,6 +1065,9 @@ void ReducedHierarchy::ensure(const SharedEnvironment* env)
     // before rebuilding so its memory is released rather than held alongside
     // the new one while it's being constructed.
     hierarchy_.clear();
+    coarse_scratch_.clear();
+    level_min_arc_cost_.clear();
+    landmarks_.clear();
 
     const int levels_to_add = kMaxCoarsenLevels;
 
@@ -1603,7 +1609,150 @@ std::vector<int> ReducedHierarchy::level_ancestors(int level) const
     return ancestors;
 }
 
-std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, int level, int* expanded_out) const
+double ReducedHierarchy::min_arc_cost(int level) const
+{
+    if (level < 0 || level >= hierarchy_.num_levels())
+        return 0.0;
+    if (level_min_arc_cost_.size() != static_cast<std::size_t>(hierarchy_.num_levels()))
+        level_min_arc_cost_.assign(hierarchy_.num_levels(), -1.0);
+    if (level_min_arc_cost_[level] >= 0.0)
+        return level_min_arc_cost_[level];
+    const CoarsenedGraph& g = *hierarchy_.level(level);
+    double best = -1.0;
+    for (lemon::ListDigraph::ArcIt a(g.g); a != lemon::INVALID; ++a)
+    {
+        const int u_lid = g.g.id(g.g.source(a));
+        const int v_lid = g.g.id(g.g.target(a));
+        if (u_lid < 0 || u_lid >= static_cast<int>(g.node_to_maploc.size()) ||
+            v_lid < 0 || v_lid >= static_cast<int>(g.node_to_maploc.size()))
+            continue;
+        if (!is_valid_graph_node_id_local(g, g.node_to_maploc[u_lid]) ||
+            !is_valid_graph_node_id_local(g, g.node_to_maploc[v_lid]))
+            continue;
+        if (best < 0.0 || g.cost[a] < best)
+            best = g.cost[a];
+    }
+    level_min_arc_cost_[level] = std::max(0.0, best);
+    return level_min_arc_cost_[level];
+}
+
+// Cost from `src` to every node of `g` (reverse: from every node to `src`),
+// infinity where unreachable. `out` is sized to g's node-id count.
+static void coarse_costs_from_local(const CoarsenedGraph& g, int src, bool reverse, std::vector<double>& out)
+{
+    const double inf = std::numeric_limits<double>::infinity();
+    out.assign(g.map_nodes.size(), inf);
+    using Item = std::pair<double, int>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<Item>> open;
+    out[src] = 0.0;
+    open.push({0.0, src});
+    const auto relax = [&](int v, double nd) {
+        if (nd < out[v]) { out[v] = nd; open.push({nd, v}); }
+    };
+    while (!open.empty())
+    {
+        const auto [d, u] = open.top();
+        open.pop();
+        if (d > out[u]) continue;
+        if (!reverse)
+        {
+            for (lemon::ListDigraph::OutArcIt a(g.g, g.map_nodes[u]); a != lemon::INVALID; ++a)
+            {
+                const int lid = g.g.id(g.g.target(a));
+                if (lid < 0 || lid >= static_cast<int>(g.node_to_maploc.size())) continue;
+                const int v = g.node_to_maploc[lid];
+                if (is_valid_graph_node_id_local(g, v)) relax(v, d + g.cost[a]);
+            }
+        }
+        else
+        {
+            for (lemon::ListDigraph::InArcIt a(g.g, g.map_nodes[u]); a != lemon::INVALID; ++a)
+            {
+                const int lid = g.g.id(g.g.source(a));
+                if (lid < 0 || lid >= static_cast<int>(g.node_to_maploc.size())) continue;
+                const int v = g.node_to_maploc[lid];
+                if (is_valid_graph_node_id_local(g, v)) relax(v, d + g.cost[a]);
+            }
+        }
+    }
+}
+
+const ReducedHierarchy::LandmarkTable& ReducedHierarchy::landmark_table(int level) const
+{
+    if (landmarks_.size() != static_cast<std::size_t>(hierarchy_.num_levels()))
+        landmarks_.assign(hierarchy_.num_levels(), LandmarkTable{});
+    LandmarkTable& t = landmarks_[level];
+    if (t.built)
+        return t;
+    t.built = true;
+    const CoarsenedGraph& g = *hierarchy_.level(level);
+    const int n = static_cast<int>(g.map_nodes.size());
+    // Seed inside the main connected region: the map can have small
+    // isolated pieces, and a seed in one of them reaches nothing else. Try
+    // up to 16 evenly spaced nodes and keep the one reaching the most.
+    const double inf = std::numeric_limits<double>::infinity();
+    std::vector<int> valid;
+    for (int v = 0; v < n; ++v)
+        if (is_valid_graph_node_id_local(g, v)) valid.push_back(v);
+    if (valid.empty())
+        return t;
+    int first_valid = valid[0];
+    std::vector<double> costs;
+    std::size_t best_reach = 0;
+    for (int tries = 0; tries < 16; ++tries)
+    {
+        const int cand = valid[(valid.size() * tries) / 16];
+        std::vector<double> c;
+        coarse_costs_from_local(g, cand, false, c);
+        std::size_t reach = 0;
+        for (double x : c) reach += x != inf;
+        if (reach > best_reach) { best_reach = reach; first_valid = cand; costs.swap(c); }
+        if (2 * reach > valid.size()) break;
+    }
+
+    // Farthest-point selection: start from the node farthest from the seed,
+    // then repeatedly add the reachable node farthest from every landmark
+    // chosen so far.
+    const int kLandmarks = 8;
+    std::vector<double> nearest(n, inf); // cost from the closest landmark so far
+    int next = first_valid;
+    double far = -1.0;
+    for (int v = 0; v < n; ++v)
+        if (costs[v] != inf && costs[v] > far) { far = costs[v]; next = v; }
+    for (int k = 0; k < kLandmarks; ++k)
+    {
+        std::vector<double> to, from;
+        coarse_costs_from_local(g, next, false, to);
+        coarse_costs_from_local(g, next, true, from);
+        t.to.insert(t.to.end(), to.begin(), to.end());
+        t.from.insert(t.from.end(), from.begin(), from.end());
+        ++t.count;
+        int best = -1;
+        double best_cost = 0.0;
+        for (int v = 0; v < n; ++v)
+        {
+            if (to[v] < nearest[v]) nearest[v] = to[v];
+            if (nearest[v] != inf && nearest[v] > best_cost) { best_cost = nearest[v]; best = v; }
+        }
+        if (best < 0)
+            break;
+        next = best;
+    }
+    return t;
+}
+
+double ReducedHierarchy::prepare_coarse_search(int level) const
+{
+    if (level < 1 || level >= hierarchy_.num_levels())
+        return 0.0;
+    const auto t0 = std::chrono::high_resolution_clock::now();
+    min_arc_cost(level);
+    landmark_table(level);
+    return std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - t0).count();
+}
+
+std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, int level, int* expanded_out,
+                                               double heuristic_unit) const
 {
     if (expanded_out) *expanded_out = 0;
     if (level < 1 || level >= hierarchy_.num_levels())
@@ -1616,20 +1765,71 @@ std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, in
     if (from == to)
         return {from};
 
-    std::unordered_map<int, double> best;
-    std::unordered_map<int, int> prev;
-    using Item = std::pair<double, int>;
+    // Heuristic, default: the larger of two lower bounds on the cost to the
+    // goal, both consistent, so the first time the goal is popped its route
+    // is a cheapest one.
+    // - Grid: every arc joins two nodes one step apart in this level's grid
+    //   (coarse_location) and costs at least min_arc_cost.
+    // - Landmarks (ALT): for landmark k, cost(v, goal) >= to_k[goal] - to_k[v]
+    //   and >= from_k[v] - from_k[goal] (triangle inequality).
+    // A caller-given heuristic_unit >= 0 uses only (grid distance) x unit,
+    // which gives up that guarantee if the unit is above min_arc_cost.
+    const bool exact = heuristic_unit < 0.0;
+    const double unit = exact ? min_arc_cost(level) : heuristic_unit;
+    const LandmarkTable* lm = exact ? &landmark_table(level) : nullptr;
+    const std::size_t n_lm = g.map_nodes.size();
+    const std::pair<int, int> goal_rc = g.coarse_location[g.map_nodes[to]];
+    const auto heuristic = [&](int node_id) {
+        const std::pair<int, int> rc = g.coarse_location[g.map_nodes[node_id]];
+        double h = unit * static_cast<double>(std::abs(rc.first - goal_rc.first) + std::abs(rc.second - goal_rc.second));
+        if (lm)
+        {
+            for (int k = 0; k < lm->count; ++k)
+            {
+                const double tv = lm->to[k * n_lm + node_id], tg = lm->to[k * n_lm + to];
+                const double fv = lm->from[k * n_lm + node_id], fg = lm->from[k * n_lm + to];
+                if (std::isfinite(tv) && std::isfinite(tg)) h = std::max(h, tg - tv);
+                if (std::isfinite(fv) && std::isfinite(fg)) h = std::max(h, fv - fg);
+            }
+        }
+        return h;
+    };
+
+    if (coarse_scratch_.size() != static_cast<std::size_t>(hierarchy_.num_levels()))
+        coarse_scratch_.assign(hierarchy_.num_levels(), CoarseSearchScratch{});
+    CoarseSearchScratch& sc = coarse_scratch_[level];
+    const std::size_t n_ids = g.map_nodes.size();
+    if (sc.stamp.size() != n_ids)
+    {
+        sc.g.assign(n_ids, 0.0);
+        sc.parent.assign(n_ids, -1);
+        sc.stamp.assign(n_ids, 0);
+        sc.current = 0;
+    }
+    if (++sc.current == 0)
+    {
+        std::fill(sc.stamp.begin(), sc.stamp.end(), 0);
+        sc.current = 1;
+    }
+    const uint32_t cur = sc.current;
+
+    // (f, g, node); an entry is stale if its g is above the node's best g
+    using Item = std::tuple<double, double, int>;
     std::priority_queue<Item, std::vector<Item>, std::greater<Item>> open;
-    best[from] = 0.0;
-    open.push({0.0, from});
+    sc.stamp[from] = cur;
+    sc.g[from] = 0.0;
+    sc.parent[from] = -1;
+    open.push({heuristic(from), 0.0, from});
     int expanded = 0;
+    bool found = false;
     while (!open.empty())
     {
-        const auto [d, u] = open.top();
+        const auto [f, d, u] = open.top();
         open.pop();
-        if (d > best[u]) continue;
+        (void)f;
+        if (d > sc.g[u]) continue;
         ++expanded;
-        if (u == to) break;
+        if (u == to) { found = true; break; }
         for (lemon::ListDigraph::OutArcIt a(g.g, g.map_nodes[u]); a != lemon::INVALID; ++a)
         {
             const int v_lid = g.g.id(g.g.target(a));
@@ -1637,21 +1837,21 @@ std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, in
             const int v = g.node_to_maploc[v_lid];
             if (!is_valid_graph_node_id_local(g, v)) continue;
             const double nd = d + g.cost[a];
-            auto it = best.find(v);
-            if (it == best.end() || nd < it->second)
+            if (sc.stamp[v] != cur || nd < sc.g[v])
             {
-                best[v] = nd;
-                prev[v] = u;
-                open.push({nd, v});
+                sc.stamp[v] = cur;
+                sc.g[v] = nd;
+                sc.parent[v] = u;
+                open.push({nd + heuristic(v), nd, v});
             }
         }
     }
     if (expanded_out) *expanded_out = expanded;
-    if (prev.find(to) == prev.end())
+    if (!found)
         return {};
     std::vector<int> path{to};
     while (path.back() != from)
-        path.push_back(prev[path.back()]);
+        path.push_back(sc.parent[path.back()]);
     std::reverse(path.begin(), path.end());
     return path;
 }
