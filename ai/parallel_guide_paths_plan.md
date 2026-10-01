@@ -228,7 +228,7 @@ time with `-D`, like the other planner flags.
 
 | Constant (build macro) | Default | Meaning |
 |---|---|---|
-| `GUIDE_PATH_THREADS` (`PLANNER_GUIDE_PATH_THREADS`) | 6 | Guide-path worker threads. 1 = the original sequential loop. Parallel mode needs `USE_MANHATTAN_HEURISTIC`. |
+| `GUIDE_PATH_THREADS` (`PLANNER_GUIDE_PATH_THREADS`) | 1 (6 during the tests below; set back to 1 on 2026-09-30, see "Conclusions") | Guide-path worker threads. 1 = the original sequential loop. Parallel mode needs `USE_MANHATTAN_HEURISTIC`. |
 | `GUIDE_PATH_EXTRA_POOL_MB` | 2048 | Memory cap for the extra A* search pools (56 bytes per map cell each; thread 0 reuses the planner's own pool). Gives 6 threads on orz900d, IH and warehouseXL, 3 on the scene maps. Added because scene_sp_pol_06 already peaks at about 24 GB of the machine's 31 GB, and one pool there is about 1 GB. |
 | `GUIDE_PATH_DEBUG_CHECKS` (`PLANNER_GUIDE_PATH_DEBUG_CHECKS`) | false | Path check on every new path, and congestion-map rebuild-and-compare every 100 decisions. Exits on a mismatch. |
 | `ASTAR_HEURISTIC_WEIGHT` (`PLANNER_ASTAR_HEURISTIC_WEIGHT`) | 1.0 (see below) | Weight on A*'s Manhattan heuristic (weighted A*). With a weight above 1, A* ignores a cheaper route to an already-processed cell instead of exiting with "re-expansion" (standard weighted A*; keeps the weight × best bound). |

@@ -839,17 +839,18 @@ Headline pitfalls documented there, worth knowing before touching this again:
   handoff, and a stuck-agent counter. Lists caveats and the checks to run
   before restarting the sweep.
 
-- `ai/parallel_guide_paths_plan.md` — plan (2026-09-29) to build guide paths
-  with several threads, because on IH_mp_2p_01 guide-path A* is too slow
-  (about 14 paths per step) and agents waiting for a path get trapped.
-  Covers the overall problem, why the searches are sequential today, the
-  design, testing and caveats.
+- `ai/parallel_guide_paths_plan.md` — **implemented 2026-09-30 behind
+  flags, defaults left sequential** (`GUIDE_PATH_THREADS 1`). Builds guide
+  paths with several threads, because on IH_mp_2p_01 guide-path A* is too
+  slow (about 14 paths per step) and agents waiting for a path get trapped.
+  Covers the problem, the design, results on orz900d / IH / scene_mp_4p_03
+  (no setting works on every map) and the options left for a decision.
 
-- `ai/parallel_local_matching_plan.md` — plan (2026-09-29, not started) to
-  run solver 6's per-node `match_local_node_exact` calls (Step 1 and the
-  cascade loop) on several threads, with output identical to the serial
-  version. Starts with measuring local-match time at 80k agents, since
-  scheduler time now eats into guide-path time.
+- `ai/parallel_local_matching_plan.md` — **implemented 2026-09-30**
+  (`SCHEDULER_MATCH_THREADS`, default 6): solver 6's per-node
+  `match_local_node_exact` calls (Step 1 and the cascade loop) run on
+  several threads, with output identical to the serial version. First IH
+  80k level-8 decision 49.3 s -> 8.3 s. Solver 7 still matches serially.
 
 - `ai/hierarchical_guide_paths_plan.md` — plan (2026-10-01, not
   implemented) to build planner guide paths from the coarsening hierarchy
@@ -858,6 +859,11 @@ Headline pitfalls documented there, worth knowing before touching this again:
   lift only works from level 1, because higher levels aren't anchored to the
   real start and goal. Fixed permanently 2026-10-01: with every level
   anchored it works at every level on orz900d, IH and scene_mp_4p_03.
+  Its "Implementation plan" section (2026-10-01, not started) is the plan
+  for the planner: `--guidePathSource astar|lift|corridor` (corridor = fine
+  A* limited to the coarse path's nodes), `--guidePathLevel` as a swept
+  parameter separate from `--flowSolveLevel`, used for new goals and
+  `needs_replan` agents, full-map A* as fallback. Parallel mode stays off.
 
 (Update this list if more `ai/*.md` files are added later.)
 

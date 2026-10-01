@@ -47,7 +47,9 @@ the date and what changed) rather than deleting them outright.
   **2026-10-01: new option, guide paths from the coarsening hierarchy**
   (`ai/hierarchical_guide_paths_plan.md`). Benchmarked, not yet in the
   planner. With every level anchored, the lift gives valid paths on all
-  three maps in a few ms each.
+  three maps in a few ms each. **Implementation plan written 2026-10-01** (that doc's last
+  section): lift or corridor A* as the path builder, level as a run
+  parameter for the thesis; parallel mode stays off.
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:

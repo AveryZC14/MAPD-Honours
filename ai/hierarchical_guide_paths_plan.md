@@ -1,6 +1,10 @@
 # Plan: guide paths from the coarsening hierarchy
 
-Status: **idea, not implemented in the planner (2026-10-01).** The existing
+Status: **implementation planned, not started (2026-10-01); see
+"Implementation plan" at the end.** Two path builders, both behind a flag
+that is off by default: the spliced lift, and A* on the fine map limited
+to the coarse path's nodes (corridor A*). The level is a run parameter to
+sweep and report in the thesis, not a rule. The existing
 lift has been benchmarked (see "Results"): as solver 6 ran it, it only
 worked from level 1. **Fixed 2026-10-01 (permanent, no switch):** every
 level is now anchored to the real start and goal, which was the original
@@ -109,7 +113,8 @@ After the coarse search, run a fine A* restricted to the cells inside the
 coarse nodes on the coarse path (perhaps with a one-node margin). That gives
 near-shortest paths at a fraction of a full-map search, with the spliced
 lift kept as the fallback. Level `L` sets the trade-off: a higher level makes
-the coarse search cheaper and the corridor wider.
+the coarse search cheaper and the corridor wider. **Now part of the
+implementation plan** ("Corridor A*" at the end).
 
 ## Where it would live
 
@@ -503,10 +508,192 @@ match the first runs closely.
 
 ### Next steps
 
-1. Decide whether to remove the 5,000-cell cap (or raise it), since it is
-   now the only cause of failed lifts. Check solver 6 on a real IH run
-   (scheduler time, `GuidePathLengthSum`).
-2. Decide the level (fixed, or per map from the hierarchy's node counts)
-   and whether to add the corridor refinement to recover path quality.
-3. Build it into planner stage 2, behind a flag, and rerun the evidence
-   set (orz900d, IH 20k, scene_mp_4p_03 10k).
+Superseded by "Implementation plan" below (2026-10-01): the cap is
+raised for the planner only, the level is a run parameter, and the corridor
+refinement is one of the two path builders.
+
+## Implementation plan (2026-10-01, not started)
+
+### Goal
+
+When the planner needs a guide path for an agent (new goal, or pushed more
+than `LOCAL_PATH_BFS_RADIUS` cells off its path), build it from the
+hierarchy instead of with a full-map A*:
+
+1. Map the agent's cell and its goal up to level `L` (`to_coarser_node_id`).
+2. Find the cheapest path between those two nodes on level `L`'s graph.
+3. Turn it into a fine path with one of two builders (a run parameter):
+   - **lift:** solver 6's spliced lift (`lift_coarse_paths_to_fine`).
+   - **corridor:** A* on the fine map, limited to cells inside the coarse
+     path's nodes (plus an optional margin of neighbouring nodes).
+4. If that fails, fall back to the planner's existing full-map A*
+   (`update_traj`).
+
+With the flag off, the planner is exactly what it is today. Parallel guide
+paths (`GUIDE_PATH_THREADS > 1`) stay off and aren't combined with this.
+
+### The level is a parameter, not a rule
+
+The level sets the main trade-off and belongs in the thesis as an
+experiment:
+
+- **Higher `L`:** a smaller coarse graph, so a cheaper coarse search. Lift
+  paths detour more (bench: IH 1.004× shortest at level 1, 1.094× at 4,
+  1.37× at 6). Corridors get wider.
+- **Lower `L`:** paths closer to shortest, but the coarse search costs more
+  (bench, Dijkstra: IH 210 ms at level 1, 1.5 ms at level 4).
+- **Short paths stretch more** with the lift at a high level (orz900d
+  level 4: 2.1× under 100 cells, 1.25× over 800). That is a result to
+  report. Corridor A* should largely remove it: a short pair spans one or two
+  coarse nodes, and A* inside them finds the true shortest path.
+
+So `L` is a CLI flag, recorded in the output JSON, set per run and swept
+(for example `L ∈ {2, 3, 4, 6}` on each map). It is **separate from
+`--flowSolveLevel`**, so sweeping solver 6's level doesn't change the
+planner. Whether the sweep crosses the two or holds one fixed is a
+thesis-design decision still to make.
+
+### Corridor A*
+
+**What.** Same A* as today (`astar()`, `search.cpp`), with one extra check:
+when generating a neighbour, skip it unless its level-`L` ancestor is on
+the coarse path (or within `margin` coarse hops of it).
+
+**Why a path always exists inside the corridor.** By construction of the
+coarsening, each coarse node's cells are connected on the fine map (a 2×2
+block of finer nodes is split into its connected components, by induction
+from level 1), and two consecutive nodes on the coarse path have at least
+one fine arc between them (a coarse arc exists only where a finer arc
+crosses). So the union of the path's nodes is connected and contains the
+start and the goal. With margin 0 the corridor A* can't fail if the coarse
+search succeeded; a larger margin only adds cells.
+
+**How the check is made cheap.**
+- `ancestor_L`: one array, fine cell → level-`L` node, built once when the
+  planner starts (4 bytes per cell: 3.9 MB on orz900d, 14 MB on IH, 56 MB
+  on scene_mp_4p_03).
+- `corridor_stamp`: one array of `uint32_t` per level-`L` node. For each
+  search, increment a counter and stamp the coarse path's nodes (and their
+  neighbours up to `margin`). The check is
+  `corridor_stamp[ancestor_L[next]] == current_stamp`. No clearing between
+  searches.
+- `astar()` takes these as an optional argument (null = no limit, today's
+  behaviour), next to the existing optional deadline. One `continue` in the
+  neighbour loop.
+
+**Expected size (estimate, to be measured).** A level-`L` node covers at
+most `4^L` cells, and a coarse path between cells `d` apart has about
+`d / 2^L` nodes on open maps (more in mazes), so the corridor is about
+`d × 2^L` cells for margin 0. IH, `d ≈ 1,100`, `L = 4`: about 18k cells
+(about 50k with margin 1), out of 3.44M. A* explores at most the corridor.
+
+**Congestion.** Corridor A* can read the congestion map (`lns.flow`) or
+ignore it, at no code cost (pass `trajLNS.flow` or the zero map, as
+`GUIDE_PATH_IGNORE_CONGESTION` does). Congestion made full-map A* explode
+on IH (about 250 ms per search with 8k paths); inside a corridor the
+explosion is bounded. Default off, to match the lift; worth one test run.
+
+### Step 1: hierarchy side (`map_reduction_test/MapCoarsenV1.{h,cpp}`)
+
+1. **Lift on cells, not agent/task ids.** Move the level loop of
+   `lift_coarse_paths_to_fine` into a core function that takes start and
+   goal cells. The existing function becomes a wrapper that reads
+   `curr_states` / `task_pool`, so solver 6 is unchanged.
+2. **Cap and fallback as arguments.** Solver 6 keeps 5,000 and its full-map
+   fallback. The planner passes `env->map.size()` (a safety brake no real
+   path reaches; the cap was a July 2026 OOM-hunt guard against the old
+   unbounded flow walk, and the lift itself can't loop) and no fallback.
+3. **Coarse search.** Move `coarse_dijkstra` from
+   `utils/validation/bench_hierarchy_lift.cpp` into `ReducedHierarchy`; the
+   bench calls the shared copy. Dijkstra is enough at levels 3 and up. If
+   levels 1-2 are in the sweep, add a heuristic: Manhattan distance between
+   each node's representative fine cell (precomputed per node), scaled to
+   the coarse arc-cost units. Check those units first (arc costs are
+   averages); an overestimate gives slightly worse routes, not wrong ones.
+4. **Public entry points:**
+   - `coarse_path(start_cell, goal_cell, L)` → level-`L` node ids (one
+     node if both are in the same node).
+   - `lift_path(start_cell, goal_cell, L, coarse_path)` → fine path or
+     empty.
+   - `level_ancestors(L)` → the `ancestor_L` array.
+
+**Check:** `guide_path_validator` on `tiny`, `tinyComplex`,
+`warehouseSmall_100`, `random_2000`, with and without `--useTraffic`:
+0 failed, same check counts as now. Solver 6 `GuidePathLengthSum` on
+`tiny` / `tinyComplex` unchanged (204 / 192).
+
+### Step 2: planner side (`default_planner/`)
+
+1. **Settings.** CLI flags (so a sweep needn't rebuild per value),
+   recorded in the output JSON:
+   - `--guidePathSource` = `astar` (default, today's planner) / `lift` /
+     `corridor`
+   - `--guidePathLevel` = `L`
+   - `--guidePathCorridorMargin` = coarse hops added around the path
+     (default 0)
+   - `--guidePathCorridorCongestion` = true/false (default false)
+2. **`DefaultPlanner::initialize`:** if the source isn't `astar`, call
+   `ReducedHierarchy::instance().ensure(env)` (a no-op for solvers 6/7,
+   which already built it; loads from `--hierarchyCache` for the others)
+   and build `ancestor_L`.
+3. **Stage 2, sequential loop** (`planner.cpp`, the `else update_traj`
+   branch): in order, the scheduler's path (only with
+   `PASS_SCHEDULER_PATHS_TO_PLANNER`, as now), then the hierarchy path,
+   then `update_traj` if that came back empty. A hierarchy path is
+   installed with `commit_traj(..., s_node())`, as scheduler paths already
+   are. Used for new goals **and for `needs_replan` agents** (decided
+   2026-10-01: same code path, and replans become cheap). Confirm nothing reads
+   `goal_nodes[i]` in Manhattan mode.
+4. **Guard:** source ≠ `astar` with `GUIDE_PATH_THREADS > 1` → one-time
+   warning, run sequential.
+5. **Logging:** `planner stats:` gains `hier_paths`, `hier_fallbacks`,
+   `hier_coarse_ms`, `hier_build_ms` (lift or corridor A*), `hier_cells`
+   (sum of path lengths), and for corridor mode `corridor_expanded`.
+   `GUIDE_PATH_DEBUG_CHECKS` runs `check_path_or_die` on hierarchy paths
+   too.
+
+### Step 3: plumbing
+
+- `scripts/run_thesis_sweep.py`: pass `--hierarchyCache` for every solver
+  when the source isn't `astar` (today only solvers 6/7 get it); pass and
+  record the new flags; check `--preprocessTimeLimit` covers loading the
+  cache for solver 1.
+- Memory: solver 1 doesn't hold a hierarchy today. Measure its peak on
+  scene_sp_pol_06 (already about 24 GB of 31 GB).
+
+### Step 4: bench before the planner runs
+
+Extend `bench_hierarchy_lift` with corridor A* on the same pairs and
+levels: length / shortest, time, cells expanded, corridor size, margin
+0 and 1. Cheap, and it gives the lift-vs-corridor and level tables for the
+thesis before any long run.
+
+### Step 5: tests in the planner
+
+| # | Run | Pass / compare with |
+|---|---|---|
+| 1 | `tiny`, `tinyComplex`, trap map; both sources; debug checks on | 0 errors, no check failures, trap agent escapes and delivers |
+| 2 | source `astar` on the same instances | identical to the current build |
+| 3 | orz900d 10k, 1,500 steps, solver 6 level 4 | 5,492 deliveries (sequential congestion-aware A*) |
+| 4 | IH 10k, 1,500 steps | 2,364 deliveries, 4,661 stuck (sequential A*); expect agents without a path near 0 within tens of steps, stuck in the tens, decisions ≈ steps |
+| 5 | scene_mp_4p_03 10k, 500 steps | best so far 214 deliveries with about 5,600 agents without a path |
+| 6 | IH and scene 20k, then an 80k smoke run | PIBT within its 100 ms reserve, memory fine |
+| 7 | solver 1 on one big map | hierarchy loads from cache, memory fine |
+
+Runs 3-5 for both sources at one level first (`L = 4`), then the level
+sweep for whichever source looks better. One run at a time; results in
+`ai/run_log.md`.
+
+### Thesis notes
+
+- The planner's guide paths come from the hierarchy for **every** solver,
+  so the solver comparison stays fair, but it has to be stated.
+- The guide-path level and source are experimental parameters with their
+  own results (path stretch, time per path, throughput by level).
+
+### Open decisions
+
+- Sweep design: guide-path level crossed with `--flowSolveLevel`, or one
+  held fixed.
+- Default margin (0 or 1), from the step 4 bench.
+- Corridor congestion on or off, from one test run.
