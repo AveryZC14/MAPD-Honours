@@ -7,7 +7,18 @@
 #include <lemon/network_simplex.h>
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cstdlib>
+#include <mutex>
+#include <numeric>
+#include <thread>
+
+// Threads for run_local_match_jobs (ai/parallel_local_matching_plan.md).
+// 1 = serial. Override at build time with -DSCHEDULER_MATCH_THREADS=<n>.
+#ifndef SCHEDULER_MATCH_THREADS
+#define SCHEDULER_MATCH_THREADS 6
+#endif
 
 namespace MapReductionTest {
 
@@ -97,6 +108,87 @@ std::vector<LocalMatchPair> match_local_node_exact(
                 result.push_back({agent_ids[i], task_ids[j]});
 
     return result;
+}
+
+namespace {
+
+// Below this total agents x tasks, starting threads costs more than it saves.
+constexpr long long kParallelMatchMinWork = 20000;
+
+std::atomic<int> g_match_threads{SCHEDULER_MATCH_THREADS};
+std::mutex g_cpu_time_mutex;
+double g_cpu_time_since_take = 0.0;
+
+void run_job(const SharedEnvironment& env, LocalMatchJob& job)
+{
+    const auto t0 = std::chrono::steady_clock::now();
+    job.pairs = match_local_node_exact(env, job.agent_ids, job.agent_locs, job.task_ids, job.task_locs);
+    job.time_s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+}
+
+} // namespace
+
+void set_local_match_threads(int threads) { g_match_threads = std::max(1, threads); }
+int get_local_match_threads() { return g_match_threads; }
+
+double take_local_match_cpu_time()
+{
+    std::lock_guard<std::mutex> lock(g_cpu_time_mutex);
+    const double t = g_cpu_time_since_take;
+    g_cpu_time_since_take = 0.0;
+    return t;
+}
+
+LocalMatchRunStats run_local_match_jobs(const SharedEnvironment& env, std::vector<LocalMatchJob>& jobs)
+{
+    LocalMatchRunStats stats;
+    const auto t0 = std::chrono::steady_clock::now();
+    stats.jobs = static_cast<int>(jobs.size());
+    std::vector<long long> work(jobs.size());
+    for (std::size_t j = 0; j < jobs.size(); ++j)
+    {
+        work[j] = static_cast<long long>(jobs[j].agent_ids.size()) * static_cast<long long>(jobs[j].task_ids.size());
+        stats.max_work = std::max(stats.max_work, work[j]);
+        stats.total_work += work[j];
+    }
+
+    const int threads = std::min<int>(g_match_threads, static_cast<int>(jobs.size()));
+    if (threads < 2 || stats.total_work < kParallelMatchMinWork)
+    {
+        for (auto& job : jobs)
+            run_job(env, job);
+    }
+    else
+    {
+        // largest jobs first, so one big job picked up last can't leave the
+        // other threads idle; results stay in each job's own slot
+        std::vector<std::size_t> order(jobs.size());
+        std::iota(order.begin(), order.end(), 0);
+        std::stable_sort(order.begin(), order.end(),
+                         [&](std::size_t a, std::size_t b) { return work[a] > work[b]; });
+        std::atomic<std::size_t> next(0);
+        auto worker = [&]() {
+            std::size_t k;
+            while ((k = next.fetch_add(1)) < order.size())
+                run_job(env, jobs[order[k]]);
+        };
+        std::vector<std::thread> pool;
+        for (int t = 1; t < threads; ++t)
+            pool.emplace_back(worker);
+        worker();  // the calling thread works too
+        for (auto& th : pool)
+            th.join();
+        stats.threads = threads;
+    }
+
+    for (const auto& job : jobs)
+        stats.cpu_s += job.time_s;
+    stats.wall_s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+    {
+        std::lock_guard<std::mutex> lock(g_cpu_time_mutex);
+        g_cpu_time_since_take += stats.cpu_s;
+    }
+    return stats;
 }
 
 } // namespace MapReductionTest

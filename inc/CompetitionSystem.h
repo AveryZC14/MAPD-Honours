@@ -39,6 +39,10 @@ struct TimeStepMetric
     // solvers. Distinct from SchedulerSolveTime, which only starts once
     // Step 1 is done. See ai/local_node_matching.md.
     double SchedulerLocalMatchTime = 0.0;
+    // Summed per-group local-matching time (seconds) this timestep, i.e. the
+    // one-thread cost; SchedulerLocalMatchTime is wall-clock. Solver 6 only.
+    // See ai/parallel_local_matching_plan.md.
+    double SchedulerLocalMatchCpuTime = 0.0;
     // Wall-clock time (seconds) spent this timestep (re)building solver 7's
     // edge-node backbone -- always 0 for other solvers, and 0 for most
     // solver-7 timesteps too (only nonzero on a call that actually rebuilt

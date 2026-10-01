@@ -40,6 +40,13 @@ struct ScheduleTiming
 	// (match_local_node_exact) -- solver 6 only, 0 for other solvers. See
 	// ai/local_node_matching.md.
 	double local_match_time = 0.0;
+	// Summed per-group matching time (seconds) this call: what Step 1 (and
+	// the cascade) would take on one thread. local_match_time is wall-clock,
+	// so the ratio is the parallel speedup. See
+	// ai/parallel_local_matching_plan.md.
+	double local_match_cpu_time = 0.0;
+	// Threads run_local_match_jobs may use (solver 6 only; 0 otherwise).
+	int match_threads = 0;
 	// Wall-clock time (seconds) this call's EdgeAugmentedHierarchy::ensure()
 	// spent (re)building the region+edge backbone -- solver 7 only, 0 for
 	// other solvers (including 0 on solver 7 calls that reused an

@@ -5,6 +5,7 @@
 #include "../map_reduction_test/mapReductionV0.h"
 #include "../map_reduction_test/MapCoarsenV1.h"
 #include "../map_reduction_test/EdgeAugmentedCoarsen.h"
+#include "../map_reduction_test/LocalNodeMatch.h"
 
 namespace DefaultPlanner{
 
@@ -44,6 +45,8 @@ void set_last_timing(double solve_time, double guide_path_time,
     last_timing.local_node_match_count = 0;
     last_timing.flow_match_count = 0;
     last_timing.local_match_time = 0.0;
+    last_timing.local_match_cpu_time = 0.0;
+    last_timing.match_threads = 0;
     last_timing.backbone_build_time = 0.0;
 }
 
@@ -67,6 +70,8 @@ void set_last_reduced_timing(double solve_time,
     last_timing.local_node_match_count = local_node_match_count;
     last_timing.flow_match_count = flow_match_count;
     last_timing.local_match_time = local_match_time;
+    last_timing.local_match_cpu_time = MapReductionTest::take_local_match_cpu_time();
+    last_timing.match_threads = MapReductionTest::get_local_match_threads();
     last_timing.backbone_build_time = backbone_build_time;
 }
 

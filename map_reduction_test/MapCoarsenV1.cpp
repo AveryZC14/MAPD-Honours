@@ -1696,7 +1696,13 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
     std::unordered_map<int, int> start_supply;
     std::unordered_map<int, std::list<int>> top_task_ids;
     std::unordered_map<int, int> agent_to_top_node;
-
+    // Three passes (ai/parallel_local_matching_plan.md): collect one job per
+    // node that has both agents and tasks, in the order the old serial loop
+    // visited them; match all jobs (possibly on several threads); merge the
+    // results in collect order, so the output is the same as the serial loop
+    // for any thread count.
+    std::vector<int> job_nodes;
+    std::vector<LocalMatchJob> jobs;
     for (auto& kv : agents_by_node)
     {
         const int node = kv.first;
@@ -1714,20 +1720,28 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         }
         const std::vector<int>& node_task_ids = tasks_it->second;
 
-        std::vector<int> node_agent_locs, node_task_locs;
-        node_agent_locs.reserve(node_agent_ids.size());
-        node_task_locs.reserve(node_task_ids.size());
+        LocalMatchJob job;
+        job.agent_ids = node_agent_ids;
+        job.task_ids = node_task_ids;
+        job.agent_locs.reserve(node_agent_ids.size());
+        job.task_locs.reserve(node_task_ids.size());
         for (int agent_id : node_agent_ids)
-            node_agent_locs.push_back(agent_loc_by_id[agent_id]);
+            job.agent_locs.push_back(agent_loc_by_id[agent_id]);
         for (int task_id : node_task_ids)
-            node_task_locs.push_back(task_loc_by_id[task_id]);
+            job.task_locs.push_back(task_loc_by_id[task_id]);
+        job_nodes.push_back(node);
+        jobs.push_back(std::move(job));
+    }
 
-        const auto local_match_start = std::chrono::high_resolution_clock::now();
-        const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
-            ? match_local_node_exact(*env, node_agent_ids, node_agent_locs, node_task_ids, node_task_locs)
-            : std::vector<LocalMatchPair>();
-        local_match_time_accum += std::chrono::duration<double>(
-            std::chrono::high_resolution_clock::now() - local_match_start).count();
+    LocalMatchRunStats match_stats;
+    if (kEnableLocalNodeMatching)
+        match_stats = run_local_match_jobs(*env, jobs);
+    local_match_time_accum = match_stats.wall_s;
+
+    for (std::size_t j = 0; j < jobs.size(); ++j)
+    {
+        const int node = job_nodes[j];
+        const std::vector<LocalMatchPair>& pairs = jobs[j].pairs;
 
         std::unordered_set<int> matched_agents, matched_tasks;
         for (const auto& p : pairs)
@@ -1738,14 +1752,14 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
         }
         if (local_match_count_out) *local_match_count_out += static_cast<int>(pairs.size());
 
-        for (int agent_id : node_agent_ids)
+        for (int agent_id : jobs[j].agent_ids)
         {
             if (matched_agents.count(agent_id))
                 continue;
             start_supply[node]++;
             agent_to_top_node[agent_id] = node;
         }
-        for (int task_id : node_task_ids)
+        for (int task_id : jobs[j].task_ids)
         {
             if (!matched_tasks.count(task_id))
                 top_task_ids[node].push_back(task_id);
@@ -1760,6 +1774,12 @@ std::unordered_map<int,int> ReducedHierarchy::compute_reduced_assignment(SharedE
             top_task_ids[kv.first].push_back(task_id);
     }
     if (local_match_time_out) *local_match_time_out = local_match_time_accum;
+    std::cout << "local match stats: where step1 level " << top_level_idx
+              << " jobs " << match_stats.jobs << " max_work " << match_stats.max_work
+              << " total_work " << match_stats.total_work
+              << " wall_ms " << match_stats.wall_s * 1000.0
+              << " cpu_ms " << match_stats.cpu_s * 1000.0
+              << " threads " << match_stats.threads << std::endl;
 
     ListDigraph g;
     ListDigraph::NodeMap<int> supply(g);
@@ -2114,6 +2134,11 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
             for (int i = 0; i < static_cast<int>(remaining_tasks.size()); ++i)
                 task_idxs_by_node[remaining_tasks[i].node].push_back(i);
 
+            // Collect / match / merge, as in compute_reduced_assignment's Step 1
+            // (ai/parallel_local_matching_plan.md): merge order equals the old
+            // serial loop's order, so output is the same for any thread count.
+            std::vector<const std::vector<int>*> job_agent_idxs, job_task_idxs;
+            std::vector<LocalMatchJob> jobs;
             for (const auto& kv : agent_idxs_by_node)
             {
                 const auto task_it = task_idxs_by_node.find(kv.first);
@@ -2123,28 +2148,34 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
                 const std::vector<int>& agent_idxs = kv.second;
                 const std::vector<int>& task_idxs = task_it->second;
 
-                std::vector<int> agent_ids, agent_locs, task_ids, task_locs;
-                agent_ids.reserve(agent_idxs.size());
-                agent_locs.reserve(agent_idxs.size());
-                task_ids.reserve(task_idxs.size());
-                task_locs.reserve(task_idxs.size());
+                LocalMatchJob job;
+                job.agent_ids.reserve(agent_idxs.size());
+                job.agent_locs.reserve(agent_idxs.size());
+                job.task_ids.reserve(task_idxs.size());
+                job.task_locs.reserve(task_idxs.size());
                 for (int idx : agent_idxs)
                 {
-                    agent_ids.push_back(remaining_agents[idx].id);
-                    agent_locs.push_back(remaining_agents[idx].loc);
+                    job.agent_ids.push_back(remaining_agents[idx].id);
+                    job.agent_locs.push_back(remaining_agents[idx].loc);
                 }
                 for (int idx : task_idxs)
                 {
-                    task_ids.push_back(remaining_tasks[idx].id);
-                    task_locs.push_back(remaining_tasks[idx].loc);
+                    job.task_ids.push_back(remaining_tasks[idx].id);
+                    job.task_locs.push_back(remaining_tasks[idx].loc);
                 }
+                job_agent_idxs.push_back(&agent_idxs);
+                job_task_idxs.push_back(&task_idxs);
+                jobs.push_back(std::move(job));
+            }
 
-                const auto match_start = std::chrono::high_resolution_clock::now();
-                const std::vector<LocalMatchPair> pairs = kEnableLocalNodeMatching
-                    ? match_local_node_exact(*env, agent_ids, agent_locs, task_ids, task_locs)
-                    : std::vector<LocalMatchPair>();
-                cascade_local_match_time_accum += std::chrono::duration<double>(
-                    std::chrono::high_resolution_clock::now() - match_start).count();
+            LocalMatchRunStats match_stats;
+            if (kEnableLocalNodeMatching)
+                match_stats = run_local_match_jobs(*env, jobs);
+            cascade_local_match_time_accum += match_stats.wall_s;
+
+            for (std::size_t j = 0; j < jobs.size(); ++j)
+            {
+                const std::vector<LocalMatchPair>& pairs = jobs[j].pairs;
                 if (pairs.empty()) continue;
 
                 std::unordered_set<int> matched_agent_ids, matched_task_ids;
@@ -2156,13 +2187,19 @@ std::unordered_map<int,int> ReducedHierarchy::compute_hierarchical_assignment(Sh
                 }
                 cascade_local_match_count += static_cast<int>(pairs.size());
 
-                for (int idx : agent_idxs)
+                for (int idx : *job_agent_idxs[j])
                     if (matched_agent_ids.count(remaining_agents[idx].id))
                         agent_matched[idx] = true;
-                for (int idx : task_idxs)
+                for (int idx : *job_task_idxs[j])
                     if (matched_task_ids.count(remaining_tasks[idx].id))
                         task_matched[idx] = true;
             }
+            std::cout << "local match stats: where cascade level " << level
+                      << " jobs " << match_stats.jobs << " max_work " << match_stats.max_work
+                      << " total_work " << match_stats.total_work
+                      << " wall_ms " << match_stats.wall_s * 1000.0
+                      << " cpu_ms " << match_stats.cpu_s * 1000.0
+                      << " threads " << match_stats.threads << std::endl;
         }
 
         // Carry every still-unmatched item forward, climbing it to its

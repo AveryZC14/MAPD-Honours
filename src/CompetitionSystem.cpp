@@ -291,6 +291,7 @@ void BaseSystem::simulate(int simulation_time)
         metric.LocalNodeMatchCountCumulative = total_local_node_match_count;
         metric.FlowMatchCountCumulative = total_flow_match_count;
         metric.SchedulerLocalMatchTime = last_scheduler_timing.local_match_time;
+        metric.SchedulerLocalMatchCpuTime = last_scheduler_timing.local_match_cpu_time;
         metric.SchedulerBackboneBuildTime = last_scheduler_timing.backbone_build_time;
         metric.Timestep = simulator.get_curr_timestep();
         metric.TasksFinishedThisStep = tasks_finished_this_step;
@@ -385,6 +386,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     // hierarchy_level_node_counts.size(), broken out as its own field so it
     // doesn't have to be read off an array length.
     js["schedulerHierarchyNumLevels"] = last_scheduler_timing.hierarchy_level_node_counts.size();
+    js["schedulerMatchThreads"] = last_scheduler_timing.match_threads;
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;
     js["totalFlowMatchCount"] = total_flow_match_count;
@@ -406,6 +408,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
             step["LocalNodeMatchCountCumulative"] = metric.LocalNodeMatchCountCumulative;
             step["FlowMatchCountCumulative"] = metric.FlowMatchCountCumulative;
             step["SchedulerLocalMatchTime"] = metric.SchedulerLocalMatchTime;
+            step["SchedulerLocalMatchCpuTime"] = metric.SchedulerLocalMatchCpuTime;
             step["SchedulerBackboneBuildTime"] = metric.SchedulerBackboneBuildTime;
             step["Timestep"] = metric.Timestep;
             step["TasksFinishedThisStep"] = metric.TasksFinishedThisStep;

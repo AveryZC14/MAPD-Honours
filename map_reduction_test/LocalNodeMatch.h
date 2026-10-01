@@ -47,4 +47,44 @@ std::vector<LocalMatchPair> match_local_node_exact(
     const std::vector<int>& agent_ids, const std::vector<int>& agent_locs,
     const std::vector<int>& task_ids, const std::vector<int>& task_locs);
 
+// ---------------------------------------------------------------------------
+// Running many independent matches at once (ai/parallel_local_matching_plan.md)
+// ---------------------------------------------------------------------------
+
+// One call's worth of match_local_node_exact input, plus its output.
+struct LocalMatchJob
+{
+    std::vector<int> agent_ids, agent_locs, task_ids, task_locs;
+    std::vector<LocalMatchPair> pairs;   // filled in by run_local_match_jobs
+    double time_s = 0.0;                 // time spent matching this job
+};
+
+struct LocalMatchRunStats
+{
+    int jobs = 0;
+    long long max_work = 0;    // largest job's agents x tasks
+    long long total_work = 0;  // sum of agents x tasks over all jobs
+    double wall_s = 0.0;       // wall-clock time of the whole call
+    double cpu_s = 0.0;        // summed per-job time (the serial cost)
+    int threads = 1;           // threads actually used
+};
+
+// Runs match_local_node_exact on every job, filling job.pairs. Jobs are
+// independent (each builds its own LEMON graph), so they run on up to
+// get_local_match_threads() threads, largest first. Runs serially when there
+// are fewer than 2 jobs or total work is below kParallelMatchMinWork.
+// Output is identical for any thread count: each job's pairs depend only on
+// that job's input.
+LocalMatchRunStats run_local_match_jobs(const SharedEnvironment& env, std::vector<LocalMatchJob>& jobs);
+
+// Thread count for run_local_match_jobs. Defaults to the build-time
+// SCHEDULER_MATCH_THREADS; the validator changes it at runtime to compare
+// thread counts in one process.
+void set_local_match_threads(int threads);
+int get_local_match_threads();
+
+// Summed per-job matching time (seconds) since the last call, then reset.
+// Read once per scheduler call for the SchedulerLocalMatchCpuTime metric.
+double take_local_match_cpu_time();
+
 } // namespace MapReductionTest

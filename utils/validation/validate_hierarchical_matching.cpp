@@ -44,6 +44,7 @@
 #include "SharedEnv.h"
 #include "instance_loader.h"
 #include "MapCoarsenV1.h"
+#include "LocalNodeMatch.h"
 
 using namespace std;
 using namespace MapReductionTest;
@@ -264,6 +265,43 @@ int main(int argc, char** argv)
     cout << "  entirety stride=2 (minCascadeLevel=1 -> flowSolveLevel=top=" << (num_levels - 1) << "): "
          << assignments_entirety_stride2.size() << " matched (" << local_cnt_entirety_stride2 << " local / "
          << flow_cnt_entirety_stride2 << " flow), total Manhattan distance = " << dist_entirety_stride2 << "\n";
+
+    // --- Check 5: parallel local matching gives identical output -----------
+    // (ai/parallel_local_matching_plan.md). Each mode is run with 1 thread and
+    // with 6; the assignment maps must be identical, not just equally good.
+    // Also times the local-matching passes with 1/2/4/6 threads on this frozen
+    // batch -- the clean speedup number (full runs are too noisy for it).
+    struct Mode { string name; int flow_level; int min_cascade; };
+    const vector<Mode> modes = {
+        {"single-level (flowSolveLevel=" + to_string(flow_solve_level_arg) + ")", flow_solve_level_arg, flow_solve_level_arg},
+        {"cascade (1 -> " + to_string(flow_solve_level_arg) + ")", flow_solve_level_arg, 1},
+        {"entirety (1 -> top=" + to_string(num_levels - 1) + ")", num_levels - 1, 1},
+    };
+    const int saved_threads = get_local_match_threads();
+    for (const auto& mode : modes)
+    {
+        env.flow_solve_level = mode.flow_level;
+        std::unordered_map<int,int> reference;
+        for (int threads : {1, 2, 4, 6})
+        {
+            set_local_match_threads(threads);
+            std::unordered_map<int,list<int>> gp;
+            double match_wall = 0.0;
+            take_local_match_cpu_time();
+            const auto result = hierarchy.compute_hierarchical_assignment(
+                &env, flexible_agent_ids, flexible_task_ids, mode.min_cascade, gp, true, 1,
+                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &match_wall);
+            const double match_cpu = take_local_match_cpu_time();
+            if (threads == 1)
+                reference = result;
+            else
+                check(result == reference, mode.name + ": " + to_string(threads) + " threads give the same assignment as 1 thread");
+            cout << "  " << mode.name << ", " << threads << " threads: local matching wall "
+                 << match_wall * 1000.0 << " ms, cpu " << match_cpu * 1000.0 << " ms, speedup "
+                 << (match_wall > 0 ? match_cpu / match_wall : 0.0) << "\n";
+        }
+    }
+    set_local_match_threads(saved_threads);
 
     cout << "\n" << g_checks_run << " checks run, " << g_checks_failed << " failed.\n";
     return g_checks_failed == 0 ? 0 : 1;
