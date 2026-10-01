@@ -345,3 +345,121 @@ progresses -- this is not append-only.
   Leave it off.
 - orz900d with scheduler paths peaked at 85 ms PIBT (4 runs in parallel),
   closer to the 100 ms reserve than before.
+
+### 2026-09-29: why IH agents are stuck (diagnosis)
+
+- **What**: added a stuck-agent diagnosis (`stuck breakdown:` and
+  `stuck sample:` log lines, see `ai/planner_local_bfs_plan.md`, "Stuck-agent
+  diagnosis"). Checked on the hand-built trap map: pure Manhattan labels the
+  agent `trapped_manhattan` from decision 20; the new planner has no stuck
+  agents.
+- **Runs** (scratchpad): IH_mp_2p_01 10k, 500 steps, solver 6 level 4, new
+  planner and pure Manhattan in parallel. 0 errors; 366 and 386 decisions.
+- **Stuck breakdown at the last decision:**
+
+  | | trapped (Manhattan) | blocked (Manhattan) | trapped / blocked (path BFS) | moved |
+  |---|---|---|---|---|
+  | New planner | 1,915 | 1,146 | 0 / 0 | 20 |
+  | Pure Manhattan | 2,670 | 1,932 | 0 / 0 | 21 |
+
+- **Independent check** (`outputs/planner_stuck_diagnosis/stuck_check.py`,
+  map file only, 90 sampled stuck agents per run): every agent the planner
+  labelled trapped is a Manhattan dead end on the map (all open neighbours
+  are further from the goal); every agent labelled blocked is not. In the new
+  planner run, all 90 samples had no guide path. Pictures:
+  `outputs/planner_stuck_diagnosis/stuck_ih_{new,pure}.png`.
+- **Conclusion**: with the new planner, no agent scored by the path BFS got
+  stuck. All stuck agents were ones without a guide path, scored by
+  Manhattan distance. About 60% are pinned by the score at a wall. The
+  other 40% had a better move but didn't take it, most likely because other
+  agents were in the way. Positions of other agents weren't logged, so
+  that part is not proven. Fixing IH means getting guide paths to agents
+  faster.
+
+### 2026-09-29/30 (overnight): parallel guide paths, and what really limits IH
+
+- **What**: implemented `ai/parallel_guide_paths_plan.md` (guide-path A* on
+  6 threads), then followed the evidence: an A* benchmark, weighted A*, an
+  in-search deadline, a rotation fix, and a diagnostic that ignores
+  congestion. Details and tables: that doc, "Implementation and results".
+- **Correctness**: debug builds (path and congestion-map checks) on tiny,
+  the trap map and orz900d 10k 300 steps, with 1 and 6 threads: 0 failures,
+  0 errors. orz900d's initial path backlog cleared by decision 50 instead of
+  about 200.
+- **IH 10k, 500 steps, solver 6 level 4, one run at a time:**
+
+  | Planner | Deliveries | Decisions | Stuck at end |
+  |---|---|---|---|
+  | Sequential (last night) | 535 | 366 | 3,061 |
+  | 6 threads | 319 | 244 | – |
+  | 6 threads + weight 2 | 352 | 250 | – |
+  | 6 threads + weight 2 + deadline | 764 | 499 | 4,954 |
+  | same + rotation fix | 1,141 | 499 | 1,190 |
+  | **6 threads + deadline + rotation, congestion ignored** | **1,299** | 499 | **1** |
+
+- **Why**: A* gets far slower as the congestion map fills (benchmark on the
+  IH map: 15-22 ms per search with no other paths, 240 ms with 8,000). With
+  about 10k paths registered, IH searches take longer than the whole
+  stage-2 window. Ignoring congestion in the search clears the backlog by
+  decision 100 and leaves nobody stuck.
+- **Decision left to the user**: whether guide paths should ignore
+  congestion (`GUIDE_PATH_IGNORE_CONGESTION`, default false) or use a
+  weight. Defaults left unchanged; sweep NOT restarted.
+
+### 2026-09-30 (overnight): parallel local matching, and congestion evidence runs
+
+- **Parallel local matching** (`ai/parallel_local_matching_plan.md`)
+  implemented and tested: identical output for 1/2/4/6 threads (validator
+  check 5, 35/35 on tiny, tinyComplex, warehouseSmall_200 L4/L6, IH 80k L8,
+  scene_mp_4p_03 80k L8); ThreadSanitizer clean. First IH 80k level-8
+  decision: 49.3 s → 8.3 s. Full IH 80k L8 run, 50 steps: 0 errors,
+  `SchedulerLocalMatchTime` 8.3 s vs `SchedulerLocalMatchCpuTime` 49.6 s on
+  the first decision, peak 9.0 GB.
+- **Evidence runs for the congestion decision** (scratchpad
+  `evidence.sh`, one at a time, solver 6 level 4, `--logDetailLevel 3`):
+  default build (congestion on) vs `GUIDE_PATH_IGNORE_CONGESTION=true`, on
+  orz900d 10k 1,500 steps, scene_mp_4p_03 10k 500 steps, IH 20k 500 steps.
+- **Result**: these first runs (`ev_*`) were affected by the harness bug in
+  the next entry (planner got about 190 ms per step on scene_mp_4p_03), so
+  they were redone as `ev2_*` after the fix; results there.
+
+### 2026-09-30 (overnight): harness bug, ~650 ms per step lost on big maps
+
+- **Found while checking why scene_mp_4p_03 10k failed** (130 deliveries in
+  500 steps, over 9,600 agents without a path, with congestion on or off):
+  the planner only got about 190 ms per step (`plan limit`).
+- **Cause**: `Entry::compute` (`src/Entry.cpp`) built the whole-map
+  "background flow" array (`get_opened_flow`, 32 bytes per cell) every step
+  for every solver, then it was copied into the scheduler (`set_flow` by
+  value, member copy) and copied again into each `schedule_plan_*` call (by
+  value). Measured on scene_mp_4p_03 (13.9M cells): `set_flow` about 395 ms
+  and the scheduler call about 395 ms, of which only about 138 ms was the
+  solve. The array is only read with `--useTraffic`, which the sweep doesn't
+  use.
+- **Fix** (no behaviour change): the flow is only built with
+  `--useTraffic`; `set_flow` moves instead of copying; the four
+  `schedule_plan_*` functions take it by `const&`. `Entry::compute` now
+  logs an `entry timing:` line per step (set_flow and scheduler ms).
+- **After**: scene_mp_4p_03 10k, 20 steps: `set_flow` 0.002 ms, scheduler
+  about 3 ms, planner limit 976 ms (was about 190). 0 errors.
+- **Consequence**: every earlier run on the big maps (IH, warehouseXL, the
+  scene maps; all solvers) lost roughly 100-650 ms of planner time per step
+  to this, growing with map size (about 3 × 32 bytes × cells). orz900d loses
+  about 30-60 ms. The evidence runs above were redone with the fix
+  (`ev2_*`, below).
+
+### 2026-09-30 (overnight): evidence runs redone after the harness fix
+
+- **Runs** (`ev2_*`, scratchpad, one at a time, 00:00-01:03, solver 6
+  level 4): orz900d 10k 1,500 steps sequential / 6 threads / 6 threads
+  congestion ignored; scene_mp_4p_03 10k and IH 20k, 500 steps, 6 threads
+  (3 on scene, memory cap) with congestion on and ignored.
+- **Result**: see the table in `ai/parallel_guide_paths_plan.md`
+  ("Evidence runs after the fix"). orz900d: sequential 5,492 (reproduces
+  yesterday), parallel 4,520 / 4,901 (congestion ignored). IH 20k:
+  congestion ignored 2,431 with 0 stuck vs 1,788 with 5,149 stuck.
+  scene_mp_4p_03: 203-214 deliveries in 500 steps, thousands stuck either
+  way (plain A* too slow there). 0 errors in every run.
+- **Action**: `GUIDE_PATH_THREADS` default set back to 1 (sequential).
+  Sweep NOT restarted: no guide-path setting works on all maps; needs the
+  user's decision.

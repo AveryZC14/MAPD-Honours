@@ -6,11 +6,21 @@
 
 namespace DefaultPlanner{
 std::chrono::nanoseconds t;
+
+// Manhattan heuristic for the guide-path A*, multiplied by
+// ASTAR_HEURISTIC_WEIGHT under USE_MANHATTAN_HEURISTIC (weighted A*: found
+// paths cost at most that factor times the best). See const.h.
+static inline int manhattan_h(int loc, int goal, SharedEnvironment* env){
+    const int d = manhattanDistance(loc, goal, env);
+    if (!USE_MANHATTAN_HEURISTIC || ASTAR_HEURISTIC_WEIGHT == 1.0)
+        return d;
+    return (int)(d * ASTAR_HEURISTIC_WEIGHT + 0.5);
+}
 //a astar minimized the opposide traffic flow with existing traffic flow
 
 s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
     HeuristicTable& ht, Traj& traj,
-    MemoryPool& mem, int start, int goal, Neighbors* ns)
+    MemoryPool& mem, int start, int goal, Neighbors* ns, const TimePoint* deadline)
 {
     mem.reset();
 
@@ -19,7 +29,7 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
     int h;
 
     if(USE_MANHATTAN_HEURISTIC || ht.empty())
-        h = manhattanDistance(start,goal,env);
+        h = manhattan_h(start,goal,env);
     else
         h = get_heuristic(ht,env, start, ns);
 
@@ -50,6 +60,14 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
 
 
     while (open.size() > 0){
+        // abandon at the deadline (checked every 1024 expansions): return an
+        // empty traj and a node with id -1; the caller retries next step
+        if (deadline != nullptr && (expanded & 1023) == 0 && std::chrono::steady_clock::now() > *deadline){
+            traj.clear();
+            s_node abandoned;
+            abandoned.id = -1;
+            return abandoned;
+        }
         s_node* curr = open.pop();
         curr->close();
 
@@ -77,7 +95,7 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
             all_vertex_flow = 0;
 
             if(USE_MANHATTAN_HEURISTIC || ht.empty())
-                h = manhattanDistance(next,goal,env);
+                h = manhattan_h(next,goal,env);
             else
                 h = get_heuristic(ht,env, next, ns);
 
@@ -141,7 +159,12 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
                 }
                 else{
 
-                    if (re(temp_node,*existing)){ 
+                    // With a weighted heuristic (ASTAR_HEURISTIC_WEIGHT != 1)
+                    // a closed cell can be reached more cheaply later; weighted
+                    // A* without re-opening just ignores that, which keeps the
+                    // weight-times-best bound. Otherwise it's a real error.
+                    const bool weighted = USE_MANHATTAN_HEURISTIC && ASTAR_HEURISTIC_WEIGHT != 1.0;
+                    if (!weighted && re(temp_node,*existing)){ 
                         std::cout << "error in astar: re-expansion" << std::endl;
                         assert(false);
                         exit(1);

@@ -5,6 +5,18 @@
 #include <iostream>
 
 namespace DefaultPlanner{
+
+// Random bit for A* tie-breaking. A per-thread xorshift generator instead of
+// rand(), so guide-path searches can run on several threads without sharing
+// rand()'s lock (see ai/parallel_guide_paths_plan.md).
+inline int search_rand(){
+    thread_local unsigned int state = 2463534242u;
+    state ^= state << 13;
+    state ^= state >> 17;
+    state ^= state << 5;
+    return (int)(state >> 1);
+}
+
 struct s_node
 {
     int label = 0;
@@ -89,7 +101,7 @@ struct cmp_less_f //focal search open
 
         if (lhs.get_f() == rhs.get_f()){
                 if (lhs.get_g() == rhs.get_g())
-                    return rand() % 2;
+                    return search_rand() % 2;
                 else
                     return lhs.get_g() > rhs.get_g();
         }
@@ -119,7 +131,7 @@ struct cmp_less_of //astar open
                 {
                         if (lhs.get_g() == rhs.get_g())
                             if (lhs.tie_breaker  == rhs.tie_breaker)
-                                return rand() % 2;
+                                return search_rand() % 2;
                             else
                                 return lhs.tie_breaker < rhs.tie_breaker;
                         else

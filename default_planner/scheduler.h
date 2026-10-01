@@ -83,13 +83,13 @@ ScheduleTiming get_last_timing();
 void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env, int solver);
 
 void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
-void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only, int maximum_edges);
-void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
-void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
+void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only, int maximum_edges);
+void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only);
+void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only);
 // Solver 7: same shape as schedule_plan_flow_reduced, but solves the
 // per-timestep coarse flow on an edge-node-augmented graph instead -- see
 // ai/edge_node_representation.md.
-void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only);
+void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only);
 void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, bool new_only);
 
 void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,double>>& background_flow, bool new_only);

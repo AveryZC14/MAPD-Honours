@@ -27,9 +27,23 @@ void Entry::compute(int time_limit, std::vector<Action> & plan, std::vector<int>
     // {
          //first call task schedule
 
-        scheduler->set_flow(planner->get_flow());
+        auto entry_t0 = std::chrono::steady_clock::now();
+        // The background flow is a whole-map array (32 bytes per cell) and is
+        // only read by the schedulers when --useTraffic is on. Building it
+        // every step regardless cost about 400 ms per step on scene_mp_4p_03
+        // (13.9M cells), taken straight out of the planner's time. See
+        // ai/run_log.md, 2026-09-30.
+        if (scheduler->use_traffic)
+            scheduler->set_flow(planner->get_flow());
+        auto entry_t1 = std::chrono::steady_clock::now();
         //TaskScheduler::plan
         scheduler->plan(time_limit,proposed_schedule);
+        auto entry_t2 = std::chrono::steady_clock::now();
+        std::cout << "entry timing: since_plan_start_ms "
+                  << std::chrono::duration<double, std::milli>(entry_t0 - env->plan_start_time).count()
+                  << " set_flow_ms " << std::chrono::duration<double, std::milli>(entry_t1 - entry_t0).count()
+                  << " scheduler_ms " << std::chrono::duration<double, std::milli>(entry_t2 - entry_t1).count()
+                  << std::endl;
 
         //then update the first unfinished errand/location of tasks for planner reference
         update_goal_locations(proposed_schedule);

@@ -176,6 +176,21 @@ void update_traj(TrajLNS& lns, int i){
         update_path_togo(lns,i);
 }
 
+//replace agent i's traj with an already-searched one (the commit half of
+//update_traj, used by the parallel guide-path loop in planner.cpp): take the
+//old traj out of the flow, swap the new one in and register it
+void commit_traj(TrajLNS& lns, int i, Traj& new_traj, const s_node& goal_node){
+    if (!lns.trajs[i].empty())
+        remove_traj(lns, i);
+    lns.trajs[i].swap(new_traj);
+    lns.goal_nodes[i] = goal_node;
+    add_traj(lns,i);
+    if (!USE_MANHATTAN_HEURISTIC)
+        update_dist_2_path(lns,i);
+    else if (USE_LOCAL_PATH_BFS)
+        update_path_togo(lns,i);
+}
+
 //rebuild path cell -> steps-left-to-goal lookup for agent i's current traj
 void update_path_togo(TrajLNS& lns, int i){
     auto& togo = lns.path_togo[i];

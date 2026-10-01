@@ -39,7 +39,14 @@ the date and what changed) rather than deleting them outright.
   Manhattan distance and get trapped (4,661 stuck), and A* overruns the
   step (1,021 decisions in 1,500 steps). Sweep NOT restarted. Next: make
   guide paths cheap enough on big maps (see the plan doc's "IH result"
-  section). Before restarting:
+  section). Plan: build them in parallel, `ai/parallel_guide_paths_plan.md`.
+  **2026-09-30: implemented behind flags, default left sequential.** No
+  setting works on every map (orz900d best sequential; IH needs parallel +
+  congestion ignored; scene_mp_4p_03 fails either way, needs a better A*
+  heuristic). **Decision needed**; options in that doc's "Conclusions".
+  Also fixed a harness bug that cost up to about 650 ms of planner time per
+  step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
+  are affected. Before restarting:
   consider a 20k / larger-map check (PIBT used up to 77 of its 100 ms),
   then delete `outputs/thesis_sweep/STOP`. (The 4 stale runs were moved to
   `outputs/thesis_sweep_junk/2026-09-29_manhattan_freeze/` on 2026-09-29.)

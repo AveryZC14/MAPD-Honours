@@ -413,6 +413,20 @@ a `planner stats:` line (stage timings, paths built, stuck agents, BFS
 fallbacks). Full description, design reasoning and results in
 `ai/planner_local_bfs_plan.md`.
 
+**Also as of 2026-09-30** (details in `ai/parallel_guide_paths_plan.md`
+and `ai/parallel_local_matching_plan.md`):
+
+- Guide-path options, all off by default: `GUIDE_PATH_THREADS` (1 =
+  sequential), `GUIDE_PATH_IGNORE_CONGESTION`, `ASTAR_HEURISTIC_WEIGHT`,
+  `GUIDE_PATH_DEBUG_CHECKS`, plus `GUIDE_PATH_EXTRA_POOL_MB`. `astar()` takes
+  an optional deadline. No setting works on every map yet; decision pending.
+- Solver 6's local matching runs on `SCHEDULER_MATCH_THREADS` (default 6)
+  threads with identical output; new `SchedulerLocalMatchCpuTime` metric and
+  `schedulerMatchThreads` in the output JSON.
+- `Entry::compute` only builds the scheduler's background flow with
+  `--useTraffic` (it cost up to about 650 ms per step on big maps before),
+  and logs an `entry timing:` line per step.
+
 ### Guide paths: which solvers provide them, and are they doing anything
 
 `agent_guide_path` (`scheduler.cpp:13`, a global `unordered_map<int,list<int>>`,
@@ -807,6 +821,18 @@ Headline pitfalls documented there, worth knowing before touching this again:
   Manhattan distance to the goal, plus stage-2 rotation, scheduler path
   handoff, and a stuck-agent counter. Lists caveats and the checks to run
   before restarting the sweep.
+
+- `ai/parallel_guide_paths_plan.md` — plan (2026-09-29) to build guide paths
+  with several threads, because on IH_mp_2p_01 guide-path A* is too slow
+  (about 14 paths per step) and agents waiting for a path get trapped.
+  Covers the overall problem, why the searches are sequential today, the
+  design, testing and caveats.
+
+- `ai/parallel_local_matching_plan.md` — plan (2026-09-29, not started) to
+  run solver 6's per-node `match_local_node_exact` calls (Step 1 and the
+  cascade loop) on several threads, with output identical to the serial
+  version. Starts with measuring local-match time at 80k agents, since
+  scheduler time now eats into guide-path time.
 
 (Update this list if more `ai/*.md` files are added later.)
 

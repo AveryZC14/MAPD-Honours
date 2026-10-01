@@ -4,6 +4,8 @@
 #include "pibt.h"
 #include "flow.h"
 #include "const.h"
+#include <thread>
+#include <atomic>
 
 
 namespace DefaultPlanner{
@@ -30,6 +32,152 @@ namespace DefaultPlanner{
     // spent there while having a goal
     std::vector<int> last_loc;
     std::vector<int> still_steps;
+
+    // GUIDE_PATH_DEBUG_CHECKS: a new guide path must start at the agent,
+    // end at its goal, and move one open cell at a time.
+    void check_path_or_die(SharedEnvironment* env, int agent, const Traj& traj, int goal)
+    {
+        const int start = env->curr_states[agent].location;
+        bool ok = !traj.empty() && traj.front() == start && traj.back() == goal;
+        for (size_t j = 1; ok && j < traj.size(); j++)
+            ok = validateMove(traj[j-1], traj[j], env) && traj[j] != traj[j-1];
+        if (!ok)
+        {
+            cout << "GUIDE PATH CHECK FAILED: agent " << agent << " start " << start
+                 << " goal " << goal << " path size " << traj.size() << endl;
+            exit(1);
+        }
+    }
+
+    // GUIDE_PATH_DEBUG_CHECKS: rebuild the congestion map from every agent's
+    // current path and compare it with trajLNS.flow, to catch a path added or
+    // removed twice.
+    void check_flow_or_die(SharedEnvironment* env)
+    {
+        std::vector<Int4> rebuilt(env->map.size(), Int4({0,0,0,0}));
+        for (int a = 0; a < env->num_of_agents; a++)
+        {
+            const Traj& traj = trajLNS.trajs[a];
+            for (size_t j = 1; j < traj.size(); j++)
+                rebuilt[traj[j-1]].d[get_d(traj[j] - traj[j-1], env)] += 1;
+        }
+        for (size_t c = 0; c < rebuilt.size(); c++)
+            for (int d = 0; d < 4; d++)
+                if (rebuilt[c].d[d] != trajLNS.flow[c].d[d])
+                {
+                    cout << "FLOW CHECK FAILED: cell " << c << " dir " << d << " rebuilt "
+                         << rebuilt[c].d[d] << " flow " << trajLNS.flow[c].d[d] << endl;
+                    exit(1);
+                }
+        cout << "flow check ok" << endl;
+    }
+
+    // Guide-path threads actually used: GUIDE_PATH_THREADS, reduced so the
+    // extra search pools stay within GUIDE_PATH_EXTRA_POOL_MB.
+    int guide_path_threads_used(SharedEnvironment* env)
+    {
+        const long long pool_mb = std::max<long long>(1, (long long)env->map.size() * (long long)sizeof(s_node) / (1024 * 1024));
+        const long long extra = std::min<long long>(GUIDE_PATH_THREADS - 1, GUIDE_PATH_EXTRA_POOL_MB / pool_mb);
+        return 1 + (int)std::max<long long>(0, extra);
+    }
+
+    // Stage 2 with GUIDE_PATH_THREADS workers (see
+    // ai/parallel_guide_paths_plan.md). Scheduler-provided paths are taken on
+    // this thread first. The remaining agents that need a path are searched in
+    // parallel against trajLNS.flow as it is now (workers only read it), until
+    // the deadline; then every finished path is committed here, in order.
+    // Returns the number of paths built.
+    int build_guide_paths_parallel(SharedEnvironment* env, TimePoint end_time, int start_agent,
+                                   unordered_map<int,list<int>>& agent_guide_path, int& paths_from_scheduler,
+                                   int& abandoned_searches)
+    {
+        const int n_agents = env->num_of_agents;
+        int paths_built = 0;
+        std::vector<int> todo;
+        for (int k = 0; k < n_agents; k++)
+        {
+            const int i = (start_agent + k) % n_agents;
+            if (!require_guide_path[i])
+                continue;
+            auto it = agent_guide_path.find(i);
+            if (it != agent_guide_path.end())
+            {
+                Traj seeded(it->second.begin(), it->second.end());
+                if (GUIDE_PATH_DEBUG_CHECKS)
+                    check_path_or_die(env, i, seeded, trajLNS.tasks[i]);
+                commit_traj(trajLNS, i, seeded, s_node());
+                paths_from_scheduler++;
+                paths_built++;
+            }
+            else
+                todo.push_back(i);
+        }
+        if (todo.empty())
+            return paths_built;
+
+        const int n_threads = std::min<int>(guide_path_threads_used(env), todo.size());
+        // thread 0 uses the planner's own pool, the rest get one each
+        while ((int)trajLNS.guide_pools.size() < n_threads - 1)
+            trajLNS.guide_pools.push_back(std::make_unique<MemoryPool>(env->map.size()));
+
+        // GUIDE_PATH_IGNORE_CONGESTION: search against an all-zero congestion
+        // map (plain shortest paths). Paths are still registered in lns.flow.
+        static std::vector<Int4> no_congestion;
+        if (GUIDE_PATH_IGNORE_CONGESTION && no_congestion.size() != env->map.size())
+            no_congestion.assign(env->map.size(), Int4({0,0,0,0}));
+
+        std::vector<Traj> results(todo.size());
+        std::vector<s_node> goal_nodes(todo.size());
+        std::atomic<size_t> next(0);
+        auto worker = [&](int t)
+        {
+            MemoryPool& pool = t == 0 ? trajLNS.mem : *trajLNS.guide_pools[t - 1];
+            while (std::chrono::steady_clock::now() < end_time)
+            {
+                const size_t idx = next.fetch_add(1);
+                if (idx >= todo.size())
+                    break;
+                const int i = todo[idx];
+                const int goal = trajLNS.tasks[i];
+                goal_nodes[idx] = astar(env, GUIDE_PATH_IGNORE_CONGESTION ? no_congestion : trajLNS.flow,
+                                        trajLNS.heuristics[goal], results[idx], pool,
+                                        env->curr_states[i].location, goal, &(trajLNS.neighbors), &end_time);
+            }
+        };
+        std::vector<std::thread> threads;
+        for (int t = 0; t < n_threads; t++)
+            threads.emplace_back(worker, t);
+        for (auto& th : threads)
+            th.join();
+
+        // every index below `next` was taken by a worker; a search that hit
+        // the deadline comes back with an empty traj and isn't committed
+        const size_t taken = std::min(next.load(), todo.size());
+        size_t first_missed = todo.size();
+        for (size_t idx = 0; idx < taken; idx++)
+        {
+            const int i = todo[idx];
+            if (results[idx].empty())
+            {
+                abandoned_searches++;
+                first_missed = std::min(first_missed, idx);
+                continue;
+            }
+            if (GUIDE_PATH_DEBUG_CHECKS)
+                check_path_or_die(env, i, results[idx], trajLNS.tasks[i]);
+            commit_traj(trajLNS, i, results[idx], goal_nodes[idx]);
+            paths_built++;
+        }
+        // Next step starts after the agents tried this step, so an agent whose
+        // search was abandoned goes to the back of the queue instead of
+        // blocking the same slots every step.
+        if (first_missed < todo.size())
+        {
+            cout << "compute initial stop until " << todo[first_missed] << endl;
+            guide_path_start = todo[taken % todo.size()];
+        }
+        return paths_built;
+    }
 
 
     // std::vector<Int4> get_flow() 
@@ -250,9 +398,15 @@ namespace DefaultPlanner{
         // so the agents at the end of the list aren't always the ones left
         // without a path when time runs out.
         const int n_agents = env->num_of_agents;
-        const int start_agent = local_bfs ? guide_path_start % n_agents : 0;
+        const bool parallel_paths = USE_MANHATTAN_HEURISTIC && GUIDE_PATH_THREADS > 1;
+        const int start_agent = (local_bfs || parallel_paths) ? guide_path_start % n_agents : 0;
         int paths_built = 0;
         int paths_from_scheduler = 0;
+        int abandoned_searches = 0;
+        if (parallel_paths)
+            paths_built = build_guide_paths_parallel(env, end_time, start_agent, agent_guide_path, paths_from_scheduler,
+                                                     abandoned_searches);
+        else
         for (int k = 0; k < n_agents; k++)
         {
             const int i = (start_agent + k) % n_agents;
@@ -288,6 +442,13 @@ namespace DefaultPlanner{
         }
         TimePoint guide_done = std::chrono::steady_clock::now();
 
+        if (GUIDE_PATH_DEBUG_CHECKS)
+        {
+            static int flow_check_count = 0;
+            if (++flow_check_count % 100 == 0)
+                check_flow_or_die(env);
+        }
+
         // iterate and recompute the guide path to optimise traffic flow
         std::unordered_set<int> updated;
         frank_wolfe(trajLNS, updated,end_time);
@@ -316,6 +477,54 @@ namespace DefaultPlanner{
         }
         TimePoint pibt_done = std::chrono::steady_clock::now();
 
+        // Classify stuck agents by why they didn't move (see
+        // ai/planner_local_bfs_plan.md, "Stuck-agent diagnosis"):
+        // trapped = no neighbour beats waiting on score alone (the score pins
+        // it); blocked = a better neighbour existed but the agent still
+        // waited this decision (other agents in the way); moved = it moved
+        // this decision. Each split by scoring: Manhattan vs. local path BFS.
+        int stuck_trapped_manhattan = 0, stuck_trapped_local = 0;
+        int stuck_blocked_manhattan = 0, stuck_blocked_local = 0;
+        int stuck_moved = 0;
+        static int decision_count = 0;
+        decision_count++;
+        const bool dump_samples = decision_count % 100 == 0;
+        int samples = 0;
+        for (int i = 0; i < env->num_of_agents; i++)
+        {
+            if (still_steps[i] < STUCK_AGENT_THRESHOLD)
+                continue;
+            const bool moved = next_states[i].location != prev_states[i].location;
+            const bool local = trajLNS.pibt_local[i];
+            const char* cls;
+            if (moved) { stuck_moved++; cls = "moved"; }
+            else if (trajLNS.pibt_trapped[i]) {
+                if (local) { stuck_trapped_local++; cls = "trapped_local"; }
+                else { stuck_trapped_manhattan++; cls = "trapped_manhattan"; }
+            }
+            else {
+                if (local) { stuck_blocked_local++; cls = "blocked_local"; }
+                else { stuck_blocked_manhattan++; cls = "blocked_manhattan"; }
+            }
+            if (dump_samples && samples < 30)
+            {
+                samples++;
+                const int loc = prev_states[i].location;
+                const int goal = trajLNS.tasks[i];
+                cout << "stuck sample: decision " << decision_count << " agent " << i
+                     << " class " << cls << " still " << still_steps[i]
+                     << " loc " << loc / env->cols << " " << loc % env->cols
+                     << " goal " << goal / env->cols << " " << goal % env->cols
+                     << " has_path " << (!trajLNS.trajs[i].empty() && trajLNS.trajs[i].back() == goal)
+                     << endl;
+            }
+        }
+        cout << "stuck breakdown: trapped_manhattan " << stuck_trapped_manhattan
+             << " trapped_local " << stuck_trapped_local
+             << " blocked_manhattan " << stuck_blocked_manhattan
+             << " blocked_local " << stuck_blocked_local
+             << " moved " << stuck_moved << endl;
+
         auto ms = [](TimePoint a, TimePoint b){
             return std::chrono::duration<double, std::milli>(b - a).count();
         };
@@ -323,6 +532,8 @@ namespace DefaultPlanner{
              << " guide_ms " << ms(setup_done, guide_done)
              << " paths_built " << paths_built
              << " paths_from_scheduler " << paths_from_scheduler
+             << " guide_threads " << (parallel_paths ? guide_path_threads_used(env) : 1)
+             << " abandoned_searches " << abandoned_searches
              << " fw_ms " << ms(guide_done, fw_done)
              << " pibt_ms " << ms(fw_done, pibt_done)
              << " pibt_reserve_ms " << pibt_time

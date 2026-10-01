@@ -381,7 +381,7 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
 }
 
 //with cost
-void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only, int maximum_edges)
+void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only, int maximum_edges)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
     proposed_schedule.resize(env->num_of_agents, -1);
@@ -717,7 +717,7 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
     }
 }
 
-void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only){
+void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only){
     auto solve_start_time = std::chrono::high_resolution_clock::now();
 
     agent_guide_path.clear();
@@ -997,7 +997,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 // `background_flow` are only used if the hierarchy isn't ready yet and this
 // falls back to schedule_plan_flow. See ai/project_context.md and
 // ai/claude_memleak_fixes.md for the full design/debugging history.
-void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
+void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only)
 {
     auto solve_start_time = std::chrono::high_resolution_clock::now();
     agent_guide_path.clear();
@@ -1125,7 +1125,7 @@ void schedule_plan_flow_reduced(int time_limit, std::vector<int> & proposed_sche
 // which lives entirely inside EdgeAugmentedHierarchy). Solves the
 // per-timestep coarse flow on an edge-node-augmented graph instead of
 // solver 6's plain region-node graph.
-void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
+void schedule_plan_flow_reduced_edge(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, const std::vector<Double4>& background_flow, bool use_traffic, bool new_only)
 {
     auto solve_start_time = std::chrono::high_resolution_clock::now();
     agent_guide_path.clear();

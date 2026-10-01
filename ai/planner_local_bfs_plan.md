@@ -124,6 +124,26 @@ path. Full numbers in `ai/run_log.md`. Ideas to fix, not yet tried:
   terms in A*'s ordering (`search_node.h:116`), which make it explore more
   than plain A*.
 
+**Stuck-agent diagnosis (added 2026-09-29).** Each decision logs
+`stuck breakdown: trapped_manhattan N trapped_local N blocked_manhattan N
+blocked_local N moved N`, over agents counted as stuck. `causalPIBT` records
+per agent whether any neighbour scored strictly better than waiting, before
+other agents are considered (`TrajLNS::pibt_trapped`), and whether it used
+the path BFS (`pibt_local`). Stuck agents are then:
+
+- `trapped_*`: no neighbour beats waiting on score alone, so the score pins
+  the agent;
+- `blocked_*`: a better neighbour existed, but the agent still waited this
+  decision (in practice, other agents in the way);
+- `moved`: it moved this decision.
+
+Every 100th decision also logs up to 30 `stuck sample:` lines (agent,
+class, position, goal, whether it has a path).
+`outputs/planner_stuck_diagnosis/stuck_check.py` checks the samples against
+the map file and draws them. On IH (`ai/run_log.md`, "why IH agents are
+stuck"), every stuck agent was scored by Manhattan distance with no guide
+path; about 60% trapped, 40% blocked; none stuck while using the path BFS.
+
 **Still open** (see `ai/todo.md`): 20k agents and larger maps (PIBT's
 margin), `PASS_SCHEDULER_PATHS_TO_PLANNER`, step 6 (`frank_wolfe`), and
 committing.

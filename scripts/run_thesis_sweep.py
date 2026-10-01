@@ -208,6 +208,8 @@ def write_meta(out_dir: Path, binary: Path, sim_time: int):
         "LOCAL_PATH_BFS_RADIUS": const(r"LOCAL_PATH_BFS_RADIUS\s*=\s*(\w+)"),
         "LOCAL_PATH_BFS_EXTRA_LAYERS": const(r"LOCAL_PATH_BFS_EXTRA_LAYERS\s*=\s*(\w+)"),
         "PASS_SCHEDULER_PATHS_TO_PLANNER": const(r"#define PLANNER_PASS_SCHEDULER_PATHS\s+(\w+)"),
+        "GUIDE_PATH_THREADS": const(r"#define PLANNER_GUIDE_PATH_THREADS\s+(\w+)"),
+        "GUIDE_PATH_DEBUG_CHECKS": const(r"#define PLANNER_GUIDE_PATH_DEBUG_CHECKS\s+(\w+)"),
         # Results depend on wall-clock planning time, so record the machine.
         "cpu_model": cpu_model(),
         "cpu_count": os.cpu_count(),

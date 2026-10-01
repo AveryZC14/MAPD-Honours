@@ -356,6 +356,14 @@ walls, so agents behind a wall wait forever. See `ai/run_log.md`
 (2026-09-29) and `ai/todo.md`. `outputs/thesis_sweep/STOP`
 is in place, so the watchdog won't restart it.
 
+**Update 2026-09-30: sweep still stopped, decision needed.** Two more
+things were found overnight: (1) a harness bug that cost up to about
+650 ms of planner time per step on the big maps, for every solver (fixed;
+`ai/run_log.md` 2026-09-30), so any earlier big-map results are affected;
+(2) no guide-path setting yet works on all maps
+(`ai/parallel_guide_paths_plan.md`, "Conclusions"). The planner flags for
+the sweep must be settled before restarting.
+
 **Fix implemented 2026-09-29, not yet used for the sweep, and not
 sufficient on IH yet** (guide-path A* too slow there; see
 `ai/planner_local_bfs_plan.md`, "IH result"):

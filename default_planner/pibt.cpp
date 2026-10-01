@@ -146,6 +146,15 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 
 	successors.emplace_back(prev_loc, wait_heuristic,-1,rand());
 
+	// stuck-agent diagnosis (planner.cpp): does any neighbour beat waiting,
+	// judged on the score alone, before other agents are considered?
+	bool better_move = false;
+	for (size_t k = 0; k + 1 < successors.size(); k++)
+		if (successors[k].heuristic < wait_heuristic)
+			better_move = true;
+	lns.pibt_trapped[curr_id] = !better_move;
+	lns.pibt_local[curr_id] = use_local;
+
 
 	std::sort(successors.begin(), successors.end(), 
 		[&](PIBT_C& a, PIBT_C& b)

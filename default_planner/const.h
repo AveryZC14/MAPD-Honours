@@ -66,6 +66,58 @@ namespace DefaultPlanner
 #endif
     const bool PASS_SCHEDULER_PATHS_TO_PLANNER = PLANNER_PASS_SCHEDULER_PATHS;
 
+    // Worker threads for guide-path A* in stage 2 of plan(). 1 = the original
+    // sequential loop. >1 = searches run in parallel against the congestion
+    // map as it was at the start of the step, and are committed afterwards
+    // (see ai/parallel_guide_paths_plan.md). Only used with
+    // USE_MANHATTAN_HEURISTIC (the exact heuristic's tables are filled in
+    // lazily by A*, so they can't be shared across threads). Can be set at
+    // build time with -DPLANNER_GUIDE_PATH_THREADS=<n>. Default 1 as of
+    // 2026-09-30: on orz900d 10k parallel paths gave 11-18% fewer deliveries
+    // than sequential ones; they only help on IH together with
+    // GUIDE_PATH_IGNORE_CONGESTION. See ai/parallel_guide_paths_plan.md.
+#ifndef PLANNER_GUIDE_PATH_THREADS
+#define PLANNER_GUIDE_PATH_THREADS 1
+#endif
+    const int GUIDE_PATH_THREADS = PLANNER_GUIDE_PATH_THREADS;
+
+    // Memory cap for the extra A* search pools the guide-path threads need
+    // (one whole-map pool each, 56 bytes per map cell; thread 0 reuses the
+    // planner's existing pool). Fewer threads are used when the pools won't
+    // fit: 6 on orz900d/IH/warehouseXL, 3 on the scene maps (1 GB per pool on
+    // scene_sp_pol_06, which already peaks at about 24 GB).
+    const long long GUIDE_PATH_EXTRA_POOL_MB = 2048;
+
+    // Debug checks on guide paths: every new path starts at the agent and
+    // ends at its goal with single-cell steps, and every 100 decisions the
+    // congestion map is rebuilt from all paths and compared with lns.flow.
+    // Exits the program on a mismatch. Off for real runs. Can be set at
+    // build time with -DPLANNER_GUIDE_PATH_DEBUG_CHECKS=true.
+#ifndef PLANNER_GUIDE_PATH_DEBUG_CHECKS
+#define PLANNER_GUIDE_PATH_DEBUG_CHECKS false
+#endif
+    const bool GUIDE_PATH_DEBUG_CHECKS = PLANNER_GUIDE_PATH_DEBUG_CHECKS;
+
+    // Weight on the Manhattan heuristic in guide-path A* (weighted A*), used
+    // only with USE_MANHATTAN_HEURISTIC. 1.0 = plain A*. Above 1, A* heads
+    // more directly for the goal instead of exploring everything cheaper
+    // than the final route once the congestion map is busy; found paths cost
+    // at most this factor times the best (length plus congestion penalties).
+    // Can be set at build time with -DPLANNER_ASTAR_HEURISTIC_WEIGHT=<w>.
+#ifndef PLANNER_ASTAR_HEURISTIC_WEIGHT
+#define PLANNER_ASTAR_HEURISTIC_WEIGHT 1.0
+#endif
+    const double ASTAR_HEURISTIC_WEIGHT = PLANNER_ASTAR_HEURISTIC_WEIGHT;
+
+    // Diagnostic: when true, the parallel guide-path searches ignore the
+    // congestion map (plain shortest paths). Used to measure what the
+    // congestion penalties cost; not a decided planner setting. Can be set
+    // with -DPLANNER_GUIDE_PATH_IGNORE_CONGESTION=true.
+#ifndef PLANNER_GUIDE_PATH_IGNORE_CONGESTION
+#define PLANNER_GUIDE_PATH_IGNORE_CONGESTION false
+#endif
+    const bool GUIDE_PATH_IGNORE_CONGESTION = PLANNER_GUIDE_PATH_IGNORE_CONGESTION;
+
     // An agent with a goal that hasn't moved for this many consecutive
     // planner decisions counts as stuck in the per-step planner log line.
     const int STUCK_AGENT_THRESHOLD = 20;

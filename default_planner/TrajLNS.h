@@ -11,6 +11,7 @@
 #include <set>
 #include <unordered_map>
 #include <cstdint>
+#include <memory>
 
 namespace DefaultPlanner{
 // enum ADAPTIVE {RANDOM, CONGESTION, COUNT};
@@ -82,6 +83,16 @@ class TrajLNS{
     std::vector<uint8_t> bfs_moves;
     std::vector<int> bfs_queue;
     uint32_t bfs_cur_stamp = 0;
+    // One A* search pool per guide-path worker thread (GUIDE_PATH_THREADS > 1),
+    // created on first use. unique_ptr because MemoryPool can't be copied.
+    std::vector<std::unique_ptr<MemoryPool>> guide_pools;
+
+    // Stuck-agent diagnosis, set by causalPIBT each decision for each agent:
+    // pibt_trapped[i]: no neighbour scored strictly better than waiting
+    //   (other agents ignored), so the score itself keeps the agent still.
+    // pibt_local[i]: scored with the local path BFS (else Manhattan).
+    std::vector<uint8_t> pibt_trapped;
+    std::vector<uint8_t> pibt_local;
     // Per-step counters for the planner log line.
     int bfs_no_path = 0;   // agent had no usable path, used Manhattan
     int bfs_too_far = 0;   // no path cell within the radius, used Manhattan
@@ -107,7 +118,8 @@ class TrajLNS{
         fw_metrics(env->num_of_agents),neighbors(neighbors),
         path_togo(env->num_of_agents), needs_replan(env->num_of_agents, false),
         bfs_stamp(env->map.size(), 0), bfs_dist(env->map.size(), 0),
-        bfs_moves(env->map.size(), 0){
+        bfs_moves(env->map.size(), 0),
+        pibt_trapped(env->num_of_agents, 0), pibt_local(env->num_of_agents, 0){
         };
 
 

@@ -31,6 +31,9 @@ void init_dist_table(TrajLNS& lns, int amount);
 //update traj and distance table for agent i
 void update_traj(TrajLNS& lns, int i);
 
+//replace agent i's traj with an already-searched one and register it in the flow
+void commit_traj(TrajLNS& lns, int i, Traj& new_traj, const s_node& goal_node);
+
 //rebuild path cell -> steps-left-to-goal lookup for agent i (USE_LOCAL_PATH_BFS)
 void update_path_togo(TrajLNS& lns, int i);
 

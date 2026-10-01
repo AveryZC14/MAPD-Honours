@@ -81,7 +81,7 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
 
 void TaskScheduler::set_flow(std::vector<DefaultPlanner::Double4> flow)
 {
-    background_flow = flow;
+    background_flow = std::move(flow);
 }
 
 void TaskScheduler::set_use_traffic(bool use_traffic)
