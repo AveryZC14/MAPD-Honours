@@ -840,6 +840,27 @@ real runs with congestion)
   coarse graph (plan, step 1.3) would cut levels 1-3; not done, since
   levels 3-5 are already where both builders are fastest.
 
+### Quick planner check: scene_mp_4p_03, corridor vs lift (2026-10-01)
+
+scene_mp_4p_03 10k, solver 6 level 4, 300 steps, guide-path level 4, one
+run at a time (`outputs/hierarchy_lift_bench/planner_scene_quick/`).
+
+| | Corridor | Lift |
+|---|---|---|
+| Decisions 1-2 (pickup legs) | 10,006 paths, 0.1 ms each | 10,048 paths, 0.1 ms each |
+| Decisions 3-50 (delivery legs) | 65 paths per decision, 12.1 ms each | 125 per decision, 6.2 ms each |
+| Agents without a path | peak 6,437 (decision 47), 0 from decision 163 | peak after decision 1, 0 from decision 79 |
+| Stuck agents (max) | 342 | 1 |
+| Mean path length | 1,375 cells | 1,451 cells |
+| Finished in 300 steps | 93 | 73 |
+
+0 errors and 0 fallbacks in both; peak memory 18 GB. In the planner the
+corridor is about 2× slower per long path than the lift (1.4× in the
+bench), so the delivery-leg backlog clears about 85 steps later. Pickup
+legs are short (local matching), so they cost almost nothing with either.
+300 steps is too short to compare deliveries: delivery legs average about
+2,800 cells.
+
 ### Next (step 5)
 
 Planner runs on the evidence maps, one at a time, with fresh `astar`

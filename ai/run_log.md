@@ -545,3 +545,20 @@ progresses -- this is not append-only.
   27.9 ms), scene level 4: 16 ms (308 ms). Lift is faster at high levels
   but stretches (IH level 6: 1.37×).
 - **Status**: big-map planner runs (plan step 5) not started.
+
+### 2026-10-01: quick planner check on scene_mp_4p_03, corridor vs lift
+
+- **What**: scene_mp_4p_03 10k, solver 6 level 4, 300 steps, guide paths
+  from the hierarchy at level 4, corridor then lift, one at a time
+  (`outputs/hierarchy_lift_bench/planner_scene_quick/`, `summary.txt`).
+- **Result**: 0 errors, 0 hierarchy fallbacks, 18 GB peak, 287 / 289
+  decisions. Decisions 1-2 built all 10k pickup paths at 0.1 ms each (short
+  legs). Delivery legs (decisions 3-50): corridor 65 paths per decision at
+  12.1 ms, lift 125 at 6.2 ms. Agents without a path: corridor peaked at
+  6,437 (decision 47) and reached 0 at decision 163, with up to 342 stuck;
+  lift peaked after decision 1 and reached 0 at decision 79, 0-1 stuck.
+  Mean path 1,375 cells (corridor) vs 1,451 (lift). Finished 93 (corridor)
+  vs 73 (lift); too few deliveries in 300 steps to compare.
+- **Reading**: in the planner the corridor is about 2x slower per long path
+  than the lift (bench: 1.4x), which delays the delivery-leg backlog by
+  about 85 steps. After that, every agent has a path with either source.
