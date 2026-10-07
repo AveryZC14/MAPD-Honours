@@ -556,6 +556,10 @@ namespace DefaultPlanner{
                 stuck_agents++;
         }
         TimePoint setup_done = std::chrono::steady_clock::now();
+        // --minGuidePathMs: stage 2 gets at least that long even past end_time
+        // (Frank-Wolfe still stops at end_time)
+        const TimePoint guide_end_time =
+            std::max(end_time, setup_done + std::chrono::milliseconds(env->min_guide_path_ms));
 
         // compute the congestion minimised guide path for the agents that need guide path update.
         // Under USE_LOCAL_PATH_BFS the loop starts where it stopped last step,
@@ -580,13 +584,13 @@ namespace DefaultPlanner{
         double path_ms_max = 0.0;
         int abandoned_searches = 0;
         if (parallel_paths)
-            paths_built = build_guide_paths_parallel(env, end_time, start_agent, agent_guide_path, paths_from_scheduler,
+            paths_built = build_guide_paths_parallel(env, guide_end_time, start_agent, agent_guide_path, paths_from_scheduler,
                                                      abandoned_searches);
         else
         for (int k = 0; k < n_agents; k++)
         {
             const int i = (start_agent + k) % n_agents;
-            if (std::chrono::steady_clock::now() >end_time)
+            if (std::chrono::steady_clock::now() > guide_end_time)
             {
                 cout<<"compute initial stop until "<<i<<endl;
                 if (local_bfs)
@@ -738,6 +742,7 @@ namespace DefaultPlanner{
              << " fw_ms " << ms(guide_done, fw_done)
              << " pibt_ms " << ms(fw_done, pibt_done)
              << " pibt_reserve_ms " << pibt_time
+             << " guide_extended_ms " << std::max(0.0, ms(end_time, guide_end_time))
              << " stuck_agents " << stuck_agents
              << " bfs_no_path " << trajLNS.bfs_no_path
              << " bfs_too_far " << trajLNS.bfs_too_far

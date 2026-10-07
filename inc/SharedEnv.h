@@ -90,6 +90,9 @@ public:
     // --pibtReserveMs: planner time (ms) kept back for PIBT each decision;
     // -1 = PIBT_RUNTIME_PER_100_AGENTS ms per 100 agents.
     int pibt_reserve_ms = -1;
+    // --minGuidePathMs: guide paths (stage 2) always get at least this long
+    // per decision, even past the PIBT reserve's deadline; 0 = off.
+    int min_guide_path_ms = 0;
 
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
