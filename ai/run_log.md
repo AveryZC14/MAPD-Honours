@@ -651,3 +651,28 @@ progresses -- this is not append-only.
   corridor's paths at 0.6-0.7× its time (about 3× the lift's in the
   planner; the bench overstated the lift's cost).
 - **Follow-ups**: refine as a candidate source in the thesis sweep.
+
+### 2026-10-07: `--minGuidePathMs 150` (guaranteed guide-path time per decision)
+
+- **What**: guide paths get at least 150 ms per decision even past the
+  PIBT reserve's deadline (branch `min-guide-path-time`,
+  `outputs/min_guide_time/`). scene_mp_4p_03 10k, solver 6 level 4,
+  corridor level 4, 1,500 steps (baseline: overnight
+  `A_scene_mp_4p_03_10000_corridor_L4`); IH_mp_2p_01 80k, solver 6 level 8,
+  lift level 4, 500 steps, default reserve 800 ms (baseline: today's
+  `R800_IH_mp_2p_01_80000_lift_L4`). Machine otherwise idle; both exit 0,
+  0 errors.
+- **scene 10k**: no change. Decisions 1,172 vs 1,165, finished 1,416 vs
+  1,405. The baseline had 354 decisions with no guide-path time (scheduler
+  700-830 ms late in the run), but only about 3 agents per decision need a
+  path, so they caught up on the next one (no-path max 20-30). With 150 ms
+  no decision went without paths, no-path stayed at 0 after step 500, and
+  no decisions were lost.
+- **IH 80k**: finished 5,858 (R800 5,578, R500 4,067, R300 2,448) with
+  490 / 500 decisions (as R800). No-path 77,657 -> 604 by step 500 (R800
+  stays at 79k); stuck 2,393 max, 42 at the end (R800 15,132 and rising).
+  Deliveries per 100 steps 1,006 -> 1,720 and rising (R800 flat at about
+  1,350). PIBT grows as agents get paths: 128 -> 506 ms mean (max 565), so
+  late in a longer run scheduler about 90 + guide 150 + PIBT about 600 +
+  80 margins is close to 1 s and some decisions may go late; 500 steps
+  doesn't show that.
