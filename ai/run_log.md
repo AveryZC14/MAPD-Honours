@@ -685,3 +685,25 @@ progresses -- this is not append-only.
   decision is about 80 + 150 + 570 + margins, still under 1 s. Agents
   without a path creep up from 0 to 441 late in the run (about 240 paths
   needed per decision against what 150 ms builds), small but rising.
+
+### 2026-10-07: solver 6 level 6 scheduler time on scene (pre-sweep check)
+
+- **What**: scene_mp_4p_03 10k (1,500 steps) and 80k (300 steps), solver 6
+  level 6, corridor level 4, `--minGuidePathMs 150`
+  (`outputs/level6_sched_check/`). Level 4 grew to about 1 s per scheduler
+  call late in the overnight scene 10k run; E1 uses level 6 as its fixed
+  scheduler.
+- **Result** (both exit 0, 0 errors, machine otherwise idle):
+  - **scene 10k: no slowdown at level 6.** Scheduler 42 ms mean (steps
+    100-500) -> 67 ms (1,000-1,500), max 126; level 4 went 367 -> 827 ms,
+    max 1.9 s. All 1,500 decisions on time (level 4: 1,165), 1,996
+    finished vs 1,405 at level 4 (+42%, mostly from the decisions level 4
+    lost). Backlog clear from decision 104, 0 stuck at the end.
+  - **scene 80k: scheduler fine (about 140 ms), planner starved.** With
+    corridor at level 4, 150 ms of guide-path time builds only about 20
+    long paths per decision (about 7-8 ms each on scene), so agents
+    without a path fall only 79,999 -> 74,328 in 300 steps and stuck
+    agents reach 15,950. IH 80k with lift (about 0.8 ms per path) cleared
+    its backlog by decision 435. On scene at 80k the guarantee is too
+    small for corridor; faster sources (lift, refine) or more time would
+    be needed.
