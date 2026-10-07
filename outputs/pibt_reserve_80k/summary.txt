@@ -1,0 +1,29 @@
+Planner overview runs (see run.sh). Long path = start-goal Manhattan >= 500. stretch_m = path cells / Manhattan distance (Manhattan is a lower bound, so this overstates true stretch; compare between runs, not against 1).
+
+run	dec	steps	fin	opened	err	GB	paths	fallb	nopath_pk	clear1%@	nopath_end	stuck_max	stuck_end	ms_p50	ms_p90	ms_max	long_ms	long_p90	coarse	build	long_n	long_cells	stretch_m	guide	fw	pibt	pibt_max	reserve	sched	sched_max
+R300_IH_mp_2p_01_80000_lift_L4	297	500	2448	82184	0	8.6	94793	0	80000	152	0	859	205	0.80	1.63	18	1.07	1.75	0.22	0.72	71731	1316	1.166	298	192	419	800	300	125	10754
+R500_IH_mp_2p_01_80000_lift_L4	394	500	4067	83768	0	8.6	99534	0	80000	252	0	1413	137	0.78	1.58	18	1.05	1.70	0.20	0.72	74656	1304	1.174	230	59	409	657	500	120	11290
+R800_IH_mp_2p_01_80000_lift_L4	490	500	5578	85359	0	8.4	1187	0	80000	-	79189	15301	15134	0.78	1.88	16	1.30	2.18	0.24	0.94	749	1362	1.166	2	8	87	115	800	109	10442
+
+Per-path time and stretch by start-goal Manhattan distance
+R300_IH_mp_2p_01_80000_lift_L4: sources {'hierarchy': 94793}
+      0-50    n    5973  ms mean     0.05  p90     0.10  stretch_m 5.660
+     50-200   n    3628  ms mean     0.22  p90     0.35  stretch_m 1.929
+    200-500   n   13461  ms mean     0.40  p90     0.57  stretch_m 1.384
+    500-1000  n   30737  ms mean     0.71  p90     0.98  stretch_m 1.205
+   1000-2000  n   38179  ms mean     1.28  p90     1.82  stretch_m 1.139
+   2000-4000  n    2815  ms mean     2.22  p90     2.90  stretch_m 1.100
+R500_IH_mp_2p_01_80000_lift_L4: sources {'hierarchy': 99534}
+      0-50    n    4914  ms mean     0.07  p90     0.11  stretch_m 5.663
+     50-200   n    4545  ms mean     0.22  p90     0.34  stretch_m 1.987
+    200-500   n   15419  ms mean     0.40  p90     0.57  stretch_m 1.405
+    500-1000  n   33145  ms mean     0.70  p90     0.98  stretch_m 1.215
+   1000-2000  n   38885  ms mean     1.26  p90     1.79  stretch_m 1.144
+   2000-4000  n    2626  ms mean     2.21  p90     2.88  stretch_m 1.103
+R800_IH_mp_2p_01_80000_lift_L4: sources {'hierarchy': 1187}
+      0-50    n     282  ms mean     0.05  p90     0.09  stretch_m 5.586
+     50-200   n      29  ms mean     0.29  p90     0.55  stretch_m 1.824
+    200-500   n     127  ms mean     0.56  p90     0.90  stretch_m 1.403
+    500-1000  n     294  ms mean     0.92  p90     1.36  stretch_m 1.208
+   1000-2000  n     413  ms mean     1.48  p90     2.39  stretch_m 1.142
+   2000-4000  n      42  ms mean     2.23  p90     3.56  stretch_m 1.102

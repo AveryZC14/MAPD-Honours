@@ -606,3 +606,26 @@ progresses -- this is not append-only.
   guide-path setting and level as factors (best planner for the scheduler
   runs, best scheduler for the planner runs); PIBT reserve to be set
   manually for 80k (`ai/todo.md`).
+
+### 2026-10-07: PIBT reserve test at 80k (IH, 300 / 500 / 800 ms)
+
+- **What**: IH_mp_2p_01 80k, solver 6 level 8, lift level 4, 500 steps,
+  `--pibtReserveMs` 300, 500 and 800 (800 = the default formula), one at a
+  time (`outputs/pibt_reserve_80k/run.sh`). Same setup as the overnight
+  `B_IH_mp_2p_01_80000_lift_L4` run.
+- **Question**: which reserve lets stage 2 clear the no-path backlog at 80k
+  without PIBT overrunning the step (decisions vs steps, PIBT ms vs
+  reserve)?
+- **Result** (2026-10-07, all exit 0, 0 errors; `summary.txt`):
+  | Reserve | Decisions / 500 | Finished | Backlog clear | Stuck at end | PIBT mean, steps 400-500 |
+  |---:|---:|---:|---:|---:|---:|
+  | 300 | 297 | 2,448 | decision 152 | 205 | 604 ms |
+  | 500 | 394 | 4,067 | decision 252 | 128 | 595 ms |
+  | 800 | 490 | 5,578 | never (79k no path) | 15,132 | 84 ms |
+- **Reading**: once every agent has a path, PIBT at 80k costs about
+  500-600 ms per decision and rises (40k: about 190), so 300 and 500 both
+  overrun and make a decision about every other step (about 50 per 100
+  steps). 800 keeps every decision but agents stay on Manhattan moves and
+  stuck agents grow by about 3,000 per 100 steps (the 09-29 freeze
+  developing), so its higher delivery count won't last. No reserve fits
+  80k at a 1 s step; PIBT itself is the limit.
