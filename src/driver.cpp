@@ -65,7 +65,8 @@ int main(int argc, char **argv)
         ("guidePathLevel", po::value<int>()->default_value(4), "hierarchy level for --guidePathSource lift/corridor; independent of --flowSolveLevel")
         ("guidePathCorridorMargin", po::value<int>()->default_value(0), "corridor source: rings of neighbouring coarse nodes added around the coarse path")
         ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor source: A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths")
-        ("guidePathTrace", po::value<std::string>()->default_value(""), "CSV file with one row per guide path the planner builds (timestep, agent, source, distance, length, time); empty = off");
+        ("guidePathTrace", po::value<std::string>()->default_value(""), "CSV file with one row per guide path the planner builds (timestep, agent, source, distance, length, time); empty = off")
+        ("pibtReserveMs", po::value<int>()->default_value(-1), "planner time (ms) kept back for PIBT each decision; guide paths and Frank-Wolfe stop that long (plus 60 ms) before the planner's limit. -1 = 1 ms per 100 agents (PIBT_RUNTIME_PER_100_AGENTS)");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -171,6 +172,7 @@ int main(int argc, char **argv)
     planner->env->guide_path_corridor_margin = std::max(0, vm["guidePathCorridorMargin"].as<int>());
     planner->env->guide_path_corridor_congestion = vm["guidePathCorridorCongestion"].as<bool>();
     planner->env->guide_path_trace_file = vm["guidePathTrace"].as<std::string>();
+    planner->env->pibt_reserve_ms = vm["pibtReserveMs"].as<int>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

@@ -423,7 +423,8 @@ namespace DefaultPlanner{
         // calculate the time planner should stop optimsing traffic flows and return the plan.
         TimePoint start_time = std::chrono::steady_clock::now();
         //cap the time for distance to goal heuristic table initialisation to half of the given time_limit;
-        int pibt_time = PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
+        int pibt_time = env->pibt_reserve_ms >= 0 ? env->pibt_reserve_ms
+                                                  : PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
         //traffic flow assignment end time, leave PIBT_RUNTIME_PER_100_AGENTS ms per 100 agent and TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE ms for computing pibt actions;
         TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
         cout << "plan limit " << time_limit <<endl;
@@ -770,7 +771,8 @@ namespace DefaultPlanner{
         // calculate the time planner should stop optimsing traffic flows and return the plan.
         TimePoint start_time = std::chrono::steady_clock::now();
         //cap the time for distance to goal heuristic table initialisation to half of the given time_limit;
-        int pibt_time = PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
+        int pibt_time = env->pibt_reserve_ms >= 0 ? env->pibt_reserve_ms
+                                                  : PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
         //traffic flow assignment end time, leave PIBT_RUNTIME_PER_100_AGENTS ms per 100 agent and TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE ms for computing pibt actions;
         TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
         cout << "plan limit " << time_limit <<endl;

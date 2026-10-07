@@ -83,6 +83,9 @@ public:
     // --guidePathTrace: CSV file with one row per guide path the planner
     // builds in stage 2 (any source); empty = off.
     std::string guide_path_trace_file;
+    // --pibtReserveMs: planner time (ms) kept back for PIBT each decision;
+    // -1 = PIBT_RUNTIME_PER_100_AGENTS ms per 100 agents.
+    int pibt_reserve_ms = -1;
 
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>
