@@ -60,8 +60,8 @@ the date and what changed) rather than deleting them outright.
   (3-4x astar), astar on orz900d; corridor best at levels 3-4; 80k starved
   by the fixed PIBT reserve.
   **Sweep redesigned 2026-10-07** (`instances/thesis_benchmarks/README.md`,
-  "Revised run plan", about 140 h): E1 planner (solver 6 level 6, 7
-  guide-path settings, 1,500 steps), E3 scheduler x planner check, E2
+  "Revised run plan", about 129 h): E1 planner (solver 6 level 6, sources
+  at level 4 plus a level slice at 80k, 1,500 steps), E3 scheduler x planner check, E2
   scheduler (E1's planner, 4,000 steps), plus repeats; warehouseXL dropped;
   `--minGuidePathMs 150` on every run (fixes the 80k freeze; a fixed PIBT
   reserve didn't, `ai/run_log.md` 2026-10-07). **Before launch:** run list

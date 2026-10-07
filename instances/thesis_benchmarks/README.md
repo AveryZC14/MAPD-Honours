@@ -299,19 +299,30 @@ scheduler for the planner runs, plus a small crossed check.
 
 | Experiment | Fixed | Varied | Instances | Steps | Runs | Time |
 |---|---|---|---|---|---|---|
-| E1 planner | solver 6 level 6 | 7 guide-path settings (below) | orz900d 10k/20k; IH, scene_mp_4p_03, scene_sp_pol_06 at 10k/40k/80k | 1,500 | 70 | ~32 h |
+| E1 planner | solver 6 level 6 | guide-path source at level 4, plus a level slice at 80k (below) | orz900d 10k/20k; IH, scene_mp_4p_03, scene_sp_pol_06 at 10k/40k/80k | 1,500 | 47 | ~21 h |
 | E3 interaction | | solver 6 levels 2/4/6/8 + hierarchical-only x corridor L4 / refine L4 | IH 20k, scene_mp_4p_03 20k | 1,500 | 20 | ~9 h |
 | E2 scheduler | E1's chosen planner setting | solver 6 levels 2/6/8 + hierarchical-only, Greedy (5), solver 1, solver 7 | all 14 (no warehouseXL) | 4,000 | 80 | ~96 h |
 | Repeats | | 2 configs x 3 runs | IH 10k, scene_mp_4p_03 10k | 1,500 | 6 | ~3 h |
-| **Total** | | | | | **176** | **~140 h (5.8 days)** |
+| **Total** | | | | | **153** | **~129 h (5.4 days)** |
 
 Time estimate: about 1 s of wall-clock per simulated step plus loading
 (about 0.45 h per 1,500-step run, 1.2 h per 4,000-step run).
 
-**E1, planner settings (7):** full-map A* (`astar`, 10k only: it collapses
-on IH and scene and would only waste time at 40k/80k), lift level 4,
-corridor levels 3/4/6, refine levels 4/6. 6 settings x 11 instances + 4
-astar runs = 70. Solver 6 level 6 is the scheduler: fast enough to leave
+**E1, planner (47 runs):**
+- *Source comparison at level 4:* lift, corridor and refine on all 11
+  instances (33 runs), plus full-map A* (`astar`) at 10k only (4 runs: it
+  collapses on IH and scene and would only waste time at 40k/80k).
+- *Level slice:* IH 80k and scene_mp_4p_03 80k, lift L3/L6, corridor
+  L3/L6, refine L6 (10 runs). Level changes lift's path quality (bench:
+  1.13 -> 1.79x shortest on orz900d from L3 to L6) but mostly only the
+  time per path for corridor (about shortest at every level; IH long paths
+  2.4 ms at L4, 6.7 ms at L6) and refine (nearly flat). Time per path only
+  turns into throughput when guide-path time is the bottleneck (startup
+  backlog, 80k), so the slice is at 80k. The rest of the level story
+  (path length and time per path at L1-L6 on three maps) comes from the
+  bench (`outputs/hierarchy_lift_bench/`), without planner noise.
+
+Solver 6 level 6 is the scheduler: fast enough to leave
 the planner its budget (level 8 was 20-30 ms per decision at 10k, level 4
 about 150 ms and up to 1 s on scene late in a run), and the user's choice.
 
@@ -346,6 +357,9 @@ and the repeats. Build: `USE_MANHATTAN_HEURISTIC = true`,
 **Order:** E1 (then choose the planner setting for E2), E3 and the repeats
 while E1 is analysed, then E2. Within each, 10k first, then larger teams.
 
+**Spare time** (about 1.5 days of the 7) is kept for reruns rather than
+more runs; more can be added later (see below).
+
 **Cut to fit the budget:** warehouseXL (optional add-back: E2 at 10k
 only, 6 runs, about 8 h); solver 6 level 4 in E2 (covered by E3); 8,000
 -> 4,000 steps in E2. On the scene maps (delivery legs about
@@ -355,6 +369,14 @@ those as trends rather than steady state.
 **Open before launch:** add the run list to `scripts/run_thesis_sweep.py`;
 analysis scripts (E1/E3 tables, E2 per-decision comparison with solver 1);
 repeat the hierarchy build-time measurements (single runs so far).
+
+**Adding runs later:** tag the commit the sweep runs from (e.g.
+`thesis-sweep-v1`) and build later runs from that tag, not from the branch
+as it has moved on. Same machine type, nothing else running. Rerun one or
+two existing configs with every later batch as anchors: if they land
+within the repeats' noise band, the new runs are comparable.
+`sweep_meta.json` already records the commit, modified files, CPU, RAM and
+compiler.
 
 #### Timing model (for the write-up)
 
