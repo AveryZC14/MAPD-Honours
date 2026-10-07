@@ -80,6 +80,9 @@ public:
     int guide_path_level = 4;
     int guide_path_corridor_margin = 0;
     bool guide_path_corridor_congestion = false;
+    // --guidePathTrace: CSV file with one row per guide path the planner
+    // builds in stage 2 (any source); empty = off.
+    std::string guide_path_trace_file;
 
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>

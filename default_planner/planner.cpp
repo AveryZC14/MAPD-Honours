@@ -8,6 +8,7 @@
 #include "MapCoarsenV1.h"
 #include <thread>
 #include <atomic>
+#include <fstream>
 
 
 namespace DefaultPlanner{
@@ -88,6 +89,8 @@ namespace DefaultPlanner{
     double hier_build_ms = 0.0;
     long long hier_cells = 0;
     long long hier_corridor_expanded = 0;
+    // --guidePathTrace: one CSV row per guide path built in stage 2
+    std::ofstream guide_path_trace;
 
     // Build agent i's guide path from the hierarchy: coarse path at
     // hier_level, then the lift or corridor A*. On success commits it and
@@ -382,6 +385,20 @@ namespace DefaultPlanner{
                     cout << "warning: guide paths from the hierarchy are built sequentially; GUIDE_PATH_THREADS "
                          << GUIDE_PATH_THREADS << " is ignored" << endl;
             }
+            if (!env->guide_path_trace_file.empty())
+            {
+                guide_path_trace.open(env->guide_path_trace_file);
+                if (!guide_path_trace)
+                {
+                    cout << "error: cannot open --guidePathTrace " << env->guide_path_trace_file << endl;
+                    exit(1);
+                }
+                // source: scheduler, hierarchy (lift/corridor, see guidePathSource), astar, or
+                // fallback (full-map A* after the hierarchy failed); manhattan = start-goal distance
+                guide_path_trace << "timestep,agent,source,start,goal,manhattan,cells,ms,coarse_ms,build_ms\n";
+                if (GUIDE_PATH_THREADS > 1 && !hier_paths_on)
+                    cout << "warning: --guidePathTrace only records sequentially built guide paths" << endl;
+            }
             // std::cout <<"planner initted\n";
             return;
     };
@@ -535,6 +552,11 @@ namespace DefaultPlanner{
         const int start_agent = (local_bfs || parallel_paths) ? guide_path_start % n_agents : 0;
         int paths_built = 0;
         int paths_from_scheduler = 0;
+        // every sequentially built path, any source: total length, total
+        // start-goal Manhattan distance, slowest path
+        long long path_cells = 0;
+        long long path_manhattan = 0;
+        double path_ms_max = 0.0;
         int abandoned_searches = 0;
         if (parallel_paths)
             paths_built = build_guide_paths_parallel(env, end_time, start_agent, agent_guide_path, paths_from_scheduler,
@@ -552,12 +574,17 @@ namespace DefaultPlanner{
             }
             if (require_guide_path[i])
             {
+                const TimePoint path_t0 = std::chrono::steady_clock::now();
+                const double coarse_ms_before = hier_coarse_ms;
+                const double build_ms_before = hier_build_ms;
+                const char* path_source = "astar";
                 paths_built++;
                 if (!trajLNS.trajs[i].empty())
                     remove_traj(trajLNS, i);
                 if (agent_guide_path.find(i) != agent_guide_path.end())
                 {
                     paths_from_scheduler++;
+                    path_source = "scheduler";
                     trajLNS.trajs[i].clear();
                     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
                     add_traj(trajLNS,i);
@@ -567,10 +594,29 @@ namespace DefaultPlanner{
                     else if (USE_LOCAL_PATH_BFS)
                         update_path_togo(trajLNS,i);
                 }
-                else if (!hier_paths_on || !hierarchy_guide_path(env, i))
+                else if (hier_paths_on && hierarchy_guide_path(env, i))
                 {
+                    path_source = "hierarchy";
+                }
+                else
+                {
+                    if (hier_paths_on)
+                        path_source = "fallback";
                     update_traj(trajLNS, i);
                 }
+                const double path_ms =
+                    std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - path_t0).count();
+                const int path_start = env->curr_states[i].location;
+                const int cells = trajLNS.trajs[i].empty() ? 0 : (int)trajLNS.trajs[i].size() - 1;
+                const int manhattan = manhattanDistance(path_start, trajLNS.tasks[i], env);
+                path_cells += cells;
+                path_manhattan += manhattan;
+                path_ms_max = std::max(path_ms_max, path_ms);
+                if (guide_path_trace.is_open())
+                    guide_path_trace << env->curr_timestep << ',' << i << ',' << path_source << ',' << path_start
+                                     << ',' << trajLNS.tasks[i] << ',' << manhattan << ',' << cells << ',' << path_ms
+                                     << ',' << hier_coarse_ms - coarse_ms_before << ',' << hier_build_ms - build_ms_before
+                                     << '\n';
             }
         }
         TimePoint guide_done = std::chrono::steady_clock::now();
@@ -679,7 +725,12 @@ namespace DefaultPlanner{
              << " hier_coarse_ms " << hier_coarse_ms
              << " hier_build_ms " << hier_build_ms
              << " hier_cells " << hier_cells
-             << " corridor_expanded " << hier_corridor_expanded << endl;
+             << " corridor_expanded " << hier_corridor_expanded
+             << " path_cells " << path_cells
+             << " path_manhattan " << path_manhattan
+             << " path_ms_max " << path_ms_max << endl;
+        if (guide_path_trace.is_open())
+            guide_path_trace.flush();
 
         // post processing the targeted next location to turning or moving actions
         actions.resize(env->num_of_agents);

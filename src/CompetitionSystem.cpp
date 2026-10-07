@@ -397,6 +397,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
         js["guidePathLevel"] = env->guide_path_level;
         js["guidePathCorridorMargin"] = env->guide_path_corridor_margin;
         js["guidePathCorridorCongestion"] = env->guide_path_corridor_congestion;
+        js["guidePathTrace"] = env->guide_path_trace_file;
     }
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;

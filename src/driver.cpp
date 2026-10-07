@@ -64,7 +64,8 @@ int main(int argc, char **argv)
         ("guidePathSource", po::value<std::string>()->default_value("astar"), "how the planner builds its guide paths: astar (full-map A*, default), lift (coarse path at --guidePathLevel lifted with solver 6's lift) or corridor (coarse path, then fine A* limited to its nodes). The hierarchy sources need the hierarchy (use --hierarchyCache) and fall back to full-map A* when they fail")
         ("guidePathLevel", po::value<int>()->default_value(4), "hierarchy level for --guidePathSource lift/corridor; independent of --flowSolveLevel")
         ("guidePathCorridorMargin", po::value<int>()->default_value(0), "corridor source: rings of neighbouring coarse nodes added around the coarse path")
-        ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor source: A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths");
+        ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor source: A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths")
+        ("guidePathTrace", po::value<std::string>()->default_value(""), "CSV file with one row per guide path the planner builds (timestep, agent, source, distance, length, time); empty = off");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -169,6 +170,7 @@ int main(int argc, char **argv)
     planner->env->guide_path_level = vm["guidePathLevel"].as<int>();
     planner->env->guide_path_corridor_margin = std::max(0, vm["guidePathCorridorMargin"].as<int>());
     planner->env->guide_path_corridor_congestion = vm["guidePathCorridorCongestion"].as<bool>();
+    planner->env->guide_path_trace_file = vm["guidePathTrace"].as<std::string>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

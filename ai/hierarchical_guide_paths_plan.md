@@ -701,8 +701,14 @@ sweep for whichever source looks better. One run at a time; results in
 
 - Sweep design: guide-path level crossed with `--flowSolveLevel`, or one
   held fixed.
-- Default margin (0 or 1), from the step 4 bench.
-- Corridor congestion on or off, from one test run.
+- ~~Default margin (0 or 1), from the step 4 bench.~~ **Decided 2026-10-01:
+  margin 0** (the bench showed margin 1 gains at most 0.01 in length for
+  1.2-2.4x the corridor time). Already the default.
+- ~~Corridor congestion on or off, from one test run.~~ **Decided
+  2026-10-01: off, for now** (scalability first; congestion slowed
+  full-map A* several-fold on IH). Already the default. Can be revisited
+  with one run on/off (scene 10k, then orz900d, where ignoring congestion
+  cost about 11% of deliveries before).
 
 ## Implementation and results (2026-10-01)
 
