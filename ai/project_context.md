@@ -446,6 +446,17 @@ results (21 runs, 2026-10-01/02) in `outputs/planner_overview/RESULTS.md`:
 corridor wins on IH and scene, congestion-aware `astar` on orz900d, and
 80k is starved by the fixed PIBT reserve (`PIBT_RUNTIME_PER_100_AGENTS`).
 
+**Time per decision (2026-10-07):** one 1,000 ms budget shared by
+scheduler and planner. Schedulers are never interrupted (solvers 1/6/7
+ignore their limit; Greedy's checks are commented out). Guide paths and
+Frank-Wolfe stop at the PIBT reserve's deadline, but `--minGuidePathMs`
+(150 in the thesis sweep, default 0) guarantees guide paths that long even
+past it. PIBT is never interrupted. Each full second a decision runs over
+is a timestep where all agents wait. `--pibtReserveMs` overrides the
+reserve (default: 1 ms per 100 agents; no fixed value works at 80k, see
+`ai/run_log.md` 2026-10-07). Full timing model and the revised sweep:
+`instances/thesis_benchmarks/README.md`, "Revised run plan".
+
 **Also as of 2026-09-30** (details in `ai/parallel_guide_paths_plan.md`
 and `ai/parallel_local_matching_plan.md`):
 

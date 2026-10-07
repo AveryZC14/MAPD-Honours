@@ -59,17 +59,14 @@ the date and what changed) rather than deleting them outright.
   `outputs/planner_overview/RESULTS.md`): corridor wins on IH and scene
   (3-4x astar), astar on orz900d; corridor best at levels 3-4; 80k starved
   by the fixed PIBT reserve.
-  **Sweep redesign agreed 2026-10-07 (not yet written into the README or
-  `scripts/run_thesis_sweep.py`):** the planner's guide-path setting and
-  level are now factors too. Planner experiment first (guide-path settings
-  with a fixed provisional scheduler, solver 6 level 8), then the
-  scheduler experiment with the winning planner for every solver, plus a
-  small scheduler-level x planner-level check on IH and scene 20k. Open:
-  time budget, whether corridor congestion on is included.
-  **Before any thesis run:** a manual `--pibtReserveMs` flag (default =
-  the current formula), with the 80k value chosen from IH 80k at 300 / 500
-  / 800 ms and checked on scene 80k; and solver 6's level-4 scheduler
-  slowdown (about 1 s per call late in scene runs).
+  **Sweep redesigned 2026-10-07** (`instances/thesis_benchmarks/README.md`,
+  "Revised run plan", about 140 h): E1 planner (solver 6 level 6, 7
+  guide-path settings, 1,500 steps), E3 scheduler x planner check, E2
+  scheduler (E1's planner, 4,000 steps), plus repeats; warehouseXL dropped;
+  `--minGuidePathMs 150` on every run (fixes the 80k freeze; a fixed PIBT
+  reserve didn't, `ai/run_log.md` 2026-10-07). **Before launch:** run list
+  in `scripts/run_thesis_sweep.py`, analysis scripts. Solver 6's level-4
+  slowdown on scene is reported as a finding, not fixed.
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:

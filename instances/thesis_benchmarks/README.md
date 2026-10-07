@@ -286,9 +286,105 @@ in the output JSON is not a consistent build-time measure:
 For build times in the thesis, use the table above, or repeat the same method:
 a solver 6 run with no `--hierarchyCache`.
 
-### Final run plan
+### Revised run plan (2026-10-07, proposed)
 
-Agreed 2026-09-29. 120 runs, 8,000 timesteps each.
+Replaces the 2026-09-29 plan below, which varied only the scheduler. The
+planner's guide paths now come from the hierarchy too (`--guidePathSource`,
+`--guidePathLevel`), so the planner's source and level are factors of
+their own. Budget: about 7 days on this machine, one run at a time.
+**`scripts/run_thesis_sweep.py` does not have this run list yet.**
+
+**Design:** the best planner for the scheduler runs, and a fixed good
+scheduler for the planner runs, plus a small crossed check.
+
+| Experiment | Fixed | Varied | Instances | Steps | Runs | Time |
+|---|---|---|---|---|---|---|
+| E1 planner | solver 6 level 6 | 7 guide-path settings (below) | orz900d 10k/20k; IH, scene_mp_4p_03, scene_sp_pol_06 at 10k/40k/80k | 1,500 | 70 | ~32 h |
+| E3 interaction | | solver 6 levels 2/4/6/8 + hierarchical-only x corridor L4 / refine L4 | IH 20k, scene_mp_4p_03 20k | 1,500 | 20 | ~9 h |
+| E2 scheduler | E1's chosen planner setting | solver 6 levels 2/6/8 + hierarchical-only, Greedy (5), solver 1, solver 7 | all 14 (no warehouseXL) | 4,000 | 80 | ~96 h |
+| Repeats | | 2 configs x 3 runs | IH 10k, scene_mp_4p_03 10k | 1,500 | 6 | ~3 h |
+| **Total** | | | | | **176** | **~140 h (5.8 days)** |
+
+Time estimate: about 1 s of wall-clock per simulated step plus loading
+(about 0.45 h per 1,500-step run, 1.2 h per 4,000-step run).
+
+**E1, planner settings (7):** full-map A* (`astar`, 10k only: it collapses
+on IH and scene and would only waste time at 40k/80k), lift level 4,
+corridor levels 3/4/6, refine levels 4/6. 6 settings x 11 instances + 4
+astar runs = 70. Solver 6 level 6 is the scheduler: fast enough to leave
+the planner its budget (level 8 was 20-30 ms per decision at 10k, level 4
+about 150 ms and up to 1 s on scene late in a run), and the user's choice.
+
+**E3, interaction:** does the best scheduler level depend on the planner
+setting? Uses corridor L4 and refine L4 (the two strongest candidates
+from earlier runs), so it doesn't wait for E1. Also the only place level 4
+is run, so it records level 4's slowdown on scene as a finding.
+
+**E2, scheduler:**
+- Solver 6 at levels 2, 6 and 8, and hierarchical-only
+  (`--flowSolveLevel <top> --minCascadeLevel 1`), and Greedy (solver 5),
+  on all 14 instances: 70 runs.
+- Solver 1 at 10k and 20k on each map: 8 runs.
+- Solver 7 at level 6 on IH 20k and scene_sp_pol_06 20k (appendix): 2 runs.
+- Level 4 is left out here (covered by E3) to fit the budget.
+
+**Repeats:** corridor L4 and refine L4 (with solver 6 level 6) on IH 10k
+and scene_mp_4p_03 10k, 3 runs each, to measure run-to-run noise.
+Results vary by a few percent between identical runs because the planner
+is limited by wall-clock time; quote differences against this noise band.
+
+**Common flags (every run):** `--minGuidePathMs 150`, default PIBT reserve
+(no `--pibtReserveMs`), `--guidePathCorridorMargin 0`,
+`--guidePathCorridorCongestion false`, `--computeGuidePaths false` (the
+planner builds its own paths; solver 6's lift would only take scheduler
+time), `--logDetailLevel 3`, the map's full-depth `--hierarchyCache` for
+every solver (the planner's hierarchy sources need it), and the per-map
+`--preprocessTimeLimit` from the old plan. `--guidePathTrace` on in E1, E3
+and the repeats. Build: `USE_MANHATTAN_HEURISTIC = true`,
+`USE_LOCAL_PATH_BFS = true`.
+
+**Order:** E1 (then choose the planner setting for E2), E3 and the repeats
+while E1 is analysed, then E2. Within each, 10k first, then larger teams.
+
+**Cut to fit the budget:** warehouseXL (optional add-back: E2 at 10k
+only, 6 runs, about 8 h); solver 6 level 4 in E2 (covered by E3); 8,000
+-> 4,000 steps in E2. On the scene maps (delivery legs about
+2,300 cells) throughput may still be rising at 4,000 steps, so report
+those as trends rather than steady state.
+
+**Open before launch:** add the run list to `scripts/run_thesis_sweep.py`;
+analysis scripts (E1/E3 tables, E2 per-decision comparison with solver 1);
+repeat the hierarchy build-time measurements (single runs so far).
+
+#### Timing model (for the write-up)
+
+Each decision has one 1,000 ms budget shared by scheduler and planner:
+
+1. **Scheduler: not interrupted.** Solvers 1, 6 and 7 never check their
+   time limit (a flow solve has no partial answer), and Greedy's checks
+   are commented out (`schedule_plan_raw`, since `99fa2ab`), so every
+   solver finishes its assignment. Its time comes out of the planner's.
+2. **Planner deadline:** guide paths and Frank-Wolfe stop at the planner's
+   remaining time minus the PIBT reserve (1 ms per 100 agents) minus 60 ms.
+3. **Guide paths: guaranteed `--minGuidePathMs` (150 ms)**, even past that
+   deadline; checked between paths, so at most one path (1-3 ms with the
+   hierarchy sources) overshoots. Agents left without a path make plain
+   Manhattan moves until a later decision builds one.
+4. **PIBT: not interrupted;** it moves every agent.
+5. **Late decisions:** the simulator waits in 1 s slices; each full second
+   without an answer is a timestep in which every agent waits. The plan is
+   applied when it arrives.
+
+Why the 150 ms guarantee: without it, a slow scheduler or the 800 ms
+reserve at 80k leaves guide paths no time, agents without paths get stuck
+and the run freezes (IH 80k: 15,000 stuck by step 500). With it, IH 80k ran
+1,489 of 1,500 decisions on time with 27 stuck at the end, and scene 10k
+with a slow scheduler was unchanged. See `ai/run_log.md`, 2026-10-07.
+
+### Previous run plan (2026-09-29, superseded)
+
+Agreed 2026-09-29. 120 runs, 8,000 timesteps each. Superseded by the
+revised plan above; kept for the run instructions below, which still apply.
 
 | Group | Instances | Runs |
 |---|---|---|
