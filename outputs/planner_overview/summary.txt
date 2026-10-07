@@ -1,0 +1,177 @@
+Planner overview runs (see run.sh). Long path = start-goal Manhattan >= 500. stretch_m = path cells / Manhattan distance (Manhattan is a lower bound, so this overstates true stretch; compare between runs, not against 1).
+
+run	dec	steps	fin	opened	err	GB	paths	fallb	nopath_pk	clear1%@	nopath_end	stuck_max	stuck_end	ms_p50	ms_p90	ms_max	long_ms	long_p90	coarse	build	long_n	long_cells	stretch_m	guide	fw	pibt	pibt_max	reserve	sched	sched_max
+A_IH_mp_2p_01_10000_astar_L4	1004	1500	2464	12361	0	4.7	15577	0	8930	-	6046	4101	3989	0.01	200.02	1205	214.81	557.47	0.00	0.00	4034	1260	1.171	929	1	21	37	100	106	262
+A_IH_mp_2p_01_10000_corridor_L4	1500	1500	9213	18986	0	5.0	38430	0	1492	22	0	6	0	0.24	3.33	59	2.43	5.05	0.26	2.05	15901	1218	1.055	32	621	47	84	100	162	242
+A_IH_mp_2p_01_10000_lift_L4	1500	1500	7607	17329	0	5.0	34954	0	0	1	0	1	0	0.26	1.42	8	1.12	1.99	0.27	0.71	14380	1319	1.144	17	647	47	98	100	151	259
+A_orz900d_10000_astar_L4	1500	1500	5423	15392	0	1.7	44071	0	9003	128	0	753	5	5.52	16.70	50	13.99	19.23	0.00	0.00	12454	1828	2.687	203	602	44	84	100	12	47
+A_orz900d_10000_corridor_L4	1500	1500	4756	14710	0	1.6	58177	0	7193	25	0	230	13	1.10	3.51	16	2.87	4.21	0.06	2.63	19475	1663	2.448	60	745	54	116	100	12	41
+A_orz900d_10000_lift_L4	1500	1500	3719	13680	0	1.7	61411	0	2179	5	0	79	6	0.26	0.66	5	0.56	0.83	0.05	0.30	19783	2131	3.170	17	789	54	99	100	11	40
+A_scene_mp_4p_03_10000_astar_L4	820	1500	388	10367	0	16.9	11933	0	9587	-	8159	6326	6295	0.02	169.37	2281	483.35	1126.72	0.00	0.00	1807	3025	1.402	1068	1	15	48	100	238	1938
+A_scene_mp_4p_03_10000_corridor_L4	1165	1500	1405	11348	0	18.1	22762	0	4650	92	5	68	0	0.35	11.51	136	7.56	14.48	0.68	6.57	10809	2860	1.265	73	352	51	91	100	599	1924
+A_scene_mp_4p_03_10000_lift_L4	1200	1501	1302	11205	0	17.9	22507	0	64	1	0	7	0	0.31	2.96	16	2.13	3.64	0.61	1.23	10693	2980	1.311	23	433	53	151	100	546	1916
+B_IH_mp_2p_01_10000_lift_L4	500	500	997	10858	0	5.0	21855	0	0	1	0	2	0	0.20	1.24	7	1.00	1.65	0.22	0.62	9050	1337	1.147	24	772	45	60	100	19	127
+B_IH_mp_2p_01_20000_lift_L4	500	500	1852	21649	0	5.7	43101	0	9951	18	0	24	1	0.20	1.21	7	0.96	1.57	0.20	0.60	18163	1340	1.149	47	637	93	184	200	29	404
+B_IH_mp_2p_01_40000_lift_L4	498	500	3426	43159	0	6.5	59046	0	40000	72	0	227	15	0.61	1.37	11	0.94	1.53	0.20	0.60	38737	1324	1.155	93	367	177	360	400	48	1940
+B_IH_mp_2p_01_80000_lift_L4	491	500	5872	85650	0	8.4	17328	0	80000	-	64244	6847	6847	0.57	1.21	7	0.81	1.32	0.17	0.55	12451	1292	1.195	23	8	99	135	800	90	9330
+B_scene_mp_4p_03_10000_lift_L4	500	500	273	10197	0	17.8	20470	0	0	1	0	0	0	0.21	2.97	21	2.15	3.59	0.60	1.21	9726	2978	1.311	47	736	52	77	100	28	120
+B_scene_mp_4p_03_20000_lift_L4	500	500	545	20445	0	19.1	40689	0	10647	53	0	4	4	0.24	2.98	22	2.15	3.62	0.60	1.20	19536	2991	1.320	94	566	106	168	200	49	203
+B_scene_mp_4p_03_40000_lift_L4	500	500	1017	40870	0	21.5	52497	0	40000	179	0	1647	28	1.47	3.31	11	2.10	3.56	0.58	1.20	38793	2983	1.350	176	249	182	268	400	77	504
+B_scene_mp_4p_03_80000_lift_L4	498	500	1697	81214	0	17.2	2090	0	80000	-	78430	29803	29803	1.38	3.26	18	2.06	3.53	0.55	1.30	1525	2975	1.370	7	8	80	130	800	119	1923
+C_IH_mp_2p_01_10000_corridor_L3	500	500	1297	11195	0	5.0	22506	0	1390	22	0	1	0	0.17	3.22	49	2.40	4.57	0.76	1.52	9293	1232	1.059	52	660	47	76	100	103	231
+C_IH_mp_2p_01_10000_corridor_L6	500	500	1239	11136	0	5.0	22367	0	5126	73	0	37	0	0.13	10.45	43	6.73	15.76	0.03	6.57	9136	1244	1.080	133	580	45	62	100	102	234
+C_IH_mp_2p_01_10000_lift_L3	500	500	1135	11006	0	4.9	22148	0	0	1	0	0	0	0.20	1.84	9	1.45	2.71	0.73	0.59	9136	1267	1.090	33	690	48	61	100	92	235
+C_IH_mp_2p_01_10000_lift_L6	500	500	638	10501	0	5.0	21140	0	0	1	0	0	0	0.21	1.17	13	0.95	1.47	0.03	0.75	8729	1625	1.406	23	733	48	61	100	58	216
+
+Per-path time and stretch by start-goal Manhattan distance
+A_IH_mp_2p_01_10000_astar_L4: sources {'astar': 15577}
+      0-50    n   10011  ms mean     0.21  p90     0.02  stretch_m 1.075
+     50-200   n     438  ms mean    23.21  p90    24.24  stretch_m 1.867
+    200-500   n    1094  ms mean    49.42  p90    86.73  stretch_m 1.406
+    500-1000  n    1953  ms mean   128.17  p90   272.17  stretch_m 1.211
+   1000-2000  n    1940  ms mean   285.68  p90   655.63  stretch_m 1.136
+   2000-4000  n     141  ms mean   439.66  p90   816.91  stretch_m 1.099
+A_IH_mp_2p_01_10000_corridor_L4: sources {'hierarchy': 38430}
+      0-50    n   18542  ms mean     0.08  p90     0.12  stretch_m 1.004
+     50-200   n    1253  ms mean     0.24  p90     0.61  stretch_m 1.133
+    200-500   n    2734  ms mean     0.73  p90     1.50  stretch_m 1.179
+    500-1000  n    6575  ms mean     1.49  p90     2.93  stretch_m 1.078
+   1000-2000  n    8621  ms mean     2.96  p90     5.72  stretch_m 1.041
+   2000-4000  n     705  ms mean     4.84  p90     8.45  stretch_m 1.010
+A_IH_mp_2p_01_10000_lift_L4: sources {'hierarchy': 34954}
+      0-50    n   17055  ms mean     0.09  p90     0.22  stretch_m 2.543
+     50-200   n    1091  ms mean     0.23  p90     0.38  stretch_m 1.500
+    200-500   n    2428  ms mean     0.48  p90     1.03  stretch_m 1.320
+    500-1000  n    5974  ms mean     0.77  p90     1.35  stretch_m 1.175
+   1000-2000  n    7745  ms mean     1.31  p90     2.10  stretch_m 1.125
+   2000-4000  n     661  ms mean     2.12  p90     2.95  stretch_m 1.092
+A_orz900d_10000_astar_L4: sources {'astar': 44071}
+      0-50    n   15352  ms mean     0.04  p90     0.07  stretch_m 1.042
+     50-200   n    3676  ms mean     3.24  p90     6.72  stretch_m 2.173
+    200-500   n   12589  ms mean     8.95  p90    15.12  stretch_m 2.810
+    500-1000  n   11993  ms mean    13.85  p90    19.10  stretch_m 2.692
+   1000-2000  n     461  ms mean    17.62  p90    21.55  stretch_m 2.541
+A_orz900d_10000_corridor_L4: sources {'hierarchy': 58177}
+      0-50    n   15242  ms mean     0.02  p90     0.04  stretch_m 1.008
+     50-200   n    4843  ms mean     0.36  p90     0.84  stretch_m 1.839
+    200-500   n   18617  ms mean     1.41  p90     2.67  stretch_m 2.428
+    500-1000  n   18853  ms mean     2.82  p90     4.13  stretch_m 2.452
+   1000-2000  n     622  ms mean     4.16  p90     5.19  stretch_m 2.325
+A_orz900d_10000_lift_L4: sources {'hierarchy': 61411}
+      0-50    n   14450  ms mean     0.02  p90     0.05  stretch_m 3.439
+     50-200   n    5767  ms mean     0.14  p90     0.25  stretch_m 2.484
+    200-500   n   21411  ms mean     0.35  p90     0.57  stretch_m 3.260
+    500-1000  n   19156  ms mean     0.55  p90     0.81  stretch_m 3.180
+   1000-2000  n     627  ms mean     0.72  p90     0.93  stretch_m 2.850
+A_scene_mp_4p_03_10000_astar_L4: sources {'astar': 11933}
+      0-50    n    9542  ms mean     0.02  p90     0.04  stretch_m 1.003
+     50-200   n     497  ms mean     0.52  p90     0.19  stretch_m 1.109
+    200-500   n      87  ms mean    24.88  p90    48.94  stretch_m 1.634
+    500-1000  n     227  ms mean   110.22  p90   339.94  stretch_m 1.646
+   1000-2000  n     584  ms mean   255.28  p90   676.22  stretch_m 1.431
+   2000-4000  n     884  ms mean   659.19  p90  1313.65  stretch_m 1.345
+   4000-inf   n     112  ms mean  1040.96  p90  1991.32  stretch_m 1.209
+A_scene_mp_4p_03_10000_corridor_L4: sources {'hierarchy': 22762}
+      0-50    n   10673  ms mean     0.05  p90     0.05  stretch_m 1.003
+     50-200   n     810  ms mean     0.15  p90     0.37  stretch_m 1.040
+    200-500   n     470  ms mean     0.78  p90     1.50  stretch_m 1.243
+    500-1000  n    1210  ms mean     1.98  p90     4.05  stretch_m 1.350
+   1000-2000  n    3291  ms mean     4.70  p90     8.43  stretch_m 1.328
+   2000-4000  n    5559  ms mean     9.50  p90    14.96  stretch_m 1.230
+   4000-inf   n     749  ms mean    14.69  p90    20.30  stretch_m 1.108
+A_scene_mp_4p_03_10000_lift_L4: sources {'hierarchy': 22507}
+      0-50    n   10584  ms mean     0.06  p90     0.09  stretch_m 2.427
+     50-200   n     787  ms mean     0.17  p90     0.36  stretch_m 1.398
+    200-500   n     443  ms mean     0.41  p90     0.69  stretch_m 1.316
+    500-1000  n    1171  ms mean     0.78  p90     1.34  stretch_m 1.407
+   1000-2000  n    3226  ms mean     1.46  p90     2.32  stretch_m 1.381
+   2000-4000  n    5520  ms mean     2.59  p90     3.84  stretch_m 1.273
+   4000-inf   n     776  ms mean     3.68  p90     5.04  stretch_m 1.144
+B_IH_mp_2p_01_10000_lift_L4: sources {'hierarchy': 21855}
+      0-50    n   10933  ms mean     0.05  p90     0.07  stretch_m 3.907
+     50-200   n     395  ms mean     0.21  p90     0.39  stretch_m 1.724
+    200-500   n    1477  ms mean     0.39  p90     0.59  stretch_m 1.338
+    500-1000  n    3667  ms mean     0.66  p90     0.90  stretch_m 1.179
+   1000-2000  n    4905  ms mean     1.16  p90     1.65  stretch_m 1.129
+   2000-4000  n     478  ms mean     1.95  p90     2.53  stretch_m 1.093
+B_IH_mp_2p_01_20000_lift_L4: sources {'hierarchy': 43101}
+      0-50    n   21241  ms mean     0.04  p90     0.07  stretch_m 4.490
+     50-200   n     662  ms mean     0.18  p90     0.31  stretch_m 1.658
+    200-500   n    3035  ms mean     0.35  p90     0.51  stretch_m 1.337
+    500-1000  n    7289  ms mean     0.62  p90     0.86  stretch_m 1.182
+   1000-2000  n    9981  ms mean     1.13  p90     1.60  stretch_m 1.129
+   2000-4000  n     893  ms mean     1.90  p90     2.46  stretch_m 1.095
+B_IH_mp_2p_01_40000_lift_L4: sources {'hierarchy': 59046}
+      0-50    n   11691  ms mean     0.05  p90     0.10  stretch_m 5.095
+     50-200   n    1658  ms mean     0.18  p90     0.29  stretch_m 1.757
+    200-500   n    6960  ms mean     0.34  p90     0.49  stretch_m 1.341
+    500-1000  n   16138  ms mean     0.62  p90     0.86  stretch_m 1.195
+   1000-2000  n   20891  ms mean     1.11  p90     1.58  stretch_m 1.130
+   2000-4000  n    1708  ms mean     1.92  p90     2.50  stretch_m 1.096
+B_IH_mp_2p_01_80000_lift_L4: sources {'hierarchy': 17328}
+      0-50    n     862  ms mean     0.05  p90     0.08  stretch_m 6.696
+     50-200   n    1027  ms mean     0.18  p90     0.31  stretch_m 2.257
+    200-500   n    2988  ms mean     0.31  p90     0.47  stretch_m 1.466
+    500-1000  n    5832  ms mean     0.55  p90     0.78  stretch_m 1.243
+   1000-2000  n    6228  ms mean     0.99  p90     1.43  stretch_m 1.155
+   2000-4000  n     391  ms mean     1.72  p90     2.30  stretch_m 1.108
+B_scene_mp_4p_03_10000_lift_L4: sources {'hierarchy': 20470}
+      0-50    n    9852  ms mean     0.05  p90     0.08  stretch_m 3.144
+     50-200   n     477  ms mean     0.13  p90     0.22  stretch_m 1.596
+    200-500   n     415  ms mean     0.38  p90     0.56  stretch_m 1.318
+    500-1000  n    1052  ms mean     0.79  p90     1.22  stretch_m 1.412
+   1000-2000  n    2982  ms mean     1.47  p90     2.24  stretch_m 1.378
+   2000-4000  n    4978  ms mean     2.62  p90     3.72  stretch_m 1.273
+   4000-inf   n     714  ms mean     3.73  p90     4.94  stretch_m 1.142
+B_scene_mp_4p_03_20000_lift_L4: sources {'hierarchy': 40689}
+      0-50    n   19991  ms mean     0.05  p90     0.07  stretch_m 3.769
+     50-200   n     364  ms mean     0.15  p90     0.25  stretch_m 1.624
+    200-500   n     798  ms mean     0.36  p90     0.51  stretch_m 1.372
+    500-1000  n    2138  ms mean     0.77  p90     1.18  stretch_m 1.427
+   1000-2000  n    5897  ms mean     1.48  p90     2.24  stretch_m 1.403
+   2000-4000  n   10060  ms mean     2.60  p90     3.72  stretch_m 1.275
+   4000-inf   n    1441  ms mean     3.76  p90     4.95  stretch_m 1.144
+B_scene_mp_4p_03_40000_lift_L4: sources {'hierarchy': 52497}
+      0-50    n   11474  ms mean     0.05  p90     0.07  stretch_m 4.754
+     50-200   n     515  ms mean     0.19  p90     0.32  stretch_m 1.929
+    200-500   n    1715  ms mean     0.38  p90     0.59  stretch_m 1.518
+    500-1000  n    4512  ms mean     0.78  p90     1.28  stretch_m 1.513
+   1000-2000  n   12113  ms mean     1.47  p90     2.27  stretch_m 1.431
+   2000-4000  n   19493  ms mean     2.58  p90     3.74  stretch_m 1.289
+   4000-inf   n    2675  ms mean     3.65  p90     4.87  stretch_m 1.149
+B_scene_mp_4p_03_80000_lift_L4: sources {'hierarchy': 2090}
+      0-50    n     482  ms mean     0.05  p90     0.08  stretch_m 5.685
+     50-200   n      19  ms mean     0.16  p90     0.24  stretch_m 1.486
+    200-500   n      64  ms mean     0.34  p90     0.53  stretch_m 1.353
+    500-1000  n     191  ms mean     0.77  p90     1.35  stretch_m 1.553
+   1000-2000  n     488  ms mean     1.46  p90     2.24  stretch_m 1.464
+   2000-4000  n     736  ms mean     2.56  p90     3.80  stretch_m 1.294
+   4000-inf   n     110  ms mean     3.70  p90     5.78  stretch_m 1.148
+C_IH_mp_2p_01_10000_corridor_L3: sources {'hierarchy': 22506}
+      0-50    n   11176  ms mean     0.04  p90     0.05  stretch_m 1.003
+     50-200   n     490  ms mean     0.24  p90     0.50  stretch_m 1.227
+    200-500   n    1547  ms mean     0.63  p90     1.17  stretch_m 1.193
+    500-1000  n    3824  ms mean     1.32  p90     2.24  stretch_m 1.083
+   1000-2000  n    4994  ms mean     2.93  p90     4.84  stretch_m 1.045
+   2000-4000  n     475  ms mean     5.56  p90     8.21  stretch_m 1.012
+C_IH_mp_2p_01_10000_corridor_L6: sources {'hierarchy': 22367}
+      0-50    n   11120  ms mean     0.04  p90     0.04  stretch_m 1.005
+     50-200   n     550  ms mean     0.48  p90     1.16  stretch_m 1.272
+    200-500   n    1561  ms mean     1.67  p90     4.16  stretch_m 1.231
+    500-1000  n    3828  ms mean     3.90  p90     8.94  stretch_m 1.109
+   1000-2000  n    4863  ms mean     8.36  p90    17.35  stretch_m 1.063
+   2000-4000  n     445  ms mean    13.20  p90    26.00  stretch_m 1.026
+C_IH_mp_2p_01_10000_lift_L3: sources {'hierarchy': 22148}
+      0-50    n   11017  ms mean     0.04  p90     0.06  stretch_m 2.290
+     50-200   n     479  ms mean     0.20  p90     0.36  stretch_m 1.421
+    200-500   n    1516  ms mean     0.46  p90     0.78  stretch_m 1.254
+    500-1000  n    3753  ms mean     0.84  p90     1.28  stretch_m 1.120
+   1000-2000  n    4918  ms mean     1.74  p90     2.87  stretch_m 1.072
+   2000-4000  n     465  ms mean     3.34  p90     5.04  stretch_m 1.035
+C_IH_mp_2p_01_10000_lift_L6: sources {'hierarchy': 21140}
+      0-50    n   10536  ms mean     0.05  p90     0.12  stretch_m 3.639
+     50-200   n     443  ms mean     0.27  p90     0.54  stretch_m 2.677
+    200-500   n    1432  ms mean     0.45  p90     0.69  stretch_m 1.811
+    500-1000  n    3581  ms mean     0.69  p90     0.98  stretch_m 1.475
+   1000-2000  n    4697  ms mean     1.09  p90     1.50  stretch_m 1.365
+   2000-4000  n     451  ms mean     1.59  p90     1.95  stretch_m 1.298

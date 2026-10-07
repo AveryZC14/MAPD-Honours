@@ -1,0 +1,23 @@
+	Command being timed: "./build/lifelong --inputFile instances/thesis_benchmarks/orz900d/orz900d_10000.json -o outputs/planner_overview/A_orz900d_10000_lift_L4.json --scheduleModel 6 -s 1500 --preprocessTimeLimit 1800000 --logDetailLevel 3 --flowSolveLevel 4 --hierarchyCache hierarchy_cache/orz900d_full.hierarchy --computeGuidePaths false --guidePathSource lift --guidePathLevel 4 --guidePathTrace outputs/planner_overview/A_orz900d_10000_lift_L4.trace.csv"
+	User time (seconds): 589.39
+	System time (seconds): 758.59
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 22:28.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1732672
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 447409
+	Voluntary context switches: 1743
+	Involuntary context switches: 6146
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 12856
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

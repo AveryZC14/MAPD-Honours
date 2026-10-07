@@ -436,6 +436,10 @@ goals and `needs_replan`) from a coarse path at `--guidePathLevel`
 (`astar()` limited to the coarse path's nodes via `SearchCorridor`).
 Full-map A* is the fallback; the default `astar` is the planner as before.
 The hierarchy is then loaded for every solver (`--hierarchyCache`).
+`--guidePathTrace <csv>` logs one row per guide path built. Overnight
+results (21 runs, 2026-10-01/02) in `outputs/planner_overview/RESULTS.md`:
+corridor wins on IH and scene, congestion-aware `astar` on orz900d, and
+80k is starved by the fixed PIBT reserve (`PIBT_RUNTIME_PER_100_AGENTS`).
 
 **Also as of 2026-09-30** (details in `ai/parallel_guide_paths_plan.md`
 and `ai/parallel_local_matching_plan.md`):

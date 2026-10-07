@@ -1024,8 +1024,13 @@ trap; lift and corridor) identical to before, 0 failures.
 ### Next
 
 1. ~~Faster coarse search~~ (done, above).
-2. Planner runs on the evidence maps, one at a time, with fresh `astar`
-   baselines from the same build (the IH and scene baselines in this doc
-   predate the harness fix): scene 1,500 steps corridor vs lift, IH 10k
-   1,500 steps, orz900d 10k 1,500 steps; then the level sweep.
-3. Measure PIBT time at 80k and size `PIBT_RUNTIME_PER_100_AGENTS` to it.
+2. ~~Planner runs on the evidence maps, one at a time, with fresh `astar`
+   baselines from the same build; then the level sweep.~~ **Done
+   2026-10-01/02**, 21 runs: `outputs/planner_overview/RESULTS.md`, summary
+   in `ai/run_log.md`. Corridor wins on IH and scene, astar on orz900d;
+   corridor best at levels 3-4.
+3. Measure PIBT time at 80k and size the reserve to it. **Measured
+   (overnight runs):** 1 ms / 100 agents fits 10k-40k (max 151 / 184 / 360
+   ms) but starves stage 2 at 80k. Plan (2026-10-07): a manual
+   `--pibtReserveMs` flag, chosen for 80k from a short IH 80k test at 300 /
+   500 / 800 ms, checked on scene 80k.

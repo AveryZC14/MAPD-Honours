@@ -577,3 +577,32 @@ progresses -- this is not append-only.
   from decision 2 (was 79); finished 98 / 79 (was 93 / 73). 0 errors.
 - **Checks**: validators unchanged, small-map debug runs identical.
 
+
+### 2026-10-01/02: planner overview, 21 overnight runs (guide-path source, scaling, level)
+
+- **What**: solver 6, corridor margin 0, congestion off, `--computeGuidePaths
+  false`, `--guidePathTrace` on, one run at a time
+  (`outputs/planner_overview/`; tables in `RESULTS.md`, per-run notes in
+  `overnight_notes.txt`). A: astar / corridor / lift at level 4 on orz900d,
+  IH and scene, 10k, 1,500 steps, solver 6 level 4. B: lift level 4,
+  solver 6 level 8, 10k-80k on IH and scene, 500 steps. C: IH 10k, corridor
+  and lift at levels 3 and 6, 500 steps.
+- **Result**: 21/21 exit 0, 0 errors, 0 hierarchy fallbacks.
+  - Deliveries (A): orz900d astar 5,423 / corridor 4,756 / lift 3,719;
+    IH 2,464 / 9,213 / 7,607; scene 388 / 1,405 / 1,302. The hierarchy
+    fixes IH and scene (long paths 1-8 ms vs 200-500 ms for full-map A*).
+    On orz900d congestion-aware astar wins: congestion-blind paths raise
+    same-goal replans from 32% to 50% (corridor) and 56% (lift).
+  - Lift loses to corridor by about its path stretch (-22% orz900d, -17%
+    IH, -7% scene). Corridor best at levels 3-4 (level 6 slower and
+    worse); lift gets worse at every level above 3.
+  - Scaling (B): near-linear deliveries 10k-40k, per-path time flat. 80k
+    starved on both maps: the 1 ms / 100 agents PIBT reserve (800 ms)
+    leaves stage 2 about 0-30 ms per decision, so 64k (IH) and 78k (scene)
+    agents still have no path at the end. PIBT itself used about 100 ms.
+  - Scene level 4 misses about 300 of 1,500 decisions: solver 6's scheduler
+    grows to about 1 s per call late in the run (known todo item).
+- **Follow-ups**: thesis sweep to be redesigned with the planner's
+  guide-path setting and level as factors (best planner for the scheduler
+  runs, best scheduler for the planner runs); PIBT reserve to be set
+  manually for 80k (`ai/todo.md`).

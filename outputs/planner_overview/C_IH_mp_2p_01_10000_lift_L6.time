@@ -1,0 +1,23 @@
+	Command being timed: "./build/lifelong --inputFile instances/thesis_benchmarks/IH_mp_2p_01/IH_mp_2p_01_10000.json -o outputs/planner_overview/C_IH_mp_2p_01_10000_lift_L6.json --scheduleModel 6 -s 500 --preprocessTimeLimit 1800000 --logDetailLevel 3 --flowSolveLevel 4 --hierarchyCache hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy --computeGuidePaths false --guidePathSource lift --guidePathLevel 6 --guidePathTrace outputs/planner_overview/C_IH_mp_2p_01_10000_lift_L6.trace.csv"
+	User time (seconds): 229.43
+	System time (seconds): 244.65
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:54.15
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5283976
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1499247
+	Voluntary context switches: 511
+	Involuntary context switches: 3341
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 4320
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

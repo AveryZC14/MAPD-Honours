@@ -55,9 +55,21 @@ the date and what changed) rather than deleting them outright.
   16 ms. Quick scene planner run (300 steps): corridor 12.1 ms vs lift
   6.2 ms per long path, most of it the coarse Dijkstra. Coarse search now
   A* with landmarks (exact): scene long paths corridor 6.9 ms, lift 1.6 ms.
-  Next (plan doc, "Next"): big-map planner runs with fresh
-  `astar` baselines, then PIBT time at 80k (its 1 ms / 100 agents reserve
-  leaves about 100 ms for guide paths at 80k).
+  **Big-map planner runs done 2026-10-01/02** (21 runs,
+  `outputs/planner_overview/RESULTS.md`): corridor wins on IH and scene
+  (3-4x astar), astar on orz900d; corridor best at levels 3-4; 80k starved
+  by the fixed PIBT reserve.
+  **Sweep redesign agreed 2026-10-07 (not yet written into the README or
+  `scripts/run_thesis_sweep.py`):** the planner's guide-path setting and
+  level are now factors too. Planner experiment first (guide-path settings
+  with a fixed provisional scheduler, solver 6 level 8), then the
+  scheduler experiment with the winning planner for every solver, plus a
+  small scheduler-level x planner-level check on IH and scene 20k. Open:
+  time budget, whether corridor congestion on is included.
+  **Before any thesis run:** a manual `--pibtReserveMs` flag (default =
+  the current formula), with the 80k value chosen from IH 80k at 300 / 500
+  / 800 ms and checked on scene 80k; and solver 6's level-4 scheduler
+  slowdown (about 1 s per call late in scene runs).
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:
