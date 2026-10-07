@@ -140,7 +140,13 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
             {
                 num_opened_last_check++;
                 num_of_task_opened++;
+                if (task_trace.is_open())
+                    task_trace << timestep << ",pickup," << task->task_id << ',' << k << ','
+                               << states[k].location << ",-1\n";
             }
+            if (task_trace.is_open() && task->is_finished())
+                task_trace << timestep << ",deliver," << task->task_id << ',' << k << ','
+                           << states[k].location << ",-1\n";
 
             if (task->is_finished())
             {
@@ -201,6 +207,8 @@ void TaskManager::reveal_tasks(int timestep)
         ongoing_tasks[task->task_id] = task;
         //all_tasks.push_back(task);
         new_tasks.push_back(task->task_id);         // record the new tasks
+        if (task_trace.is_open())
+            task_trace << timestep << ",reveal," << task_id << ",-1," << locs.front() << ',' << locs.back() << '\n';
         logger->log_info("Task " + std::to_string(task_id) + " is revealed");
         task_id++;
     }
@@ -217,12 +225,48 @@ void TaskManager::reveal_tasks(int timestep)
  * @param timestep the current timestep.
  * @return the number of tasks that finished this call.
  */
+bool TaskManager::open_task_trace(const std::string& path)
+{
+    task_trace.open(path);
+    if (!task_trace)
+        return false;
+    // reveal: loc = pickup, goal = delivery; assign: loc = agent's location
+    // (after this step's move), goal = the task's next location; unassign:
+    // the agent lost a task it hadn't finished; pickup / deliver: loc =
+    // where it happened.
+    task_trace << "timestep,event,task,agent,loc,goal\n";
+    return true;
+}
+
 int TaskManager::update_tasks(vector<State>& states, vector<int>& assignment, int timestep)
 {
     curr_timestep = timestep;
-    set_task_assignment(assignment);
+    if (task_trace.is_open())
+    {
+        const vector<int> before = current_assignment;
+        if (set_task_assignment(assignment))
+        {
+            for (int a = 0; a < num_of_agents; a++)
+            {
+                if (before[a] == current_assignment[a])
+                    continue;
+                if (before[a] >= 0)
+                    task_trace << timestep << ",unassign," << before[a] << ',' << a << ','
+                               << states[a].location << ",-1\n";
+                if (current_assignment[a] >= 0)
+                    task_trace << timestep << ",assign," << current_assignment[a] << ',' << a << ','
+                               << states[a].location << ',' << ongoing_tasks[current_assignment[a]]->get_next_loc()
+                               << '\n';
+            }
+        }
+    }
+    else
+        set_task_assignment(assignment);
     int num_finished = check_finished_tasks(states,timestep).size();
     reveal_tasks(timestep);
+    // lifelong exits without running destructors, so flush every step
+    if (task_trace.is_open())
+        task_trace.flush();
     return num_finished;
 }
 

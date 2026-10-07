@@ -707,3 +707,16 @@ progresses -- this is not append-only.
     its backlog by decision 435. On scene at 80k the guarantee is too
     small for corridor; faster sources (lift, refine) or more time would
     be needed.
+
+### 2026-10-07: `--taskTrace` check (orz900d 10k, 200 steps)
+
+- **What**: new `--taskTrace` (one CSV row per reveal / assign / unassign
+  / pickup / deliver, written by `TaskManager` between decisions), solver 6
+  level 6, corridor level 4, with and without the trace.
+- **Result**: pickup and deliver rows match `numTaskOpened` (10,779) and
+  `numTaskFinished` (806) exactly; every pickup and delivery is by the
+  agent holding the task. The first version lost the last unflushed rows
+  (lifelong exits without destructors), so the trace is flushed every
+  step. Wall time 183.4 s with the trace vs 183.3 s without; mean
+  `PlannerTime` 0.878 vs 0.874 s (noise). About 38,000 rows per 200 steps
+  at 10k.

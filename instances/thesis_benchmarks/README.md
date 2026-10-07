@@ -350,8 +350,9 @@ is limited by wall-clock time; quote differences against this noise band.
 planner builds its own paths; solver 6's lift would only take scheduler
 time), `--logDetailLevel 3`, the map's full-depth `--hierarchyCache` for
 every solver (the planner's hierarchy sources need it), and the per-map
-`--preprocessTimeLimit` from the old plan. `--guidePathTrace` on in E1, E3
-and the repeats. Build: `USE_MANHATTAN_HEURISTIC = true`,
+`--preprocessTimeLimit` from the old plan. `--guidePathTrace` and
+`--taskTrace` on in every run (gzip both after each run; about 10-20 MB
+per 80k run), since the trace analyses below need them. Build: `USE_MANHATTAN_HEURISTIC = true`,
 `USE_LOCAL_PATH_BFS = true`.
 
 **Order:** E1 (then choose the planner setting for E2), E3 and the repeats
@@ -365,6 +366,21 @@ only, 6 runs, about 8 h); solver 6 level 4 in E2 (covered by E3); 8,000
 -> 4,000 steps in E2. On the scene maps (delivery legs about
 2,300 cells) throughput may still be rising at 4,000 steps, so report
 those as trends rather than steady state.
+
+**Measures beyond throughput** (from the traces; analysis scripts to
+write):
+- *Assignment quality* (`--taskTrace`, the same for every solver since it
+  is written by the simulator's `TaskManager`): distance from agent to
+  assigned pickup (Manhattan; true distance offline on a sample), time
+  from assignment to pickup, time from a task appearing to its first
+  assignment, lead time (appears -> delivered), reassignments
+  (`unassign` rows).
+- *Guide-path quality*, from cleanest to most realistic: the bench (same
+  pairs for every builder: length vs true shortest, time per path, by
+  level); per-path time, length vs Manhattan by distance band, fallbacks
+  and replans (`--guidePathTrace`); realized steps from assignment to
+  pickup divided by that leg's guide-path length (join the two traces);
+  throughput, backlog and stuck agents.
 
 **Open before launch:** add the run list to `scripts/run_thesis_sweep.py`;
 analysis scripts (E1/E3 tables, E2 per-decision comparison with solver 1);

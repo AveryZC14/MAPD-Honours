@@ -93,6 +93,9 @@ public:
     // --minGuidePathMs: guide paths (stage 2) always get at least this long
     // per decision, even past the PIBT reserve's deadline; 0 = off.
     int min_guide_path_ms = 0;
+    // --taskTrace: CSV file with one row per task event (written by the
+    // simulator's TaskManager, outside the timed planning call); empty = off.
+    std::string task_trace_file;
 
     // goal locations for each agent
     // each task is a pair of <goal_loc, reveal_time>

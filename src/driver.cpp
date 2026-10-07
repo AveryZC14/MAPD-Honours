@@ -67,7 +67,8 @@ int main(int argc, char **argv)
         ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor and refine sources: the fine A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths")
         ("guidePathTrace", po::value<std::string>()->default_value(""), "CSV file with one row per guide path the planner builds (timestep, agent, source, distance, length, time); empty = off")
         ("pibtReserveMs", po::value<int>()->default_value(-1), "planner time (ms) kept back for PIBT each decision; guide paths and Frank-Wolfe stop that long (plus 60 ms) before the planner's limit. -1 = 1 ms per 100 agents (PIBT_RUNTIME_PER_100_AGENTS)")
-        ("minGuidePathMs", po::value<int>()->default_value(0), "guide paths always get at least this many ms per decision, even if that makes the decision late (all agents then wait a step). 0 = off: guide paths stop at the PIBT reserve's deadline");
+        ("minGuidePathMs", po::value<int>()->default_value(0), "guide paths always get at least this many ms per decision, even if that makes the decision late (all agents then wait a step). 0 = off: guide paths stop at the PIBT reserve's deadline")
+        ("taskTrace", po::value<std::string>()->default_value(""), "CSV file with one row per task event (reveal, assign, unassign, pickup, deliver: timestep, task, agent, location, goal); written by the simulator between decisions, not inside the timed planning call. Empty = off");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -177,6 +178,7 @@ int main(int argc, char **argv)
     planner->env->guide_path_trace_file = vm["guidePathTrace"].as<std::string>();
     planner->env->pibt_reserve_ms = vm["pibtReserveMs"].as<int>();
     planner->env->min_guide_path_ms = std::max(0, vm["minGuidePathMs"].as<int>());
+    planner->env->task_trace_file = vm["taskTrace"].as<std::string>();
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());

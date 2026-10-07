@@ -331,6 +331,12 @@ void BaseSystem::initialize()
     if (!planner_initialize_success)
         _exit(124);
 
+    if (!env->task_trace_file.empty() && !task_manager.open_task_trace(env->task_trace_file))
+    {
+        cout << "error: cannot open --taskTrace " << env->task_trace_file << endl;
+        _exit(1);
+    }
+
     // initialize_goal_locations();
     task_manager.reveal_tasks(timestep); //this also intialize env->new_tasks
 
@@ -400,6 +406,7 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
         js["guidePathTrace"] = env->guide_path_trace_file;
         js["pibtReserveMs"] = env->pibt_reserve_ms;
         js["minGuidePathMs"] = env->min_guide_path_ms;
+        js["taskTrace"] = env->task_trace_file;
     }
 
     js["totalLocalNodeMatchCount"] = total_local_node_match_count;

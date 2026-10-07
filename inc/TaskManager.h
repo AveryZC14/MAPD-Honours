@@ -5,6 +5,7 @@
 #include "nlohmann/json.hpp"
 #include <vector>
 #include "Logger.h"
+#include <fstream>
 
 class TaskManager{
 public:
@@ -30,6 +31,9 @@ public:
 
     void set_num_tasks_reveal(float num){num_tasks_reveal = num*num_of_agents;};
     void set_logger(Logger* logger){this->logger = logger;}
+    // --taskTrace: one CSV row per task event (reveal, assign, unassign,
+    // pickup, deliver); false if the file can't be opened.
+    bool open_task_trace(const std::string& path);
 
     bool validate_task_assignment(vector<int>& assignment); // validate the task assignment
     bool set_task_assignment( vector<int>&  assignment); // set the task assignment; return true if task is valid
@@ -70,6 +74,7 @@ public:
 
 private:
     Logger* logger = nullptr;
+    std::ofstream task_trace;
 
     std::unordered_map<int, Task*> ongoing_tasks;
     vector<int> current_assignment;
