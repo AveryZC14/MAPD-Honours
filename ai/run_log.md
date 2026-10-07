@@ -676,3 +676,12 @@ progresses -- this is not append-only.
   late in a longer run scheduler about 90 + guide 150 + PIBT about 600 +
   80 margins is close to 1 s and some decisions may go late; 500 steps
   doesn't show that.
+- **IH 80k, 1,500 steps** (added the same day, `G150_IH_mp_2p_01_80000_lift_L4_1500`):
+  exit 0, 0 errors, 1,489 / 1,500 decisions (the 11 lost are the first
+  decision's 10.7 s scheduler solve), finished 33,009. Backlog clear from
+  decision 435; stuck 2,388 max, 27 at the end. Deliveries per 100 steps
+  rise from 366 to about 3,200 by steps 1,100-1,500. PIBT keeps growing
+  (412 ms mean at steps 400-500, 567 at 1,400-1,500, max 622), so a
+  decision is about 80 + 150 + 570 + margins, still under 1 s. Agents
+  without a path creep up from 0 to 441 late in the run (about 240 paths
+  needed per decision against what 150 ms builds), small but rising.
