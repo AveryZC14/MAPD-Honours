@@ -64,8 +64,11 @@ the date and what changed) rather than deleting them outright.
   at level 4 plus a level slice at 80k, 1,500 steps), E3 scheduler x planner check, E2
   scheduler (E1's planner, 4,000 steps), plus repeats; warehouseXL dropped;
   `--minGuidePathMs 150` on every run (fixes the 80k freeze; a fixed PIBT
-  reserve didn't, `ai/run_log.md` 2026-10-07). **Before launch:** run list
-  in `scripts/run_thesis_sweep.py`, analysis scripts. Solver 6's level-4
+  reserve didn't, `ai/run_log.md` 2026-10-07). **Launched 2026-10-07
+  evening** from tag `thesis-sweep-v1`: E1, E3, repeats (75 runs, about
+  34 h). **Next:** analysis scripts (write during E1), choose E2's planner
+  from E1 (`outputs/thesis_sweep/E2_PLANNER`), then E2 (80 runs, about
+  92 h). Solver 6's level-4
   slowdown on scene is reported as a finding, not fixed.
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results

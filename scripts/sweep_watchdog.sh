@@ -11,7 +11,9 @@
 #   - a lifelong process is running (e.g. a run left behind by a killed
 #     script; once it finishes and writes its JSON, the next check restarts
 #     the sweep, which then skips that run),
-#   - the sweep already finished (runner.log ends with its summary line).
+#   - the sweep already finished (runner.log ends with its summary line),
+#     unless outputs/thesis_sweep/E2_PLANNER is newer than runner.log (E2's
+#     planner was set after the first batch finished, so start E2).
 
 REPO=/home/ubuntu/MAPD-Honours
 OUT=$REPO/outputs/thesis_sweep
@@ -21,7 +23,7 @@ mkdir -p "$OUT"
 [ -e "$OUT/STOP" ] && exit 0
 pgrep -f run_thesis_sweep.py > /dev/null && exit 0
 pgrep -x lifelong > /dev/null && exit 0
-[ -f "$LOG" ] && tail -n 1 "$LOG" | grep -q "skipped. Summary:" && exit 0
+[ -f "$LOG" ] && tail -n 1 "$LOG" | grep -q "skipped. Summary:" && ! [ "$OUT/E2_PLANNER" -nt "$LOG" ] && exit 0
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') sweep not running, starting it" >> "$OUT/watchdog.log"
 cd "$REPO" && setsid nohup /usr/bin/python3 -B scripts/run_thesis_sweep.py >> "$LOG" 2>&1 < /dev/null &

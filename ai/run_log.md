@@ -720,3 +720,11 @@ progresses -- this is not append-only.
   step. Wall time 183.4 s with the trace vs 183.3 s without; mean
   `PlannerTime` 0.878 vs 0.874 s (noise). About 38,000 rows per 200 steps
   at 10k.
+
+### 2026-10-07: thesis sweep, first batch (E1, E3, repeats)
+
+- **What**: `scripts/run_thesis_sweep.py` (revised plan,
+  `instances/thesis_benchmarks/README.md`), tag `thesis-sweep-v1`, into
+  `outputs/thesis_sweep/`. 75 runs, about 34 h. E2 waits for
+  `E2_PLANNER`.
+- **Status**: launched (see `outputs/thesis_sweep/runner.log`).

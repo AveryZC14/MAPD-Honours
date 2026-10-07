@@ -302,8 +302,8 @@ scheduler for the planner runs, plus a small crossed check.
 | E1 planner | solver 6 level 6 | guide-path source at level 4, plus a level slice at 80k (below) | orz900d 10k/20k; IH, scene_mp_4p_03, scene_sp_pol_06 at 10k/40k/80k | 1,500 | 47 | ~21 h |
 | E3 interaction | | solver 6 levels 2/4/6/8 + hierarchical-only x corridor L4 / refine L4 | IH 20k, scene_mp_4p_03 20k | 1,500 | 20 | ~9 h |
 | E2 scheduler | E1's chosen planner setting | solver 6 levels 2/6/8 + hierarchical-only, Greedy (5), solver 1, solver 7 | all 14 (no warehouseXL) | 4,000 | 80 | ~96 h |
-| Repeats | | 2 configs x 3 runs | IH 10k, scene_mp_4p_03 10k | 1,500 | 6 | ~3 h |
-| **Total** | | | | | **153** | **~129 h (5.4 days)** |
+| Repeats | | 2 configs x 2 more runs (E1 has the first) | IH 10k, scene_mp_4p_03 10k | 1,500 | 8 | ~4 h |
+| **Total** | | | | | **155** | **~130 h (5.4 days)** |
 
 Time estimate: about 1 s of wall-clock per simulated step plus loading
 (about 0.45 h per 1,500-step run, 1.2 h per 4,000-step run).
@@ -382,9 +382,32 @@ write):
   pickup divided by that leg's guide-path length (join the two traces);
   throughput, backlog and stuck agents.
 
-**Open before launch:** add the run list to `scripts/run_thesis_sweep.py`;
-analysis scripts (E1/E3 tables, E2 per-decision comparison with solver 1);
-repeat the hierarchy build-time measurements (single runs so far).
+**Running it** (`scripts/run_thesis_sweep.py` has these lists; output in
+`outputs/thesis_sweep/`, run names like
+`E1_IH_mp_2p_01_10000_s6L6_corridor-L4`):
+
+```shell
+python3 scripts/run_thesis_sweep.py --dry-run     # list every planned run
+scripts/sweep_watchdog.sh                         # start / resume, detached
+tail -n 5 outputs/thesis_sweep/runner.log         # progress; WARNING = other jobs ran
+# stop on purpose (the run in progress is redone on resume):
+touch outputs/thesis_sweep/STOP; pkill -f run_thesis_sweep.py; pkill -x lifelong
+# resume:
+rm outputs/thesis_sweep/STOP; scripts/sweep_watchdog.sh
+# after E1: choose E2's planner, then start E2 (finished runs are skipped)
+echo "refine 4" > outputs/thesis_sweep/E2_PLANNER; scripts/sweep_watchdog.sh
+```
+
+The first batch is E1, E3 and the repeats (75 runs, about 34 h). E2 (80
+runs, about 92 h) is planned only once `E2_PLANNER` exists. Each run's row in
+`sweep_summary.csv` has `other_jobs_seen`: other lifelong / bench processes
+seen while it ran (nonzero means its timing may be affected; rerun it).
+Smoke-tested 2026-10-07 at 30 steps (8 runs across E1/E3/R/E2, solvers 1, 5,
+6, 6 hierarchical-only and 7, scene_sp_pol_06 and an 80k run): all ok.
+
+**Still to do:** analysis scripts (E1/E3 tables, E2 per-decision comparison
+with solver 1, the trace measures below); repeat the hierarchy build-time
+measurements (single runs so far).
 
 **Adding runs later:** tag the commit the sweep runs from (e.g.
 `thesis-sweep-v1`) and build later runs from that tag, not from the branch
