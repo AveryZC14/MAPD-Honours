@@ -1,0 +1,59 @@
+map IH_mp_2p_01.map 1912x1800, agents 10000, tasks 120000
+max path cells 100000000, coarse heuristic factor 0 (cheapest arc cost: exact)
+hierarchy ready in 7.2 s, 12 levels; nodes per level: 3441600 561933 143752 37640 10201 2919 890 318 136 64 40 33
+pairs 300, shortest distance mean 1189, max 2684; fine BFS mean 33.6 ms
+
+full-map A* (no congestion): ms mean 27.07 p90 75.65 max 553.70; expanded mean 82274; length / shortest mean 1.000
+
+level 2 arc costs: min 1.00 p1 2.50 p10 4.00 median 4.00 mean 3.97 max 4.00 (2^L = 4)
+level 2 (143752 nodes): lift ok 300/300, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.013, p50 1.011, p90 1.024, max 1.082
+  coarse A* (min arc cost 1.00, landmarks built in 710.13 ms): same cost as Dijkstra 300/300 (route cost / Dijkstra's: mean 1.0000 max 1.0000); ms mean 4.12 vs Dijkstra 40.16; expanded mean 8160 vs 74879
+  coarse path nodes mean 298.63; coarse search ms mean 4.12 p90 10.06; lift ms (ok) mean 1.92 p90 3.23 max 6.65
+  corridor margin 0: ok 300/300, invalid 0; length / shortest mean 1.001 p90 1.004 max 1.036
+    ms mean 1.71 p90 3.17 max 6.00; expanded mean 2053; corridor cells mean 4199 max 9393
+  corridor margin 1: ok 300/300, invalid 0; length / shortest mean 1.001 p90 1.004 max 1.036
+    ms mean 1.45 p90 3.30 max 8.78; expanded mean 4271; corridor cells mean 11696 max 25740
+  refine margin 0: ok 300/300, invalid 0; length / shortest mean 1.001 p90 1.004 max 1.036
+    ms mean 1.56 p90 2.61 max 30.62 (refine part mean 0.87); expanded mean 1493; level-1 corridor cells mean 2208 max 4981
+  refine margin 1: ok 300/300, invalid 0; length / shortest mean 1.001 p90 1.004 max 1.036
+    ms mean 1.70 p90 3.01 max 5.89 (refine part mean 0.70); expanded mean 2690; level-1 corridor cells mean 6117 max 13596
+level 3 arc costs: min 1.00 p1 4.50 p10 7.94 median 8.00 mean 7.85 max 8.00 (2^L = 8)
+level 3 (37640 nodes): lift ok 300/300, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.034, p50 1.029, p90 1.057, max 1.152
+  coarse A* (min arc cost 1.00, landmarks built in 93.27 ms): same cost as Dijkstra 300/300 (route cost / Dijkstra's: mean 1.0000 max 1.0000); ms mean 1.01 vs Dijkstra 8.16; expanded mean 2116 vs 19506
+  coarse path nodes mean 149.83; coarse search ms mean 1.01 p90 2.35; lift ms (ok) mean 1.78 p90 2.90 max 4.03
+  corridor margin 0: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.057
+    ms mean 2.01 p90 3.99 max 9.63; expanded mean 3594; corridor cells mean 8103 max 17897
+  corridor margin 1: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.057
+    ms mean 2.47 p90 6.20 max 15.22; expanded mean 8328; corridor cells mean 22499 max 48536
+  refine margin 0: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.057
+    ms mean 1.84 p90 3.35 max 5.42 (refine part mean 1.07); expanded mean 1563; level-1 corridor cells mean 2221 max 4961
+  refine margin 1: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.057
+    ms mean 2.22 p90 3.92 max 10.40 (refine part mean 1.10); expanded mean 2947; level-1 corridor cells mean 6113 max 13342
+level 4 arc costs: min 1.00 p1 8.50 p10 14.50 median 16.00 mean 15.42 max 16.00 (2^L = 16)
+level 4 (10201 nodes): lift ok 300/300, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.094, p50 1.085, p90 1.149, max 1.372
+  coarse A* (min arc cost 1.00, landmarks built in 20.32 ms): same cost as Dijkstra 300/300 (route cost / Dijkstra's: mean 1.0000 max 1.0000); ms mean 0.33 vs Dijkstra 2.00; expanded mean 571 vs 5230
+  coarse path nodes mean 75.36; coarse search ms mean 0.33 p90 0.71; lift ms (ok) mean 1.79 p90 2.87 max 3.82
+  corridor margin 0: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.036
+    ms mean 2.35 p90 5.27 max 9.55; expanded mean 5491; corridor cells mean 15739 max 34061
+  corridor margin 1: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.005 max 1.036
+    ms mean 3.67 p90 10.00 max 22.77; expanded mean 12894; corridor cells mean 43498 max 93861
+  refine margin 0: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.007 max 1.036
+    ms mean 1.98 p90 3.59 max 8.28 (refine part mean 1.18); expanded mean 1502; level-1 corridor cells mean 2220 max 4905
+  refine margin 1: ok 300/300, invalid 0; length / shortest mean 1.002 p90 1.005 max 1.036
+    ms mean 2.35 p90 4.07 max 6.88 (refine part mean 1.24); expanded mean 2679; level-1 corridor cells mean 6132 max 13324
+level 6 arc costs: min 1.19 p1 18.44 p10 37.71 median 62.12 mean 56.76 max 64.00 (2^L = 64)
+level 6 (890 nodes): lift ok 300/300, fallback ok 0, no path 0, invalid 0, endpoints wrong 0
+  length / shortest (lift ok): mean 1.365, p50 1.322, p90 1.574, max 2.725
+  coarse A* (min arc cost 1.19, landmarks built in 1.39 ms): same cost as Dijkstra 300/300 (route cost / Dijkstra's: mean 1.0000 max 1.0000); ms mean 0.05 vs Dijkstra 0.15; expanded mean 44 vs 423
+  coarse path nodes mean 19.50; coarse search ms mean 0.05 p90 0.08; lift ms (ok) mean 2.19 p90 3.40 max 4.57
+  corridor margin 0: ok 300/300, invalid 0; length / shortest mean 1.020 p90 1.067 max 1.363
+    ms mean 7.49 p90 18.90 max 34.39; expanded mean 23464; corridor cells mean 60807 max 133330
+  corridor margin 1: ok 300/300, invalid 0; length / shortest mean 1.008 p90 1.027 max 1.363
+    ms mean 11.16 p90 34.96 max 94.41; expanded mean 38073; corridor cells mean 169747 max 340894
+  refine margin 0: ok 300/300, invalid 0; length / shortest mean 1.021 p90 1.067 max 1.363
+    ms mean 2.33 p90 4.26 max 10.87 (refine part mean 1.37); expanded mean 1680; level-1 corridor cells mean 2245 max 4949
+  refine margin 1: ok 300/300, invalid 0; length / shortest mean 1.011 p90 1.036 max 1.363
+    ms mean 2.85 p90 5.27 max 9.17 (refine part mean 1.52); expanded mean 3064; level-1 corridor cells mean 6145 max 13196

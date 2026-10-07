@@ -443,6 +443,18 @@ public:
     // arcs of one of them, each once.
     std::vector<int> corridor_nodes(int level, const std::vector<int>& coarse, int margin) const;
 
+    // Refine `coarse` (a path at `level` from the node containing start_cell
+    // to the node containing goal_cell, e.g. from coarse_path) one level at a
+    // time down to `target_level` (>= 1): at each level, the cheapest path
+    // between the nodes containing the two cells using only the children of
+    // the level above's path (plus `margin` rings of its neighbours at that
+    // level). Returns the path at target_level; empty if a search finds
+    // nothing, which the hierarchy's construction rules out. Restricted
+    // searches use the grid heuristic only (no landmark tables). Not
+    // thread-safe (shares coarse_path's scratch arrays).
+    std::vector<int> refine_path(int start_cell, int goal_cell, int level, std::vector<int> coarse,
+                                 int target_level, int margin, int* expanded_out = nullptr) const;
+
 private:
     // Level-by-level expansion shared by lift_coarse_paths_to_fine and
     // lift_path: path i runs from start_cells[i] to goal_cells[i]. Returns
@@ -481,8 +493,16 @@ private:
         std::vector<int> parent;
         std::vector<uint32_t> stamp;
         uint32_t current = 0;
+        // refine_path: nodes the restricted search may use (== allowed_current)
+        std::vector<uint32_t> allowed;
+        uint32_t allowed_current = 0;
     };
     mutable std::vector<CoarseSearchScratch> coarse_scratch_;
+
+    // coarse_path's A* between two node ids at `level`; with `restricted`,
+    // only nodes marked in that level's scratch `allowed` (refine_path).
+    std::vector<int> level_search(int level, int from, int to, bool restricted, int* expanded_out = nullptr,
+                                  double heuristic_unit = -1.0) const;
 
     // ALT landmarks for coarse_path, per level: to[k * n + v] = cost from
     // landmark k to node v, from[k * n + v] = cost from v to landmark k

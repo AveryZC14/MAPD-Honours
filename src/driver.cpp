@@ -61,10 +61,10 @@ int main(int argc, char **argv)
         ("minCascadeLevel", po::value<int>()->default_value(999), "solver-6: first hierarchy level the hierarchical/cascaded local matcher attempts before handing leftovers to flowSolveLevel's usual local-match-then-flow handling; a value >= flowSolveLevel disables cascading (default: disabled)")
         ("cascadeLevelStride", po::value<int>()->default_value(1), "solver-6: attempt a cascade local match only every Nth hierarchy level between minCascadeLevel and flowSolveLevel, still climbing one level at a time in between; default 1 matches every level")
         ("computeGuidePaths", po::value<bool>()->default_value(true), "schedulers build guide paths (solvers 6/7: lift the coarse paths to the fine map; solver 1: record the flow path it walks). When false no guide path is built or handed to the planner, and the guide-path metrics and SchedulerGuidePathTime are 0")
-        ("guidePathSource", po::value<std::string>()->default_value("astar"), "how the planner builds its guide paths: astar (full-map A*, default), lift (coarse path at --guidePathLevel lifted with solver 6's lift) or corridor (coarse path, then fine A* limited to its nodes). The hierarchy sources need the hierarchy (use --hierarchyCache) and fall back to full-map A* when they fail")
-        ("guidePathLevel", po::value<int>()->default_value(4), "hierarchy level for --guidePathSource lift/corridor; independent of --flowSolveLevel")
-        ("guidePathCorridorMargin", po::value<int>()->default_value(0), "corridor source: rings of neighbouring coarse nodes added around the coarse path")
-        ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor source: A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths")
+        ("guidePathSource", po::value<std::string>()->default_value("astar"), "how the planner builds its guide paths: astar (full-map A*, default), lift (coarse path at --guidePathLevel lifted with solver 6's lift), corridor (coarse path, then fine A* limited to its nodes) or refine (coarse path refined one level at a time, each search limited to the children of the path above, then fine A* limited to the level-1 path's nodes). The hierarchy sources need the hierarchy (use --hierarchyCache) and fall back to full-map A* when they fail")
+        ("guidePathLevel", po::value<int>()->default_value(4), "hierarchy level for --guidePathSource lift/corridor/refine; independent of --flowSolveLevel")
+        ("guidePathCorridorMargin", po::value<int>()->default_value(0), "corridor and refine sources: rings of neighbouring coarse nodes added around the coarse path (refine: at every level)")
+        ("guidePathCorridorCongestion", po::value<bool>()->default_value(false), "corridor and refine sources: the fine A* inside the corridor avoids congestion (the planner's traffic map) instead of finding plain shortest paths")
         ("guidePathTrace", po::value<std::string>()->default_value(""), "CSV file with one row per guide path the planner builds (timestep, agent, source, distance, length, time); empty = off")
         ("pibtReserveMs", po::value<int>()->default_value(-1), "planner time (ms) kept back for PIBT each decision; guide paths and Frank-Wolfe stop that long (plus 60 ms) before the planner's limit. -1 = 1 ms per 100 agents (PIBT_RUNTIME_PER_100_AGENTS)");
     clock_t start_time = clock();
@@ -162,9 +162,11 @@ int main(int argc, char **argv)
             planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_LIFT;
         else if (source == "corridor")
             planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_CORRIDOR;
+        else if (source == "refine")
+            planner->env->guide_path_source = SharedEnvironment::GUIDE_SOURCE_REFINE;
         else
         {
-            std::cerr << "--guidePathSource must be astar, lift or corridor, not " << source << std::endl;
+            std::cerr << "--guidePathSource must be astar, lift, corridor or refine, not " << source << std::endl;
             return 1;
         }
     }

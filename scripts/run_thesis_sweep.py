@@ -282,7 +282,7 @@ def main():
     p.add_argument("--binary", default="build/lifelong", help="path to the lifelong binary")
     p.add_argument("--sim-time", type=int, default=SIM_TIME,
                    help=f"-s for every run (default {SIM_TIME}; override only for quick tests, into a separate --out-dir)")
-    p.add_argument("--guide-path-source", choices=["astar", "lift", "corridor"], default="astar",
+    p.add_argument("--guide-path-source", choices=["astar", "lift", "corridor", "refine"], default="astar",
                    help="planner guide paths: astar (default), or from the hierarchy (lift / corridor)")
     p.add_argument("--guide-path-level", type=int, default=4, help="hierarchy level for lift / corridor (default 4)")
     p.add_argument("--guide-path-corridor-margin", type=int, default=0,

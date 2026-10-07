@@ -4,8 +4,10 @@ Status: **implemented 2026-10-01 on branch `hierarchy-guide-paths`; coarse
 search made about 7-10× faster the same day (A* with landmarks, see
 "Faster coarse search")
 (steps 1-4 of "Implementation plan"); planner runs on big maps (step 5)
-not yet done.** `--guidePathSource astar|lift|corridor` (default `astar`,
-the planner as before), `--guidePathLevel`, `--guidePathCorridorMargin`,
+not yet done.** `--guidePathSource astar|lift|corridor|refine` (default
+`astar`, the planner as before; `refine` added 2026-10-07, see "Refine:
+corridor one level at a time": the corridor's paths at about 0.6-0.7× its
+time in the planner, any level), `--guidePathLevel`, `--guidePathCorridorMargin`,
 `--guidePathCorridorCongestion`. Bench: corridor A* gives near-shortest
 paths (1.000-1.02× mean) at every level; on IH level 4 about 4 ms per path
 and on scene_mp_4p_03 level 4 about 16 ms, against 28 / 308 ms for
@@ -1020,6 +1022,114 @@ there even with the current PIBT reserve.
 Checks after the change: `guide_path_validator` 57 / 95 / 4,268 / 15,159,
 0 failed; small-map planner runs with debug checks (tiny, tinyComplex,
 trap; lift and corridor) identical to before, 0 failures.
+
+## Refine: corridor one level at a time (2026-10-07)
+
+`--guidePathSource refine` gives the corridor's paths for less time (in
+the planner about 0.6-0.7× the corridor's, about 3× the lift's). After the coarse search at `--guidePathLevel` L:
+
+1. Mark the children (level L−1 nodes) of the coarse path's nodes.
+2. Find the cheapest level-(L−1) path between the nodes holding the real
+   start and goal, using only marked nodes (same A* as `coarse_path`, grid
+   heuristic only: no landmark tables needed below L).
+3. Repeat down to level 1, then run the corridor A* inside the level-1
+   path's nodes (the same `SearchCorridor` search, with a level-1 cell map).
+
+`--guidePathCorridorMargin` adds rings of neighbours at every level and in
+the final corridor; `--guidePathCorridorCongestion` applies to the final
+A* only (coarse levels have no traffic counts). Code:
+`ReducedHierarchy::refine_path` and the private `level_search` (the old
+`coarse_path` body, with an optional allowed-node set) in
+`map_reduction_test/MapCoarsenV1.cpp`; the planner branch is in
+`hierarchy_guide_path`. Trace CSV and `planner stats` gain `refine_ms`
+(time in steps 1-3 above level 0); `coarse_ms` stays the top search and
+`build_ms` the final A*.
+
+**Why a refinement step can't fail.** `Coarsen()` makes each node a
+connected piece of a 2×2 block of finer nodes (connected using arcs among
+its own children), creates a coarse arc A→B only from a finer arc between
+a child of A and a child of B, and arcs come in both directions. So the
+children of any coarse path contain a path between any child of its first
+node and any child of its last, and every level is anchored to the real
+start and goal. The only search that can fail is the first coarse search
+(full-map A* fallback, as before). Each level does commit to its route,
+though: a level can't undo an earlier level's choice, so the path can be
+longer than the corridor's (see level 6 below).
+
+**Bench** (`outputs/hierarchy_lift_bench/refine/`, same pairs as the
+corridor bench, idle machine). Every refine search succeeded with a valid
+path, on every map at every level. Times are per path, *excluding* the
+top coarse search (listed separately), means; length is path / shortest;
+margin 0.
+
+| Map, level | Coarse ms | Lift ms (length) | Corridor ms (length) | Refine ms (length) |
+|---|---|---|---|---|
+| orz900d 2 | 0.41 | 0.83 (1.054) | 0.94 (1.001) | 0.80 (1.001) |
+| orz900d 4 | 0.06 | 1.16 (1.299) | 2.23 (1.002) | 1.09 (1.002) |
+| orz900d 6 | 0.02 | 1.51 (1.790) | 4.92 (1.000) | 1.27 (1.004) |
+| IH 2 | 4.12 | 1.92 (1.013) | 1.71 (1.001) | 1.56 (1.001) |
+| IH 3 | 1.01 | 1.78 (1.034) | 2.01 (1.002) | 1.84 (1.002) |
+| IH 4 | 0.33 | 1.79 (1.094) | 2.35 (1.002) | 1.98 (1.002) |
+| IH 6 | 0.05 | 2.19 (1.365) | 7.49 (1.020) | 2.33 (1.021) |
+| scene 3 | 3.52 | 4.30 (1.027) | 5.00 (1.003) | 4.34 (1.003) |
+| scene 4 | 0.91 | 4.26 (1.051) | 7.82 (1.005) | 4.81 (1.005) |
+| scene 5 | 0.35 | 4.53 (1.114) | 13.13 (1.008) | 5.28 (1.008) |
+| scene 6 | 0.14 | 4.70 (1.236) | 22.43 (1.010) | 5.36 (1.010) |
+
+Full-map A* for reference: orz900d 7.7 ms, IH 27.1, scene 265.
+
+**Reading the numbers:**
+
+- **In the bench, refine costs about what the lift costs and gives the
+  corridor's paths** (in the planner it is about 3× the lift; see the
+  planner check below). Its time hardly depends on the level (scene 4.3-5.4 ms over
+  levels 3-6), because the final A* always runs in a level-1 corridor
+  (about 2,000 cells on orz900d and IH, 5,000 on scene, at every level;
+  the corridor's grows to 125k on scene level 6).
+- **So the level now only sets the coarse search cost.** Higher is
+  cheaper (scene: 3.5 ms at 3, 0.14 at 6). With refine, levels 5-6 are as
+  good as 3-4 were for the corridor, minus the coarse search.
+- **About half of refine's time is the restricted searches** (scene level
+  4: 2.5 of 4.8 ms; IH level 4: 1.2 of 2.0). They use only the grid
+  heuristic, which is weak (cheapest arc 1.0, typical 2^l); landmarks per
+  level would cut this but cost memory at levels 1-2.
+- **Committing to a route costs little.** Mean length is the corridor's
+  to within 0.004 everywhere. Worst case: orz900d level 6, max 1.221
+  (corridor 1.000); margin 1 brings it back to 1.041.
+- **Margin 1 isn't worth it** (as for the corridor): 1.3-1.9× the time
+  for at most 0.01 mean length.
+- **First call allocates** the per-level scratch arrays (scene: 228 ms,
+  IH: 28 ms, pair 0 at level 2). Once per run, so not pre-built.
+
+**Checks:** small-map planner runs with debug checks (tiny, tinyComplex at
+levels 1-2, margin 0 and 1; trap at levels 1-3): 15 runs, 0 errors, 0
+failed checks, 0 fallbacks (`outputs/hierarchy_lift_bench/refine/small_checks.txt`).
+
+**Planner, scene_mp_4p_03 10k, solver 6 level 4, 300 steps**
+(`outputs/hierarchy_lift_bench/planner_scene_refine/`, same setup as the
+`coarse_astar` check; corridor rerun with the same build; lift from the
+`coarse_astar` run):
+
+| | Refine L4 | Refine L6 | Corridor L4 | Lift L4 (earlier) |
+|---|---|---|---|---|
+| ms per path: coarse + refine + fine | 0.45 + 1.01 + 1.48 = 2.95 | 0.05 + 1.03 + 1.46 = 2.54 | 0.43 + 3.87 = 4.31 | 0.28 + 0.57 = 0.85 |
+| Paths per decision, decisions 5-50 (median) | 132 | 153 | 90 | about 180 (all requested) |
+| Agents without a path: peak after decision 2 / clear (≤ 1%) from | 4,114 / 78 | 3,327 / 68 | 5,511 / 114 | 0 / 2 |
+| Max stuck agents | 36 | 9 | 150 | 0 |
+| Finished in 300 steps | 99 | 97 | 96 | 79 |
+| Mean path length (cells) | 1,393 | 1,397 | 1,385 | 1,453 |
+
+0 errors and 0 fallbacks in all; 18 GB peak. Refine keeps the corridor's
+path lengths (and its delivery count) and builds about 1.5-1.7× as many
+paths per decision, so the backlog clears 35-45 decisions sooner. It is
+still about 3× the lift per path in the planner: the bench's lift time
+(4.3 ms on scene level 4) includes per-call overhead in
+`lift_coarse_paths_to_fine` that the planner's `lift_path` doesn't have, so
+"about the lift's cost" holds for the bench only. Level 6 is a little
+faster than level 4 (the coarse search is almost free) with the same
+paths. This corridor run (4.31 ms, clear at 114) is slower than the
+earlier one (3.48 ms, clear at 93); same code paths, so run-to-run and
+machine noise; compare within this table.
 
 ### Next
 

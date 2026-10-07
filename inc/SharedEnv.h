@@ -73,9 +73,13 @@ public:
     //   GUIDE_SOURCE_CORRIDOR: coarse path at guide_path_level, then A* on
     //     the fine map limited to cells in the coarse path's nodes (plus
     //     guide_path_corridor_margin rings of neighbouring nodes).
-    // Both hierarchy sources fall back to full-map A* if they fail.
+    //   GUIDE_SOURCE_REFINE: coarse path at guide_path_level, refined one
+    //     level at a time down to level 1 (each search limited to the
+    //     children of the path above, plus the margin rings), then the
+    //     corridor A* inside the level-1 path's nodes.
+    // The hierarchy sources fall back to full-map A* if they fail.
     // Independent of flow_solve_level.
-    enum GuidePathSource { GUIDE_SOURCE_ASTAR = 0, GUIDE_SOURCE_LIFT = 1, GUIDE_SOURCE_CORRIDOR = 2 };
+    enum GuidePathSource { GUIDE_SOURCE_ASTAR = 0, GUIDE_SOURCE_LIFT = 1, GUIDE_SOURCE_CORRIDOR = 2, GUIDE_SOURCE_REFINE = 3 };
     int guide_path_source = GUIDE_SOURCE_ASTAR;
     int guide_path_level = 4;
     int guide_path_corridor_margin = 0;

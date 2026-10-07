@@ -1,0 +1,48 @@
+== refine level 4: 287 decisions
+  hierarchy paths 19946, fallbacks 0, ms per path 2.95 (coarse 0.45, refine 1.01, build 1.48), mean path length 1393 cells
+  decision  paths  guide_ms  pibt_ms  no_path  too_far  stuck
+         1      0         0       12    10000        0      0
+         2   4264       806       32     5736        0      0
+         3   4249       809       48     1556        0      0
+         5    134       804       55      393        0      0
+        10    129       814       57     1375        0      0
+        25    133       813       44     3674        0      0
+        50    134       808       60     3357        0     31
+       100      2        32       66        0        0      0
+       150      0         4       67        0        0      0
+       200      1        13       62        0        0      0
+       250      0         0       62        4        0      0
+  finished 99, opened 10074, planner errors 0, makespan 300
+  peak RSS 18.1 GB
+== refine level 6: 284 decisions
+  hierarchy paths 20029, fallbacks 0, ms per path 2.54 (coarse 0.05, refine 1.03, build 1.46), mean path length 1397 cells
+  decision  paths  guide_ms  pibt_ms  no_path  too_far  stuck
+         1      1       162       13     9999        0      0
+         2   7575       806       42     2425        0      0
+         3   2481       807       54       64        0      0
+         5    159       811       53      272        0      0
+        10    157       806       51     1128        0      0
+        25    161       812       51     3074        0      0
+        50    148       807       54     2232        0      7
+       100      2        32       65        0        0      0
+       150      0         4       64        0        0      0
+       200      1        12       65        0        0      0
+       250      2        14       66        0        0      0
+  finished 97, opened 10072, planner errors 0, makespan 300
+  peak RSS 18.1 GB
+== corridor level 4: 286 decisions
+  hierarchy paths 20016, fallbacks 0, ms per path 4.31 (coarse 0.43, refine 0.00, build 3.87), mean path length 1385 cells
+  decision  paths  guide_ms  pibt_ms  no_path  too_far  stuck
+         1      1       186       16     9999        0      0
+         2   7207       805       46     2793        0      0
+         3   2701       807       58      206        0      0
+         5     94       812       59      465        0      0
+        10     94       821       55     1681        0      0
+        25     86       807       40     4561        0      0
+        50    102       817       38     5213        0     70
+       100     97       819       57     1295        0     90
+       150      0         4       64        0        0      0
+       200      1        17       66        0        0      0
+       250      0         0       62        3        0      0
+  finished 96, opened 10074, planner errors 0, makespan 300
+  peak RSS 18.0 GB

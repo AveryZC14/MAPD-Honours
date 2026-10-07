@@ -1,0 +1,18 @@
+# Small-map planner checks, 2026-10-07: lifelong built with -DPLANNER_GUIDE_PATH_DEBUG_CHECKS=true (every guide path checked, run aborts on a bad one).
+# Same instances as ../corridor/small_checks.txt. tiny / tinyComplex: solver 6, 200 steps. trap: solver 5, 60 steps.
+# refine = --guidePathSource refine, refineM1 = margin 1, corr = corridor (same build, for comparison). Totals over all decisions.
+tiny_refine_L1           rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tinyComplex_refine_L1    rc=0 finished=14 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=456
+trap_refine_L1           rc=0 finished=2 errors=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=90
+trap_refine_L2           rc=0 finished=2 errors=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=92
+trap_refine_L3           rc=0 finished=2 errors=0 paths_built=5 hier_paths=5 hier_fallbacks=0 hier_cells=75 corridor_expanded=90
+tiny_refineM1_L1         rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_corr_L1             rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_refine_L2           rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_refineM1_L2         rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tiny_corr_L2             rc=0 finished=14 errors=0 paths_built=31 hier_paths=31 hier_fallbacks=0 hier_cells=412 corridor_expanded=412
+tinyComplex_refineM1_L1  rc=0 finished=15 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=574
+tinyComplex_corr_L1      rc=0 finished=14 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=456
+tinyComplex_refine_L2    rc=0 finished=14 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=456
+tinyComplex_refineM1_L2  rc=0 finished=15 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=574
+tinyComplex_corr_L2      rc=0 finished=15 errors=0 paths_built=32 hier_paths=32 hier_fallbacks=0 hier_cells=393 corridor_expanded=575

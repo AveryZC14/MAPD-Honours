@@ -26,6 +26,12 @@
 // whole map as a reference. Corridor time excludes the coarse search, like
 // the lift's.
 //
+// Also runs refine (--guidePathSource refine): the coarse path refined one
+// level at a time down to level 1 (ReducedHierarchy::refine_path), then the
+// same corridor A* limited to the level-1 path's nodes, with margin 0 and 1
+// (the margin applies at every level). Refine time is the refinement plus
+// the A*, excluding the top coarse search.
+//
 // Results from before every level was anchored (2026-10-01, when this was
 // still an option) are in outputs/hierarchy_lift_bench/*_a0.*.
 
@@ -328,8 +334,16 @@ int main(int argc, char** argv)
                "lifted_cells,fail_level,fail_reason,endpoints_wrong,used_fallback,fallback_ok,"
                "fallback_ms,final_len,valid,"
                "c0_ok,c0_ms,c0_len,c0_expanded,c0_cells,c1_ok,c1_ms,c1_len,c1_expanded,c1_cells,"
-               "fine_ms,fine_expanded,fine_len\n";
+               "fine_ms,fine_expanded,fine_len,"
+               "r0_ok,r0_ms,r0_refine_ms,r0_len,r0_expanded,r0_cells,r1_ok,r1_ms,r1_refine_ms,r1_len,r1_expanded,r1_cells\n";
     }
+
+    // refine: the final corridor A* is always at level 1
+    const vector<int> cell_node_l1 = num_levels > 1 ? h.level_ancestors(1) : vector<int>{};
+    vector<int> node_cells_l1(num_levels > 1 ? h.level_node_id_count(1) : 0, 0);
+    for (int n : cell_node_l1) if (n >= 0) ++node_cells_l1[n];
+    vector<uint32_t> node_stamp_l1(node_cells_l1.size(), 0);
+    uint32_t stamp_l1 = 0;
 
     // One agent slot and one task slot, rewritten per pair.
     const int agent_id = 0, task_id = -1;
@@ -358,6 +372,8 @@ int main(int argc, char** argv)
         const int margins[2] = {0, 1};
         int corr_ok[2] = {0, 0}, corr_invalid[2] = {0, 0};
         vector<double> corr_ratio[2], corr_ms[2], corr_expanded[2], corr_cells[2];
+        int ref_ok[2] = {0, 0}, ref_invalid[2] = {0, 0};
+        vector<double> ref_ratio[2], ref_ms[2], ref_refine_ms[2], ref_expanded[2], ref_cells[2];
         // coarse A* vs the old Dijkstra
         int coarse_same_cost = 0, coarse_compared = 0;
         vector<double> coarse_cost_ratio;
@@ -458,6 +474,42 @@ int main(int argc, char** argv)
                 }
             }
 
+            struct RefineResult { bool ok = false; double ms = 0, refine_ms = 0, len = -1, expanded = 0, cells = 0; };
+            RefineResult rr[2];
+            for (int m = 0; m < 2 && !coarse.empty(); ++m)
+            {
+                const auto tr = Clock::now();
+                const vector<int> l1 = h.refine_path(s, goal, level, coarse, 1, margins[m]);
+                rr[m].refine_ms = ms_since(tr);
+                if (l1.empty()) { rr[m].ms = rr[m].refine_ms; continue; }
+                ++stamp_l1;
+                for (int n : h.corridor_nodes(1, l1, margins[m])) { node_stamp_l1[n] = stamp_l1; rr[m].cells += node_cells_l1[n]; }
+                DefaultPlanner::SearchCorridor corridor;
+                corridor.cell_node = &cell_node_l1;
+                corridor.node_stamp = &node_stamp_l1;
+                corridor.stamp = stamp_l1;
+                DefaultPlanner::Traj traj;
+                int expanded = 0;
+                const DefaultPlanner::s_node found = DefaultPlanner::astar(
+                    &env, no_flow, no_table, traj, pool, s, goal, &DefaultPlanner::global_neighbors,
+                    nullptr, &corridor, &expanded);
+                rr[m].ms = ms_since(tr);
+                rr[m].expanded = expanded;
+                const bool rvalid = found.id != -1 && path_is_valid(env, traj, s, goal);
+                if (found.id != -1 && !rvalid) ++ref_invalid[m];
+                if (rvalid)
+                {
+                    rr[m].ok = true;
+                    rr[m].len = static_cast<double>(traj.size()) - 1;
+                    ++ref_ok[m];
+                    ref_ratio[m].push_back(rr[m].len / td);
+                    ref_ms[m].push_back(rr[m].ms);
+                    ref_refine_ms[m].push_back(rr[m].refine_ms);
+                    ref_expanded[m].push_back(expanded);
+                    ref_cells[m].push_back(rr[m].cells);
+                }
+            }
+
             if (csv.is_open())
                 csv << level << "," << i << "," << s << "," << goal << "," << true_dist[i] << ","
                     << coarse.size() << "," << expanded << "," << c_ms << "," << l_ms << ","
@@ -466,7 +518,9 @@ int main(int argc, char** argv)
                     << o.fallback_ms << "," << final_len << "," << valid << ","
                     << cr[0].ok << "," << cr[0].ms << "," << cr[0].len << "," << cr[0].expanded << "," << cr[0].cells << ","
                     << cr[1].ok << "," << cr[1].ms << "," << cr[1].len << "," << cr[1].expanded << "," << cr[1].cells << ","
-                    << fine_ms[i] << "," << fine_expanded[i] << "," << fine_len[i] << "\n";
+                    << fine_ms[i] << "," << fine_expanded[i] << "," << fine_len[i] << ","
+                    << rr[0].ok << "," << rr[0].ms << "," << rr[0].refine_ms << "," << rr[0].len << "," << rr[0].expanded << "," << rr[0].cells << ","
+                    << rr[1].ok << "," << rr[1].ms << "," << rr[1].refine_ms << "," << rr[1].len << "," << rr[1].expanded << "," << rr[1].cells << "\n";
         }
 
         const int n = static_cast<int>(pairs.size());
@@ -523,6 +577,17 @@ int main(int argc, char** argv)
                  << " max " << percentile(corr_ms[m], 1.0) << setprecision(0)
                  << "; expanded mean " << mean(corr_expanded[m])
                  << "; corridor cells mean " << mean(corr_cells[m]) << " max " << percentile(corr_cells[m], 1.0) << "\n";
+        }
+        for (int m = 0; m < 2; ++m)
+        {
+            cout << setprecision(3) << "  refine margin " << margins[m] << ": ok " << ref_ok[m] << "/" << n
+                 << ", invalid " << ref_invalid[m]
+                 << "; length / shortest mean " << mean(ref_ratio[m]) << " p90 " << percentile(ref_ratio[m], 0.9)
+                 << " max " << percentile(ref_ratio[m], 1.0) << "\n" << setprecision(2)
+                 << "    ms mean " << mean(ref_ms[m]) << " p90 " << percentile(ref_ms[m], 0.9)
+                 << " max " << percentile(ref_ms[m], 1.0) << " (refine part mean " << mean(ref_refine_ms[m]) << ")"
+                 << setprecision(0) << "; expanded mean " << mean(ref_expanded[m])
+                 << "; level-1 corridor cells mean " << mean(ref_cells[m]) << " max " << percentile(ref_cells[m], 1.0) << "\n";
         }
     }
     return 0;

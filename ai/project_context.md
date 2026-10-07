@@ -434,6 +434,11 @@ fallbacks). Full description, design reasoning and results in
 goals and `needs_replan`) from a coarse path at `--guidePathLevel`
 (separate from `--flowSolveLevel`): solver 6's lift, or corridor A*
 (`astar()` limited to the coarse path's nodes via `SearchCorridor`).
+`refine` (2026-10-07, `ReducedHierarchy::refine_path`) narrows the coarse
+path one level at a time (each search limited to the children of the path
+above) and runs the corridor A* inside the level-1 path: corridor-quality
+paths at about 0.6-0.7× the corridor's time in the planner (about 3× the
+lift's), nearly flat in the level. Only a 300-step scene check so far.
 Full-map A* is the fallback; the default `astar` is the planner as before.
 The hierarchy is then loaded for every solver (`--hierarchyCache`).
 `--guidePathTrace <csv>` logs one row per guide path built. Overnight
@@ -874,8 +879,9 @@ Headline pitfalls documented there, worth knowing before touching this again:
   anchored it works at every level on orz900d, IH and scene_mp_4p_03.
   Its "Implementation plan" section (implemented 2026-10-01, big-map
   planner runs pending; results in "Implementation and results") is the
-  planner change: `--guidePathSource astar|lift|corridor` (corridor = fine
-  A* limited to the coarse path's nodes), `--guidePathLevel` as a swept
+  planner change: `--guidePathSource astar|lift|corridor|refine` (corridor
+  = fine A* limited to the coarse path's nodes; refine, added 2026-10-07 =
+  the corridor narrowed one level at a time down to level 1), `--guidePathLevel` as a swept
   parameter separate from `--flowSolveLevel`, used for new goals and
   `needs_replan` agents, full-map A* as fallback. Parallel mode stays off.
 

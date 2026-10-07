@@ -1757,9 +1757,15 @@ std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, in
     if (expanded_out) *expanded_out = 0;
     if (level < 1 || level >= hierarchy_.num_levels())
         return {};
+    return level_search(level, cell_to_level_node(start_cell, level), cell_to_level_node(goal_cell, level),
+                        false, expanded_out, heuristic_unit);
+}
+
+std::vector<int> ReducedHierarchy::level_search(int level, int from, int to, bool restricted, int* expanded_out,
+                                                double heuristic_unit) const
+{
+    if (expanded_out) *expanded_out = 0;
     const CoarsenedGraph& g = *hierarchy_.level(level);
-    const int from = cell_to_level_node(start_cell, level);
-    const int to = cell_to_level_node(goal_cell, level);
     if (!is_valid_graph_node_id_local(g, from) || !is_valid_graph_node_id_local(g, to))
         return {};
     if (from == to)
@@ -1776,7 +1782,9 @@ std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, in
     // which gives up that guarantee if the unit is above min_arc_cost.
     const bool exact = heuristic_unit < 0.0;
     const double unit = exact ? min_arc_cost(level) : heuristic_unit;
-    const LandmarkTable* lm = exact ? &landmark_table(level) : nullptr;
+    // A restricted search (refine_path) covers few nodes, so it skips the
+    // landmarks rather than building a table for every level it visits.
+    const LandmarkTable* lm = (exact && !restricted) ? &landmark_table(level) : nullptr;
     const std::size_t n_lm = g.map_nodes.size();
     const std::pair<int, int> goal_rc = g.coarse_location[g.map_nodes[to]];
     const auto heuristic = [&](int node_id) {
@@ -1836,6 +1844,7 @@ std::vector<int> ReducedHierarchy::coarse_path(int start_cell, int goal_cell, in
             if (v_lid < 0 || v_lid >= static_cast<int>(g.node_to_maploc.size())) continue;
             const int v = g.node_to_maploc[v_lid];
             if (!is_valid_graph_node_id_local(g, v)) continue;
+            if (restricted && sc.allowed[v] != sc.allowed_current) continue;
             const double nd = d + g.cost[a];
             if (sc.stamp[v] != cur || nd < sc.g[v])
             {
@@ -1908,6 +1917,56 @@ std::vector<int> ReducedHierarchy::corridor_nodes(int level, const std::vector<i
         ring_start = ring_end;
     }
     return nodes;
+}
+
+std::vector<int> ReducedHierarchy::refine_path(int start_cell, int goal_cell, int level, std::vector<int> coarse,
+                                               int target_level, int margin, int* expanded_out) const
+{
+    if (expanded_out) *expanded_out = 0;
+    if (coarse.empty() || target_level < 1 || level < target_level || level >= hierarchy_.num_levels())
+        return {};
+    if (coarse_scratch_.size() != static_cast<std::size_t>(hierarchy_.num_levels()))
+        coarse_scratch_.assign(hierarchy_.num_levels(), CoarseSearchScratch{});
+    std::vector<int> path = std::move(coarse);
+    for (int l = level; l > target_level; --l)
+    {
+        const CoarsenedGraph& g = *hierarchy_.level(l);
+        CoarseSearchScratch& sc = coarse_scratch_[l - 1];
+        const std::size_t n_finer = hierarchy_.level(l - 1)->map_nodes.size();
+        if (sc.allowed.size() != n_finer)
+        {
+            sc.allowed.assign(n_finer, 0);
+            sc.allowed_current = 0;
+        }
+        if (++sc.allowed_current == 0)
+        {
+            std::fill(sc.allowed.begin(), sc.allowed.end(), 0);
+            sc.allowed_current = 1;
+        }
+        // Allowed at level l - 1: the children of the path's nodes (plus
+        // margin rings at level l). Each node's children are connected and
+        // every arc between two nodes comes from an arc between two of their
+        // children, so a path always exists inside this set.
+        const std::vector<int> nodes = margin > 0 ? corridor_nodes(l, path, margin) : path;
+        for (int n : nodes)
+        {
+            if (n < 0 || n >= static_cast<int>(g.to_finer_node_ids.size())) continue;
+            for (int child : g.to_finer_node_ids[n])
+                if (child >= 0 && child < static_cast<int>(n_finer))
+                    sc.allowed[child] = sc.allowed_current;
+        }
+        const int from = cell_to_level_node(start_cell, l - 1);
+        const int to = cell_to_level_node(goal_cell, l - 1);
+        if (from < 0 || to < 0 || from >= static_cast<int>(n_finer) || to >= static_cast<int>(n_finer) ||
+            sc.allowed[from] != sc.allowed_current || sc.allowed[to] != sc.allowed_current)
+            return {};
+        int expanded = 0;
+        path = level_search(l - 1, from, to, true, &expanded);
+        if (expanded_out) *expanded_out += expanded;
+        if (path.empty())
+            return {};
+    }
+    return path;
 }
 
 void ReducedHierarchy::lift_coarse_paths_to_fine(SharedEnvironment* env,

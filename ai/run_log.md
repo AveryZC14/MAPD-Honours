@@ -629,3 +629,25 @@ progresses -- this is not append-only.
   stuck agents grow by about 3,000 per 100 steps (the 09-29 freeze
   developing), so its higher delivery count won't last. No reserve fits
   80k at a 1 s step; PIBT itself is the limit.
+
+### 2026-10-07: refine guide paths (bench + quick scene planner check)
+
+- **What**: new `--guidePathSource refine` (corridor narrowed one level at a
+  time, `ai/hierarchical_guide_paths_plan.md`, "Refine"). (1) Bench
+  `outputs/hierarchy_lift_bench/refine/` on orz900d, IH, scene (same pairs
+  as the corridor bench). (2) Small-map planner runs with debug checks
+  (tiny, tinyComplex, trap; `small_checks.txt` there). (3) Planner, scene
+  10k, solver 6 level 4, 300 steps: refine L4, refine L6, corridor L4, one
+  at a time (`outputs/hierarchy_lift_bench/planner_scene_refine/run.sh`).
+  Built from a separate build dir of this branch (`build/` untouched).
+- **Question**: does refine give corridor-quality paths at lift-like cost,
+  and does that carry over into the planner?
+- **Status**: (1) done: every search succeeded, corridor's path lengths at
+  about the lift's time, flat in the level (scene 4.8 / 5.4 ms at level 4
+  / 6 vs corridor 7.8 / 22.4). (2) done: 15 runs, 0 errors, 0 failed
+  checks, 0 fallbacks. (3) done, all exit 0, 0 errors, 0 fallbacks:
+  ms per path refine L4 2.95, L6 2.54, corridor L4 4.31; backlog clear at
+  decision 78 / 68 / 114; finished 99 / 97 / 96. Refine keeps the
+  corridor's paths at 0.6-0.7× its time (about 3× the lift's in the
+  planner; the bench overstated the lift's cost).
+- **Follow-ups**: refine as a candidate source in the thesis sweep.

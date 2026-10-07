@@ -75,11 +75,12 @@ namespace DefaultPlanner{
         cout << "flow check ok" << endl;
     }
 
-    // Guide paths from the hierarchy (--guidePathSource lift / corridor, see
-    // ai/hierarchical_guide_paths_plan.md). Set up in initialize().
+    // Guide paths from the hierarchy (--guidePathSource lift / corridor /
+    // refine, see ai/hierarchical_guide_paths_plan.md). Set up in initialize().
     bool hier_paths_on = false;
     int hier_level = 0;
-    std::vector<int> hier_cell_node;       // corridor: fine cell -> level node
+    int hier_corridor_level = 0;           // corridor: hier_level; refine: 1
+    std::vector<int> hier_cell_node;       // corridor: fine cell -> hier_corridor_level node
     std::vector<uint32_t> hier_node_stamp; // corridor: marks, one per level node
     uint32_t hier_stamp = 0;
     // per-decision counters, logged on the planner stats line
@@ -87,13 +88,15 @@ namespace DefaultPlanner{
     int hier_fallbacks = 0;
     double hier_coarse_ms = 0.0;
     double hier_build_ms = 0.0;
+    double hier_refine_ms = 0.0;           // refine: levels below hier_level
     long long hier_cells = 0;
     long long hier_corridor_expanded = 0;
     // --guidePathTrace: one CSV row per guide path built in stage 2
     std::ofstream guide_path_trace;
 
     // Build agent i's guide path from the hierarchy: coarse path at
-    // hier_level, then the lift or corridor A*. On success commits it and
+    // hier_level, then the lift or corridor A* (refine: after refining the
+    // coarse path down to level 1). On success commits it and
     // returns true; on failure returns false and the caller falls back to
     // update_traj. The agent's old path must already be out of trajLNS.flow
     // (remove_traj), as in the sequential guide-path loop.
@@ -104,12 +107,26 @@ namespace DefaultPlanner{
         const int goal = trajLNS.tasks[i];
         const TimePoint t0 = std::chrono::steady_clock::now();
         std::vector<int> coarse = h.coarse_path(start, goal, hier_level);
-        const TimePoint t1 = std::chrono::steady_clock::now();
+        TimePoint t1 = std::chrono::steady_clock::now();
         hier_coarse_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
         if (coarse.empty())
         {
             hier_fallbacks++;
             return false;
+        }
+
+        if (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_REFINE)
+        {
+            coarse = h.refine_path(start, goal, hier_level, std::move(coarse), hier_corridor_level,
+                                   env->guide_path_corridor_margin);
+            const TimePoint t2 = std::chrono::steady_clock::now();
+            hier_refine_ms += std::chrono::duration<double, std::milli>(t2 - t1).count();
+            t1 = t2;
+            if (coarse.empty())
+            {
+                hier_fallbacks++;
+                return false;
+            }
         }
 
         Traj path;
@@ -126,7 +143,7 @@ namespace DefaultPlanner{
                 std::fill(hier_node_stamp.begin(), hier_node_stamp.end(), 0);
                 hier_stamp = 1;
             }
-            for (int n : h.corridor_nodes(hier_level, coarse, env->guide_path_corridor_margin))
+            for (int n : h.corridor_nodes(hier_corridor_level, coarse, env->guide_path_corridor_margin))
                 hier_node_stamp[n] = hier_stamp;
             SearchCorridor corridor;
             corridor.cell_node = &hier_cell_node;
@@ -368,14 +385,15 @@ namespace DefaultPlanner{
                 }
                 // coarse search tables (landmarks), so the first decision doesn't pay for them
                 h.prepare_coarse_search(hier_level);
-                if (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_CORRIDOR)
+                if (env->guide_path_source != SharedEnvironment::GUIDE_SOURCE_LIFT)
                 {
-                    hier_cell_node = h.level_ancestors(hier_level);
-                    hier_node_stamp.assign(h.level_node_id_count(hier_level), 0);
+                    hier_corridor_level = env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_REFINE ? 1 : hier_level;
+                    hier_cell_node = h.level_ancestors(hier_corridor_level);
+                    hier_node_stamp.assign(h.level_node_id_count(hier_corridor_level), 0);
                     hier_stamp = 0;
                 }
-                cout << "guide paths from hierarchy: source "
-                     << (env->guide_path_source == SharedEnvironment::GUIDE_SOURCE_LIFT ? "lift" : "corridor")
+                static const char* source_names[] = {"astar", "lift", "corridor", "refine"};
+                cout << "guide paths from hierarchy: source " << source_names[env->guide_path_source]
                      << " level " << hier_level << " (" << h.hierarchy_level_node_counts()[hier_level] << " nodes)"
                      << " margin " << env->guide_path_corridor_margin
                      << " congestion " << env->guide_path_corridor_congestion
@@ -393,9 +411,10 @@ namespace DefaultPlanner{
                     cout << "error: cannot open --guidePathTrace " << env->guide_path_trace_file << endl;
                     exit(1);
                 }
-                // source: scheduler, hierarchy (lift/corridor, see guidePathSource), astar, or
-                // fallback (full-map A* after the hierarchy failed); manhattan = start-goal distance
-                guide_path_trace << "timestep,agent,source,start,goal,manhattan,cells,ms,coarse_ms,build_ms\n";
+                // source: scheduler, hierarchy (lift/corridor/refine, see guidePathSource), astar, or
+                // fallback (full-map A* after the hierarchy failed); manhattan = start-goal distance;
+                // refine_ms: refine's searches below the coarse level (0 for other sources)
+                guide_path_trace << "timestep,agent,source,start,goal,manhattan,cells,ms,coarse_ms,build_ms,refine_ms\n";
                 if (GUIDE_PATH_THREADS > 1 && !hier_paths_on)
                     cout << "warning: --guidePathTrace only records sequentially built guide paths" << endl;
             }
@@ -548,6 +567,7 @@ namespace DefaultPlanner{
         hier_fallbacks = 0;
         hier_coarse_ms = 0.0;
         hier_build_ms = 0.0;
+        hier_refine_ms = 0.0;
         hier_cells = 0;
         hier_corridor_expanded = 0;
         const int start_agent = (local_bfs || parallel_paths) ? guide_path_start % n_agents : 0;
@@ -578,6 +598,7 @@ namespace DefaultPlanner{
                 const TimePoint path_t0 = std::chrono::steady_clock::now();
                 const double coarse_ms_before = hier_coarse_ms;
                 const double build_ms_before = hier_build_ms;
+                const double refine_ms_before = hier_refine_ms;
                 const char* path_source = "astar";
                 paths_built++;
                 if (!trajLNS.trajs[i].empty())
@@ -617,7 +638,7 @@ namespace DefaultPlanner{
                     guide_path_trace << env->curr_timestep << ',' << i << ',' << path_source << ',' << path_start
                                      << ',' << trajLNS.tasks[i] << ',' << manhattan << ',' << cells << ',' << path_ms
                                      << ',' << hier_coarse_ms - coarse_ms_before << ',' << hier_build_ms - build_ms_before
-                                     << '\n';
+                                     << ',' << hier_refine_ms - refine_ms_before << '\n';
             }
         }
         TimePoint guide_done = std::chrono::steady_clock::now();
@@ -725,6 +746,7 @@ namespace DefaultPlanner{
              << " hier_fallbacks " << hier_fallbacks
              << " hier_coarse_ms " << hier_coarse_ms
              << " hier_build_ms " << hier_build_ms
+             << " hier_refine_ms " << hier_refine_ms
              << " hier_cells " << hier_cells
              << " corridor_expanded " << hier_corridor_expanded
              << " path_cells " << path_cells
