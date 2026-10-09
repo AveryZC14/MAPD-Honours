@@ -1,0 +1,63 @@
+[
+  {
+    "started": "2026-10-07T18:34:01",
+    "git_commit": "8f150a023d070ead614afa08686138c96a910f9b",
+    "git_dirty_files": [
+      "D outputs/thesis_sweep/STOP"
+    ],
+    "binary_mtime": "2026-10-07T18:16:15",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "USE_LOCAL_PATH_BFS": "true",
+    "LOCAL_PATH_BFS_RADIUS": "5",
+    "LOCAL_PATH_BFS_EXTRA_LAYERS": "2",
+    "PASS_SCHEDULER_PATHS_TO_PLANNER": "false",
+    "GUIDE_PATH_THREADS": "1",
+    "GUIDE_PATH_DEBUG_CHECKS": "false",
+    "experiments": [
+      "E1",
+      "E3",
+      "R",
+      "E2"
+    ],
+    "e2_planner": null,
+    "min_guide_path_ms": 150,
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time_override": null,
+    "log_detail_level": 3
+  },
+  {
+    "started": "2026-10-09T01:33:54",
+    "git_commit": "9c668d4442031a53ecd9b64df2e76158fb0791f0",
+    "git_dirty_files": [
+      "M .gitignore",
+      " M CLAUDE.md",
+      " M ai/project_context.md"
+    ],
+    "binary_mtime": "2026-10-07T18:16:15",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "USE_LOCAL_PATH_BFS": "true",
+    "LOCAL_PATH_BFS_RADIUS": "5",
+    "LOCAL_PATH_BFS_EXTRA_LAYERS": "2",
+    "PASS_SCHEDULER_PATHS_TO_PLANNER": "false",
+    "GUIDE_PATH_THREADS": "1",
+    "GUIDE_PATH_DEBUG_CHECKS": "false",
+    "experiments": [
+      "E1"
+    ],
+    "e2_planner": null,
+    "min_guide_path_ms": 150,
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time_override": null,
+    "log_detail_level": 3
+  }
+]

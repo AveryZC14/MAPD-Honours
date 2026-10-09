@@ -1,0 +1,159 @@
+75 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+E2 not planned yet: no E2_PLANNER file
+[1/75] E1_orz900d_10000_s6L6_astar: starting at 2026-10-07 18:34
+[1/75] E1_orz900d_10000_s6L6_astar: ok (0.38 h, 5489 tasks finished)
+[2/75] E1_orz900d_10000_s6L6_lift-L4: starting at 2026-10-07 18:56
+[2/75] E1_orz900d_10000_s6L6_lift-L4: ok (0.39 h, 3677 tasks finished)
+[3/75] E1_orz900d_10000_s6L6_corridor-L4: starting at 2026-10-07 19:20
+[3/75] E1_orz900d_10000_s6L6_corridor-L4: ok (0.38 h, 4635 tasks finished)
+[4/75] E1_orz900d_10000_s6L6_refine-L4: starting at 2026-10-07 19:43
+[4/75] E1_orz900d_10000_s6L6_refine-L4: ok (0.39 h, 4191 tasks finished)
+[5/75] E1_IH_mp_2p_01_10000_s6L6_astar: starting at 2026-10-07 20:06
+[5/75] E1_IH_mp_2p_01_10000_s6L6_astar: ok (0.32 h, 2133 tasks finished)
+[6/75] E1_IH_mp_2p_01_10000_s6L6_lift-L4: starting at 2026-10-07 20:25
+[6/75] E1_IH_mp_2p_01_10000_s6L6_lift-L4: ok (0.40 h, 7491 tasks finished)
+[7/75] E1_IH_mp_2p_01_10000_s6L6_corridor-L4: starting at 2026-10-07 20:49
+[7/75] E1_IH_mp_2p_01_10000_s6L6_corridor-L4: ok (0.40 h, 9085 tasks finished)
+[8/75] E1_IH_mp_2p_01_10000_s6L6_refine-L4: starting at 2026-10-07 21:13
+[8/75] E1_IH_mp_2p_01_10000_s6L6_refine-L4: ok (0.40 h, 8896 tasks finished)
+[9/75] E1_scene_mp_4p_03_10000_s6L6_astar: starting at 2026-10-07 21:37
+[9/75] E1_scene_mp_4p_03_10000_s6L6_astar: ok (0.37 h, 365 tasks finished)
+[10/75] E1_scene_mp_4p_03_10000_s6L6_lift-L4: starting at 2026-10-07 21:59
+[10/75] E1_scene_mp_4p_03_10000_s6L6_lift-L4: ok (0.47 h, 1774 tasks finished)
+[11/75] E1_scene_mp_4p_03_10000_s6L6_corridor-L4: starting at 2026-10-07 22:27
+[11/75] E1_scene_mp_4p_03_10000_s6L6_corridor-L4: ok (0.47 h, 1992 tasks finished)
+[12/75] E1_scene_mp_4p_03_10000_s6L6_refine-L4: starting at 2026-10-07 22:56
+[12/75] E1_scene_mp_4p_03_10000_s6L6_refine-L4: ok (0.47 h, 1962 tasks finished)
+[13/75] E1_scene_sp_pol_06_10000_s6L6_astar: starting at 2026-10-07 23:24
+[13/75] E1_scene_sp_pol_06_10000_s6L6_astar: ok (0.39 h, 227 tasks finished)
+[14/75] E1_scene_sp_pol_06_10000_s6L6_lift-L4: starting at 2026-10-07 23:47
+[14/75] E1_scene_sp_pol_06_10000_s6L6_lift-L4: ok (0.49 h, 1607 tasks finished)
+[15/75] E1_scene_sp_pol_06_10000_s6L6_corridor-L4: starting at 2026-10-08 00:17
+[15/75] E1_scene_sp_pol_06_10000_s6L6_corridor-L4: ok (0.49 h, 1839 tasks finished)
+[16/75] E1_scene_sp_pol_06_10000_s6L6_refine-L4: starting at 2026-10-08 00:46
+[16/75] E1_scene_sp_pol_06_10000_s6L6_refine-L4: ok (0.49 h, 1827 tasks finished)
+[17/75] E1_orz900d_20000_s6L6_lift-L4: starting at 2026-10-08 01:16
+[17/75] E1_orz900d_20000_s6L6_lift-L4: ok (0.38 h, 4957 tasks finished)
+[18/75] E1_orz900d_20000_s6L6_corridor-L4: starting at 2026-10-08 01:38
+[18/75] E1_orz900d_20000_s6L6_corridor-L4: ok (0.37 h, 6131 tasks finished)
+[19/75] E1_orz900d_20000_s6L6_refine-L4: starting at 2026-10-08 02:01
+[19/75] E1_orz900d_20000_s6L6_refine-L4: ok (0.38 h, 5652 tasks finished)
+[20/75] E1_IH_mp_2p_01_40000_s6L6_lift-L4: starting at 2026-10-08 02:23
+[20/75] E1_IH_mp_2p_01_40000_s6L6_lift-L4: ok (0.36 h, 22235 tasks finished)
+[21/75] E1_IH_mp_2p_01_40000_s6L6_corridor-L4: starting at 2026-10-08 02:45
+[21/75] E1_IH_mp_2p_01_40000_s6L6_corridor-L4: ok (0.35 h, 28601 tasks finished)
+[22/75] E1_IH_mp_2p_01_40000_s6L6_refine-L4: starting at 2026-10-08 03:06
+[22/75] E1_IH_mp_2p_01_40000_s6L6_refine-L4: ok (0.35 h, 26179 tasks finished)
+[23/75] E1_scene_mp_4p_03_40000_s6L6_lift-L4: starting at 2026-10-08 03:27
+[23/75] E1_scene_mp_4p_03_40000_s6L6_lift-L4: ok (0.43 h, 6141 tasks finished)
+[24/75] E1_scene_mp_4p_03_40000_s6L6_corridor-L4: starting at 2026-10-08 03:53
+[24/75] E1_scene_mp_4p_03_40000_s6L6_corridor-L4: ok (0.41 h, 6202 tasks finished)
+[25/75] E1_scene_mp_4p_03_40000_s6L6_refine-L4: starting at 2026-10-08 04:18
+[25/75] E1_scene_mp_4p_03_40000_s6L6_refine-L4: ok (0.41 h, 6354 tasks finished)
+[26/75] E1_scene_sp_pol_06_40000_s6L6_lift-L4: starting at 2026-10-08 04:42
+[26/75] E1_scene_sp_pol_06_40000_s6L6_lift-L4: ok (0.45 h, 5754 tasks finished)
+[27/75] E1_scene_sp_pol_06_40000_s6L6_corridor-L4: starting at 2026-10-08 05:10
+[27/75] E1_scene_sp_pol_06_40000_s6L6_corridor-L4: ok (0.43 h, 5684 tasks finished)
+[28/75] E1_scene_sp_pol_06_40000_s6L6_refine-L4: starting at 2026-10-08 05:36
+[28/75] E1_scene_sp_pol_06_40000_s6L6_refine-L4: ok (0.43 h, 5936 tasks finished)
+[29/75] E1_IH_mp_2p_01_80000_s6L6_lift-L4: starting at 2026-10-08 06:01
+[29/75] E1_IH_mp_2p_01_80000_s6L6_lift-L4: ok (0.37 h, 33345 tasks finished)
+[30/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L4: starting at 2026-10-08 06:23
+[30/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L4: ok (0.30 h, 42236 tasks finished)
+[31/75] E1_IH_mp_2p_01_80000_s6L6_refine-L4: starting at 2026-10-08 06:41
+[31/75] E1_IH_mp_2p_01_80000_s6L6_refine-L4: ok (0.31 h, 40201 tasks finished)
+[32/75] E1_IH_mp_2p_01_80000_s6L6_lift-L3: starting at 2026-10-08 07:00
+[32/75] E1_IH_mp_2p_01_80000_s6L6_lift-L3: ok (0.34 h, 38449 tasks finished)
+[33/75] E1_IH_mp_2p_01_80000_s6L6_lift-L6: starting at 2026-10-08 07:21
+[33/75] E1_IH_mp_2p_01_80000_s6L6_lift-L6: ok (0.36 h, 24635 tasks finished)
+[34/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L3: starting at 2026-10-08 07:43
+[34/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L3: ok (0.30 h, 41869 tasks finished)
+[35/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L6: starting at 2026-10-08 08:01
+[35/75] E1_IH_mp_2p_01_80000_s6L6_corridor-L6: ok (0.24 h, 29386 tasks finished)
+[36/75] E1_IH_mp_2p_01_80000_s6L6_refine-L6: starting at 2026-10-08 08:16
+[36/75] E1_IH_mp_2p_01_80000_s6L6_refine-L6: ok (0.32 h, 38115 tasks finished)
+[37/75] E1_scene_mp_4p_03_80000_s6L6_lift-L4: starting at 2026-10-08 08:35
+[37/75] E1_scene_mp_4p_03_80000_s6L6_lift-L4: ok (0.42 h, 9266 tasks finished)
+[38/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L4: starting at 2026-10-08 09:00
+[38/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L4: ok (0.33 h, 6465 tasks finished)
+[39/75] E1_scene_mp_4p_03_80000_s6L6_refine-L4: starting at 2026-10-08 09:20
+[39/75] E1_scene_mp_4p_03_80000_s6L6_refine-L4: ok (0.35 h, 7226 tasks finished)
+[40/75] E1_scene_mp_4p_03_80000_s6L6_lift-L3: starting at 2026-10-08 09:40
+[40/75] E1_scene_mp_4p_03_80000_s6L6_lift-L3: ok (0.37 h, 7729 tasks finished)
+[41/75] E1_scene_mp_4p_03_80000_s6L6_lift-L6: starting at 2026-10-08 10:03
+[41/75] E1_scene_mp_4p_03_80000_s6L6_lift-L6: ok (0.42 h, 7824 tasks finished)
+[42/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L3: starting at 2026-10-08 10:28
+[42/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L3: ok (0.35 h, 6675 tasks finished)
+[43/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L6: starting at 2026-10-08 10:49
+[43/75] E1_scene_mp_4p_03_80000_s6L6_corridor-L6: ok (0.33 h, 5047 tasks finished)
+[44/75] E1_scene_mp_4p_03_80000_s6L6_refine-L6: starting at 2026-10-08 11:08
+[44/75] E1_scene_mp_4p_03_80000_s6L6_refine-L6: ok (0.35 h, 7379 tasks finished)
+[45/75] E1_scene_sp_pol_06_80000_s6L6_lift-L4: starting at 2026-10-08 11:30
+[45/75] E1_scene_sp_pol_06_80000_s6L6_lift-L4: ok (0.48 h, 4517 tasks finished)
+[46/75] E1_scene_sp_pol_06_80000_s6L6_corridor-L4: starting at 2026-10-08 11:59
+[46/75] E1_scene_sp_pol_06_80000_s6L6_corridor-L4: ok (0.40 h, 4334 tasks finished)
+[47/75] E1_scene_sp_pol_06_80000_s6L6_refine-L4: starting at 2026-10-08 12:23
+[47/75] E1_scene_sp_pol_06_80000_s6L6_refine-L4: ok (0.41 h, 4789 tasks finished)
+[48/75] E3_IH_mp_2p_01_20000_s6L2_corridor-L4: starting at 2026-10-08 12:48
+[48/75] E3_IH_mp_2p_01_20000_s6L2_corridor-L4: ok (0.42 h, 64 tasks finished)
+[49/75] E3_IH_mp_2p_01_20000_s6L4_corridor-L4: starting at 2026-10-08 13:13
+[49/75] E3_IH_mp_2p_01_20000_s6L4_corridor-L4: ok (0.39 h, 17046 tasks finished)
+[50/75] E3_IH_mp_2p_01_20000_s6L6_corridor-L4: starting at 2026-10-08 13:36
+[50/75] E3_IH_mp_2p_01_20000_s6L6_corridor-L4: ok (0.39 h, 17022 tasks finished)
+[51/75] E3_IH_mp_2p_01_20000_s6L8_corridor-L4: starting at 2026-10-08 14:00
+[51/75] E3_IH_mp_2p_01_20000_s6L8_corridor-L4: ok (0.39 h, 17010 tasks finished)
+[52/75] E3_IH_mp_2p_01_20000_s6hier_corridor-L4: starting at 2026-10-08 14:23
+[52/75] E3_IH_mp_2p_01_20000_s6hier_corridor-L4: ok (0.38 h, 16979 tasks finished)
+[53/75] E3_IH_mp_2p_01_20000_s6L2_refine-L4: starting at 2026-10-08 14:46
+[53/75] E3_IH_mp_2p_01_20000_s6L2_refine-L4: ok (0.42 h, 64 tasks finished)
+[54/75] E3_IH_mp_2p_01_20000_s6L4_refine-L4: starting at 2026-10-08 15:11
+[54/75] E3_IH_mp_2p_01_20000_s6L4_refine-L4: ok (0.38 h, 16195 tasks finished)
+[55/75] E3_IH_mp_2p_01_20000_s6L6_refine-L4: starting at 2026-10-08 15:34
+[55/75] E3_IH_mp_2p_01_20000_s6L6_refine-L4: ok (0.38 h, 16197 tasks finished)
+[56/75] E3_IH_mp_2p_01_20000_s6L8_refine-L4: starting at 2026-10-08 15:57
+[56/75] E3_IH_mp_2p_01_20000_s6L8_refine-L4: ok (0.38 h, 16192 tasks finished)
+[57/75] E3_IH_mp_2p_01_20000_s6hier_refine-L4: starting at 2026-10-08 16:20
+[57/75] E3_IH_mp_2p_01_20000_s6hier_refine-L4: ok (0.39 h, 16164 tasks finished)
+[58/75] E3_scene_mp_4p_03_20000_s6L2_corridor-L4: starting at 2026-10-08 16:43
+[58/75] E3_scene_mp_4p_03_20000_s6L2_corridor-L4: ok (0.44 h, 4 tasks finished)
+[59/75] E3_scene_mp_4p_03_20000_s6L4_corridor-L4: starting at 2026-10-08 17:09
+[59/75] E3_scene_mp_4p_03_20000_s6L4_corridor-L4: ok (0.43 h, 2072 tasks finished)
+[60/75] E3_scene_mp_4p_03_20000_s6L6_corridor-L4: starting at 2026-10-08 17:35
+[60/75] E3_scene_mp_4p_03_20000_s6L6_corridor-L4: ok (0.45 h, 3832 tasks finished)
+[61/75] E3_scene_mp_4p_03_20000_s6L8_corridor-L4: starting at 2026-10-08 18:02
+[61/75] E3_scene_mp_4p_03_20000_s6L8_corridor-L4: ok (0.44 h, 3794 tasks finished)
+[62/75] E3_scene_mp_4p_03_20000_s6hier_corridor-L4: starting at 2026-10-08 18:29
+[62/75] E3_scene_mp_4p_03_20000_s6hier_corridor-L4: ok (0.44 h, 3825 tasks finished)
+[63/75] E3_scene_mp_4p_03_20000_s6L2_refine-L4: starting at 2026-10-08 18:55
+[63/75] E3_scene_mp_4p_03_20000_s6L2_refine-L4: ok (0.44 h, 4 tasks finished)
+[64/75] E3_scene_mp_4p_03_20000_s6L4_refine-L4: starting at 2026-10-08 19:22
+[64/75] E3_scene_mp_4p_03_20000_s6L4_refine-L4: ok (0.41 h, 2012 tasks finished)
+[65/75] E3_scene_mp_4p_03_20000_s6L6_refine-L4: starting at 2026-10-08 19:46
+[65/75] E3_scene_mp_4p_03_20000_s6L6_refine-L4: ok (0.44 h, 3739 tasks finished)
+[66/75] E3_scene_mp_4p_03_20000_s6L8_refine-L4: starting at 2026-10-08 20:13
+[66/75] E3_scene_mp_4p_03_20000_s6L8_refine-L4: ok (0.44 h, 3764 tasks finished)
+[67/75] E3_scene_mp_4p_03_20000_s6hier_refine-L4: starting at 2026-10-08 20:40
+[67/75] E3_scene_mp_4p_03_20000_s6hier_refine-L4: ok (0.44 h, 3743 tasks finished)
+[68/75] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r2: starting at 2026-10-08 21:06
+[68/75] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r2: ok (0.39 h, 9090 tasks finished)
+[69/75] R_IH_mp_2p_01_10000_s6L6_refine-L4_r2: starting at 2026-10-08 21:30
+[69/75] R_IH_mp_2p_01_10000_s6L6_refine-L4_r2: ok (0.39 h, 8896 tasks finished)
+[70/75] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r2: starting at 2026-10-08 21:53
+[70/75] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r2: ok (0.46 h, 1993 tasks finished)
+[71/75] R_scene_mp_4p_03_10000_s6L6_refine-L4_r2: starting at 2026-10-08 22:21
+[71/75] R_scene_mp_4p_03_10000_s6L6_refine-L4_r2: ok (0.46 h, 1960 tasks finished)
+[72/75] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r3: starting at 2026-10-08 22:48
+[72/75] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r3: ok (0.39 h, 9077 tasks finished)
+[73/75] R_IH_mp_2p_01_10000_s6L6_refine-L4_r3: starting at 2026-10-08 23:12
+[73/75] R_IH_mp_2p_01_10000_s6L6_refine-L4_r3: ok (0.39 h, 8875 tasks finished)
+[74/75] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r3: starting at 2026-10-08 23:35
+[74/75] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r3: ok (0.46 h, 1993 tasks finished)
+[75/75] R_scene_mp_4p_03_10000_s6L6_refine-L4_r3: starting at 2026-10-09 00:03
+[75/75] R_scene_mp_4p_03_10000_s6L6_refine-L4_r3: ok (0.46 h, 1970 tasks finished)
+
+75 ok, 0 with problems, 0 skipped. Summary: /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/sweep_summary.csv
+1 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+[1/1] E1_scene_mp_4p_03_80000_s6L6_lift-L4: starting at 2026-10-09 01:33
+[1/1] E1_scene_mp_4p_03_80000_s6L6_lift-L4: ok (0.40 h, 9372 tasks finished)
+
+1 ok, 0 with problems, 0 skipped. Summary: /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/sweep_summary.csv

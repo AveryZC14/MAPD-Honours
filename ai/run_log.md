@@ -727,4 +727,28 @@ progresses -- this is not append-only.
   `instances/thesis_benchmarks/README.md`), tag `thesis-sweep-v1`, into
   `outputs/thesis_sweep/`. 75 runs, about 34 h. E2 waits for
   `E2_PLANNER`.
-- **Status**: launched (see `outputs/thesis_sweep/runner.log`).
+- **Status**: finished 2026-10-09 01:29, 75/75 ok, no runs flagged for
+  other jobs, no watchdog restarts. scene_sp_pol_06 80k did not run out of
+  memory (peak 28.9 GB lift, 25.7-26.6 GB corridor / refine).
+- **Interference not caught by the check**: an `apt-get install` of TeX
+  Live (another session, 2026-10-08 08:47-08:50) overlapped
+  `E1_scene_mp_4p_03_80000_s6L6_lift-L4`. Its files moved to
+  `outputs/thesis_sweep/superseded/`; rerun 2026-10-09 01:33: 9,372
+  finished, 1,499 decisions (was 9,266, 1,482), so the install cost it
+  about 1%.
+- **Results tables**: `outputs/thesis_sweep/RESULTS.md` (regenerate with
+  `make_results.py`). Raw run files (about 250 MB) are not in git.
+- **Repeats**: spread under 0.5% (IH 10k corridor 9,085 / 9,090 / 9,077;
+  refine 8,896 / 8,896 / 8,875; scene_mp 10k corridor 1,992 / 1,993 /
+  1,993; refine 1,962 / 1,960 / 1,970), so differences of 1-2% are real.
+- **E3**: the planner ranking (corridor > refine at 20k) is the same at
+  every scheduler level, so the two choices don't interact. Level 2
+  collapses at 20k (scheduler about 20-40 s per call: 79-81 decisions on
+  IH, 40 on scene, 4-64 finished). Level 4 loses about a third of its
+  decisions on scene (1,008-1,025). Levels 6, 8 and hierarchical-only are
+  within 0.5% of each other.
+- **E1**: corridor L4 best on orz900d and IH at every team size and on
+  scene 10k; refine L4 best on scene at 40k and 80k (+2.5 to +12% over
+  corridor, whose slower paths starve at 80k) and within 10% of the best
+  everywhere; lift L4 behind both except scene_mp 80k. Full-map A* best
+  only on orz900d 10k.
