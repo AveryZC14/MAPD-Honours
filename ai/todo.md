@@ -414,6 +414,15 @@ the date and what changed) rather than deleting them outright.
     before deciding whether to fix: add a counter/print on the infeasible
     branch and re-run one of the large `scene_mp_4p_03` instances to see how
     often it triggers.
+  - **Second problem, found 2026-10-11**: unmatched agents are never
+    retried. Solvers 6 and 1 take `flexible_agent_ids` from
+    `env->new_freeagents` only (agents that finished a task this step,
+    `TaskManager.cpp:160`), so an agent left unassigned drops out for the
+    rest of the run. Greedy keeps a persistent `free_agents` set and retries.
+    With 1.5 open tasks per agent neither problem fires: in the thesis-sweep
+    traces every agent left without a new task delivered on the final step.
+    A task-scarcity experiment would need both fixed (opt-in flag, default
+    off so the tagged sweep behaviour is unchanged).
   - **Candidate fix** (standard unbalanced-transportation trick, not yet
     designed in detail): add one extra arc directly from source to sink with
     a penalty cost higher than any real coarse-graph path cost and capacity
