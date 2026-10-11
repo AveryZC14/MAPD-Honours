@@ -7,3 +7,8 @@ project is, how the pieces fit together, current state).
 folder holds standalone notes kept for the user's own reference, separate
 from the maintained doc set. Only open a specific file in there if the user
 explicitly asks for it by name in that conversation.
+
+**`thesis/` is a separate, local-only git repo** (gitignored here) holding the
+thesis write-up. Thesis-facing markdown (chapter plans, outlines, results
+write-ups for the thesis) goes in `thesis/notes/`, not `ai/`; engineering docs
+stay in `ai/`. See `thesis/CLAUDE.md`. Never push the thesis repo.

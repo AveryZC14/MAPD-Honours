@@ -10,7 +10,7 @@ Experiments (--experiments, default E1 E3 R, plus E2 once its planner is set):
       refine L4 on IH 20k and scene_mp_4p_03 20k. 1,500 steps.
   R   repeats: corridor L4 and refine L4 (solver 6 level 6) on IH 10k and
       scene_mp_4p_03 10k, two more runs each (E1 has the first). 1,500 steps.
-  E2  scheduler: solver 6 levels 2/6/8 + hierarchical-only, Greedy, solver 1
+  E2  scheduler: solver 6 levels 2/4/6/8 + hierarchical-only, Greedy, solver 1
       (10k/20k), solver 7 (2 runs), with the planner chosen from E1. 4,000
       steps. Only planned once <out-dir>/E2_PLANNER exists, holding e.g.
       "refine 4" (source and level), or with --e2-planner; so a watchdog
@@ -80,7 +80,7 @@ E3_PLANNERS = [("corridor", 4), ("refine", 4)]
 R_INSTANCES = [("IH_mp_2p_01", 10000), ("scene_mp_4p_03", 10000)]
 R_PLANNERS = [("corridor", 4), ("refine", 4)]
 R_COPIES = [2, 3]                                  # copy 1 is the E1 run
-E2_LEVELS = [2, 6, 8]
+E2_LEVELS = [2, 4, 6, 8]
 SOLVER1_TEAMS = {10000, 20000}
 SOLVER7_RUNS = [("IH_mp_2p_01", 20000), ("scene_sp_pol_06", 20000)]
 SOLVER7_LEVEL = 6

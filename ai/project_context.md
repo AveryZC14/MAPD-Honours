@@ -696,6 +696,10 @@ Headline pitfalls documented there, worth knowing before touching this again:
 
 ## Other docs in `ai/`
 
+> Thesis-facing docs (chapter plans, write-ups) live in the separate,
+> local-only `thesis/` git repo under `thesis/notes/` — see
+> `thesis/CLAUDE.md`. This folder stays for engineering docs.
+
 - `ai/claude_memleak_fixes.md` — full narrative of the solver-6 OOM
   investigation above; read it if you need the exact bug mechanics, code
   diffs, or verification methodology rather than the summary here.

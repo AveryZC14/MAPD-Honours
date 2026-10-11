@@ -70,6 +70,11 @@ the date and what changed) rather than deleting them outright.
   from E1 (`outputs/thesis_sweep/E2_PLANNER`), then E2 (80 runs, about
   92 h). Solver 6's level-4
   slowdown on scene is reported as a finding, not fixed.
+  **First batch done 2026-10-09** (`outputs/thesis_sweep/RESULTS.md`).
+  **E2 launched 2026-10-11** with refine L4 as the planner and level 4
+  added back on all 14 instances (94 runs, 4,000 steps, about 102 h).
+  **Next:** E2 analysis (per-decision comparison with solver 1, trace
+  measures).
   Also fixed a harness bug that cost up to about 650 ms of planner time per
   step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
   are affected. Before restarting:

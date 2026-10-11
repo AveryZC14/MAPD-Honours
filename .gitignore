@@ -12,5 +12,6 @@ Benchmark-Archive
 outputs/coarsening_viz/**/*.csv
 *.hierarchy
 *_runs.log
-thesis/*
+# thesis/ is a separate, local-only git repo (thesis write-up); see thesis/CLAUDE.md
+thesis/
 __pycache__/

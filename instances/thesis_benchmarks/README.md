@@ -301,9 +301,9 @@ scheduler for the planner runs, plus a small crossed check.
 |---|---|---|---|---|---|---|
 | E1 planner | solver 6 level 6 | guide-path source at level 4, plus a level slice at 80k (below) | orz900d 10k/20k; IH, scene_mp_4p_03, scene_sp_pol_06 at 10k/40k/80k | 1,500 | 47 | ~21 h |
 | E3 interaction | | solver 6 levels 2/4/6/8 + hierarchical-only x corridor L4 / refine L4 | IH 20k, scene_mp_4p_03 20k | 1,500 | 20 | ~9 h |
-| E2 scheduler | E1's chosen planner setting | solver 6 levels 2/6/8 + hierarchical-only, Greedy (5), solver 1, solver 7 | all 14 (no warehouseXL) | 4,000 | 80 | ~96 h |
+| E2 scheduler | E1's chosen planner setting | solver 6 levels 2/4/6/8 + hierarchical-only, Greedy (5), solver 1, solver 7 | all 14 (no warehouseXL) | 4,000 | 94 | ~102 h |
 | Repeats | | 2 configs x 2 more runs (E1 has the first) | IH 10k, scene_mp_4p_03 10k | 1,500 | 8 | ~4 h |
-| **Total** | | | | | **155** | **~130 h (5.4 days)** |
+| **Total** | | | | | **169** | **~136 h (5.7 days)** |
 
 Time estimate: about 1 s of wall-clock per simulated step plus loading
 (about 0.45 h per 1,500-step run, 1.2 h per 4,000-step run).
@@ -332,12 +332,17 @@ from earlier runs), so it doesn't wait for E1. Also the only place level 4
 is run, so it records level 4's slowdown on scene as a finding.
 
 **E2, scheduler:**
-- Solver 6 at levels 2, 6 and 8, and hierarchical-only
+- Solver 6 at levels 2, 4, 6 and 8, and hierarchical-only
   (`--flowSolveLevel <top> --minCascadeLevel 1`), and Greedy (solver 5),
-  on all 14 instances: 70 runs.
+  on all 14 instances: 84 runs.
 - Solver 1 at 10k and 20k on each map: 8 runs.
 - Solver 7 at level 6 on IH 20k and scene_sp_pol_06 20k (appendix): 2 runs.
-- Level 4 is left out here (covered by E3) to fit the budget.
+- Level 4 was first left out (E3 has it at 20k on two instances only, 1,500
+  steps); added back 2026-10-11 so every instance has it at 4,000 steps
+  (14 runs, about 15 h).
+- Planner: refine L4 (chosen 2026-10-11 from E1: same path quality as
+  corridor, cheaper per path, fewer stuck agents when guide-path time runs
+  out, which slow schedulers make more likely).
 
 **Repeats:** corridor L4 and refine L4 (with solver 6 level 6) on IH 10k
 and scene_mp_4p_03 10k, 3 runs each, to measure run-to-run noise.
@@ -362,7 +367,7 @@ while E1 is analysed, then E2. Within each, 10k first, then larger teams.
 more runs; more can be added later (see below).
 
 **Cut to fit the budget:** warehouseXL (optional add-back: E2 at 10k
-only, 6 runs, about 8 h); solver 6 level 4 in E2 (covered by E3); 8,000
+only, 6 runs, about 8 h); 8,000
 -> 4,000 steps in E2. On the scene maps (delivery legs about
 2,300 cells) throughput may still be rising at 4,000 steps, so report
 those as trends rather than steady state.
@@ -398,8 +403,8 @@ rm outputs/thesis_sweep/STOP; scripts/sweep_watchdog.sh
 echo "refine 4" > outputs/thesis_sweep/E2_PLANNER; scripts/sweep_watchdog.sh
 ```
 
-The first batch is E1, E3 and the repeats (75 runs, about 34 h). E2 (80
-runs, about 92 h) is planned only once `E2_PLANNER` exists. Each run's row in
+The first batch is E1, E3 and the repeats (75 runs, about 34 h). E2 (94
+runs, about 102 h) is planned only once `E2_PLANNER` exists. Each run's row in
 `sweep_summary.csv` has `other_jobs_seen`: other lifelong / bench processes
 seen while it ran (nonzero means its timing may be affected; rerun it).
 Smoke-tested 2026-10-07 at 30 steps (8 runs across E1/E3/R/E2, solvers 1, 5,
