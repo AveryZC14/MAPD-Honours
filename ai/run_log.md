@@ -752,3 +752,24 @@ progresses -- this is not append-only.
   corridor, whose slower paths starve at 80k) and within 10% of the best
   everywhere; lift L4 behind both except scene_mp 80k. Full-map A* best
   only on orz900d 10k.
+
+### 2026-10-11: Greedy vs solver 6 check (scene_mp 10k, refine L4)
+
+- **What**: before launching E2, one Greedy (solver 5) run with E2's flags
+  but 1,500 steps (`run_thesis_sweep.py --only
+  E2_scene_mp_4p_03_10000_s5_refine-L4 --sim-time 1500 --out-dir
+  outputs/greedy_check`), against E1's solver 6 level 6 refine L4 run and
+  its two repeats. Machine otherwise idle.
+- **Result**: Greedy finished 1,997 vs 1,962 / 1,960 / 1,970 (+1.7%,
+  outside the 0.5% noise band); pickups 11,921 vs about 11,875. 1,498
+  decisions (its first decision took 1.8 s). Scheduler 2.4 ms mean vs
+  about 55 ms, so the planner had about 50 ms more per decision. Greedy's
+  assigned pickups were closer (Manhattan 20.3 vs 26.2) but steps from
+  assignment to pickup were the same (26.4 vs 26.8), as were lead time
+  (914 vs 912) and wait for assignment (123 vs 120). 0 reassignments
+  either way.
+- **Reading**: with 1.5 open tasks per agent, nearest-task Greedy is
+  already about as good as solver 6 at 10k, and it is cheaper. Solver 6's
+  case in E2 rests on larger teams (Greedy's first decision was 31 s on
+  IH 40k and 218 s at 80k, 2026-09-29) and on the per-decision cost
+  growing with team size, not on better assignments at 10k.
