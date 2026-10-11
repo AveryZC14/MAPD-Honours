@@ -1,0 +1,23 @@
+	Command being timed: "/home/ubuntu/MAPD-Honours/build/lifelong --inputFile /home/ubuntu/MAPD-Honours/instances/thesis_benchmarks/scene_sp_pol_06/scene_sp_pol_06_10000.json -o /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/E1_scene_sp_pol_06_10000_s6L6_refine-L4.json --scheduleModel 6 -s 1500 --preprocessTimeLimit 1800000 --logDetailLevel 3 --hierarchyCache /home/ubuntu/MAPD-Honours/hierarchy_cache/scene_sp_pol_06_full.hierarchy --computeGuidePaths false --guidePathSource refine --guidePathLevel 4 --guidePathCorridorMargin 0 --guidePathCorridorCongestion false --minGuidePathMs 150 --guidePathTrace /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/E1_scene_sp_pol_06_10000_s6L6_refine-L4.trace.csv --taskTrace /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/E1_scene_sp_pol_06_10000_s6L6_refine-L4.tasks.csv --flowSolveLevel 6"
+	User time (seconds): 1057.10
+	System time (seconds): 707.04
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 29:25.59
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 25107996
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5
+	Minor (reclaiming a frame) page faults: 7295356
+	Voluntary context switches: 3719
+	Involuntary context switches: 6143
+	Swaps: 0
+	File system inputs: 735272
+	File system outputs: 12560
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
