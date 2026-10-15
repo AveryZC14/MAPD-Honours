@@ -157,3 +157,507 @@ E2 not planned yet: no E2_PLANNER file
 [1/1] E1_scene_mp_4p_03_80000_s6L6_lift-L4: ok (0.40 h, 9372 tasks finished)
 
 1 ok, 0 with problems, 0 skipped. Summary: /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/sweep_summary.csv
+169 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+[1/169] E1_orz900d_10000_s6L6_astar: skipping, output already exists
+[2/169] E1_orz900d_10000_s6L6_lift-L4: skipping, output already exists
+[3/169] E1_orz900d_10000_s6L6_corridor-L4: skipping, output already exists
+[4/169] E1_orz900d_10000_s6L6_refine-L4: skipping, output already exists
+[5/169] E1_IH_mp_2p_01_10000_s6L6_astar: skipping, output already exists
+[6/169] E1_IH_mp_2p_01_10000_s6L6_lift-L4: skipping, output already exists
+[7/169] E1_IH_mp_2p_01_10000_s6L6_corridor-L4: skipping, output already exists
+[8/169] E1_IH_mp_2p_01_10000_s6L6_refine-L4: skipping, output already exists
+[9/169] E1_scene_mp_4p_03_10000_s6L6_astar: skipping, output already exists
+[10/169] E1_scene_mp_4p_03_10000_s6L6_lift-L4: skipping, output already exists
+[11/169] E1_scene_mp_4p_03_10000_s6L6_corridor-L4: skipping, output already exists
+[12/169] E1_scene_mp_4p_03_10000_s6L6_refine-L4: skipping, output already exists
+[13/169] E1_scene_sp_pol_06_10000_s6L6_astar: skipping, output already exists
+[14/169] E1_scene_sp_pol_06_10000_s6L6_lift-L4: skipping, output already exists
+[15/169] E1_scene_sp_pol_06_10000_s6L6_corridor-L4: skipping, output already exists
+[16/169] E1_scene_sp_pol_06_10000_s6L6_refine-L4: skipping, output already exists
+[17/169] E1_orz900d_20000_s6L6_lift-L4: skipping, output already exists
+[18/169] E1_orz900d_20000_s6L6_corridor-L4: skipping, output already exists
+[19/169] E1_orz900d_20000_s6L6_refine-L4: skipping, output already exists
+[20/169] E1_IH_mp_2p_01_40000_s6L6_lift-L4: skipping, output already exists
+[21/169] E1_IH_mp_2p_01_40000_s6L6_corridor-L4: skipping, output already exists
+[22/169] E1_IH_mp_2p_01_40000_s6L6_refine-L4: skipping, output already exists
+[23/169] E1_scene_mp_4p_03_40000_s6L6_lift-L4: skipping, output already exists
+[24/169] E1_scene_mp_4p_03_40000_s6L6_corridor-L4: skipping, output already exists
+[25/169] E1_scene_mp_4p_03_40000_s6L6_refine-L4: skipping, output already exists
+[26/169] E1_scene_sp_pol_06_40000_s6L6_lift-L4: skipping, output already exists
+[27/169] E1_scene_sp_pol_06_40000_s6L6_corridor-L4: skipping, output already exists
+[28/169] E1_scene_sp_pol_06_40000_s6L6_refine-L4: skipping, output already exists
+[29/169] E1_IH_mp_2p_01_80000_s6L6_lift-L4: skipping, output already exists
+[30/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L4: skipping, output already exists
+[31/169] E1_IH_mp_2p_01_80000_s6L6_refine-L4: skipping, output already exists
+[32/169] E1_IH_mp_2p_01_80000_s6L6_lift-L3: skipping, output already exists
+[33/169] E1_IH_mp_2p_01_80000_s6L6_lift-L6: skipping, output already exists
+[34/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L3: skipping, output already exists
+[35/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L6: skipping, output already exists
+[36/169] E1_IH_mp_2p_01_80000_s6L6_refine-L6: skipping, output already exists
+[37/169] E1_scene_mp_4p_03_80000_s6L6_lift-L4: skipping, output already exists
+[38/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L4: skipping, output already exists
+[39/169] E1_scene_mp_4p_03_80000_s6L6_refine-L4: skipping, output already exists
+[40/169] E1_scene_mp_4p_03_80000_s6L6_lift-L3: skipping, output already exists
+[41/169] E1_scene_mp_4p_03_80000_s6L6_lift-L6: skipping, output already exists
+[42/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L3: skipping, output already exists
+[43/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L6: skipping, output already exists
+[44/169] E1_scene_mp_4p_03_80000_s6L6_refine-L6: skipping, output already exists
+[45/169] E1_scene_sp_pol_06_80000_s6L6_lift-L4: skipping, output already exists
+[46/169] E1_scene_sp_pol_06_80000_s6L6_corridor-L4: skipping, output already exists
+[47/169] E1_scene_sp_pol_06_80000_s6L6_refine-L4: skipping, output already exists
+[48/169] E3_IH_mp_2p_01_20000_s6L2_corridor-L4: skipping, output already exists
+[49/169] E3_IH_mp_2p_01_20000_s6L4_corridor-L4: skipping, output already exists
+[50/169] E3_IH_mp_2p_01_20000_s6L6_corridor-L4: skipping, output already exists
+[51/169] E3_IH_mp_2p_01_20000_s6L8_corridor-L4: skipping, output already exists
+[52/169] E3_IH_mp_2p_01_20000_s6hier_corridor-L4: skipping, output already exists
+[53/169] E3_IH_mp_2p_01_20000_s6L2_refine-L4: skipping, output already exists
+[54/169] E3_IH_mp_2p_01_20000_s6L4_refine-L4: skipping, output already exists
+[55/169] E3_IH_mp_2p_01_20000_s6L6_refine-L4: skipping, output already exists
+[56/169] E3_IH_mp_2p_01_20000_s6L8_refine-L4: skipping, output already exists
+[57/169] E3_IH_mp_2p_01_20000_s6hier_refine-L4: skipping, output already exists
+[58/169] E3_scene_mp_4p_03_20000_s6L2_corridor-L4: skipping, output already exists
+[59/169] E3_scene_mp_4p_03_20000_s6L4_corridor-L4: skipping, output already exists
+[60/169] E3_scene_mp_4p_03_20000_s6L6_corridor-L4: skipping, output already exists
+[61/169] E3_scene_mp_4p_03_20000_s6L8_corridor-L4: skipping, output already exists
+[62/169] E3_scene_mp_4p_03_20000_s6hier_corridor-L4: skipping, output already exists
+[63/169] E3_scene_mp_4p_03_20000_s6L2_refine-L4: skipping, output already exists
+[64/169] E3_scene_mp_4p_03_20000_s6L4_refine-L4: skipping, output already exists
+[65/169] E3_scene_mp_4p_03_20000_s6L6_refine-L4: skipping, output already exists
+[66/169] E3_scene_mp_4p_03_20000_s6L8_refine-L4: skipping, output already exists
+[67/169] E3_scene_mp_4p_03_20000_s6hier_refine-L4: skipping, output already exists
+[68/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[69/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r2: skipping, output already exists
+[70/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[71/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r2: skipping, output already exists
+[72/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[73/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r3: skipping, output already exists
+[74/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[75/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r3: skipping, output already exists
+[76/169] E2_orz900d_10000_s6L2_refine-L4: starting at 2026-10-11 06:17
+169 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+[1/169] E1_orz900d_10000_s6L6_astar: skipping, output already exists
+[2/169] E1_orz900d_10000_s6L6_lift-L4: skipping, output already exists
+[3/169] E1_orz900d_10000_s6L6_corridor-L4: skipping, output already exists
+[4/169] E1_orz900d_10000_s6L6_refine-L4: skipping, output already exists
+[5/169] E1_IH_mp_2p_01_10000_s6L6_astar: skipping, output already exists
+[6/169] E1_IH_mp_2p_01_10000_s6L6_lift-L4: skipping, output already exists
+[7/169] E1_IH_mp_2p_01_10000_s6L6_corridor-L4: skipping, output already exists
+[8/169] E1_IH_mp_2p_01_10000_s6L6_refine-L4: skipping, output already exists
+[9/169] E1_scene_mp_4p_03_10000_s6L6_astar: skipping, output already exists
+[10/169] E1_scene_mp_4p_03_10000_s6L6_lift-L4: skipping, output already exists
+[11/169] E1_scene_mp_4p_03_10000_s6L6_corridor-L4: skipping, output already exists
+[12/169] E1_scene_mp_4p_03_10000_s6L6_refine-L4: skipping, output already exists
+[13/169] E1_scene_sp_pol_06_10000_s6L6_astar: skipping, output already exists
+[14/169] E1_scene_sp_pol_06_10000_s6L6_lift-L4: skipping, output already exists
+[15/169] E1_scene_sp_pol_06_10000_s6L6_corridor-L4: skipping, output already exists
+[16/169] E1_scene_sp_pol_06_10000_s6L6_refine-L4: skipping, output already exists
+[17/169] E1_orz900d_20000_s6L6_lift-L4: skipping, output already exists
+[18/169] E1_orz900d_20000_s6L6_corridor-L4: skipping, output already exists
+[19/169] E1_orz900d_20000_s6L6_refine-L4: skipping, output already exists
+[20/169] E1_IH_mp_2p_01_40000_s6L6_lift-L4: skipping, output already exists
+[21/169] E1_IH_mp_2p_01_40000_s6L6_corridor-L4: skipping, output already exists
+[22/169] E1_IH_mp_2p_01_40000_s6L6_refine-L4: skipping, output already exists
+[23/169] E1_scene_mp_4p_03_40000_s6L6_lift-L4: skipping, output already exists
+[24/169] E1_scene_mp_4p_03_40000_s6L6_corridor-L4: skipping, output already exists
+[25/169] E1_scene_mp_4p_03_40000_s6L6_refine-L4: skipping, output already exists
+[26/169] E1_scene_sp_pol_06_40000_s6L6_lift-L4: skipping, output already exists
+[27/169] E1_scene_sp_pol_06_40000_s6L6_corridor-L4: skipping, output already exists
+[28/169] E1_scene_sp_pol_06_40000_s6L6_refine-L4: skipping, output already exists
+[29/169] E1_IH_mp_2p_01_80000_s6L6_lift-L4: skipping, output already exists
+[30/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L4: skipping, output already exists
+[31/169] E1_IH_mp_2p_01_80000_s6L6_refine-L4: skipping, output already exists
+[32/169] E1_IH_mp_2p_01_80000_s6L6_lift-L3: skipping, output already exists
+[33/169] E1_IH_mp_2p_01_80000_s6L6_lift-L6: skipping, output already exists
+[34/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L3: skipping, output already exists
+[35/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L6: skipping, output already exists
+[36/169] E1_IH_mp_2p_01_80000_s6L6_refine-L6: skipping, output already exists
+[37/169] E1_scene_mp_4p_03_80000_s6L6_lift-L4: skipping, output already exists
+[38/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L4: skipping, output already exists
+[39/169] E1_scene_mp_4p_03_80000_s6L6_refine-L4: skipping, output already exists
+[40/169] E1_scene_mp_4p_03_80000_s6L6_lift-L3: skipping, output already exists
+[41/169] E1_scene_mp_4p_03_80000_s6L6_lift-L6: skipping, output already exists
+[42/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L3: skipping, output already exists
+[43/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L6: skipping, output already exists
+[44/169] E1_scene_mp_4p_03_80000_s6L6_refine-L6: skipping, output already exists
+[45/169] E1_scene_sp_pol_06_80000_s6L6_lift-L4: skipping, output already exists
+[46/169] E1_scene_sp_pol_06_80000_s6L6_corridor-L4: skipping, output already exists
+[47/169] E1_scene_sp_pol_06_80000_s6L6_refine-L4: skipping, output already exists
+[48/169] E3_IH_mp_2p_01_20000_s6L2_corridor-L4: skipping, output already exists
+[49/169] E3_IH_mp_2p_01_20000_s6L4_corridor-L4: skipping, output already exists
+[50/169] E3_IH_mp_2p_01_20000_s6L6_corridor-L4: skipping, output already exists
+[51/169] E3_IH_mp_2p_01_20000_s6L8_corridor-L4: skipping, output already exists
+[52/169] E3_IH_mp_2p_01_20000_s6hier_corridor-L4: skipping, output already exists
+[53/169] E3_IH_mp_2p_01_20000_s6L2_refine-L4: skipping, output already exists
+[54/169] E3_IH_mp_2p_01_20000_s6L4_refine-L4: skipping, output already exists
+[55/169] E3_IH_mp_2p_01_20000_s6L6_refine-L4: skipping, output already exists
+[56/169] E3_IH_mp_2p_01_20000_s6L8_refine-L4: skipping, output already exists
+[57/169] E3_IH_mp_2p_01_20000_s6hier_refine-L4: skipping, output already exists
+[58/169] E3_scene_mp_4p_03_20000_s6L2_corridor-L4: skipping, output already exists
+[59/169] E3_scene_mp_4p_03_20000_s6L4_corridor-L4: skipping, output already exists
+[60/169] E3_scene_mp_4p_03_20000_s6L6_corridor-L4: skipping, output already exists
+[61/169] E3_scene_mp_4p_03_20000_s6L8_corridor-L4: skipping, output already exists
+[62/169] E3_scene_mp_4p_03_20000_s6hier_corridor-L4: skipping, output already exists
+[63/169] E3_scene_mp_4p_03_20000_s6L2_refine-L4: skipping, output already exists
+[64/169] E3_scene_mp_4p_03_20000_s6L4_refine-L4: skipping, output already exists
+[65/169] E3_scene_mp_4p_03_20000_s6L6_refine-L4: skipping, output already exists
+[66/169] E3_scene_mp_4p_03_20000_s6L8_refine-L4: skipping, output already exists
+[67/169] E3_scene_mp_4p_03_20000_s6hier_refine-L4: skipping, output already exists
+[68/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[69/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r2: skipping, output already exists
+[70/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[71/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r2: skipping, output already exists
+[72/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[73/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r3: skipping, output already exists
+[74/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[75/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r3: skipping, output already exists
+[76/169] E2_orz900d_10000_s6L2_refine-L4: starting at 2026-10-11 07:00
+[76/169] E2_orz900d_10000_s6L2_refine-L4: ok (1.02 h, 10413 tasks finished)
+[77/169] E2_orz900d_10000_s6L4_refine-L4: starting at 2026-10-11 08:01
+[77/169] E2_orz900d_10000_s6L4_refine-L4: ok (1.02 h, 10333 tasks finished)
+[78/169] E2_orz900d_10000_s6L6_refine-L4: starting at 2026-10-11 09:02
+[78/169] E2_orz900d_10000_s6L6_refine-L4: ok (1.01 h, 10349 tasks finished)
+[79/169] E2_orz900d_10000_s6L8_refine-L4: starting at 2026-10-11 10:03
+[79/169] E2_orz900d_10000_s6L8_refine-L4: ok (1.02 h, 10413 tasks finished)
+[80/169] E2_orz900d_10000_s6hier_refine-L4: starting at 2026-10-11 11:04
+[80/169] E2_orz900d_10000_s6hier_refine-L4: ok (1.02 h, 10409 tasks finished)
+[81/169] E2_orz900d_10000_s5_refine-L4: starting at 2026-10-11 12:06
+[81/169] E2_orz900d_10000_s5_refine-L4: ok (1.03 h, 10329 tasks finished)
+[82/169] E2_orz900d_10000_s1_refine-L4: starting at 2026-10-11 13:08
+[82/169] E2_orz900d_10000_s1_refine-L4: ok (1.02 h, 10375 tasks finished)
+[83/169] E2_IH_mp_2p_01_10000_s6L2_refine-L4: starting at 2026-10-11 14:09
+[83/169] E2_IH_mp_2p_01_10000_s6L2_refine-L4: ok (1.11 h, 250 tasks finished)
+[84/169] E2_IH_mp_2p_01_10000_s6L4_refine-L4: starting at 2026-10-11 15:15
+[84/169] E2_IH_mp_2p_01_10000_s6L4_refine-L4: ok (1.05 h, 29294 tasks finished)
+[85/169] E2_IH_mp_2p_01_10000_s6L6_refine-L4: starting at 2026-10-11 16:18
+[85/169] E2_IH_mp_2p_01_10000_s6L6_refine-L4: ok (1.05 h, 29192 tasks finished)
+[86/169] E2_IH_mp_2p_01_10000_s6L8_refine-L4: starting at 2026-10-11 17:21
+[86/169] E2_IH_mp_2p_01_10000_s6L8_refine-L4: ok (1.05 h, 29290 tasks finished)
+[87/169] E2_IH_mp_2p_01_10000_s6hier_refine-L4: starting at 2026-10-11 18:24
+[87/169] E2_IH_mp_2p_01_10000_s6hier_refine-L4: ok (1.05 h, 29256 tasks finished)
+[88/169] E2_IH_mp_2p_01_10000_s5_refine-L4: starting at 2026-10-11 19:27
+[88/169] E2_IH_mp_2p_01_10000_s5_refine-L4: ok (1.04 h, 29280 tasks finished)
+[89/169] E2_IH_mp_2p_01_10000_s1_refine-L4: starting at 2026-10-11 20:29
+[89/169] E2_IH_mp_2p_01_10000_s1_refine-L4: ok (1.10 h, 129 tasks finished)
+[90/169] E2_scene_mp_4p_03_10000_s6L2_refine-L4: starting at 2026-10-11 21:35
+[90/169] E2_scene_mp_4p_03_10000_s6L2_refine-L4: ok (1.14 h, 14 tasks finished)
+[91/169] E2_scene_mp_4p_03_10000_s6L4_refine-L4: starting at 2026-10-11 22:43
+[91/169] E2_scene_mp_4p_03_10000_s6L4_refine-L4: ok (1.08 h, 5052 tasks finished)
+[92/169] E2_scene_mp_4p_03_10000_s6L6_refine-L4: starting at 2026-10-11 23:48
+[92/169] E2_scene_mp_4p_03_10000_s6L6_refine-L4: ok (1.17 h, 9319 tasks finished)
+[93/169] E2_scene_mp_4p_03_10000_s6L8_refine-L4: starting at 2026-10-12 00:59
+[93/169] E2_scene_mp_4p_03_10000_s6L8_refine-L4: ok (1.17 h, 9330 tasks finished)
+[94/169] E2_scene_mp_4p_03_10000_s6hier_refine-L4: starting at 2026-10-12 02:09
+[94/169] E2_scene_mp_4p_03_10000_s6hier_refine-L4: ok (1.17 h, 9274 tasks finished)
+[95/169] E2_scene_mp_4p_03_10000_s5_refine-L4: starting at 2026-10-12 03:19
+[95/169] E2_scene_mp_4p_03_10000_s5_refine-L4: ok (1.18 h, 9291 tasks finished)
+[96/169] E2_scene_mp_4p_03_10000_s1_refine-L4: starting at 2026-10-12 04:30
+[96/169] E2_scene_mp_4p_03_10000_s1_refine-L4: ok (1.13 h, 0 tasks finished)
+[97/169] E2_scene_sp_pol_06_10000_s6L2_refine-L4: starting at 2026-10-12 05:38
+[97/169] E2_scene_sp_pol_06_10000_s6L2_refine-L4: ok (1.14 h, 5 tasks finished)
+[98/169] E2_scene_sp_pol_06_10000_s6L4_refine-L4: starting at 2026-10-12 06:47
+[98/169] E2_scene_sp_pol_06_10000_s6L4_refine-L4: ok (1.10 h, 1861 tasks finished)
+[99/169] E2_scene_sp_pol_06_10000_s6L6_refine-L4: starting at 2026-10-12 07:53
+[99/169] E2_scene_sp_pol_06_10000_s6L6_refine-L4: ok (1.25 h, 10248 tasks finished)
+[100/169] E2_scene_sp_pol_06_10000_s6L8_refine-L4: starting at 2026-10-12 09:08
+[100/169] E2_scene_sp_pol_06_10000_s6L8_refine-L4: ok (1.25 h, 10257 tasks finished)
+[101/169] E2_scene_sp_pol_06_10000_s6hier_refine-L4: starting at 2026-10-12 10:22
+[101/169] E2_scene_sp_pol_06_10000_s6hier_refine-L4: ok (1.24 h, 10194 tasks finished)
+[102/169] E2_scene_sp_pol_06_10000_s5_refine-L4: starting at 2026-10-12 11:37
+[102/169] E2_scene_sp_pol_06_10000_s5_refine-L4: ok (1.25 h, 10189 tasks finished)
+[103/169] E2_scene_sp_pol_06_10000_s1_refine-L4: starting at 2026-10-12 12:52
+[103/169] E2_scene_sp_pol_06_10000_s1_refine-L4: ok (1.14 h, 0 tasks finished)
+[104/169] E2_orz900d_20000_s6L2_refine-L4: starting at 2026-10-12 14:00
+[104/169] E2_orz900d_20000_s6L2_refine-L4: ok (1.01 h, 11968 tasks finished)
+[105/169] E2_orz900d_20000_s6L4_refine-L4: starting at 2026-10-12 15:01
+[105/169] E2_orz900d_20000_s6L4_refine-L4: ok (1.02 h, 11973 tasks finished)
+[106/169] E2_orz900d_20000_s6L6_refine-L4: starting at 2026-10-12 16:02
+[106/169] E2_orz900d_20000_s6L6_refine-L4: ok (1.02 h, 11886 tasks finished)
+[107/169] E2_orz900d_20000_s6L8_refine-L4: starting at 2026-10-12 17:03
+[107/169] E2_orz900d_20000_s6L8_refine-L4: ok (1.01 h, 12004 tasks finished)
+[108/169] E2_orz900d_20000_s6hier_refine-L4: starting at 2026-10-12 18:04
+[108/169] E2_orz900d_20000_s6hier_refine-L4: ok (1.01 h, 12049 tasks finished)
+[109/169] E2_orz900d_20000_s5_refine-L4: starting at 2026-10-12 19:04
+[109/169] E2_orz900d_20000_s5_refine-L4: ok (1.01 h, 12030 tasks finished)
+[110/169] E2_orz900d_20000_s1_refine-L4: starting at 2026-10-12 20:05
+[110/169] E2_orz900d_20000_s1_refine-L4: ok (1.01 h, 11415 tasks finished)
+[111/169] E2_IH_mp_2p_01_20000_s6L2_refine-L4: starting at 2026-10-12 21:06
+[111/169] E2_IH_mp_2p_01_20000_s6L2_refine-L4: ok (1.11 h, 264 tasks finished)
+[112/169] E2_IH_mp_2p_01_20000_s6L4_refine-L4: starting at 2026-10-12 22:13
+[112/169] E2_IH_mp_2p_01_20000_s6L4_refine-L4: ok (1.00 h, 53199 tasks finished)
+[113/169] E2_IH_mp_2p_01_20000_s6L6_refine-L4: starting at 2026-10-12 23:13
+[113/169] E2_IH_mp_2p_01_20000_s6L6_refine-L4: ok (1.00 h, 53121 tasks finished)
+[114/169] E2_IH_mp_2p_01_20000_s6L8_refine-L4: starting at 2026-10-13 00:13
+[114/169] E2_IH_mp_2p_01_20000_s6L8_refine-L4: ok (1.01 h, 53177 tasks finished)
+[115/169] E2_IH_mp_2p_01_20000_s6hier_refine-L4: starting at 2026-10-13 01:14
+[115/169] E2_IH_mp_2p_01_20000_s6hier_refine-L4: ok (1.01 h, 53182 tasks finished)
+[116/169] E2_IH_mp_2p_01_20000_s5_refine-L4: starting at 2026-10-13 02:14
+[116/169] E2_IH_mp_2p_01_20000_s5_refine-L4: ok (1.00 h, 53135 tasks finished)
+[117/169] E2_IH_mp_2p_01_20000_s1_refine-L4: starting at 2026-10-13 03:14
+[117/169] E2_IH_mp_2p_01_20000_s1_refine-L4: ok (1.10 h, 305 tasks finished)
+[118/169] E2_IH_mp_2p_01_20000_s7L6_refine-L4: starting at 2026-10-13 04:20
+[118/169] E2_IH_mp_2p_01_20000_s7L6_refine-L4: ok (1.01 h, 53214 tasks finished)
+[119/169] E2_scene_mp_4p_03_20000_s6L2_refine-L4: starting at 2026-10-13 05:21
+[119/169] E2_scene_mp_4p_03_20000_s6L2_refine-L4: ok (1.14 h, 10 tasks finished)
+[120/169] E2_scene_mp_4p_03_20000_s6L4_refine-L4: starting at 2026-10-13 06:29
+[120/169] E2_scene_mp_4p_03_20000_s6L4_refine-L4: ok (1.05 h, 7302 tasks finished)
+[121/169] E2_scene_mp_4p_03_20000_s6L6_refine-L4: starting at 2026-10-13 07:32
+[121/169] E2_scene_mp_4p_03_20000_s6L6_refine-L4: ok (1.14 h, 16593 tasks finished)
+[122/169] E2_scene_mp_4p_03_20000_s6L8_refine-L4: starting at 2026-10-13 08:40
+[122/169] E2_scene_mp_4p_03_20000_s6L8_refine-L4: ok (1.14 h, 16595 tasks finished)
+[123/169] E2_scene_mp_4p_03_20000_s6hier_refine-L4: starting at 2026-10-13 09:48
+[123/169] E2_scene_mp_4p_03_20000_s6hier_refine-L4: ok (1.14 h, 16518 tasks finished)
+[124/169] E2_scene_mp_4p_03_20000_s5_refine-L4: starting at 2026-10-13 10:57
+[124/169] E2_scene_mp_4p_03_20000_s5_refine-L4: ok (1.14 h, 16520 tasks finished)
+[125/169] E2_scene_mp_4p_03_20000_s1_refine-L4: starting at 2026-10-13 12:06
+[125/169] E2_scene_mp_4p_03_20000_s1_refine-L4: ok (1.13 h, 1 tasks finished)
+[126/169] E2_scene_sp_pol_06_20000_s6L2_refine-L4: starting at 2026-10-13 13:14
+[126/169] E2_scene_sp_pol_06_20000_s6L2_refine-L4: ok (1.14 h, 5 tasks finished)
+[127/169] E2_scene_sp_pol_06_20000_s6L4_refine-L4: starting at 2026-10-13 14:22
+[127/169] E2_scene_sp_pol_06_20000_s6L4_refine-L4: ok (1.09 h, 2666 tasks finished)
+[128/169] E2_scene_sp_pol_06_20000_s6L6_refine-L4: starting at 2026-10-13 15:27
+[128/169] E2_scene_sp_pol_06_20000_s6L6_refine-L4: ok (1.21 h, 19232 tasks finished)
+[129/169] E2_scene_sp_pol_06_20000_s6L8_refine-L4: starting at 2026-10-13 16:40
+[129/169] E2_scene_sp_pol_06_20000_s6L8_refine-L4: ok (1.19 h, 19235 tasks finished)
+[130/169] E2_scene_sp_pol_06_20000_s6hier_refine-L4: starting at 2026-10-13 17:51
+[130/169] E2_scene_sp_pol_06_20000_s6hier_refine-L4: ok (1.19 h, 19116 tasks finished)
+[131/169] E2_scene_sp_pol_06_20000_s5_refine-L4: starting at 2026-10-13 19:03
+[131/169] E2_scene_sp_pol_06_20000_s5_refine-L4: ok (1.19 h, 19118 tasks finished)
+[132/169] E2_scene_sp_pol_06_20000_s1_refine-L4: starting at 2026-10-13 20:14
+[132/169] E2_scene_sp_pol_06_20000_s1_refine-L4: ok (1.14 h, 0 tasks finished)
+[133/169] E2_scene_sp_pol_06_20000_s7L6_refine-L4: starting at 2026-10-13 21:23
+[133/169] E2_scene_sp_pol_06_20000_s7L6_refine-L4: ok (1.17 h, 19273 tasks finished)
+[134/169] E2_IH_mp_2p_01_40000_s6L2_refine-L4: starting at 2026-10-13 22:33
+[134/169] E2_IH_mp_2p_01_40000_s6L2_refine-L4: ok (1.12 h, 509 tasks finished)
+[135/169] E2_IH_mp_2p_01_40000_s6L4_refine-L4: starting at 2026-10-13 23:40
+[135/169] E2_IH_mp_2p_01_40000_s6L4_refine-L4: ok (1.02 h, 81649 tasks finished)
+[136/169] E2_IH_mp_2p_01_40000_s6L6_refine-L4: starting at 2026-10-14 00:41
+[136/169] E2_IH_mp_2p_01_40000_s6L6_refine-L4: ok (1.01 h, 81703 tasks finished)
+[137/169] E2_IH_mp_2p_01_40000_s6L8_refine-L4: starting at 2026-10-14 01:42
+[137/169] E2_IH_mp_2p_01_40000_s6L8_refine-L4: ok (1.01 h, 81526 tasks finished)
+[138/169] E2_IH_mp_2p_01_40000_s6hier_refine-L4: starting at 2026-10-14 02:43
+[138/169] E2_IH_mp_2p_01_40000_s6hier_refine-L4: ok (0.98 h, 81861 tasks finished)
+[139/169] E2_IH_mp_2p_01_40000_s5_refine-L4: starting at 2026-10-14 03:42
+[139/169] E2_IH_mp_2p_01_40000_s5_refine-L4: ok (0.97 h, 81188 tasks finished)
+[140/169] E2_scene_mp_4p_03_40000_s6L2_refine-L4: starting at 2026-10-14 04:40
+[140/169] E2_scene_mp_4p_03_40000_s6L2_refine-L4: ok (1.14 h, 18 tasks finished)
+[141/169] E2_scene_mp_4p_03_40000_s6L4_refine-L4: starting at 2026-10-14 05:49
+[141/169] E2_scene_mp_4p_03_40000_s6L4_refine-L4: ok (1.01 h, 10879 tasks finished)
+[142/169] E2_scene_mp_4p_03_40000_s6L6_refine-L4: starting at 2026-10-14 06:49
+[142/169] E2_scene_mp_4p_03_40000_s6L6_refine-L4: ok (1.12 h, 25898 tasks finished)
+[143/169] E2_scene_mp_4p_03_40000_s6L8_refine-L4: starting at 2026-10-14 07:57
+[143/169] E2_scene_mp_4p_03_40000_s6L8_refine-L4: ok (1.20 h, 25158 tasks finished)
+[144/169] E2_scene_mp_4p_03_40000_s6hier_refine-L4: starting at 2026-10-14 09:09
+[144/169] E2_scene_mp_4p_03_40000_s6hier_refine-L4: ok (1.13 h, 25490 tasks finished)
+[145/169] E2_scene_mp_4p_03_40000_s5_refine-L4: starting at 2026-10-14 10:17
+[145/169] E2_scene_mp_4p_03_40000_s5_refine-L4: ok (1.13 h, 25605 tasks finished)
+[146/169] E2_scene_sp_pol_06_40000_s6L2_refine-L4: starting at 2026-10-14 11:25
+[146/169] E2_scene_sp_pol_06_40000_s6L2_refine-L4: ok (1.15 h, 3 tasks finished)
+[147/169] E2_scene_sp_pol_06_40000_s6L4_refine-L4: starting at 2026-10-14 12:34
+[147/169] E2_scene_sp_pol_06_40000_s6L4_refine-L4: ok (1.10 h, 3493 tasks finished)
+[148/169] E2_scene_sp_pol_06_40000_s6L6_refine-L4: starting at 2026-10-14 13:40
+[148/169] E2_scene_sp_pol_06_40000_s6L6_refine-L4: ok (1.15 h, 33537 tasks finished)
+[149/169] E2_scene_sp_pol_06_40000_s6L8_refine-L4: starting at 2026-10-14 14:49
+[149/169] E2_scene_sp_pol_06_40000_s6L8_refine-L4: ok (1.14 h, 33837 tasks finished)
+[150/169] E2_scene_sp_pol_06_40000_s6hier_refine-L4: starting at 2026-10-14 15:58
+[150/169] E2_scene_sp_pol_06_40000_s6hier_refine-L4: ok (1.12 h, 33757 tasks finished)
+[151/169] E2_scene_sp_pol_06_40000_s5_refine-L4: starting at 2026-10-14 17:04
+[151/169] E2_scene_sp_pol_06_40000_s5_refine-L4: ok (1.12 h, 33686 tasks finished)
+[152/169] E2_IH_mp_2p_01_80000_s6L2_refine-L4: starting at 2026-10-14 18:12
+[152/169] E2_IH_mp_2p_01_80000_s6L2_refine-L4: ok (1.14 h, 909 tasks finished)
+[153/169] E2_IH_mp_2p_01_80000_s6L4_refine-L4: starting at 2026-10-14 19:20
+[153/169] E2_IH_mp_2p_01_80000_s6L4_refine-L4: ok (1.03 h, 131399 tasks finished)
+[154/169] E2_IH_mp_2p_01_80000_s6L6_refine-L4: starting at 2026-10-14 20:22
+[154/169] E2_IH_mp_2p_01_80000_s6L6_refine-L4: ok (1.06 h, 138809 tasks finished)
+[155/169] E2_IH_mp_2p_01_80000_s6L8_refine-L4: starting at 2026-10-14 21:26
+[155/169] E2_IH_mp_2p_01_80000_s6L8_refine-L4: ok (0.99 h, 139457 tasks finished)
+[156/169] E2_IH_mp_2p_01_80000_s6hier_refine-L4: starting at 2026-10-14 22:25
+[156/169] E2_IH_mp_2p_01_80000_s6hier_refine-L4: ok (0.98 h, 138402 tasks finished)
+[157/169] E2_IH_mp_2p_01_80000_s5_refine-L4: starting at 2026-10-14 23:24
+[157/169] E2_IH_mp_2p_01_80000_s5_refine-L4: ok (0.86 h, 88261 tasks finished)
+[158/169] E2_scene_mp_4p_03_80000_s6L2_refine-L4: starting at 2026-10-15 00:16
+[158/169] E2_scene_mp_4p_03_80000_s6L2_refine-L4: ok (1.17 h, 17 tasks finished)
+[159/169] E2_scene_mp_4p_03_80000_s6L4_refine-L4: starting at 2026-10-15 01:26
+[159/169] E2_scene_mp_4p_03_80000_s6L4_refine-L4: ok (1.02 h, 15893 tasks finished)
+[160/169] E2_scene_mp_4p_03_80000_s6L6_refine-L4: starting at 2026-10-15 02:27
+[160/169] E2_scene_mp_4p_03_80000_s6L6_refine-L4: PROBLEM (1.14 h) -- nonzero error counts: {'numPlannerErrors': 1, 'numScheduleErrors': 0, 'numEntryTimeouts': 0}; see /home/ubuntu/MAPD-Honours/outputs/thesis_sweep/E2_scene_mp_4p_03_80000_s6L6_refine-L4.log.gz
+[161/169] E2_scene_mp_4p_03_80000_s6L8_refine-L4: starting at 2026-10-15 03:36
+[161/169] E2_scene_mp_4p_03_80000_s6L8_refine-L4: ok (1.09 h, 27136 tasks finished)
+[162/169] E2_scene_mp_4p_03_80000_s6hier_refine-L4: starting at 2026-10-15 04:41
+[162/169] E2_scene_mp_4p_03_80000_s6hier_refine-L4: ok (1.13 h, 27983 tasks finished)
+[163/169] E2_scene_mp_4p_03_80000_s5_refine-L4: starting at 2026-10-15 05:49
+[163/169] E2_scene_mp_4p_03_80000_s5_refine-L4: ok (1.03 h, 25776 tasks finished)
+[164/169] E2_scene_sp_pol_06_80000_s6L2_refine-L4: starting at 2026-10-15 06:50
+[164/169] E2_scene_sp_pol_06_80000_s6L2_refine-L4: ok (1.18 h, 6 tasks finished)
+[165/169] E2_scene_sp_pol_06_80000_s6L4_refine-L4: starting at 2026-10-15 08:01
+[165/169] E2_scene_sp_pol_06_80000_s6L4_refine-L4: ok (1.12 h, 5469 tasks finished)
+[166/169] E2_scene_sp_pol_06_80000_s6L6_refine-L4: starting at 2026-10-15 09:08
+[166/169] E2_scene_sp_pol_06_80000_s6L6_refine-L4: ok (2.12 h, 18960 tasks finished)
+[167/169] E2_scene_sp_pol_06_80000_s6L8_refine-L4: starting at 2026-10-15 11:16
+169 run(s) planned -> /home/ubuntu/MAPD-Honours/outputs/thesis_sweep
+[1/169] E1_orz900d_10000_s6L6_astar: skipping, output already exists
+[2/169] E1_orz900d_10000_s6L6_lift-L4: skipping, output already exists
+[3/169] E1_orz900d_10000_s6L6_corridor-L4: skipping, output already exists
+[4/169] E1_orz900d_10000_s6L6_refine-L4: skipping, output already exists
+[5/169] E1_IH_mp_2p_01_10000_s6L6_astar: skipping, output already exists
+[6/169] E1_IH_mp_2p_01_10000_s6L6_lift-L4: skipping, output already exists
+[7/169] E1_IH_mp_2p_01_10000_s6L6_corridor-L4: skipping, output already exists
+[8/169] E1_IH_mp_2p_01_10000_s6L6_refine-L4: skipping, output already exists
+[9/169] E1_scene_mp_4p_03_10000_s6L6_astar: skipping, output already exists
+[10/169] E1_scene_mp_4p_03_10000_s6L6_lift-L4: skipping, output already exists
+[11/169] E1_scene_mp_4p_03_10000_s6L6_corridor-L4: skipping, output already exists
+[12/169] E1_scene_mp_4p_03_10000_s6L6_refine-L4: skipping, output already exists
+[13/169] E1_scene_sp_pol_06_10000_s6L6_astar: skipping, output already exists
+[14/169] E1_scene_sp_pol_06_10000_s6L6_lift-L4: skipping, output already exists
+[15/169] E1_scene_sp_pol_06_10000_s6L6_corridor-L4: skipping, output already exists
+[16/169] E1_scene_sp_pol_06_10000_s6L6_refine-L4: skipping, output already exists
+[17/169] E1_orz900d_20000_s6L6_lift-L4: skipping, output already exists
+[18/169] E1_orz900d_20000_s6L6_corridor-L4: skipping, output already exists
+[19/169] E1_orz900d_20000_s6L6_refine-L4: skipping, output already exists
+[20/169] E1_IH_mp_2p_01_40000_s6L6_lift-L4: skipping, output already exists
+[21/169] E1_IH_mp_2p_01_40000_s6L6_corridor-L4: skipping, output already exists
+[22/169] E1_IH_mp_2p_01_40000_s6L6_refine-L4: skipping, output already exists
+[23/169] E1_scene_mp_4p_03_40000_s6L6_lift-L4: skipping, output already exists
+[24/169] E1_scene_mp_4p_03_40000_s6L6_corridor-L4: skipping, output already exists
+[25/169] E1_scene_mp_4p_03_40000_s6L6_refine-L4: skipping, output already exists
+[26/169] E1_scene_sp_pol_06_40000_s6L6_lift-L4: skipping, output already exists
+[27/169] E1_scene_sp_pol_06_40000_s6L6_corridor-L4: skipping, output already exists
+[28/169] E1_scene_sp_pol_06_40000_s6L6_refine-L4: skipping, output already exists
+[29/169] E1_IH_mp_2p_01_80000_s6L6_lift-L4: skipping, output already exists
+[30/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L4: skipping, output already exists
+[31/169] E1_IH_mp_2p_01_80000_s6L6_refine-L4: skipping, output already exists
+[32/169] E1_IH_mp_2p_01_80000_s6L6_lift-L3: skipping, output already exists
+[33/169] E1_IH_mp_2p_01_80000_s6L6_lift-L6: skipping, output already exists
+[34/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L3: skipping, output already exists
+[35/169] E1_IH_mp_2p_01_80000_s6L6_corridor-L6: skipping, output already exists
+[36/169] E1_IH_mp_2p_01_80000_s6L6_refine-L6: skipping, output already exists
+[37/169] E1_scene_mp_4p_03_80000_s6L6_lift-L4: skipping, output already exists
+[38/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L4: skipping, output already exists
+[39/169] E1_scene_mp_4p_03_80000_s6L6_refine-L4: skipping, output already exists
+[40/169] E1_scene_mp_4p_03_80000_s6L6_lift-L3: skipping, output already exists
+[41/169] E1_scene_mp_4p_03_80000_s6L6_lift-L6: skipping, output already exists
+[42/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L3: skipping, output already exists
+[43/169] E1_scene_mp_4p_03_80000_s6L6_corridor-L6: skipping, output already exists
+[44/169] E1_scene_mp_4p_03_80000_s6L6_refine-L6: skipping, output already exists
+[45/169] E1_scene_sp_pol_06_80000_s6L6_lift-L4: skipping, output already exists
+[46/169] E1_scene_sp_pol_06_80000_s6L6_corridor-L4: skipping, output already exists
+[47/169] E1_scene_sp_pol_06_80000_s6L6_refine-L4: skipping, output already exists
+[48/169] E3_IH_mp_2p_01_20000_s6L2_corridor-L4: skipping, output already exists
+[49/169] E3_IH_mp_2p_01_20000_s6L4_corridor-L4: skipping, output already exists
+[50/169] E3_IH_mp_2p_01_20000_s6L6_corridor-L4: skipping, output already exists
+[51/169] E3_IH_mp_2p_01_20000_s6L8_corridor-L4: skipping, output already exists
+[52/169] E3_IH_mp_2p_01_20000_s6hier_corridor-L4: skipping, output already exists
+[53/169] E3_IH_mp_2p_01_20000_s6L2_refine-L4: skipping, output already exists
+[54/169] E3_IH_mp_2p_01_20000_s6L4_refine-L4: skipping, output already exists
+[55/169] E3_IH_mp_2p_01_20000_s6L6_refine-L4: skipping, output already exists
+[56/169] E3_IH_mp_2p_01_20000_s6L8_refine-L4: skipping, output already exists
+[57/169] E3_IH_mp_2p_01_20000_s6hier_refine-L4: skipping, output already exists
+[58/169] E3_scene_mp_4p_03_20000_s6L2_corridor-L4: skipping, output already exists
+[59/169] E3_scene_mp_4p_03_20000_s6L4_corridor-L4: skipping, output already exists
+[60/169] E3_scene_mp_4p_03_20000_s6L6_corridor-L4: skipping, output already exists
+[61/169] E3_scene_mp_4p_03_20000_s6L8_corridor-L4: skipping, output already exists
+[62/169] E3_scene_mp_4p_03_20000_s6hier_corridor-L4: skipping, output already exists
+[63/169] E3_scene_mp_4p_03_20000_s6L2_refine-L4: skipping, output already exists
+[64/169] E3_scene_mp_4p_03_20000_s6L4_refine-L4: skipping, output already exists
+[65/169] E3_scene_mp_4p_03_20000_s6L6_refine-L4: skipping, output already exists
+[66/169] E3_scene_mp_4p_03_20000_s6L8_refine-L4: skipping, output already exists
+[67/169] E3_scene_mp_4p_03_20000_s6hier_refine-L4: skipping, output already exists
+[68/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[69/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r2: skipping, output already exists
+[70/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r2: skipping, output already exists
+[71/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r2: skipping, output already exists
+[72/169] R_IH_mp_2p_01_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[73/169] R_IH_mp_2p_01_10000_s6L6_refine-L4_r3: skipping, output already exists
+[74/169] R_scene_mp_4p_03_10000_s6L6_corridor-L4_r3: skipping, output already exists
+[75/169] R_scene_mp_4p_03_10000_s6L6_refine-L4_r3: skipping, output already exists
+[76/169] E2_orz900d_10000_s6L2_refine-L4: skipping, output already exists
+[77/169] E2_orz900d_10000_s6L4_refine-L4: skipping, output already exists
+[78/169] E2_orz900d_10000_s6L6_refine-L4: skipping, output already exists
+[79/169] E2_orz900d_10000_s6L8_refine-L4: skipping, output already exists
+[80/169] E2_orz900d_10000_s6hier_refine-L4: skipping, output already exists
+[81/169] E2_orz900d_10000_s5_refine-L4: skipping, output already exists
+[82/169] E2_orz900d_10000_s1_refine-L4: skipping, output already exists
+[83/169] E2_IH_mp_2p_01_10000_s6L2_refine-L4: skipping, output already exists
+[84/169] E2_IH_mp_2p_01_10000_s6L4_refine-L4: skipping, output already exists
+[85/169] E2_IH_mp_2p_01_10000_s6L6_refine-L4: skipping, output already exists
+[86/169] E2_IH_mp_2p_01_10000_s6L8_refine-L4: skipping, output already exists
+[87/169] E2_IH_mp_2p_01_10000_s6hier_refine-L4: skipping, output already exists
+[88/169] E2_IH_mp_2p_01_10000_s5_refine-L4: skipping, output already exists
+[89/169] E2_IH_mp_2p_01_10000_s1_refine-L4: skipping, output already exists
+[90/169] E2_scene_mp_4p_03_10000_s6L2_refine-L4: skipping, output already exists
+[91/169] E2_scene_mp_4p_03_10000_s6L4_refine-L4: skipping, output already exists
+[92/169] E2_scene_mp_4p_03_10000_s6L6_refine-L4: skipping, output already exists
+[93/169] E2_scene_mp_4p_03_10000_s6L8_refine-L4: skipping, output already exists
+[94/169] E2_scene_mp_4p_03_10000_s6hier_refine-L4: skipping, output already exists
+[95/169] E2_scene_mp_4p_03_10000_s5_refine-L4: skipping, output already exists
+[96/169] E2_scene_mp_4p_03_10000_s1_refine-L4: skipping, output already exists
+[97/169] E2_scene_sp_pol_06_10000_s6L2_refine-L4: skipping, output already exists
+[98/169] E2_scene_sp_pol_06_10000_s6L4_refine-L4: skipping, output already exists
+[99/169] E2_scene_sp_pol_06_10000_s6L6_refine-L4: skipping, output already exists
+[100/169] E2_scene_sp_pol_06_10000_s6L8_refine-L4: skipping, output already exists
+[101/169] E2_scene_sp_pol_06_10000_s6hier_refine-L4: skipping, output already exists
+[102/169] E2_scene_sp_pol_06_10000_s5_refine-L4: skipping, output already exists
+[103/169] E2_scene_sp_pol_06_10000_s1_refine-L4: skipping, output already exists
+[104/169] E2_orz900d_20000_s6L2_refine-L4: skipping, output already exists
+[105/169] E2_orz900d_20000_s6L4_refine-L4: skipping, output already exists
+[106/169] E2_orz900d_20000_s6L6_refine-L4: skipping, output already exists
+[107/169] E2_orz900d_20000_s6L8_refine-L4: skipping, output already exists
+[108/169] E2_orz900d_20000_s6hier_refine-L4: skipping, output already exists
+[109/169] E2_orz900d_20000_s5_refine-L4: skipping, output already exists
+[110/169] E2_orz900d_20000_s1_refine-L4: skipping, output already exists
+[111/169] E2_IH_mp_2p_01_20000_s6L2_refine-L4: skipping, output already exists
+[112/169] E2_IH_mp_2p_01_20000_s6L4_refine-L4: skipping, output already exists
+[113/169] E2_IH_mp_2p_01_20000_s6L6_refine-L4: skipping, output already exists
+[114/169] E2_IH_mp_2p_01_20000_s6L8_refine-L4: skipping, output already exists
+[115/169] E2_IH_mp_2p_01_20000_s6hier_refine-L4: skipping, output already exists
+[116/169] E2_IH_mp_2p_01_20000_s5_refine-L4: skipping, output already exists
+[117/169] E2_IH_mp_2p_01_20000_s1_refine-L4: skipping, output already exists
+[118/169] E2_IH_mp_2p_01_20000_s7L6_refine-L4: skipping, output already exists
+[119/169] E2_scene_mp_4p_03_20000_s6L2_refine-L4: skipping, output already exists
+[120/169] E2_scene_mp_4p_03_20000_s6L4_refine-L4: skipping, output already exists
+[121/169] E2_scene_mp_4p_03_20000_s6L6_refine-L4: skipping, output already exists
+[122/169] E2_scene_mp_4p_03_20000_s6L8_refine-L4: skipping, output already exists
+[123/169] E2_scene_mp_4p_03_20000_s6hier_refine-L4: skipping, output already exists
+[124/169] E2_scene_mp_4p_03_20000_s5_refine-L4: skipping, output already exists
+[125/169] E2_scene_mp_4p_03_20000_s1_refine-L4: skipping, output already exists
+[126/169] E2_scene_sp_pol_06_20000_s6L2_refine-L4: skipping, output already exists
+[127/169] E2_scene_sp_pol_06_20000_s6L4_refine-L4: skipping, output already exists
+[128/169] E2_scene_sp_pol_06_20000_s6L6_refine-L4: skipping, output already exists
+[129/169] E2_scene_sp_pol_06_20000_s6L8_refine-L4: skipping, output already exists
+[130/169] E2_scene_sp_pol_06_20000_s6hier_refine-L4: skipping, output already exists
+[131/169] E2_scene_sp_pol_06_20000_s5_refine-L4: skipping, output already exists
+[132/169] E2_scene_sp_pol_06_20000_s1_refine-L4: skipping, output already exists
+[133/169] E2_scene_sp_pol_06_20000_s7L6_refine-L4: skipping, output already exists
+[134/169] E2_IH_mp_2p_01_40000_s6L2_refine-L4: skipping, output already exists
+[135/169] E2_IH_mp_2p_01_40000_s6L4_refine-L4: skipping, output already exists
+[136/169] E2_IH_mp_2p_01_40000_s6L6_refine-L4: skipping, output already exists
+[137/169] E2_IH_mp_2p_01_40000_s6L8_refine-L4: skipping, output already exists
+[138/169] E2_IH_mp_2p_01_40000_s6hier_refine-L4: skipping, output already exists
+[139/169] E2_IH_mp_2p_01_40000_s5_refine-L4: skipping, output already exists
+[140/169] E2_scene_mp_4p_03_40000_s6L2_refine-L4: skipping, output already exists
+[141/169] E2_scene_mp_4p_03_40000_s6L4_refine-L4: skipping, output already exists
+[142/169] E2_scene_mp_4p_03_40000_s6L6_refine-L4: skipping, output already exists
+[143/169] E2_scene_mp_4p_03_40000_s6L8_refine-L4: skipping, output already exists
+[144/169] E2_scene_mp_4p_03_40000_s6hier_refine-L4: skipping, output already exists
+[145/169] E2_scene_mp_4p_03_40000_s5_refine-L4: skipping, output already exists
+[146/169] E2_scene_sp_pol_06_40000_s6L2_refine-L4: skipping, output already exists
+[147/169] E2_scene_sp_pol_06_40000_s6L4_refine-L4: skipping, output already exists
+[148/169] E2_scene_sp_pol_06_40000_s6L6_refine-L4: skipping, output already exists
+[149/169] E2_scene_sp_pol_06_40000_s6L8_refine-L4: skipping, output already exists
+[150/169] E2_scene_sp_pol_06_40000_s6hier_refine-L4: skipping, output already exists
+[151/169] E2_scene_sp_pol_06_40000_s5_refine-L4: skipping, output already exists
+[152/169] E2_IH_mp_2p_01_80000_s6L2_refine-L4: skipping, output already exists
+[153/169] E2_IH_mp_2p_01_80000_s6L4_refine-L4: skipping, output already exists
+[154/169] E2_IH_mp_2p_01_80000_s6L6_refine-L4: skipping, output already exists
+[155/169] E2_IH_mp_2p_01_80000_s6L8_refine-L4: skipping, output already exists
+[156/169] E2_IH_mp_2p_01_80000_s6hier_refine-L4: skipping, output already exists
+[157/169] E2_IH_mp_2p_01_80000_s5_refine-L4: skipping, output already exists
+[158/169] E2_scene_mp_4p_03_80000_s6L2_refine-L4: skipping, output already exists
+[159/169] E2_scene_mp_4p_03_80000_s6L4_refine-L4: skipping, output already exists
+[160/169] E2_scene_mp_4p_03_80000_s6L6_refine-L4: skipping, output already exists
+[161/169] E2_scene_mp_4p_03_80000_s6L8_refine-L4: skipping, output already exists
+[162/169] E2_scene_mp_4p_03_80000_s6hier_refine-L4: skipping, output already exists
+[163/169] E2_scene_mp_4p_03_80000_s5_refine-L4: skipping, output already exists
+[164/169] E2_scene_sp_pol_06_80000_s6L2_refine-L4: skipping, output already exists
+[165/169] E2_scene_sp_pol_06_80000_s6L4_refine-L4: skipping, output already exists
+[166/169] E2_scene_sp_pol_06_80000_s6L6_refine-L4: skipping, output already exists
+[167/169] E2_scene_sp_pol_06_80000_s6L8_refine-L4: starting at 2026-10-15 13:30

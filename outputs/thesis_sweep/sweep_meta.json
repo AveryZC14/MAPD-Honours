@@ -59,5 +59,112 @@
     ],
     "sim_time_override": null,
     "log_detail_level": 3
+  },
+  {
+    "started": "2026-10-11T06:17:31",
+    "git_commit": "0e3c80bbe50eee7bf44945fdf20a3bd4434cc008",
+    "git_dirty_files": [
+      "M outputs/thesis_sweep/watchdog.log"
+    ],
+    "binary_mtime": "2026-10-07T18:16:15",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "USE_LOCAL_PATH_BFS": "true",
+    "LOCAL_PATH_BFS_RADIUS": "5",
+    "LOCAL_PATH_BFS_EXTRA_LAYERS": "2",
+    "PASS_SCHEDULER_PATHS_TO_PLANNER": "false",
+    "GUIDE_PATH_THREADS": "1",
+    "GUIDE_PATH_DEBUG_CHECKS": "false",
+    "experiments": [
+      "E1",
+      "E3",
+      "R",
+      "E2"
+    ],
+    "e2_planner": [
+      "refine",
+      4
+    ],
+    "min_guide_path_ms": 150,
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time_override": null,
+    "log_detail_level": 3
+  },
+  {
+    "started": "2026-10-11T07:00:48",
+    "git_commit": "69309cdd3f909c5ecd8545cda4765d4710033dfd",
+    "git_dirty_files": [
+      "M outputs/thesis_sweep/runner.log",
+      " M outputs/thesis_sweep/sweep_meta.json",
+      " M outputs/thesis_sweep/watchdog.log"
+    ],
+    "binary_mtime": "2026-10-07T18:16:15",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "USE_LOCAL_PATH_BFS": "true",
+    "LOCAL_PATH_BFS_RADIUS": "5",
+    "LOCAL_PATH_BFS_EXTRA_LAYERS": "2",
+    "PASS_SCHEDULER_PATHS_TO_PLANNER": "false",
+    "GUIDE_PATH_THREADS": "1",
+    "GUIDE_PATH_DEBUG_CHECKS": "false",
+    "experiments": [
+      "E1",
+      "E3",
+      "R",
+      "E2"
+    ],
+    "e2_planner": [
+      "refine",
+      4
+    ],
+    "min_guide_path_ms": 150,
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time_override": null,
+    "log_detail_level": 3
+  },
+  {
+    "started": "2026-10-15T13:30:01",
+    "git_commit": "f0934189345c33c880a886780e49fd7028fec803",
+    "git_dirty_files": [
+      "M outputs/thesis_sweep/runner.log",
+      " M outputs/thesis_sweep/sweep_meta.json",
+      " M outputs/thesis_sweep/sweep_summary.csv",
+      " M outputs/thesis_sweep/watchdog.log"
+    ],
+    "binary_mtime": "2026-10-07T18:16:15",
+    "USE_MANHATTAN_HEURISTIC": "true",
+    "USE_LOCAL_PATH_BFS": "true",
+    "LOCAL_PATH_BFS_RADIUS": "5",
+    "LOCAL_PATH_BFS_EXTRA_LAYERS": "2",
+    "PASS_SCHEDULER_PATHS_TO_PLANNER": "false",
+    "GUIDE_PATH_THREADS": "1",
+    "GUIDE_PATH_DEBUG_CHECKS": "false",
+    "experiments": [
+      "E1",
+      "E3",
+      "R",
+      "E2"
+    ],
+    "e2_planner": [
+      "refine",
+      4
+    ],
+    "min_guide_path_ms": 150,
+    "cpu_model": "AMD EPYC-Rome Processor",
+    "cpu_count": 8,
+    "mem_total_gb": 31.3,
+    "compiler": [
+      "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    ],
+    "sim_time_override": null,
+    "log_detail_level": 3
   }
 ]
