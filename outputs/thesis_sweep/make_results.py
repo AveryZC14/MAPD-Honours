@@ -301,7 +301,7 @@ def main():
     # ---- E2
     e2 = [s for s in rows if s.startswith("E2_")]
     w("## E2: scheduler (4,000 steps)\n")
-    w(f"{len(e2)} of 80 runs finished." + ("" if e2 else " Not started: waits for `E2_PLANNER`.") + "\n")
+    w(f"{len(e2)} of 94 runs finished." + ("" if e2 else " Not started: waits for `E2_PLANNER`.") + "\n")
 
     (D / "RESULTS.md").write_text("\n".join(out) + "\n")
     print("wrote", D / "RESULTS.md", file=sys.stderr)

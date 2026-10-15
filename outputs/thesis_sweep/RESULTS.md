@@ -196,5 +196,5 @@ Means in timesteps or cells. *Wait for assignment*: task appears -> first assign
 
 ## E2: scheduler (4,000 steps)
 
-0 of 80 runs finished. Not started: waits for `E2_PLANNER`.
+91 of 94 runs finished.
 
