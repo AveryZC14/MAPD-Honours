@@ -737,7 +737,9 @@ progresses -- this is not append-only.
   finished, 1,499 decisions (was 9,266, 1,482), so the install cost it
   about 1%.
 - **Results tables**: `outputs/thesis_sweep/RESULTS.md` (regenerate with
-  `make_results.py`). Raw run files (about 250 MB) are not in git.
+  `make_results.py`). Raw run files were not in git at first; E1 and E3
+  were committed 2026-10-11 (`b4b002c`), E2 and the repeats 2026-10-15
+  (`ed17f8e`), and pushed.
 - **Repeats**: spread under 0.5% (IH 10k corridor 9,085 / 9,090 / 9,077;
   refine 8,896 / 8,896 / 8,875; scene_mp 10k corridor 1,992 / 1,993 /
   1,993; refine 1,962 / 1,960 / 1,970), so differences of 1-2% are real.
@@ -773,3 +775,32 @@ progresses -- this is not append-only.
   case in E2 rests on larger teams (Greedy's first decision was 31 s on
   IH 40k and 218 s at 80k, 2026-09-29) and on the per-decision cost
   growing with team size, not on better assignments at 10k.
+
+### 2026-10-11 to 2026-10-15: thesis sweep, E2 (scheduler)
+
+- **What**: E2 of the revised plan (`instances/thesis_benchmarks/README.md`),
+  94 runs at 4,000 steps, planner refine L4 (`outputs/thesis_sweep/E2_PLANNER`),
+  level 4 added back on all 14 instances. Same binary as the first batch
+  (tag `thesis-sweep-v1`; the binary was not rebuilt, only docs and the
+  run list changed).
+- **Restarts**: the watchdog started E2 at 2026-10-11 06:17; restarted at
+  07:00 after the run-list commit (`69309cd`), redoing run 76 from scratch.
+  No other restarts until the reboot below.
+- **Progress**: runs 76-166 done by 2026-10-15 11:16 (91 of 94), all exit 0,
+  no runs flagged for other jobs. Most took 1.0-1.25 h.
+- **Reboot 2026-10-15 ~13:20** (kernel update) cut off run 167
+  (`E2_scene_sp_pol_06_80000_s6L8_refine-L4`, started 11:16). The watchdog
+  restarted it at 13:30; stopped on purpose at 13:31 (`STOP` file, runner and
+  lifelong killed) so the user can move thesis writing to another machine.
+  Runs 167-169 (scene_sp_pol_06 80k: level 8, hierarchical-only, Greedy) are
+  left; run 167's partial task/trace CSVs are overwritten on resume.
+- **Things to check in the analysis**:
+  - Solver 1 and solver 6 level 2 make very few decisions on IH and the
+    scene maps (12-205 of 4,000; e.g. scene_sp_pol_06 80k level 2: 25
+    decisions, 6 finished), as in E3. Expected, not a fault.
+  - `E2_scene_mp_4p_03_80000_s6L6_refine-L4`: 1 planner error (marked not
+    ok in `sweep_summary.csv`, exit 0).
+  - **Memory:** `E2_scene_sp_pol_06_80000_s6L6_refine-L4` peaked at 30.4 GB
+    of 31.3 GB and took 2.12 h with 2,898 decisions (others about 1.1 h,
+    about 4,000). Runs 167-169 are the same instance, so watch memory.
+

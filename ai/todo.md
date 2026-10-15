@@ -8,90 +8,23 @@ the date and what changed) rather than deleting them outright.
 
 ## Open
 
-- [ ] **Run the final thesis sweep (120 runs, 8,000 timesteps each).** Added
-  2026-09-29. The full plan (run list, flags, rationale, caveats, runtime of
-  about 11.5 days) is in `instances/thesis_benchmarks/README.md` under "Final
-  run plan". Pre-sweep checks are done (2026-09-29): the 80k smoke tests
-  passed, and the `TasksOpenedThisStep` pickups counter was added and
-  verified. The sweep script is `scripts/run_thesis_sweep.py` (tested at 30
-  steps). warehouseXL runs last (the user may drop it; the sweep without
-  it is 94 runs, about 9 days).
-
-  **Sweep stopped 2026-09-29 16:50 after 4 runs; results unusable.** All 4
-  (orz900d 10k, solver 6 levels 2/4/6/8) froze at about step 1,000: e.g.
-  level 4 had 10,533 pickups and 619 deliveries by step 1,000, then +0 of
-  each for 7,000 steps, with 0 errors and the planner using its full time
-  budget every step. The scheduler level made no difference (599-640
-  finished), so the cause is below the scheduler. **Confirmed 2026-09-29:
-  the Manhattan heuristic** (PIBT ranks moves by raw Manhattan distance and
-  ignores the A* guide path, so agents behind walls wait forever). The
-  pickup counter, the task format and the scheduler were ruled out; see
-  `ai/run_log.md` 2026-09-29. **Next:** fix the planner before rerunning.
-  The exact heuristic doesn't freeze but is starved (543 decisions in 1,500
-  steps). Plan (2026-09-29, replaces the earlier waypoint idea): keep
-  Manhattan distance inside A*, but have PIBT score moves with a small BFS
-  from each agent to its guide path (distance to path + steps remaining).
-  Full plan, caveats and checks in `ai/planner_local_bfs_plan.md`.
-  **Implemented 2026-09-29** (`USE_LOCAL_PATH_BFS`); orz900d 10k 1,500-step
-  check passed (5,495 deliveries vs. 617, no freeze). **IH 10k check
-  failed (2026-09-29, `ai/run_log.md`):** guide-path A* takes about
-  70-300 ms per search there, so about 6,700 agents never get a path, stay on
-  Manhattan distance and get trapped (4,661 stuck), and A* overruns the
-  step (1,021 decisions in 1,500 steps). Sweep NOT restarted. Next: make
-  guide paths cheap enough on big maps (see the plan doc's "IH result"
-  section). Plan: build them in parallel, `ai/parallel_guide_paths_plan.md`.
-  **2026-09-30: implemented behind flags, default left sequential.** No
-  setting works on every map (orz900d best sequential; IH needs parallel +
-  congestion ignored; scene_mp_4p_03 fails either way, needs a better A*
-  heuristic). **Decision needed**; options in that doc's "Conclusions".
-  **2026-10-01: new option, guide paths from the coarsening hierarchy**
-  (`ai/hierarchical_guide_paths_plan.md`). Benchmarked, not yet in the
-  planner. With every level anchored, the lift gives valid paths on all
-  three maps in a few ms each. **Implementation plan written 2026-10-01** (that doc's last
-  section): lift or corridor A* as the path builder, level as a run
-  parameter for the thesis; parallel mode stays off. **Implemented
-  2026-10-01** (branch `hierarchy-guide-paths`); bench: corridor A* near-
-  shortest at every level, IH level 4 about 4 ms per path, scene about
-  16 ms. Quick scene planner run (300 steps): corridor 12.1 ms vs lift
-  6.2 ms per long path, most of it the coarse Dijkstra. Coarse search now
-  A* with landmarks (exact): scene long paths corridor 6.9 ms, lift 1.6 ms.
-  **Big-map planner runs done 2026-10-01/02** (21 runs,
-  `outputs/planner_overview/RESULTS.md`): corridor wins on IH and scene
-  (3-4x astar), astar on orz900d; corridor best at levels 3-4; 80k starved
-  by the fixed PIBT reserve.
-  **Sweep redesigned 2026-10-07** (`instances/thesis_benchmarks/README.md`,
-  "Revised run plan", about 129 h): E1 planner (solver 6 level 6, sources
-  at level 4 plus a level slice at 80k, 1,500 steps), E3 scheduler x planner check, E2
-  scheduler (E1's planner, 4,000 steps), plus repeats; warehouseXL dropped;
-  `--minGuidePathMs 150` on every run (fixes the 80k freeze; a fixed PIBT
-  reserve didn't, `ai/run_log.md` 2026-10-07). **Launched 2026-10-07
-  evening** from tag `thesis-sweep-v1`: E1, E3, repeats (75 runs, about
-  34 h). **Next:** analysis scripts (write during E1), choose E2's planner
-  from E1 (`outputs/thesis_sweep/E2_PLANNER`), then E2 (80 runs, about
-  92 h). Solver 6's level-4
-  slowdown on scene is reported as a finding, not fixed.
-  **First batch done 2026-10-09** (`outputs/thesis_sweep/RESULTS.md`).
-  **E2 launched 2026-10-11** with refine L4 as the planner and level 4
-  added back on all 14 instances (94 runs, 4,000 steps, about 102 h).
-  **Next:** E2 analysis (per-decision comparison with solver 1, trace
-  measures).
-  Also fixed a harness bug that cost up to about 650 ms of planner time per
-  step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
-  are affected. Before restarting:
-  consider a 20k / larger-map check (PIBT used up to 77 of its 100 ms),
-  then delete `outputs/thesis_sweep/STOP`. (The 4 stale runs were moved to
-  `outputs/thesis_sweep_junk/2026-09-29_manhattan_freeze/` on 2026-09-29.)
-  Also still needed: an analysis script for the
-  per-decision solver-1 comparison.
-
-- [ ] **Decide whether to `git rm hierarchy_cache/orz900d.hier`.** Added
-  2026-09-29. It is tracked in git (47 MB) and byte-identical to the deleted
-  early-stopping `orz900d.hierarchy`, so it stops at level 9; use
-  `orz900d_full.hierarchy` instead. It was kept only because it was tracked
-  on purpose. orz900d builds in 0.6 s, so no tracked cache is needed. The
-  other six superseded caches (about 7.2 GB) were deleted on 2026-09-29, after
-  every script and copy-paste command was switched to the full-depth
-  replacements.
+- [ ] **Finish the thesis sweep and analyse E2.** Plan:
+  `instances/thesis_benchmarks/README.md`, "Revised run plan" (169 runs:
+  E1, E3, repeats at 1,500 steps; E2 at 4,000 steps, planner refine L4),
+  all from tag `thesis-sweep-v1`. **Status 2026-10-15:** 166 of 169 done.
+  Stopped on purpose (`outputs/thesis_sweep/STOP`) after a reboot cut off
+  run 167; runs 167-169 (E2 scene_sp_pol_06 80k: solver 6 level 8,
+  hierarchical-only, Greedy) are left, about 3.5-5 h. **Next:** delete
+  `STOP` to finish them (the cron watchdog restarts the sweep within 10
+  min), commit and push their raw files, regenerate `RESULTS.md`
+  (`outputs/thesis_sweep/make_results.py`, whose E2 section is only a run
+  count so far), then write the E2 analysis: per-decision comparison with
+  solver 1, scheduler time per decision, and the trace measures. Check
+  first: `E2_scene_mp_4p_03_80000_s6L6_refine-L4` logged 1 planner error;
+  scene_sp_pol_06 80k level 6 peaked at 30.4 of 31.3 GB and ran slow
+  (2,898 decisions), and runs 167-169 are the same instance
+  (`ai/run_log.md`, 2026-10-11 to 2026-10-15).
+  History of how the sweep got here: "Done", 2026-10-15.
 
 - [ ] **[HIGH] Solver 6's per-timestep coarse-flow solve re-solves the entire
   backbone graph every call, regardless of how few agents/tasks actually need
@@ -443,6 +376,94 @@ the date and what changed) rather than deleting them outright.
   run whenever wanted.
 
 ## Done
+
+- [x] **2026-10-15: thesis sweep history, 2026-09-29 to 2026-10-15 (superseded plan,
+  freezes, planner fixes, redesign, launch).** Replaced by the open item
+  "Finish the thesis sweep and analyse E2". Originally "Run the final thesis
+  sweep (120 runs, 8,000 timesteps each)", added 2026-09-29. The full plan (run list, flags, rationale, caveats, runtime of
+  about 11.5 days) is in `instances/thesis_benchmarks/README.md` under "Final
+  run plan". Pre-sweep checks are done (2026-09-29): the 80k smoke tests
+  passed, and the `TasksOpenedThisStep` pickups counter was added and
+  verified. The sweep script is `scripts/run_thesis_sweep.py` (tested at 30
+  steps). warehouseXL runs last (the user may drop it; the sweep without
+  it is 94 runs, about 9 days).
+
+  **Sweep stopped 2026-09-29 16:50 after 4 runs; results unusable.** All 4
+  (orz900d 10k, solver 6 levels 2/4/6/8) froze at about step 1,000: e.g.
+  level 4 had 10,533 pickups and 619 deliveries by step 1,000, then +0 of
+  each for 7,000 steps, with 0 errors and the planner using its full time
+  budget every step. The scheduler level made no difference (599-640
+  finished), so the cause is below the scheduler. **Confirmed 2026-09-29:
+  the Manhattan heuristic** (PIBT ranks moves by raw Manhattan distance and
+  ignores the A* guide path, so agents behind walls wait forever). The
+  pickup counter, the task format and the scheduler were ruled out; see
+  `ai/run_log.md` 2026-09-29. **Next:** fix the planner before rerunning.
+  The exact heuristic doesn't freeze but is starved (543 decisions in 1,500
+  steps). Plan (2026-09-29, replaces the earlier waypoint idea): keep
+  Manhattan distance inside A*, but have PIBT score moves with a small BFS
+  from each agent to its guide path (distance to path + steps remaining).
+  Full plan, caveats and checks in `ai/planner_local_bfs_plan.md`.
+  **Implemented 2026-09-29** (`USE_LOCAL_PATH_BFS`); orz900d 10k 1,500-step
+  check passed (5,495 deliveries vs. 617, no freeze). **IH 10k check
+  failed (2026-09-29, `ai/run_log.md`):** guide-path A* takes about
+  70-300 ms per search there, so about 6,700 agents never get a path, stay on
+  Manhattan distance and get trapped (4,661 stuck), and A* overruns the
+  step (1,021 decisions in 1,500 steps). Sweep NOT restarted. Next: make
+  guide paths cheap enough on big maps (see the plan doc's "IH result"
+  section). Plan: build them in parallel, `ai/parallel_guide_paths_plan.md`.
+  **2026-09-30: implemented behind flags, default left sequential.** No
+  setting works on every map (orz900d best sequential; IH needs parallel +
+  congestion ignored; scene_mp_4p_03 fails either way, needs a better A*
+  heuristic). **Decision needed**; options in that doc's "Conclusions".
+  **2026-10-01: new option, guide paths from the coarsening hierarchy**
+  (`ai/hierarchical_guide_paths_plan.md`). Benchmarked, not yet in the
+  planner. With every level anchored, the lift gives valid paths on all
+  three maps in a few ms each. **Implementation plan written 2026-10-01** (that doc's last
+  section): lift or corridor A* as the path builder, level as a run
+  parameter for the thesis; parallel mode stays off. **Implemented
+  2026-10-01** (branch `hierarchy-guide-paths`); bench: corridor A* near-
+  shortest at every level, IH level 4 about 4 ms per path, scene about
+  16 ms. Quick scene planner run (300 steps): corridor 12.1 ms vs lift
+  6.2 ms per long path, most of it the coarse Dijkstra. Coarse search now
+  A* with landmarks (exact): scene long paths corridor 6.9 ms, lift 1.6 ms.
+  **Big-map planner runs done 2026-10-01/02** (21 runs,
+  `outputs/planner_overview/RESULTS.md`): corridor wins on IH and scene
+  (3-4x astar), astar on orz900d; corridor best at levels 3-4; 80k starved
+  by the fixed PIBT reserve.
+  **Sweep redesigned 2026-10-07** (`instances/thesis_benchmarks/README.md`,
+  "Revised run plan", about 129 h): E1 planner (solver 6 level 6, sources
+  at level 4 plus a level slice at 80k, 1,500 steps), E3 scheduler x planner check, E2
+  scheduler (E1's planner, 4,000 steps), plus repeats; warehouseXL dropped;
+  `--minGuidePathMs 150` on every run (fixes the 80k freeze; a fixed PIBT
+  reserve didn't, `ai/run_log.md` 2026-10-07). **Launched 2026-10-07
+  evening** from tag `thesis-sweep-v1`: E1, E3, repeats (75 runs, about
+  34 h). **Next:** analysis scripts (write during E1), choose E2's planner
+  from E1 (`outputs/thesis_sweep/E2_PLANNER`), then E2 (80 runs, about
+  92 h). Solver 6's level-4
+  slowdown on scene is reported as a finding, not fixed.
+  **First batch done 2026-10-09** (`outputs/thesis_sweep/RESULTS.md`).
+  **E2 launched 2026-10-11** with refine L4 as the planner and level 4
+  added back on all 14 instances (94 runs, 4,000 steps, about 102 h).
+  **Next:** E2 analysis (per-decision comparison with solver 1, trace
+  measures).
+  Also fixed a harness bug that cost up to about 650 ms of planner time per
+  step on big maps (`ai/run_log.md` 2026-09-30); earlier big-map results
+  are affected. Before restarting:
+  consider a 20k / larger-map check (PIBT used up to 77 of its 100 ms),
+  then delete `outputs/thesis_sweep/STOP`. (The 4 stale runs were moved to
+  `outputs/thesis_sweep_junk/2026-09-29_manhattan_freeze/` on 2026-09-29.)
+  Also still needed: an analysis script for the
+  per-decision solver-1 comparison.
+
+- [x] **2026-10-12: `git rm hierarchy_cache/orz900d.hier`** (`f093418`). Added
+  2026-09-29. It is tracked in git (47 MB) and byte-identical to the deleted
+  early-stopping `orz900d.hierarchy`, so it stops at level 9; use
+  `orz900d_full.hierarchy` instead. It was kept only because it was tracked
+  on purpose. orz900d builds in 0.6 s, so no tracked cache is needed. The
+  other six superseded caches (about 7.2 GB) were deleted on 2026-09-29, after
+  every script and copy-paste command was switched to the full-depth
+  replacements.
+  `warehouseXL_full.hierarchy` was also deleted later, to free disk space.
 
 - [x] **2026-08-26: Per-timestep task-completion count added to
   `timeStepMetrics`.** User asked whether per-timestep throughput (tasks

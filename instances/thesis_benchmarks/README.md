@@ -193,7 +193,7 @@ one step after its pickup, so it was left as generated.
   | Map | Cache | Levels | Top level (nodes) |
   |---|---|---|---|
   | orz900d | `hierarchy_cache/orz900d_full.hierarchy` | 12 | 1 |
-  | warehouseXL | `hierarchy_cache/warehouseXL_full.hierarchy` | 12 | 1 |
+  | warehouseXL | `hierarchy_cache/warehouseXL_full.hierarchy` (deleted 2026-10 for disk space; rebuild if needed) | 12 | 1 |
   | IH_mp_2p_01 | `hierarchy_cache/IH_mp_2p_01_fixpoint.hierarchy` | 12 | 33 |
   | scene_mp_4p_03 | `hierarchy_cache/scene_mp_4p_03_full.hierarchy` | 13 | 238 |
   | scene_sp_pol_06 | `hierarchy_cache/scene_sp_pol_06_full.hierarchy` | 14 | 176 |
@@ -224,11 +224,9 @@ one step after its pickup, so it was left as generated.
   every `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` were built
   before the hierarchy started coarsening all the way to its top level, so
   they stopped early (at level 9, or 6). Older notes in `ai/` still name them
-  as the caches past runs used. The one left is `orz900d.hier`, which is
-  tracked in git and byte-identical to the deleted `orz900d.hierarchy`: don't
-  use it. It still loads without error, because the cache check covers only
-  the format, dimensions and map hash, but any run that cascades above level
-  9 would stop short.
+  as the caches past runs used. The last one, `orz900d.hier` (tracked in git,
+  byte-identical to the deleted `orz900d.hierarchy`), was removed from git on
+  2026-10-12 (`f093418`).
 
   `*.hierarchy` files are gitignored, and the five full-depth caches take
   about 5.1 GB in total. On a new machine, copy them over, or let the first run
@@ -286,13 +284,17 @@ in the output JSON is not a consistent build-time measure:
 For build times in the thesis, use the table above, or repeat the same method:
 a solver 6 run with no `--hierarchyCache`.
 
-### Revised run plan (2026-10-07, proposed)
+### Revised run plan (2026-10-07; run 2026-10-07 to 2026-10-15)
 
 Replaces the 2026-09-29 plan below, which varied only the scheduler. The
 planner's guide paths now come from the hierarchy too (`--guidePathSource`,
 `--guidePathLevel`), so the planner's source and level are factors of
 their own. Budget: about 7 days on this machine, one run at a time.
-**`scripts/run_thesis_sweep.py` does not have this run list yet.**
+`scripts/run_thesis_sweep.py` runs this list. **Status (2026-10-15):** 166
+of 169 runs done, all from tag `thesis-sweep-v1` with the same binary;
+stopped on purpose with runs 167-169 (E2, scene_sp_pol_06 80k: level 8,
+hierarchical-only, Greedy) left. Delete `outputs/thesis_sweep/STOP` to
+finish them. See `ai/run_log.md`.
 
 **Design:** the best planner for the scheduler runs, and a fixed good
 scheduler for the planner runs, plus a small crossed check.
@@ -410,9 +412,10 @@ seen while it ran (nonzero means its timing may be affected; rerun it).
 Smoke-tested 2026-10-07 at 30 steps (8 runs across E1/E3/R/E2, solvers 1, 5,
 6, 6 hierarchical-only and 7, scene_sp_pol_06 and an 80k run): all ok.
 
-**Still to do:** analysis scripts (E1/E3 tables, E2 per-decision comparison
-with solver 1, the trace measures below); repeat the hierarchy build-time
-measurements (single runs so far).
+**Still to do:** E2 analysis (per-decision comparison with solver 1, the
+trace measures below; `outputs/thesis_sweep/make_results.py` has the E1, E3
+and repeats tables and E1's task-trace measures, but only a run count for
+E2); repeat the hierarchy build-time measurements (single runs so far).
 
 **Adding runs later:** tag the commit the sweep runs from (e.g.
 `thesis-sweep-v1`) and build later runs from that tag, not from the branch

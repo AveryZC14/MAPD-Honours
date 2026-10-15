@@ -76,9 +76,11 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   one). Recorded as `computeGuidePaths` in the output JSON. See
   `ai/hierarchical_guide_paths_plan.md`.
   **Use the full-depth caches** (built and verified 2026-09-28/29):
-  `orz900d_full`, `warehouseXL_full`, `IH_mp_2p_01_fixpoint`,
-  `scene_mp_4p_03_full` and `scene_sp_pol_06_full` (all `.hierarchy`). Each
-  is structurally identical to a fresh build with the current code. The
+  `orz900d_full`, `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and
+  `scene_sp_pol_06_full` (all `.hierarchy`). Each is structurally identical
+  to a fresh build with the current code. `warehouseXL_full.hierarchy` was
+  deleted to free disk space once warehouseXL left the sweep; rebuild it
+  (`--hierarchyCache` saves a fresh build) if that map is needed. The
   older `orz900d.hierarchy`, `*_level9.hierarchy` and
   `scene_mp_4p_03_level6.hierarchy` stopped early (10 or 7 levels, built
   before the hierarchy coarsened to its top level) and were deleted on
@@ -86,11 +88,9 @@ Key CLI flags (`src/driver.cpp`, `po::options_description`):
   verification details and build timings are in
   `instances/thesis_benchmarks/README.md`.
   `*.hierarchy` is gitignored (these are large, multi-GB build artifacts, not
-  checked in); the one exception is `hierarchy_cache/orz900d.hier` (`.hier`,
-  not `.hierarchy` — deliberately a different extension so it's *not*
-  gitignore-matched), a small early-dev reference copy that predates this
-  convention and is tracked in git on purpose. It is also one of the
-  early-stopping caches, so use `orz900d_full.hierarchy` for runs.
+  checked in). The one tracked cache, `hierarchy_cache/orz900d.hier` (an
+  early-stopping copy with a different extension so it wasn't
+  gitignore-matched), was removed from git on 2026-10-12 (`f093418`).
 - `--flowSolveLevel` (default 2): solver 6 only — which already-built hierarchy
   level (0 = fine map) to solve the per-timestep flow assignment on, at
   runtime; out-of-range values fall back to the compile-time
@@ -126,13 +126,19 @@ agents, and warehouseXL, IH_mp_2p_01, scene_mp_4p_03 and scene_sp_pol_06 at
 reference paper. The older `instances/custom/<map>/` task files have 1–4
 locations per task (the LoRR generator default), which inflates throughput,
 because single-location tasks finish on arrival. Don't compare their
-throughput with the paper's. The agreed final sweep over this set (120 runs
-at 8,000 timesteps: solver 6 at levels 2/4/6/8 plus hierarchical-only, solver
-5 as the paper's Greedy baseline, solver 1 at 10k/20k for a per-decision
-comparison, and 2 solver 7 runs) is in that README under "Final run plan",
-and `scripts/run_thesis_sweep.py` runs exactly that list (resumable, one run
-at a time, into `outputs/thesis_sweep/`). warehouseXL's 26 runs go last
-because the user may drop that map.
+throughput with the paper's. The thesis sweep over this set is in that
+README under "Revised run plan" (2026-10-07; the earlier "Final run plan"
+is superseded): 169 runs in four experiments, E1 planner (47 runs), E3
+scheduler level x planner (20), repeats (8), all at 1,500 steps, and E2
+scheduler (94 runs at 4,000 steps: solver 6 levels 2/4/6/8 and
+hierarchical-only, Greedy, solver 1 at 10k/20k, 2 solver 7 runs, planner
+refine L4). warehouseXL was dropped. `scripts/run_thesis_sweep.py` runs
+that list (resumable, one run at a time, into `outputs/thesis_sweep/`,
+restarted by `scripts/sweep_watchdog.sh` from cron unless
+`outputs/thesis_sweep/STOP` exists), all from tag `thesis-sweep-v1`.
+Status: 166 of 169 done; stopped on purpose 2026-10-15 with the last 3
+(scene_sp_pol_06 80k) left. Results: `outputs/thesis_sweep/RESULTS.md`;
+progress in `ai/run_log.md`.
 
 ## End-to-end runtime flow (what happens each timestep)
 
@@ -438,7 +444,8 @@ goals and `needs_replan`) from a coarse path at `--guidePathLevel`
 path one level at a time (each search limited to the children of the path
 above) and runs the corridor A* inside the level-1 path: corridor-quality
 paths at about 0.6-0.7× the corridor's time in the planner (about 3× the
-lift's), nearly flat in the level. Only a 300-step scene check so far.
+lift's), nearly flat in the level. Run on every E1 instance in the thesis
+sweep and chosen (at level 4) as E2's planner on 2026-10-11.
 Full-map A* is the fallback; the default `astar` is the planner as before.
 The hierarchy is then loaded for every solver (`--hierarchyCache`).
 `--guidePathTrace <csv>` logs one row per guide path built. Overnight
@@ -696,8 +703,8 @@ Headline pitfalls documented there, worth knowing before touching this again:
 
 ## Other docs in `ai/`
 
-> Thesis-facing docs (chapter plans, write-ups) live in the separate,
-> local-only `thesis/` git repo under `thesis/notes/` — see
+> Thesis-facing docs (chapter plans, write-ups) live in the separate
+> `thesis/` git repo (private remote `AveryZC14/thesis`) under `thesis/notes/` — see
 > `thesis/CLAUDE.md`. This folder stays for engineering docs.
 
 - `ai/claude_memleak_fixes.md` — full narrative of the solver-6 OOM
@@ -908,12 +915,12 @@ Headline pitfalls documented there, worth knowing before touching this again:
 src/                    upstream competition harness (mostly unmodified)
   driver.cpp              CLI entry point / main()
   Entry.cpp               per-timestep glue: scheduler -> goal_locations -> planner
-  TaskScheduler.cpp        solver dispatch (1-6) -> DefaultPlanner::schedule_plan_*
+  TaskScheduler.cpp        solver dispatch (1-7) -> DefaultPlanner::schedule_plan_*
   CompetitionSystem.cpp    BaseSystem::simulate() main loop, metrics, results output
   MAPFPlanner.cpp, Simulator.cpp, ActionModel.cpp, Grid.cpp, TaskManager.cpp, Evaluation.cpp, ...
 inc/                     headers for the above + SharedEnvironment, Task, nlohmann json
 default_planner/         the "default" reference planner+scheduler implementation
-  scheduler.cpp/.h         schedule_plan_flow (1), _hist (2), _matching (3), _h (4), _raw (5), _flow_reduced (6, thesis)
+  scheduler.cpp/.h         schedule_plan_flow (1), _hist (2), _matching (3), _h (4), _raw (5), _flow_reduced (6, thesis), _flow_reduced_edge (7, thesis)
   planner.cpp/.h           low-level PIBT-based multi-agent path planner (shared by all solvers)
   pibt.cpp/.h              causalPIBT collision-avoidance move selection
   heuristics.cpp/.h        global_heuristictable (BFS distance-to-goal cache) + LRU eviction (thesis addition)
@@ -955,7 +962,8 @@ utils/validation/       standalone validator executables, split out of map_reduc
 python/                 Python bindings track (pybind11) — separate from the C++ path above; not
                          touched by the solver 1/6 work. set_track.bash selects planner/scheduler/combined.
 instances/               benchmark maps+agents+tasks (warehouseSmall/Large, sortationLarge, random,
-                         custom/orz900d [656x1491 maze, main stress-test map], custom/tiny)
+                         custom/orz900d [656x1491 maze, main stress-test map], custom/tiny,
+                         thesis_benchmarks/ [the final thesis instance set, see its README.md])
 outputs/                 saved run outputs (JSON), some checked in as test/reference artifacts.
                          Organized per-map/per-purpose (`<map>_guide_paths/`, `<map>_solver_comparison/`,
                          `<map>_per_timestep/`, `coarsening_viz/`); stray/legacy one-off result files

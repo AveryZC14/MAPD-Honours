@@ -1,14 +1,14 @@
 # Solver 6 hierarchy disk cache
 
-> **Which cache files to use (updated 2026-09-29):** the full-depth caches in
-> `hierarchy_cache/`: `orz900d_full`, `warehouseXL_full`,
-> `IH_mp_2p_01_fixpoint`, `scene_mp_4p_03_full` and `scene_sp_pol_06_full`
-> (all `.hierarchy`). Each is verified structurally identical to a fresh
+> **Which cache files to use (updated 2026-10-15):** the full-depth caches in
+> `hierarchy_cache/`: `orz900d_full`, `IH_mp_2p_01_fixpoint`,
+> `scene_mp_4p_03_full` and `scene_sp_pol_06_full` (all `.hierarchy`).
+> `warehouseXL_full.hierarchy` was deleted to free disk space after
+> warehouseXL left the sweep; a run with `--hierarchyCache` rebuilds it. Each is verified structurally identical to a fresh
 > build with the current code. The older `orz900d.hierarchy`,
 > `*_level9.hierarchy` and `scene_mp_4p_03_level6.hierarchy` stopped early and
-> were deleted on 2026-09-29. The tracked `orz900d.hier` is a copy of the
-> deleted `orz900d.hierarchy`: it still loads, because validity only checks
-> format, dimensions and map hash, not depth, but don't use it. See
+> were deleted on 2026-09-29. The tracked `orz900d.hier` (a copy of the
+> deleted `orz900d.hierarchy`) was removed from git on 2026-10-12. See
 > `instances/thesis_benchmarks/README.md` for the table, verification and
 > timings.
 
