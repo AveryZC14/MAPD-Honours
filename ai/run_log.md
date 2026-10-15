@@ -803,4 +803,7 @@ progresses -- this is not append-only.
   - **Memory:** `E2_scene_sp_pol_06_80000_s6L6_refine-L4` peaked at 30.4 GB
     of 31.3 GB and took 2.12 h with 2,898 decisions (others about 1.1 h,
     about 4,000). Runs 167-169 are the same instance, so watch memory.
+    Diagnosed as thrashing (2.7M major page faults, 47% CPU; also E1
+    scene_sp 80k lift L4): see the known issue and proposed fix in
+    `ai/todo.md`.
 

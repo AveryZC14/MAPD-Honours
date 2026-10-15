@@ -22,9 +22,60 @@ the date and what changed) rather than deleting them outright.
   solver 1, scheduler time per decision, and the trace measures. Check
   first: `E2_scene_mp_4p_03_80000_s6L6_refine-L4` logged 1 planner error;
   scene_sp_pol_06 80k level 6 peaked at 30.4 of 31.3 GB and ran slow
-  (2,898 decisions), and runs 167-169 are the same instance
-  (`ai/run_log.md`, 2026-10-11 to 2026-10-15).
+  (2,898 decisions), and runs 167-169 are the same instance. **Blocked on
+  the memory known issue below; do its fix before deleting `STOP`.**
   History of how the sweep got here: "Done", 2026-10-15.
+
+- [ ] **Known issue: scene_sp_pol_06 80k runs out of memory and thrashes
+  (blocks the last 3 E2 runs).** Found 2026-10-15. Machine: 31.3 GB RAM,
+  **no swap**, 5.1 GB disk free.
+
+  *Evidence* (`/usr/bin/time` in each run's `.time` file; checked all 167
+  runs): healthy runs have about 0 major page faults and about 100% CPU.
+  Two runs don't:
+
+  | Run | Peak RSS | Major faults | CPU | Decisions |
+  |---|---|---|---|---|
+  | `E2_scene_sp_pol_06_80000_s6L6_refine-L4` | 30.4 GB | 2,707,938 | 47% | 2,898 / 4,000 |
+  | `E1_scene_sp_pol_06_80000_s6L6_lift-L4` | 28.9 GB | 224,076 | 79% | 1,246 / 1,500 |
+
+  With no swap, the kernel frees memory by dropping the program's own code
+  pages and re-reading them from disk, so the process spends over half its
+  time waiting on I/O. Late decisions become timesteps where every agent
+  waits, so the run still reaches its full step count but makes fewer
+  decisions: its throughput measures memory pressure, not the algorithm.
+  It also locks out VS Code SSH while it runs. Memory grows with run length
+  (level 6 refine: 26.6 GB at 1,500 steps in E1, 30.4 GB at 4,000 in E2);
+  what grows is not yet known.
+
+  *Affected:* E2 scene_sp 80k level 6 (throughput understated); E1 scene_sp
+  80k lift L4 (understated; doesn't change E1's planner choice: refine 4,789
+  vs lift 4,517 vs corridor 4,334 finished). Not affected: every other run,
+  including E2 scene_sp 80k levels 2 and 4. Still to run: runs 167-169
+  (scene_sp 80k: level 8, hierarchical-only, Greedy), likely to hit the
+  same limit. They would still reach 4,000 steps (about 2-3 h each rather
+  than 1.1 h), unless RSS passes 31.3 GB and the OOM killer ends the run
+  (the runner then logs a failure; the 6 h per-run cap stops hangs).
+
+  *Proposed fix (no code change, so results stay comparable):*
+  1. Add a 4 GB swap file (the most the free disk allows), so cold memory
+     goes to swap instead of code pages being evicted:
+     `sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo
+     mkswap /swapfile && sudo swapon /swapfile` (remove afterwards with
+     `sudo swapoff /swapfile && sudo rm /swapfile`).
+  2. Close the VS Code SSH session while these runs go (about 1 GB).
+  3. Optional: also rerun E2 scene_sp 80k level 6 under the same setup
+     (move its files to `outputs/thesis_sweep/superseded/` first so the
+     sweep reruns it), so all four 80k runs share one setup.
+  4. `rm outputs/thesis_sweep/STOP` (the watchdog starts within 10 min).
+  5. Afterwards, check each new `.time` file's major faults and CPU. Report
+     any run with heavy faults as memory-bound in the thesis (a footnote
+     beside its numbers) rather than dropping it; the user prefers complete
+     data with a note over missing runs.
+
+  Fallbacks if swap isn't enough: run those 4 on a machine with more RAM
+  of the same CPU type (with anchor runs, see the README's "Adding runs
+  later"), or find what grows over the run and reduce it (a code change).
 
 - [ ] **[HIGH] Solver 6's per-timestep coarse-flow solve re-solves the entire
   backbone graph every call, regardless of how few agents/tasks actually need
