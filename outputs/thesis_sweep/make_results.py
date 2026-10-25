@@ -28,6 +28,15 @@ SLICE = ["lift-L3", "lift-L4", "lift-L6", "corridor-L3", "corridor-L4", "corrido
 MIN_GUIDE_MS = 150
 SCHEDS = [("s6L2", "level 2"), ("s6L4", "level 4"), ("s6L6", "level 6"), ("s6L8", "level 8"),
           ("s6hier", "hierarchical-only")]
+# E2_PLANNER holds "<source> <level>", e.g. "refine 4"; run names spell it "refine-L4"
+_e2p = (D / "E2_PLANNER").read_text().split() if (D / "E2_PLANNER").exists() else ["refine", "4"]
+E2_PLANNER = f"{_e2p[0]}-L{_e2p[1]}"
+E2_TEAMS = {"orz900d": [10000, 20000]}
+E2_DEFAULT_TEAMS = [10000, 20000, 40000, 80000]
+# main E2 comparison; hierarchical-only and solver 7 get their own short tables
+E2_SCHEDS = [("s6L2", "L2"), ("s6L4", "L4"), ("s6L6", "L6"), ("s6L8", "L8"), ("s5", "Greedy"), ("s1", "solver 1")]
+# left out on purpose: scene_sp 80k exceeds the 31 GB machine (s6L6 thrashed; see ai/todo.md)
+E2_EXCLUDED = {"scene_sp_pol_06_80000_s6L8", "scene_sp_pol_06_80000_s6hier", "scene_sp_pol_06_80000_s5"}
 
 
 def k(n):
@@ -55,7 +64,7 @@ def task_metrics(stem, cols):
         return None
     reveal, first_assign, last_assign, pickup_loc = {}, {}, {}, {}
     to_pickup, dist, per_cell, lead, wait = [], [], [], [], []
-    assigns = unassigns = 0
+    assigns = unassigns = pickups = 0
     for r in csv.DictReader(gzip.open(f, "rt")):
         t, ev, task = int(r["timestep"]), r["event"], r["task"]
         if ev == "reveal":
@@ -69,6 +78,7 @@ def task_metrics(stem, cols):
         elif ev == "unassign":
             unassigns += 1
         elif ev == "pickup":
+            pickups += 1
             if task in last_assign and task in pickup_loc:
                 t0, loc = last_assign[task]
                 p = pickup_loc[task]
@@ -86,7 +96,7 @@ def task_metrics(stem, cols):
     med = lambda xs: statistics.median(xs) if xs else None
     mean = lambda xs: sum(xs) / len(xs) if xs else None
     return {"wait": mean(wait), "dist": mean(dist), "to_pickup": mean(to_pickup),
-            "per_cell": med(per_cell), "lead": mean(lead), "lead_n": len(lead),
+            "per_cell": med(per_cell), "lead": mean(lead), "lead_n": len(lead), "pickups": pickups,
             "reassign_pct": 100 * unassigns / assigns if assigns else None}
 
 
@@ -301,7 +311,113 @@ def main():
     # ---- E2
     e2 = [s for s in rows if s.startswith("E2_")]
     w("## E2: scheduler (4,000 steps)\n")
-    w(f"{len(e2)} of 94 runs finished." + ("" if e2 else " Not started: waits for `E2_PLANNER`.") + "\n")
+    w(f"{len(e2)} of 94 runs finished. Planner {E2_PLANNER} throughout. Columns: solver 6 at flow level 2/4/6/8, "
+      "Greedy (solver 5) and solver 1 (Zhang et al. flow on the full map, 10k and 20k only). "
+      "**Left out**: scene_sp 80k level 8, hierarchical-only and Greedy, which go over the 31 GB machine's "
+      "memory (scene_sp 80k level 6 already peaked at 30.4 GB and thrashed, so it made only 2,898 decisions "
+      "in 2.1 h; treat that cell as degraded). Noise band: 0.5% (repeats).\n")
+
+    def e2stem(m, t, sc):
+        return f"E2_{m}_{t}_{sc}_{E2_PLANNER}"
+
+    def e2cells(fn):
+        for m in MAPS:
+            for t in E2_TEAMS.get(m, E2_DEFAULT_TEAMS):
+                yield m, t, [fn(m, t, sc) for sc, _ in E2_SCHEDS]
+
+    def e2head(extra=""):
+        w("| Instance | " + " | ".join(l for _, l in E2_SCHEDS) + (f" | {extra}" if extra else "") + " |")
+        w("|---|" + "---:|" * len(E2_SCHEDS) + ("---|" if extra else ""))
+
+    def fin(m, t, sc):
+        r = rows.get(e2stem(m, t, sc))
+        return int(r["tasksFinished"]) if r else None
+
+    w("### Deliveries\n")
+    w("Decisions in brackets when fewer than 4,000 (some decision ran over 1 s).\n")
+    e2head("Best")
+    for m, t, _ in e2cells(lambda *a: None):
+        cells, vals = [], {}
+        for sc, label in E2_SCHEDS:
+            stem = e2stem(m, t, sc)
+            r = rows.get(stem)
+            if not r:
+                cells.append("excl." if f"{m}_{t}_{sc}" in E2_EXCLUDED else "-")
+                continue
+            v = int(r["tasksFinished"])
+            vals[label] = v
+            d, st = int(r["decisions"]), int(r["steps"])
+            cells.append(num(v) + ("" if d == st else f" (**{d:,}**)"))
+        best = max(vals, key=vals.get) if vals else "-"
+        w(f"| {SHORT[m]} {k(t)} | " + " | ".join(cells) + f" | {best} |")
+    w("")
+
+    w("### Deliveries relative to level 6\n")
+    e2head()
+    for m, t, v in e2cells(fin):
+        base = fin(m, t, "s6L6")
+        w(f"| {SHORT[m]} {k(t)} | " + " | ".join(
+            "-" if x is None or not base else ("0" if sc == "s6L6" else f"{100 * (x / base - 1):+.1f}%")
+            for x, (sc, _) in zip(v, E2_SCHEDS)) + " |")
+    w("")
+
+    w("### Scheduler ms per decision: mean (max)\n")
+    e2head()
+    for m, t, v in e2cells(lambda m, t, sc: e2stem(m, t, sc)):
+        w(f"| {SHORT[m]} {k(t)} | " + " | ".join(
+            f"{num(get(x, 'sched_ms_mean'))} ({num(get(x, 'sched_ms_max'))})" if x in rows else "-"
+            for x in v) + " |")
+    w("\nThe max is usually the first decision, which assigns every agent at once.\n")
+
+    w("### Pickups reached\n")
+    w("Tasks picked up (from the task trace). On the scene maps delivery legs are long, so pickups show "
+      "progress that deliveries don't yet.\n")
+    e2head()
+    for m, t, v in e2cells(lambda m, t, sc: tm(e2stem(m, t, sc), m)):
+        w(f"| {SHORT[m]} {k(t)} | " + " | ".join(num(x["pickups"]) if x else "-" for x in v) + " |")
+    w("")
+
+    w("### Assignment and travel (task trace)\n")
+    w("| Run | Deliveries | Wait for assignment | Distance to pickup | Steps to pickup | Steps per cell | "
+      "Lead time (n) | Reassigned |")
+    w("|---|---:|---:|---:|---:|---:|---:|---:|")
+    for m in MAPS:
+        for t in E2_TEAMS.get(m, E2_DEFAULT_TEAMS):
+            for sc, label in E2_SCHEDS:
+                stem = e2stem(m, t, sc)
+                x = tm(stem, m)
+                if not x:
+                    continue
+                w(f"| {SHORT[m]} {k(t)} {label} | {num(rows[stem]['tasksFinished'])} | {num(x['wait'], 1)} | "
+                  f"{num(x['dist'])} | {num(x['to_pickup'])} | {num(x['per_cell'], 2)} | "
+                  f"{num(x['lead'])} ({num(x['lead_n'])}) | {num(x['reassign_pct'], 1)}% |")
+    w("\nSame measures as the E1 task-trace table.\n")
+
+    w("### Hierarchical-only against level 8 (brief)\n")
+    w("| Instance | L8 deliveries | hier-only deliveries | diff | L8 sched ms | hier-only sched ms |")
+    w("|---|---:|---:|---:|---:|---:|")
+    for m in MAPS:
+        for t in E2_TEAMS.get(m, E2_DEFAULT_TEAMS):
+            a, b = e2stem(m, t, "s6L8"), e2stem(m, t, "s6hier")
+            if a not in rows or b not in rows:
+                continue
+            fa, fb = int(rows[a]["tasksFinished"]), int(rows[b]["tasksFinished"])
+            w(f"| {SHORT[m]} {k(t)} | {num(fa)} | {num(fb)} | {100 * (fb / fa - 1):+.1f}% | "
+              f"{num(get(a, 'sched_ms_mean'))} | {num(get(b, 'sched_ms_mean'))} |")
+    w("")
+
+    w("### Solver 7 against solver 6 level 6\n")
+    w("| Instance | s6 L6 deliveries | s7 L6 deliveries | diff | s6 sched ms | s7 sched ms |")
+    w("|---|---:|---:|---:|---:|---:|")
+    for m in MAPS:
+        for t in E2_TEAMS.get(m, E2_DEFAULT_TEAMS):
+            a, b = e2stem(m, t, "s6L6"), e2stem(m, t, "s7L6")
+            if a not in rows or b not in rows:
+                continue
+            fa, fb = int(rows[a]["tasksFinished"]), int(rows[b]["tasksFinished"])
+            w(f"| {SHORT[m]} {k(t)} | {num(fa)} | {num(fb)} | {100 * (fb / fa - 1):+.1f}% | "
+              f"{num(get(a, 'sched_ms_mean'))} | {num(get(b, 'sched_ms_mean'))} |")
+    w("")
 
     (D / "RESULTS.md").write_text("\n".join(out) + "\n")
     print("wrote", D / "RESULTS.md", file=sys.stderr)
